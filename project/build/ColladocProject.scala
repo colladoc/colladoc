@@ -13,5 +13,5 @@ class ColladocProject(info: ProjectInfo) extends DefaultWebProject(info) with Id
   //val smackRepo = "m2-repository-smack" at "http://maven.reucon.com/public"
   //val nexusRepo = "nexus" at "https://nexus.griddynamics.net/nexus/content/groups/public"
 
-  override def localScala = defineScala("2.8.0-local", ("scala" / "build" / "pack").asFile) :: Nil
+  override def localScala = defineScala("2.8.0-local", ("lib" / "scala" / "build" / "pack").asFile) :: Nil
 }
