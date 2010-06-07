@@ -51,7 +51,7 @@ h1 {
 
 #textfilter:before {
     display: block;
-    content: url("filter_box_left.png");
+    content: url("images/filter_box_left.png");
 }
 
 #textfilter:after {
@@ -59,7 +59,7 @@ h1 {
 	position: absolute;
 	top: 0;
 	right: 0;
-    content: url("filter_box_right.png");
+    content: url("images/filter_box_right.png");
 }
 
 #textfilter input {

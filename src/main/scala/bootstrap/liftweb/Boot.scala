@@ -10,6 +10,7 @@ import Helpers._
 import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.scala.tools.colladoc.model._
+import tools.colladoc.lib.TemplateStuff
 
 
 /**
@@ -36,10 +37,8 @@ class Boot {
 
     // Build SiteMap
     def sitemap() = SiteMap(
-      Menu("Home") / "index" :: // Simple menu form
-      // Menu with special Link
-      Menu(Loc("Static", Link(List("static"), true, "/static/index"), 
-	       "Static Content")) ::
+      Menu("Home") / "index" ::
+      Menu(TemplateStuff) ::
       // Menu entries for the User management stuff
       User.sitemap :_*)
 
@@ -48,20 +47,22 @@ class Boot {
     /*
      * Show the spinny image when an Ajax call starts
      */
-    LiftRules.ajaxStart =
-      Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
+//    LiftRules.ajaxStart =
+//      Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
 
     /*
      * Make the spinny image go away when it ends
      */
-    LiftRules.ajaxEnd =
-      Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
+//    LiftRules.ajaxEnd =
+//      Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
 
     LiftRules.early.append(makeUtf8)
 
 //    LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
 //    S.addAround(DB.buildLoanWrapper)
+
+    List(Model)
   }
 
   /**

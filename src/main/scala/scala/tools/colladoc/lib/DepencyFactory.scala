@@ -16,6 +16,7 @@ import _root_.java.util.Date
  */
 object DependencyFactory extends Factory {
   implicit object time extends FactoryMaker(Helpers.now _)
+  /*implicit object model extends FactoryMaker()*/
 
   /**
    * objects in Scala are lazily created.  The init()

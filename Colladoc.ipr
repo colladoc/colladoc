@@ -50,10 +50,14 @@
   <component name="ProjectDetails">
     <option value="Colladoc" name="projectName" />
   </component>
+  <component name="ProjectDictionaryState">
+    <dictionary name="hosekp" />
+  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$//Colladoc.iml" filepath="$PROJECT_DIR$//Colladoc.iml" />
       <module fileurl="file://$PROJECT_DIR$/project/sbt_project_definition.iml" filepath="$PROJECT_DIR$/project/sbt_project_definition.iml" />
+      <module fileurl="file://$PROJECT_DIR$/scala_local/scala_local.iml" filepath="$PROJECT_DIR$/scala_local/scala_local.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK">
@@ -69,8 +73,8 @@
   <component name="libraryTable">
     <library name="buildScala">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/lib/scala/build/pack/lib/scala-compiler.jar!/" />
-        <root url="jar://$PROJECT_DIR$/lib/scala/build/pack/lib/scala-library.jar!/" />
+        <root url="jar://$PROJECT_DIR$/scala_local/build/pack/lib/scala-library.jar!/" />
+        <root url="jar://$PROJECT_DIR$/scala_local/build/pack/lib/scala-compiler.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

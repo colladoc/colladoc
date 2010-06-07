@@ -7,12 +7,14 @@ import _root_.net.liftweb.common._
 import _root_.java.util.Date
 import scala.tools.colladoc.lib._
 import Helpers._
+import model.Model
+import tools.nsc.doc.html.page.Index
 
 class HelloWorld {
   lazy val date: Box[Date] = DependencyFactory.inject[Date] // inject the date
 
   def howdy(in: NodeSeq): NodeSeq =
-  Helpers.bind("b", in, "time" -> date.map(d => Text(d.toString)))
+    Helpers.bind("b", in, "time" -> date.map(d => Text(d.toString)))
 
   /*
    lazy val date: Date = DependencyFactory.time.vend // create the date via factory
