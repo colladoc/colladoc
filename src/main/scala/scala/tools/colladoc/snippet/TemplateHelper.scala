@@ -30,9 +30,12 @@ import tools.nsc.doc.model.{Package, DocTemplateEntity}
 import tools.nsc.io.File
 import reflect.NameTransformer
 import java.io.{ File => JFile }
-import tools.colladoc.lib.DependencyFactory
+import tools.colladoc.lib.{LiftPaths, DependencyFactory}
 
 class TemplateHelper {
+
+  //lazy val date: Box[Date] = DependencyFactory.inject[Date] // inject the date
+  //lazy val date: Date = DependencyFactory.time.vend // create the date via factory
 
   def body(xhtml: NodeSeq): NodeSeq = {
     def findTemplate(tpl: DocTemplateEntity, arr: Array[String]): DocTemplateEntity =
@@ -42,15 +45,8 @@ class TemplateHelper {
         tpl
 
     val path = S.param("path") openOr "" split('/')
-    val template = new Template(pathToTemplate(Model.model.rootPackage, path.toList)) {
-      override def resourceToPath(resName: String): List[String] = {
-        new File(new JFile(resName)).extension match {
-          case "png" => resName :: "images" :: Nil
-          case "js" => resName :: "scripts" :: Nil
-          case "css" => resName :: Nil
-        }
-      }
-    }
+    val entity = pathToTemplate(Model.model.rootPackage, path.toList)
+    val template = new Template(entity) with LiftPaths
 
     template.body
   }

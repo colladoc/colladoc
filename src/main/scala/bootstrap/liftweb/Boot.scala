@@ -10,8 +10,8 @@ import Helpers._
 import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.scala.tools.colladoc.model._
-import tools.colladoc.lib.TemplateStuff
-
+import tools.colladoc.lib.{IndexStuff, TemplateStuff}
+import tools.colladoc.view.IndexView
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -19,48 +19,34 @@ import tools.colladoc.lib.TemplateStuff
  */
 class Boot {
   def boot {
-//    if (!DB.jndiJdbcConnAvailable_?) {
-//      val vendor =
-//	new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
-//			     Props.get("db.url") openOr
-//			     "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
-//			     Props.get("db.user"), Props.get("db.password"))
-//
-//      LiftRules.unloadHooks.append(vendor.closeAllConnections_! _)
-//
-//      DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
-//    }
-
     // where to search snippet
     LiftRules.addToPackages("scala.tools.colladoc")
-//    Schemifier.schemify(true, Schemifier.infoF _, User)
 
     // Build SiteMap
     def sitemap() = SiteMap(
-      Menu("Home") / "index" ::
-      Menu(TemplateStuff) ::
-      // Menu entries for the User management stuff
-      User.sitemap :_*)
+      Menu(IndexStuff),
+      Menu(TemplateStuff)
+      )
 
     LiftRules.setSiteMapFunc(sitemap)
 
-    /*
-     * Show the spinny image when an Ajax call starts
-     */
-//    LiftRules.ajaxStart =
-//      Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
+    // Show the spinny image when an Ajax call starts
+    LiftRules.ajaxStart =
+      Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
 
-    /*
-     * Make the spinny image go away when it ends
-     */
-//    LiftRules.ajaxEnd =
-//      Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
+    // Make the spinny image go away when it ends
+    LiftRules.ajaxEnd =
+      Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
 
     LiftRules.early.append(makeUtf8)
 
-//    LiftRules.loggedInTest = Full(() => User.loggedIn_?)
-
-//    S.addAround(DB.buildLoanWrapper)
+    // Set the doctype to XHTML 1.1
+    LiftRules.docType.default.set { (req: Req) =>
+      req match {
+        case _ if S.getDocType._1 => S.getDocType._2
+        case _ => Full(DocType.xhtml11)
+      }
+    }
 
     List(Model)
   }

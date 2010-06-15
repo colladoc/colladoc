@@ -20,19 +20,20 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc.snippet
+package scala.tools.colladoc.lib
 
-import tools.nsc.doc.html.page.Index
-import tools.colladoc.model.Model
-import xml.NodeSeq
+import tools.nsc.doc.html.Paths
 import tools.nsc.io.File
 import java.io.{ File => JFile }
-import tools.colladoc.lib.LiftPaths
 
-class IndexHelper {
+trait LiftPaths extends Paths {
 
-  val index = new Index(Model.model) with LiftPaths
-
-  def body(xhtml: NodeSeq): NodeSeq = index.body
+  abstract override def resourceToPath(resName: String): List[String] = {
+    new File(new JFile(resName)).extension match {
+      case "png" => resName :: "images" :: Nil
+      case "js" => resName :: "scripts" :: Nil
+      case "css" => resName :: Nil
+    }
+  }
 
 }

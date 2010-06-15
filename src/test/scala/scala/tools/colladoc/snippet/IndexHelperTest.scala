@@ -22,17 +22,35 @@
  */
 package scala.tools.colladoc.snippet
 
-import tools.nsc.doc.html.page.Index
-import tools.colladoc.model.Model
-import xml.NodeSeq
-import tools.nsc.io.File
-import java.io.{ File => JFile }
-import tools.colladoc.lib.LiftPaths
+import org.specs.runner.{JUnit3, ConsoleRunner}
+import org.specs.Specification
+import tools.colladoc.lib.DependencyFactory
+import net.liftweb.http.{S, LiftSession}
+import org.specs.specification.Examples
+import net.liftweb.common.Empty
 
-class IndexHelper {
+class IndexHelperTestSpecsAsTest extends JUnit3(IndexHelperTestSpecs)
+object IndexHelperTestSpecsRunner extends ConsoleRunner(IndexHelperTestSpecs)
 
-  val index = new Index(Model.model) with LiftPaths
+class IndexHelperTestSpecs extends Specification {
+  val session = new LiftSession("", randomString(20), Empty)
+  val stableTime = now
 
-  def body(xhtml: NodeSeq): NodeSeq = index.body
+  override def executeExpectations(ex: Examples, t: =>Any): Any = {
+    S.initIfUninitted(session) {
+      DependencyFactory.time.doWith(stableTime) {
+        super.executeExpectations(ex, t)
+      }
+    }
+  }
 
+  "IndexHelper Snippet" should {
+    "Put the filter in the node" in {
+      val index = new IndexHelper
+
+      val str = index.body(<html></html>).toString
+
+      str.indexOf((<div id="filter"></div>).toString) must be >= 0
+    }
+  }
 }
