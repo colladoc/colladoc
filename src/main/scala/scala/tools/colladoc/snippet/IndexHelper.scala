@@ -24,15 +24,24 @@ package scala.tools.colladoc.snippet
 
 import tools.nsc.doc.html.page.Index
 import tools.colladoc.model.Model
-import xml.NodeSeq
 import tools.nsc.io.File
 import java.io.{ File => JFile }
 import tools.colladoc.lib.LiftPaths
+import xml.{Text, NodeSeq}
 
 class IndexHelper {
-
   val index = new Index(Model.model) with LiftPaths
 
-  def body(xhtml: NodeSeq): NodeSeq = index.body
+  /**
+   *  Return index title.
+   */
+  def tite(xhtml: NodeSeq): NodeSeq =
+    Text(index.title)
+
+  /**
+   * Return template body.
+   */
+  def body(xhtml: NodeSeq): NodeSeq =
+    index.body
 
 }

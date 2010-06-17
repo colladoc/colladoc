@@ -22,34 +22,38 @@
  */
 package scala.tools.colladoc.snippet
 
-import xml.NodeSeq
-import net.liftweb.http.S
 import tools.colladoc.model.Model
 import tools.nsc.doc.html.page.Template
-import tools.nsc.doc.model.{Package, DocTemplateEntity}
 import tools.nsc.io.File
 import reflect.NameTransformer
 import java.io.{ File => JFile }
 import tools.colladoc.lib.{LiftPaths, DependencyFactory}
+import tools.nsc.doc.model.{MemberEntity, NonTemplateMemberEntity, Package, DocTemplateEntity}
+import net.liftweb.http.{SHtml, S}
+import net.liftweb.http.jquery.JqSHtml
+import xml.{Text, NodeSeq}
 
 class TemplateHelper {
+  val template = {
+    val path = S.param("path") openOr "" split('/')
+    val entity = pathToTemplate(Model.model.rootPackage, path.toList)
+    new EditTemplate(entity) with LiftPaths
+  }
 
   //lazy val date: Box[Date] = DependencyFactory.inject[Date] // inject the date
   //lazy val date: Date = DependencyFactory.time.vend // create the date via factory
 
-  def body(xhtml: NodeSeq): NodeSeq = {
-    def findTemplate(tpl: DocTemplateEntity, arr: Array[String]): DocTemplateEntity =
-      if (!(arr isEmpty))
-        findTemplate(tpl.templates.find{ _.name == arr.head }.get, arr.tail)
-      else
-        tpl
+  /**
+   *  Return template title.
+   */
+  def title(xhtml: NodeSeq): NodeSeq =
+    Text(template.title)
 
-    val path = S.param("path") openOr "" split('/')
-    val entity = pathToTemplate(Model.model.rootPackage, path.toList)
-    val template = new Template(entity) with LiftPaths
-
+  /**
+   * Return template body.
+   */
+  def body(xhtml: NodeSeq): NodeSeq =
     template.body
-  }
 
   private def pathToTemplate(rootPack: Package, path: List[String]): DocTemplateEntity = {
     def doName(tpl: DocTemplateEntity): String =

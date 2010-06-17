@@ -24,19 +24,21 @@ package scala.tools.colladoc.model
 
 import tools.nsc.Global
 import tools.nsc.doc.{SourcelessComments, Universe, Settings}
-import tools.nsc.doc.model.comment.CommentFactory
 import tools.nsc.doc.model.ModelFactory
 import tools.nsc.reporters.{ConsoleReporter, Reporter}
 import net.liftweb.common.Logger
 import tools.colladoc.lib.ColladocSettings
 import java.io.File
+import tools.nsc.doc.model.comment.{Comment, CommentFactory}
+import tools.nsc.util.NoPosition
 
 object Model {
 
   val settings = new Settings(error) { classpath.value = ColladocSettings.getClassPath }
   val reporter = new ConsoleReporter(settings)
 
-  lazy val model = (new DocFactory(reporter, settings)) construct (ColladocSettings.getSources)
+  val factory = new DocFactory(reporter, settings)
+  lazy val model = factory construct (ColladocSettings.getSources)
 
   private def init() {
     List(model)
@@ -62,11 +64,14 @@ object Model {
       }
     }
 
+    val modelFactory = new ModelFactory(compiler, settings) with CommentFactory {
+      def parse(comment: String): Comment = parse(comment, NoPosition)
+    }
+
     def construct(files: List[String]) = {
       (new compiler.Run()) compile files
       compiler.addSourceless
 
-      val modelFactory = (new ModelFactory(compiler, settings) with CommentFactory)
       modelFactory.makeModel
     }
   }
