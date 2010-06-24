@@ -51,7 +51,11 @@
     <option value="Colladoc" name="projectName" />
   </component>
   <component name="ProjectDictionaryState">
-    <dictionary name="hosekp" />
+    <dictionary name="hosekp">
+      <words>
+        <w>updatable</w>
+      </words>
+    </dictionary>
   </component>
   <component name="ProjectModuleManager">
     <modules>

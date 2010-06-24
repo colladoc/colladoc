@@ -80,11 +80,6 @@ a:hover {
   background-color: #385E1A;
 }
 
-#comment {
-  padding-right: 8px;
-  padding-left: 8px;
-}
-
 #values > h3 {
   color: white;
   padding: 4px;
@@ -305,6 +300,8 @@ p.shortcomment {
 div.fullcomment {
   display: block;
   margin: 10px 0 10px 0;
+  padding-right: 8px;
+  padding-left: 8px;
 }
 
 #template div.fullcomment {

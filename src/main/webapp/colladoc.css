@@ -1,31 +1,39 @@
-a.edit {
-    background-color: white;
-    color: #4C4C4C;
+div > a.edit {
+    color: #000000;
     display: inline-block;
     float: right;
-    padding: 4px 8px 4px 8px;
+    font-weight: bold;
     text-decoration: none;
 }
 
-form.edit textarea {
+div > a.edit:focus {
+    text-decoration: underline;
+}
+
+form.edit > div.editor {
+    width: auto;
+}
+
+form.edit > div.editor > textarea {
     border: 2px solid gray;
     font-size: 10pt;
     font-weight: normal;
     height: 100px;
     overflow: visible;
     padding: 4px 8px 4px 8px;
-    width: 100%;
+    width: 98%;
 }
 
 form.edit div.buttons {
-    clear: both;
-    padding: 4px 8px 4px 8px;
+    padding: 4px 8px;
 }
 
-form.edit a {
-    background-color: white;
-    color: #4C4C4C;
-    display: inline-block;
-    padding: 4px 8px 4px 8px;
+form.edit div.buttons > a {
+    color: #000000;
+    font-weight: bold;
     text-decoration: none;
+}
+
+form.edit div.buttons > a:focus {
+    text-decoration: underline;
 }

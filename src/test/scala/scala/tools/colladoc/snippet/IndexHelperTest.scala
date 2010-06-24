@@ -44,9 +44,9 @@ class IndexHelperTestSpecs extends Specification {
     }
   }
 
-  "IndexHelper Snippet" should {
+  "IndexOps Snippet" should {
     "Put the filter in the node" in {
-      val index = new IndexHelper
+      val index = new IndexOps
 
       val str = index.body(<html></html>).toString
 

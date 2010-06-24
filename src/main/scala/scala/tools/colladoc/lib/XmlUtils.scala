@@ -20,28 +20,24 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc.snippet
+package scala.tools.colladoc.lib
 
-import tools.nsc.doc.html.page.Index
-import tools.colladoc.model.Model
-import tools.nsc.io.File
-import java.io.{ File => JFile }
-import tools.colladoc.lib.LiftPaths
-import xml.{Text, NodeSeq}
+import xml.{Node, UnprefixedAttribute, Elem, Null}
 
-class IndexHelper {
-  val index = new Index(Model.model) with LiftPaths
+object XmlUtils {
 
-  /**
-   *  Return index title.
-   */
-  def tite(xhtml: NodeSeq): NodeSeq =
-    Text(index.title)
+  implicit def addAttribute(elem: Elem) = new {
+    def %(attrs: Map[String, String]) = {
+      val seq = for((n, v) <- attrs) yield new UnprefixedAttribute(n, v, Null)
+      (elem /: seq) { _ % _ }
+    }
+  }
 
-  /**
-   * Return template body.
-   */
-  def body(xhtml: NodeSeq): NodeSeq =
-    index.body
+  implicit def addNode(elem: Elem) = new {
+    def %(newChild: Node) = elem match {
+      case Elem(prefix, labels, attrs, scope, child @ _*) =>
+        Elem(prefix, labels, attrs, scope, child ++ newChild : _*)
+    }
+  }
 
 }

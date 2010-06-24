@@ -11,7 +11,6 @@ import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConn
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.scala.tools.colladoc.model._
 import tools.colladoc.lib.{IndexStuff, TemplateStuff}
-import tools.colladoc.view.IndexView
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -48,7 +47,7 @@ class Boot {
       }
     }
 
-    List(Model)
+    Model.init()
   }
 
   /**

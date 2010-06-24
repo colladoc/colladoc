@@ -1,4 +1,5 @@
 # Properties in this file will be read when running in dev mode
 site.title=Sample Colladoc
+site.version=1.0
 source.path=
 class.path=

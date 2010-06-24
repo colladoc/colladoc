@@ -22,58 +22,52 @@
  */
 package scala.tools.colladoc.model
 
+import comment.CommentUpdater
 import tools.nsc.Global
 import tools.nsc.doc.{SourcelessComments, Universe, Settings}
-import tools.nsc.doc.model.ModelFactory
 import tools.nsc.reporters.{ConsoleReporter, Reporter}
 import net.liftweb.common.Logger
-import tools.colladoc.lib.ColladocSettings
 import java.io.File
-import tools.nsc.doc.model.comment.{Comment, CommentFactory}
 import tools.nsc.util.NoPosition
+import tools.nsc.doc.model.{MemberEntity, TemplateEntity, DocTemplateEntity, ModelFactory}
+import tools.nsc.doc.model.comment.{Comment, CommentFactory}
+import tools.colladoc.lib.ColladocSettings
 
 object Model {
-
   val settings = new Settings(error) { classpath.value = ColladocSettings.getClassPath }
   val reporter = new ConsoleReporter(settings)
 
-  val factory = new DocFactory(reporter, settings)
-  lazy val model = factory construct (ColladocSettings.getSources)
-
-  private def init() {
-    List(model)
+  /** The unique compiler instance used by this processor and constructed from its `settings`. */
+  object compiler extends Global(settings, reporter) {
+    override protected def computeInternalPhases() {
+      phasesSet += syntaxAnalyzer
+      phasesSet += analyzer.namerFactory
+      phasesSet += analyzer.packageObjects
+      phasesSet += analyzer.typerFactory
+      phasesSet += superAccessors
+      phasesSet += pickler
+      phasesSet += refchecks
+    }
+    override def onlyPresentation = true
+    lazy val addSourceless = {
+      val sourceless = new SourcelessComments { val global = compiler }
+      docComments ++= sourceless.comments
+    }
   }
-  init()
 
-  class DocFactory(val reporter: Reporter, val settings: Settings) {
-    /** The unique compiler instance used by this processor and constructed from its `settings`. */
-    object compiler extends Global(settings, reporter) {
-      override protected def computeInternalPhases() {
-        phasesSet += syntaxAnalyzer
-        phasesSet += analyzer.namerFactory
-        phasesSet += analyzer.packageObjects
-        phasesSet += analyzer.typerFactory
-        phasesSet += superAccessors
-        phasesSet += pickler
-        phasesSet += refchecks
-      }
-      override def onlyPresentation = true
-      lazy val addSourceless = {
-        val sourceless = new SourcelessComments { val global = compiler }
-        docComments ++= sourceless.comments
-      }
-    }
-
-    val modelFactory = new ModelFactory(compiler, settings) with CommentFactory {
-      def parse(comment: String): Comment = parse(comment, NoPosition)
-    }
-
+  object factory extends ModelFactory(compiler, settings) with CommentUpdater {
     def construct(files: List[String]) = {
       (new compiler.Run()) compile files
       compiler.addSourceless
 
-      modelFactory.makeModel
+      makeModel
     }
+  }
+
+  lazy val model = factory construct (ColladocSettings.getSources)
+
+  def init() {
+    List(model)
   }
 
   def error(msg: String): Unit = Logger("Model").error(msg)

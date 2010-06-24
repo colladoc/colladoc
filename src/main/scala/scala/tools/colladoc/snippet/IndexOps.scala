@@ -22,61 +22,26 @@
  */
 package scala.tools.colladoc.snippet
 
+import tools.nsc.doc.html.page.Index
 import tools.colladoc.model.Model
-import tools.nsc.doc.html.page.Template
 import tools.nsc.io.File
-import reflect.NameTransformer
 import java.io.{ File => JFile }
-import tools.colladoc.lib.{LiftPaths, DependencyFactory}
-import tools.nsc.doc.model.{MemberEntity, NonTemplateMemberEntity, Package, DocTemplateEntity}
-import net.liftweb.http.{SHtml, S}
-import net.liftweb.http.jquery.JqSHtml
+import tools.colladoc.lib.LiftPaths
 import xml.{Text, NodeSeq}
 
-class TemplateHelper {
-  val template = {
-    val path = S.param("path") openOr "" split('/')
-    val entity = pathToTemplate(Model.model.rootPackage, path.toList)
-    new EditTemplate(entity) with LiftPaths
-  }
-
-  //lazy val date: Box[Date] = DependencyFactory.inject[Date] // inject the date
-  //lazy val date: Date = DependencyFactory.time.vend // create the date via factory
+class IndexOps {
+  val index = new Index(Model.model) with LiftPaths
 
   /**
-   *  Return template title.
+   *  Return index title.
    */
   def title(xhtml: NodeSeq): NodeSeq =
-    Text(template.title)
+    Text(index.title)
 
   /**
    * Return template body.
    */
   def body(xhtml: NodeSeq): NodeSeq =
-    template.body
-
-  private def pathToTemplate(rootPack: Package, path: List[String]): DocTemplateEntity = {
-    def doName(tpl: DocTemplateEntity): String =
-      NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
-    def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
-      pack.packages.find{ _.name == path.head } match {
-        case Some(p) => downPacks(p, path.tail)
-        case None => (pack, path)
-      }
-    }
-    def downInner(tpl: DocTemplateEntity, path: List[String]): DocTemplateEntity = {
-      if (!(path isEmpty))
-        tpl.templates.find{ doName(_) == path.head } match {
-          case Some(t) => downInner(t, path.tail)
-          case None => tpl
-        }
-      else
-        tpl
-    }
-    downPacks(rootPack, path) match {
-      case (pack, "package" :: Nil) => pack
-      case (pack, path) => downInner(pack, path)
-    }
-  }
+    index.body
 
 }
