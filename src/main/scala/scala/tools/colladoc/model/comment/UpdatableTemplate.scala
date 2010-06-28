@@ -31,35 +31,51 @@ import tools.colladoc.lib.{LiftPaths, DependencyFactory}
 import tools.nsc.doc.model.{MemberEntity, NonTemplateMemberEntity, Package, DocTemplateEntity}
 import net.liftweb.http.{SHtml, S}
 import net.liftweb.http.jquery.JqSHtml
-import net.liftweb.http.js.jquery.JqJE.JqId
 import net.liftweb.http.js.JE.{Str, JsFunc, JsRaw}
-import net.liftweb.http.js.{JsCmds, JsCmd}
 import net.liftweb.http.js.JsCmds.{Run, Replace, SetHtml}
-import net.liftweb.http.js.jquery.JqJsCmds
 import tools.colladoc.lib.XmlUtils._
-import xml._
+import net.liftweb.http.js.jquery.JqJE._
+import xml.{Text, Elem, NodeSeq}
+import net.liftweb.http.js._
+import net.liftweb.http.js.jquery.JqJsCmds._
 
 class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
 
-  def id(mbr: MemberEntity, pos: String) =
+  private def id(mbr: MemberEntity, pos: String) =
     "%s_%s".format(mbr.qualifiedName.replaceAll("[\\.\\#]", "_"), pos)
 
   override def memberToShortCommentHtml(mbr: MemberEntity, isSelf: Boolean): NodeSeq =
     super.memberToShortCommentHtml(mbr, isSelf) theSeq match {
-      case Seq(elem: Elem, rest @ _*) => elem % Map("id" -> id(mbr, "shortcomment"))
+      case Seq(elem: Elem, rest @ _*) => elem
     }
 
   override def memberToCommentBodyHtml(mbr: MemberEntity, isSelf: Boolean) =
     <div id={ id(mbr, "comment") }>
-      { SHtml.a(doEdit(mbr, isSelf) _, Text("Edit"), ("class", "edit")) }
       { super.memberToCommentBodyHtml(mbr, isSelf) }
     </div>
 
-  def doEdit(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
+  override def signature(mbr: MemberEntity, isSelf: Boolean): NodeSeq = {
+    def getSignature(mbr: MemberEntity, isSelf: Boolean) =
+      super.signature(mbr, isSelf) theSeq match {
+        case Seq(elem: Elem, rest @ _*) =>
+          elem /+ SHtml.a(doEdit(mbr, isSelf) _, Text("Edit"), ("class", "edit"))
+      }
+    mbr match {
+      case dte: DocTemplateEntity if isSelf => getSignature(mbr, isSelf)
+      case dte: DocTemplateEntity if mbr.comment.isDefined => super.signature(mbr, isSelf)
+      case _ => getSignature(mbr, isSelf)
+    }
+  }
+
+  private def doEdit(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
+    def getSource(mbr: MemberEntity) = mbr.comment match {
+        case Some(c) => c.source.getOrElse("")
+        case None => ""
+      }
     Replace(id(mbr, "comment"),
       <form id={ id(mbr, "form") } class="edit" method="GET">
         <div class="editor">
-          { SHtml.textarea(mbr.comment.get.source.getOrElse(""), text => update(mbr, text)) }<br/>
+          { SHtml.textarea(getSource(mbr), text => update(mbr, text), ("id", id(mbr, "text"))) }
           <div class="buttons">
             { SHtml.a(() => SHtml.submitAjaxForm(id(mbr, "form"), () => save(mbr, isSelf)), Text("Save")) }
             { SHtml.a(() => cancel(mbr, isSelf), Text("Cancel")) }
@@ -68,17 +84,17 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
       </form>)
   }
 
-  def save(mbr: MemberEntity, isSelf: Boolean) =
+  private def save(mbr: MemberEntity, isSelf: Boolean) =
     Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) &
     (if (isSelf)
       JsCmds.Noop
     else
       SetHtml(id(mbr, "shortcomment"), inlineToHtml(mbr.comment.get.short)))
 
-  def cancel(mbr: MemberEntity, isSelf: Boolean) =
+  private def cancel(mbr: MemberEntity, isSelf: Boolean) =
     Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf))
 
-  def update(mbr: MemberEntity, text: String) =
+  private def update(mbr: MemberEntity, text: String) =
     Model.factory.update(mbr, text)
 
 }

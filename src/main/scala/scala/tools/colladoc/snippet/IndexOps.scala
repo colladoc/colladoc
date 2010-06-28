@@ -32,15 +32,11 @@ import xml.{Text, NodeSeq}
 class IndexOps {
   val index = new Index(Model.model) with LiftPaths
 
-  /**
-   *  Return index title.
-   */
+  /** Return index title. */
   def title(xhtml: NodeSeq): NodeSeq =
     Text(index.title)
 
-  /**
-   * Return template body.
-   */
+  /** Return index body. */
   def body(xhtml: NodeSeq): NodeSeq =
     index.body
 

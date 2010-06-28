@@ -20,7 +20,8 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc.snippet
+package scala.tools.colladoc
+package snippet
 
 import tools.colladoc.model.Model
 import tools.nsc.doc.html.page.Template

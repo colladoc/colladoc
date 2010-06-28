@@ -1,6 +1,6 @@
 $(document).ready(function() {
     $('a.edit').hide();
-    $('.fullcomment').hover(
+    $('.signature').hover(
             function() { $('a.edit', this).show() },
             function() { $('a.edit', this).hide() }
             );

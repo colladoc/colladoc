@@ -34,7 +34,7 @@ object XmlUtils {
   }
 
   implicit def addNode(elem: Elem) = new {
-    def %(newChild: Node) = elem match {
+    def /+(newChild: Node) = elem match {
       case Elem(prefix, labels, attrs, scope, child @ _*) =>
         Elem(prefix, labels, attrs, scope, child ++ newChild : _*)
     }

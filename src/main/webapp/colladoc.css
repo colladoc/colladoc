@@ -1,4 +1,4 @@
-div > a.edit {
+h4 > a.edit {
     color: #000000;
     display: inline-block;
     float: right;
@@ -15,7 +15,7 @@ form.edit > div.editor {
 }
 
 form.edit > div.editor > textarea {
-    border: 2px solid gray;
+    border: 1px solid gray;
     font-size: 10pt;
     font-weight: normal;
     height: 100px;
