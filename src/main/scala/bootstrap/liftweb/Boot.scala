@@ -42,18 +42,13 @@ class Boot {
     // where to search snippet
     LiftRules.addToPackages("scala.tools.colladoc")
 
-    LiftRules.statelessRewrite.append {
-      case RewriteRequest(ParsePath(path, "html", _, _), _, _) =>
-        RewriteResponse("template" :: Nil, Map("path" -> path.mkString("/")))
-    }
-
     // Build SiteMap
-//    def sitemap() = SiteMap(
-//      Menu(IndexStuff),
-//      Menu(TemplateStuff)
-//      )
+    def sitemap() = SiteMap(
+      Menu(IndexStuff),
+      Menu(TemplateStuff)
+      )
 
-//    LiftRules.setSiteMapFunc(sitemap)
+    LiftRules.setSiteMapFunc(sitemap)
 
     // Show the spinny image when an Ajax call starts
     LiftRules.ajaxStart =
