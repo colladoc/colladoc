@@ -38,6 +38,7 @@ import net.liftweb.http.js.jquery.JqJE._
 import xml.{Text, Elem, NodeSeq}
 import net.liftweb.http.js._
 import net.liftweb.http.js.jquery.JqJsCmds._
+import java.util.Date
 
 class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
 
@@ -58,13 +59,17 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
     def getSignature(mbr: MemberEntity, isSelf: Boolean) =
       super.signature(mbr, isSelf) theSeq match {
         case Seq(elem: Elem, rest @ _*) =>
-          elem /+ SHtml.a(doEdit(mbr, isSelf) _, Text("Edit"), ("class", "edit"))
+          elem /+ edit(mbr, isSelf)
       }
     mbr match {
       case dte: DocTemplateEntity if isSelf => getSignature(mbr, isSelf)
       case dte: DocTemplateEntity if mbr.comment.isDefined => super.signature(mbr, isSelf)
       case _ => getSignature(mbr, isSelf)
     }
+  }
+
+  private def edit(mbr: MemberEntity, isSelf: Boolean) = {
+    SHtml.a(doEdit(mbr, isSelf) _, Text("Edit"), ("class", "edit"))
   }
 
   private def doEdit(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
@@ -77,11 +82,11 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
         <div class="editor">
           { SHtml.textarea(getSource(mbr), text => update(mbr, text), ("id", id(mbr, "text"))) }
           <div class="buttons">
-            { SHtml.a(() => SHtml.submitAjaxForm(id(mbr, "form"), () => save(mbr, isSelf)), Text("Save")) }
-            { SHtml.a(() => cancel(mbr, isSelf), Text("Cancel")) }
+            { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm(id(mbr, "form"), () => save(mbr, isSelf))) }
+            { SHtml.ajaxButton(Text("Cancel"), () => cancel(mbr, isSelf)) }
           </div>
         </div>
-      </form>)
+      </form>) & JqId(Str(id(mbr, "text"))) ~> new JsMember { def toJsCmd = "markItUp(editorSettings)" }
   }
 
   private def save(mbr: MemberEntity, isSelf: Boolean) =

@@ -20,21 +20,19 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc.model
+package scala.tools.colladoc
+package model
 
-import comment.CommentUpdater
+import comment.{PersistableCommentFactory, UpdatableCommentFactory}
 import tools.nsc.Global
-import tools.nsc.doc.{SourcelessComments, Universe, Settings}
+import tools.nsc.doc.{SourcelessComments, Settings}
 import tools.nsc.reporters.{ConsoleReporter, Reporter}
 import net.liftweb.common.Logger
-import java.io.File
-import tools.nsc.util.NoPosition
-import tools.nsc.doc.model.{MemberEntity, TemplateEntity, DocTemplateEntity, ModelFactory}
-import tools.nsc.doc.model.comment.{Comment, CommentFactory}
+import tools.nsc.doc.model.ModelFactory
 import tools.colladoc.lib.ColladocSettings
 
-object Model {
-  val settings = new Settings(error) { classpath.value = ColladocSettings.getClassPath }
+object Model extends Logger {
+  val settings = new Settings(msg => error(msg)) { classpath.value = ColladocSettings.getClassPath }
   val reporter = new ConsoleReporter(settings)
 
   /** The unique compiler instance used by this processor and constructed from its `settings`. */
@@ -55,7 +53,7 @@ object Model {
     }
   }
 
-  object factory extends ModelFactory(compiler, settings) with CommentUpdater {
+  object factory extends ModelFactory(compiler, settings) with PersistableCommentFactory {
     def construct(files: List[String]) = {
       (new compiler.Run()) compile files
       compiler.addSourceless
@@ -69,7 +67,4 @@ object Model {
   def init() {
     List(model)
   }
-
-  def error(msg: String): Unit = Logger("Model").error(msg)
-
 }

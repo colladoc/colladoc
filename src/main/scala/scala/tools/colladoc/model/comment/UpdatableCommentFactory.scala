@@ -28,8 +28,10 @@ import tools.nsc.Global
 import tools.nsc.doc.model.{MemberEntity, DocTemplateEntity, ModelFactory}
 import collection.mutable.WeakHashMap
 import tools.nsc.doc.model.comment.{Text, Body, Comment, CommentFactory}
+import net.liftweb.common.{Empty, Full}
+import net.liftweb.mapper._
 
-trait CommentUpdater extends CommentFactory { thisFactory: ModelFactory with CommentFactory =>
+trait UpdatableCommentFactory extends CommentFactory { thisFactory: ModelFactory with CommentFactory =>
 
   val global: Global
   import global.reporter
@@ -40,8 +42,8 @@ trait CommentUpdater extends CommentFactory { thisFactory: ModelFactory with Com
       case None => new UpdatableComment(EmptyComment)(sym, inTpl)
     })
 
-  def update(mem: MemberEntity, docStr: String) = {
-    val com: UpdatableComment = mem.comment.get.asInstanceOf[UpdatableComment]
+  def update(mbr: MemberEntity, docStr: String) = {
+    val com: UpdatableComment = mbr.comment.get.asInstanceOf[UpdatableComment]
     global.docComment(com.sym, docStr)
     val key = (com.sym, com.inTpl)
     commentCache -= key
