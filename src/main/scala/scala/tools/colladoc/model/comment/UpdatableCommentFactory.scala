@@ -89,4 +89,11 @@ trait UpdatableCommentFactory extends CommentFactory { thisFactory: ModelFactory
     def source = None
   }
 
+  implicit def symbols(mbr: MemberEntity) = new {
+    def symbol(): Option[global.Symbol] = mbr.comment match {
+      case Some(uc: UpdatableComment) => Some(uc.sym)
+      case _ => None
+    }
+  }
+
 }

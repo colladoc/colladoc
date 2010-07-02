@@ -86,7 +86,7 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
             { SHtml.ajaxButton(Text("Cancel"), () => cancel(mbr, isSelf)) }
           </div>
         </div>
-      </form>) & JqId(Str(id(mbr, "text"))) ~> new JsMember { def toJsCmd = "markItUp(editorSettings)" }
+      </form>)
   }
 
   private def save(mbr: MemberEntity, isSelf: Boolean) =

@@ -32,7 +32,7 @@ import Helpers._
 import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.scala.tools.colladoc.model._
-import tools.colladoc.lib.{IndexStuff, TemplateStuff}
+import tools.colladoc.lib.{WebService, IndexStuff, TemplateStuff}
 
 /**
  * A class that's instantiated early and run.  It allows the application to modify lift's environment
@@ -60,6 +60,7 @@ class Boot {
       )
 
     LiftRules.setSiteMapFunc(sitemap)
+    LiftRules.statelessDispatchTable.append(WebService)
 
     // Show the spinny image when an Ajax call starts
     LiftRules.ajaxStart =

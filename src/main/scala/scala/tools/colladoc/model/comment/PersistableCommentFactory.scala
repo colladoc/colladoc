@@ -43,7 +43,7 @@ trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: M
     }
     super.comment(sym, inTpl)
   }
-
+  
   override def update(mbr: MemberEntity, docStr: String) = {
     PComment.create
       .qualifiedName(mbr.qualifiedName)
