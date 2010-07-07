@@ -24,7 +24,7 @@ package scala.tools.colladoc
 package model
 package comment
 
-import tools.colladoc.model.Model
+import model.{Model, User}
 import tools.nsc.doc.html.page.Template
 import java.io.{ File => JFile }
 import tools.colladoc.lib.{LiftPaths, DependencyFactory}
@@ -58,8 +58,9 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
   override def signature(mbr: MemberEntity, isSelf: Boolean): NodeSeq = {
     def getSignature(mbr: MemberEntity, isSelf: Boolean) =
       super.signature(mbr, isSelf) theSeq match {
-        case Seq(elem: Elem, rest @ _*) =>
+        case Seq(elem: Elem, rest @ _*) if User.loggedIn_? =>
           elem /+ edit(mbr, isSelf)
+        case elem => elem
       }
     mbr match {
       case dte: DocTemplateEntity if isSelf => getSignature(mbr, isSelf)
@@ -86,7 +87,7 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
             { SHtml.ajaxButton(Text("Cancel"), () => cancel(mbr, isSelf)) }
           </div>
         </div>
-      </form>)
+      </form>) & JqId(Str(id(mbr, "text"))) ~> new JsMember { def toJsCmd = "markItUp(markItUpSettings)" }
   }
 
   private def save(mbr: MemberEntity, isSelf: Boolean) =

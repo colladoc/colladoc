@@ -32,6 +32,7 @@ import Helpers._
 import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.scala.tools.colladoc.model._
+import js.jquery.JQuery14Artifacts
 import tools.colladoc.lib.{WebService, IndexStuff, TemplateStuff}
 
 /**
@@ -71,6 +72,7 @@ class Boot {
       Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
 
     LiftRules.early.append(makeUtf8)
+    LiftRules.jsArtifacts = JQuery14Artifacts    
 
     // Set the doctype to XHTML 1.0 Transitional
     LiftRules.docType.default.set { (req: Req) =>

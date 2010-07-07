@@ -1,0 +1,47 @@
+#login {
+    background: #B78E99;
+    display: block;
+    left: 0;
+    padding: 5px;
+    position: fixed;
+    top: 0px;
+    width: 290px;
+}
+
+.loginform h3 {
+    background: #B78E99;
+    color: white;
+    display: block;
+    font-size: 12pt;
+    font-weight: bold;
+    padding: 4px;
+}
+
+.loginform table {
+    margin: 16px auto 8px;
+}
+
+.loginform th {
+    font-weight: normal;
+    text-align: right;
+    vertical-align: middle;
+}
+
+.loginform td > input {
+    border: 1px solid #CCCCCC;
+    padding: 4px;
+    width: 260px;
+}
+
+.loginform td > input.button {
+    margin: 8px 0px 0px;
+    width: 80px;
+}
+
+span.note {
+    color: #666666;
+    display: block;
+    font-size: 10px;
+    padding-top: 0.2em;
+    text-align: left;
+}

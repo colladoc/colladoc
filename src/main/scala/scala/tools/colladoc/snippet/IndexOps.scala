@@ -20,17 +20,17 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc.snippet
+package scala.tools.colladoc
+package snippet
 
 import tools.nsc.doc.html.page.Index
-import tools.colladoc.model.Model
-import tools.nsc.io.File
-import java.io.{ File => JFile }
 import tools.colladoc.lib.LiftPaths
-import xml.{Text, NodeSeq}
+import xml.{Elem, Text, NodeSeq}
+import model.comment.AuthenticatedIndex
+import model.Model
 
 class IndexOps {
-  val index = new Index(Model.model) with LiftPaths
+  val index = new AuthenticatedIndex(Model.model) with LiftPaths
 
   /** Return index title. */
   def title(xhtml: NodeSeq): NodeSeq =

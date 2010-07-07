@@ -1,0 +1,34 @@
+.markItUp .boldButton a {
+	background-image:url(images/text_bold.png);
+}
+.markItUp .italicButton a {
+	background-image:url(images/text_italic.png);
+}
+.markItUp .underlineButton a {
+	background-image:url(images/text_underline.png);
+}
+
+.markItUp .ulButton a {
+	background-image:url(images/text_list_bullets.png);
+}
+.markItUp .olButton a {
+	background-image:url(images/text_list_numbers.png);
+}
+
+.markItUp .ucButton a {
+	background-image:url(images/text_uppercase.png);
+}
+.markItUp .lcButton a {
+	background-image:url(images/text_lowercase.png);
+}
+
+.markItUp .linkButton a {
+	background-image:url(images/link.png);
+}
+.markItUp .urlButton a {
+	background-image:url(images/url.png);
+}
+
+.markItUp .codeButton a	{
+	background-image:url(images/code.png);
+}

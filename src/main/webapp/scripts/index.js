@@ -273,5 +273,6 @@ function kindFilterSync() {
 }
 
 function resizeFilterBlock() {
-    $("#tpl").css("top", $("#filter").outerHeight(true));
+    $("#filter").css("top", $("#login").outerHeight(true));
+    $("#tpl").css("top", $("#login").outerHeight(true) + $("#filter").outerHeight(true));
 }

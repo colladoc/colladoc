@@ -24,34 +24,37 @@ package scala.tools.colladoc
 package model
 package comment
 
-import tools.nsc.doc.model.comment.{Comment, CommentFactory}
-import tools.nsc.doc.model.{MemberEntity, ModelFactory}
+import tools.nsc.doc.html.page.Index
+import lib.XmlUtils._
+import model.{User, Model}
 
-import scala.tools.colladoc.model.{Comment => CComment}
-import net.liftweb.common.{Full, Empty}
-import net.liftweb.mapper._
-import java.util.Date
+import net.liftweb.http.{S, SHtml}
+import net.liftweb.http.js.JsCmds._
+import net.liftweb.http.js.jquery.JqJsCmds._
+import net.liftweb.http.js.JE.Str
+import net.liftweb.http.js.jquery.JqJE.{Jq, JqClick}
+import net.liftweb.http.js.{JsCmds, JsMember}
+import xml.{Text, Elem}
+import tools.nsc.doc.Universe
 
-trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: ModelFactory with CommentFactory =>
+class AuthenticatedIndex(universe: Universe) extends Index(universe) {
 
-  override def comment(sym: global.Symbol, inTpl: => DocTemplateImpl): Option[Comment] = {
-    CComment.findAll(By(CComment.qualifiedName, sym.nameString),
-      OrderBy(CComment.dateTime, Descending),
-      MaxRows(1)) match {
-      case List(com: CComment, _*) => global.docComment(sym, com.comment.is)
-      case _ =>
+  override def browser = super.browser theSeq match {
+      case Seq(elem: Elem, rest @ _*) =>
+        elem /+ login
     }
-    super.comment(sym, inTpl)
-  }
-  
-  override def update(mbr: MemberEntity, docStr: String) = {
-    CComment.create
-      .qualifiedName(mbr.qualifiedName)
-      .comment(docStr)
-      .dateTime(new Date)
-      .user(User.currentUser.open_!)
-      .save
-    super.update(mbr, docStr)
+
+  def login = {
+    def clickUnblock = Jq(Str(".blockOverlay")) ~> new JsMember { def toJsCmd = "click($.unblockUI)" }
+    
+    <div id="login">
+      {
+        if (User.loggedIn_?)
+          <span>Logged in as { User.currentUser.open_! email }, { SHtml.a(() => { User.logout; JsCmds.Noop }, Text("Log out")) }</span>
+        else
+          <span>{ SHtml.a(<span>Sign up</span>, ModalDialog(User.signup) & clickUnblock) } or { SHtml.a(<span>Log in</span>, ModalDialog(User.login) & clickUnblock) }.</span>
+      }
+    </div>
   }
 
 }
