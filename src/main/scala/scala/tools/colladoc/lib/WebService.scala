@@ -29,6 +29,7 @@ import reflect.NameTransformer
 import tools.colladoc.model.Model
 import tools.colladoc.model.Model.factory._
 import tools.nsc.doc.model._
+import xml.NodeSeq
 
 object WebService extends RestHelper {
 
@@ -36,21 +37,31 @@ object WebService extends RestHelper {
     case Req(path, "xml", GetRequest) => changeSet(path)
   }
 
-  def changeSet(path: List[String]) = {
-    val tpl = pathToTemplate(Model.model.rootPackage, path.toList)
+  def changeSet(path: List[String]) =
     <scaladoc>
-      { processClass(tpl) }
-      { tpl.methods map (processMethod(_)) }
+      { processTemplate(pathToTemplate(Model.model.rootPackage, path.toList)) }
     </scaladoc>
-  }
+
+  def processTemplate(tpl: DocTemplateEntity): NodeSeq = tpl match {
+      case p: Package => processPackage(p)
+      case t if t.isClass || t.isObject || t.isTrait => processClass(t)
+    }
+
+  def processPackage(pack: Package) =
+    <xml:group>
+      { pack.members collect { case t: DocTemplateEntity => t } map { processTemplate(_) } }
+    </xml:group>
 
   def processClass(tpl: DocTemplateEntity) =
-    <item>
-      <type>{ if (tpl.isClass) "class" else if (tpl.isObject) "object" }</type>
-      <filename>{ fileName(tpl) }</filename>
-      <identifier>{ tpl.qualifiedName }</identifier>
-      <newcomment>{ tpl.comment.get.source getOrElse "" }</newcomment>
-    </item>
+    <xml:group>
+      <item>
+        <type>{ if (tpl.isObject) "object" else "class" }</type>
+        <filename>{ fileName(tpl) }</filename>
+        <identifier>{ tpl.qualifiedName }</identifier>
+        <newcomment>{ tpl.comment.get.source getOrElse "" }</newcomment>
+      </item>
+      { tpl.methods map (processMethod(_)) }
+    </xml:group>
 
   def processMethod(fnc: Def) =
     if (fnc.inheritedFrom.isEmpty || fnc.inheritedFrom.contains(fnc.inTemplate)) {
