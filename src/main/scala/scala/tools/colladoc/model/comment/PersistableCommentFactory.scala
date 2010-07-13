@@ -38,7 +38,8 @@ trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: M
     CComment.findAll(By(CComment.qualifiedName, sym.nameString),
       OrderBy(CComment.dateTime, Descending),
       MaxRows(1)) match {
-      case List(com: CComment, _*) => global.docComment(sym, com.comment.is)
+      case List(com: CComment, _*) if com.dateTime.is.getTime > sym.sourceFile.lastModified =>
+        global.docComment(sym, com.comment.is)
       case _ =>
     }
     super.comment(sym, inTpl)

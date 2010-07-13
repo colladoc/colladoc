@@ -55,7 +55,11 @@ object WebService extends RestHelper {
   def processClass(tpl: DocTemplateEntity) =
     <xml:group>
       <item>
-        <type>{ if (tpl.isObject) "object" else "class" }</type>
+        <type>{ tpl match {
+          case t if t.isTrait => "trait"
+          case t if t.isClass => "class"
+          case t if t.isObject => "object"
+        }}</type>
         <filename>{ fileName(tpl) }</filename>
         <identifier>{ tpl.qualifiedName }</identifier>
         <newcomment>{ tpl.comment.get.source getOrElse "" }</newcomment>
