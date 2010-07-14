@@ -88,7 +88,7 @@ object WebService extends RestHelper {
   def fileName(mbr: MemberEntity) = {
     mbr.symbol() match {
       case Some(sym) if sym.sourceFile != null =>
-        val path = sym.sourceFile.path.stripPrefix(ColladocSettings.getSourcePath)
+        val path = sym.sourceFile.path.stripPrefix(Model.settings.sourcepath.value)
         if (path.startsWith("/")) path.stripPrefix("/")
         else path
       case _ => ""

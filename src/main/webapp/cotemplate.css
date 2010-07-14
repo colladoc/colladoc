@@ -2,11 +2,12 @@ h4 > a.edit {
     color: #000000;
     display: inline-block;
     float: right;
-    font-weight: bold;
+    font-family: sans-serif;
+    font-size: 10pt;
     text-decoration: none;
 }
 
-div > a.edit:focus {
+h4 > a.edit:hover {
     text-decoration: underline;
 }
 
@@ -30,10 +31,9 @@ form.edit div.buttons {
 
 form.edit div.buttons > a {
     color: #000000;
-    font-weight: bold;
     text-decoration: none;
 }
 
-form.edit div.buttons > a:focus {
+form.edit div.buttons > a:hover {
     text-decoration: underline;
 }

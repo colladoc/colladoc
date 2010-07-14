@@ -84,7 +84,7 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
           { SHtml.textarea(getSource(mbr), text => update(mbr, text), ("id", id(mbr, "text"))) }
           <div class="buttons">
             { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm(id(mbr, "form"), () => save(mbr, isSelf))) }
-            { SHtml.ajaxButton(Text("Cancel"), () => cancel(mbr, isSelf)) }
+            { SHtml.a(Text("Cancel"), cancel(mbr, isSelf)) }
           </div>
         </div>
       </form>) & JqId(Str(id(mbr, "text"))) ~> new JsMember { def toJsCmd = "markItUp(markItUpSettings)" }

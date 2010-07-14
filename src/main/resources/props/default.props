@@ -1,5 +1,5 @@
 # Properties in this file will be read when running in dev mode
-site.title=Sample Colladoc
-site.version=1.0
-source.path=/home/hosekp/Development/demo/src
-class.path=/home/hosekp/Development/collaborative-scaladoc/colladoc/target/scala_2.8.0-local/webapp/WEB-INF/lib/scala-compiler.jar:/home/hosekp/Development/collaborative-scaladoc/colladoc/target/scala_2.8.0-local/webapp/WEB-INF/lib/scala-library.jar
+doctitle=Colladoc
+docversion=1.0-SNAPSHOT
+sourcepath=
+classpath=

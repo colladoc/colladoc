@@ -29,14 +29,20 @@ import tools.nsc.doc.{SourcelessComments, Settings}
 import tools.nsc.reporters.{ConsoleReporter, Reporter}
 import net.liftweb.common.Logger
 import tools.nsc.doc.model.ModelFactory
-import tools.colladoc.lib.ColladocSettings
+import tools.nsc.io.Directory
+import java.io.File
+import net.liftweb.util.Props
 
 object Model extends Logger {
-  val settings = new Settings(msg => error(msg)) { classpath.value = ColladocSettings.getClassPath }
-  val reporter = new ConsoleReporter(settings)
+  object settings extends Settings(msg => error(msg)) {
+    doctitle.value = Props.get("doctitle") openOr "Colladoc"
+    docversion.value = Props.get("docversion") openOr "1.0"
+    classpath.value = Props.get("classpath") openOr ""
+    sourcepath.value = Props.get("sourcepath") openOr "."
+  }
 
   /** The unique compiler instance used by this processor and constructed from its `settings`. */
-  object compiler extends Global(settings, reporter) {
+  object compiler extends Global(settings, new ConsoleReporter(settings)) {
     override protected def computeInternalPhases() {
       phasesSet += syntaxAnalyzer
       phasesSet += analyzer.namerFactory
@@ -62,7 +68,13 @@ object Model extends Logger {
     }
   }
 
-  lazy val model = factory construct (ColladocSettings.getSources)
+  lazy val model = factory construct (getSources(settings))
+
+  private def getSources(settings: Settings): List[String] =
+    getSources(new File(settings.sourcepath.value))
+  
+  private def getSources(file: File): List[String] =
+    (new Directory(file)).deepFiles.filter{ _.extension == "scala" }.map{ _.path }.toList
 
   def init() {
     List(model)

@@ -1,6 +1,6 @@
 import sbt._
 
 class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
-  val githubRepo = "github" at "http://mpeltonen.github.com/maven/"
-  val idea = "com.github.mpeltonen" % "sbt-idea-plugin" % "0.1-SNAPSHOT"
+  val github = "GitHub" at "http://petrh.github.com/m2/"
+  val winstone = "com.github.petrh" % "sbt-winstone-plugin" % "1.0-SNAPSHOT"
 }
