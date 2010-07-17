@@ -3454,8 +3454,8 @@
   <component name="libraryTable">
     <library name="buildScala">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/scala_local/build/pack/lib/scala-library.jar!/" />
-        <root url="jar://$PROJECT_DIR$/scala_local/build/pack/lib/scala-compiler.jar!/" />
+        <root url="jar://$PROJECT_DIR$/scala/build/pack/lib/scala-library.jar!/" />
+        <root url="jar://$PROJECT_DIR$/scala/build/pack/lib/scala-compiler.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

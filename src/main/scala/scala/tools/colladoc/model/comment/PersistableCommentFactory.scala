@@ -35,24 +35,45 @@ import java.util.Date
 trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: ModelFactory with CommentFactory =>
 
   override def comment(sym: global.Symbol, inTpl: => DocTemplateImpl): Option[Comment] = {
-    CComment.findAll(By(CComment.qualifiedName, sym.nameString),
-      OrderBy(CComment.dateTime, Descending),
-      MaxRows(1)) match {
-      case List(com: CComment, _*) if com.dateTime.is.getTime > sym.sourceFile.lastModified =>
-        global.docComment(sym, com.comment.is)
-      case _ =>
+    updatedComment(sym, inTpl) match {
+      case Some(com) => global.docComment(sym, com.comment.is)
+      case None =>
     }
     super.comment(sym, inTpl)
   }
   
   override def update(mbr: MemberEntity, docStr: String) = {
-    CComment.create
+    val comment = CComment.create
       .qualifiedName(mbr.qualifiedName)
       .comment(docStr)
       .dateTime(new Date)
       .user(User.currentUser.open_!)
-      .save
+    comment.save
     super.update(mbr, docStr)
   }
+  
+  private def updatedComment(sym: global.Symbol, inTpl: => DocTemplateImpl) = {
+    CComment.findAll(By(CComment.qualifiedName, qualifiedName(sym, inTpl)),
+      OrderBy(CComment.dateTime, Descending),
+      MaxRows(1)) match {
+      case List(com: CComment, _*) if com.dateTime.is.getTime > sym.sourceFile.lastModified => Some(com)
+      case _ => None
+    }
+  }
 
+  private def qualifiedName(sym: global.Symbol, inTpl: => DocTemplateImpl) = sym match {
+    case s if s.isMethod => inTpl.qualifiedName + "#" + sym.nameString
+    case _ => if (inTpl.isRootPackage) sym.nameString else inTpl.qualifiedName + "." + sym.nameString
+  }
+
+  implicit def isUpdated(mbr: MemberEntity) = new {
+      def isUpdated() = {
+        val com: UpdatableComment = mbr.comment.get.asInstanceOf[UpdatableComment]
+        updatedComment(com.sym, com.inTpl) match {
+          case Some(c) => true
+          case None => false
+        }
+    }
+  }
+  
 }

@@ -39,10 +39,7 @@ import tools.nsc.doc.Universe
 
 class AuthenticatedIndex(universe: Universe) extends Index(universe) {
 
-  override def browser = super.browser theSeq match {
-      case Seq(elem: Elem, rest @ _*) =>
-        elem /+ login
-    }
+  override def browser = super.browser \+ login
 
   def login = {
     def clickUnblock = Jq(Str(".blockOverlay")) ~> new JsMember { def toJsCmd = "click($.unblockUI)" }

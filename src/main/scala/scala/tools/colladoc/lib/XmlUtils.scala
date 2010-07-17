@@ -22,7 +22,8 @@
  */
 package scala.tools.colladoc.lib
 
-import xml.{Node, UnprefixedAttribute, Elem, Null}
+import xml._
+import XmlUtils._
 
 object XmlUtils {
 
@@ -34,9 +35,23 @@ object XmlUtils {
   }
 
   implicit def addNode(elem: Elem) = new {
-    def /+(newChild: Node) = elem match {
+    def \+(newChild: Node) = elem match {
       case Elem(prefix, labels, attrs, scope, child @ _*) =>
         Elem(prefix, labels, attrs, scope, child ++ newChild : _*)
+    }
+  }
+
+  implicit def addNodeSeq(seq: NodeSeq) = new {
+    def \\%(attrs: Map[String, String]) = seq theSeq match {
+      case Seq(elem: Elem, rest @ _*) =>
+        elem % attrs ++ rest
+      case elem => elem
+    }
+    
+    def \\+(newChild: Node) = seq theSeq match {
+      case Seq(elem: Elem, rest @ _*) =>
+        elem \+ newChild ++ rest
+      case elem => elem
     }
   }
 

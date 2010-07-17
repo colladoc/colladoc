@@ -94,8 +94,11 @@ object User extends User with KeyedMetaMapper[Long, User] {
     bind("user", signupHtml,
       "fullname" -> FocusOnLoad(SHtml.text("", name => {
           val idx = name.indexOf(" ")
-          user.firstName(name.take(idx))
-          user.lastName(name.drop(idx + 1))
+          if (idx != -1) {
+            user.firstName(name.take(idx))
+            user.lastName(name.drop(idx + 1))
+          } else
+            user.firstName(name)
         })),
       "username" -> SHtml.text("", user.email(_)),
       "password" -> SHtml.password("", user.password(_)),

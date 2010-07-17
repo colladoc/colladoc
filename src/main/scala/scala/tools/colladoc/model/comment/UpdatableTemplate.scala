@@ -46,31 +46,26 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
     "%s_%s".format(mbr.qualifiedName.replaceAll("[\\.\\#]", "_"), pos)
 
   override def memberToShortCommentHtml(mbr: MemberEntity, isSelf: Boolean): NodeSeq =
-    super.memberToShortCommentHtml(mbr, isSelf) theSeq match {
-      case Seq(elem: Elem, rest @ _*) => elem
-    }
+    super.memberToShortCommentHtml(mbr, isSelf) \\% Map("id" -> id(mbr, "shortcomment"))
 
   override def memberToCommentBodyHtml(mbr: MemberEntity, isSelf: Boolean) =
-    <div id={ id(mbr, "comment") }>
-      { super.memberToCommentBodyHtml(mbr, isSelf) }
-    </div>
+    super.memberToCommentBodyHtml(mbr, isSelf) \\% Map("id" -> id(mbr, "comment"))
 
   override def signature(mbr: MemberEntity, isSelf: Boolean): NodeSeq = {
-    def getSignature(mbr: MemberEntity, isSelf: Boolean) =
-      super.signature(mbr, isSelf) theSeq match {
-        case Seq(elem: Elem, rest @ _*) if User.loggedIn_? =>
-          elem /+ edit(mbr, isSelf)
-        case elem => elem
-      }
+    def getSignature(mbr: MemberEntity, isSelf: Boolean): NodeSeq =
+      if (User.loggedIn_?)
+        super.signature(mbr, isSelf) \\+ edit(mbr, isSelf)
+      else
+        super.signature(mbr, isSelf)
     mbr match {
-      case dte: DocTemplateEntity if isSelf => getSignature(mbr, isSelf)
+      case dte: DocTemplateEntity if isSelf => getSignature(mbr, isSelf) \\+ export(dte)
       case dte: DocTemplateEntity if mbr.comment.isDefined => super.signature(mbr, isSelf)
       case _ => getSignature(mbr, isSelf)
     }
   }
 
   private def edit(mbr: MemberEntity, isSelf: Boolean) = {
-    SHtml.a(doEdit(mbr, isSelf) _, Text("Edit"), ("class", "edit"))
+    SHtml.a(doEdit(mbr, isSelf) _, Text("Edit"), ("class", "control edit"))
   }
 
   private def doEdit(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
@@ -102,5 +97,11 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
 
   private def update(mbr: MemberEntity, text: String) =
     Model.factory.update(mbr, text)
+
+  private def export(tpl: DocTemplateEntity) =
+    SHtml.a(doExport(tpl) _, Text("Export"), ("class", "control"))
+
+  private def doExport(tpl: DocTemplateEntity)(): JsCmd =
+    JsRaw("window.open('%s', 'Export')" format templateToPath(tpl).mkString("/").replace("html", "xml"))
 
 }

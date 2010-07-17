@@ -1,8 +1,8 @@
 $(document).ready(function() {
-    $('a.edit').hide();
+    $('a.control').hide();
     $('.signature').hover(
-            function() { $('a.edit', this).show() },
-            function() { $('a.edit', this).hide() }
+            function() { $('a.control', this).show() },
+            function() { $('a.control', this).hide() }
             );
 
     var docAllSigs = $("#template .signature");

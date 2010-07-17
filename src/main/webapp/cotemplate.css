@@ -1,13 +1,14 @@
-h4 > a.edit {
+h4 > a.control {
     color: #000000;
     display: inline-block;
     float: right;
     font-family: sans-serif;
     font-size: 10pt;
+    margin: 0px 4px;
     text-decoration: none;
 }
 
-h4 > a.edit:hover {
+h4 > a.control:hover {
     text-decoration: underline;
 }
 

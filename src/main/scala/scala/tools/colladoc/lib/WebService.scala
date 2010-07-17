@@ -53,22 +53,24 @@ object WebService extends RestHelper {
     </xml:group>
 
   def processClass(tpl: DocTemplateEntity) =
-    <xml:group>
-      <item>
-        <type>{ tpl match {
-          case t if t.isTrait => "trait"
-          case t if t.isClass => "class"
-          case t if t.isObject => "object"
-        }}</type>
-        <filename>{ fileName(tpl) }</filename>
-        <identifier>{ tpl.qualifiedName }</identifier>
-        <newcomment>{ tpl.comment.get.source getOrElse "" }</newcomment>
-      </item>
-      { tpl.methods map (processMethod(_)) }
-    </xml:group>
+    if (tpl.isUpdated)
+      <xml:group>
+        <item>
+          <type>{ tpl match {
+            case t if t.isTrait => "trait"
+            case t if t.isClass => "class"
+            case t if t.isObject => "object"
+          }}</type>
+          <filename>{ fileName(tpl) }</filename>
+          <identifier>{ tpl.qualifiedName }</identifier>
+          <newcomment>{ tpl.comment.get.source.get }</newcomment>
+        </item>
+        { tpl.methods map (processMethod(_)) }
+      </xml:group>
+    else <xml:group></xml:group>
 
   def processMethod(fnc: Def) =
-    if (fnc.inheritedFrom.isEmpty || fnc.inheritedFrom.contains(fnc.inTemplate)) {
+    if (fnc.isUpdated && (fnc.inheritedFrom.isEmpty || fnc.inheritedFrom.contains(fnc.inTemplate))) {
       def identifier(fnc: Def) = {
         def params(vlss: List[ValueParam]): String = vlss match {
           case Nil => ""
@@ -81,12 +83,12 @@ object WebService extends RestHelper {
         <type>method</type>
         <filename>{ fileName(fnc) }</filename>
         <identifier>{ identifier(fnc) }</identifier>
-        <newcomment>{ fnc.comment.get.source getOrElse "" }</newcomment>
+        <newcomment>{ fnc.comment.get.source.get }</newcomment>
       </item>
     } else <xml:group></xml:group>
 
   def fileName(mbr: MemberEntity) = {
-    mbr.symbol() match {
+    mbr.symbol match {
       case Some(sym) if sym.sourceFile != null =>
         val path = sym.sourceFile.path.stripPrefix(Model.settings.sourcepath.value)
         if (path.startsWith("/")) path.stripPrefix("/")
