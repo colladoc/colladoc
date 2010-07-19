@@ -60,9 +60,10 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
       else
         super.signature(mbr, isSelf)
     mbr match {
-      case dte: DocTemplateEntity if isSelf => getSignature(mbr, isSelf) \\+ export(mbr)
-      case dte: DocTemplateEntity if mbr.comment.isDefined => super.signature(mbr, isSelf)
-      case _ => getSignature(mbr, isSelf) \\+ export(mbr)
+      case tpl: DocTemplateEntity if isSelf => getSignature(mbr, isSelf) \\+ export(tpl)
+      case tpl: DocTemplateEntity if mbr.comment.isDefined => super.signature(tpl, isSelf)
+      case _ if mbr.isDef => getSignature(mbr, isSelf) \\+ export(mbr)
+      case _ => super.signature(mbr, isSelf)
     }
   }
 
@@ -111,8 +112,9 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
 
   private def doExport(mbr: MemberEntity)(): JsCmd = {
     def memberPath(mbr: MemberEntity) = (mbr match {
-        case dte: DocTemplateEntity => templateToPath(tpl).mkString("/").dropRight(5)
-        case _ => templateToPath(mbr.inTemplate).mkString("/").dropRight(5) + "/" + mbr.name
+        case tpl: DocTemplateEntity if tpl.isPackage => "package"
+        case tpl: DocTemplateEntity => tpl.name
+        case _ => mbr.inTemplate + "/" + mbr.name
       }) + ".xml"
     JsRaw("window.open('%s', 'Export')" format memberPath(mbr))
   }
