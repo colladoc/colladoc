@@ -31,27 +31,60 @@ import model.{User, Model}
 import net.liftweb.http.{S, SHtml}
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.jquery.JqJsCmds._
-import net.liftweb.http.js.JE.Str
-import net.liftweb.http.js.jquery.JqJE.{Jq, JqClick}
 import net.liftweb.http.js.{JsCmds, JsMember}
-import xml.{Text, Elem}
 import tools.nsc.doc.Universe
 
-class AuthenticatedIndex(universe: Universe) extends Index(universe) {
+import net.liftweb.widgets.gravatar.Gravatar
+import net.liftweb.http.js.jquery.JqJE.{JqId, Jq, JqClick}
+import net.liftweb.http.js.JE.{JsFunc, Str}
+import xml.{NodeSeq, Text, Elem}
+
+class UserIndex(universe: Universe) extends Index(universe) {
 
   override def browser = super.browser \+ login
-
-  def login = {
-    def clickUnblock = Jq(Str(".blockOverlay")) ~> new JsMember { def toJsCmd = "click($.unblockUI)" }
-    
-    <div id="login">
-      {
-        if (User.loggedIn_?)
-          <span>Logged in as { User.currentUser.open_! email }, { SHtml.a(() => { User.logout; JsCmds.Noop }, Text("Log out")) }</span>
+  
+  def login: Elem =
+    <div id="user">
+      { if (User.loggedIn_?)
+          loggedIn
         else
-          <span>{ SHtml.a(<span>Sign up</span>, ModalDialog(User.signup) & clickUnblock) } or { SHtml.a(<span>Log in</span>, ModalDialog(User.login) & clickUnblock) }.</span>
+          loggedOut
       }
     </div>
-  }
 
+  private def loggedOut =
+    <xml:group>
+      <ul class="usernav">
+        <li>
+          { SHtml.a(Text("Signup"), openDialog(".user")) }
+        </li>
+        <li>
+          { SHtml.a(Text("Login"), openDialog(".login")) }
+        </li>
+      </ul>
+      { User.signup }
+      { User.login }
+    </xml:group>
+
+  private def loggedIn =
+    <xml:group>
+      <div class="avatar">
+        { Gravatar(User.currentUser.open_! email, 16) }
+        <span class="name">
+          { User.currentUser.open_! userName }
+        </span>
+      </div>
+      <ul class="usernav">
+        <li>
+          { SHtml.a(Text("Settings"), openDialog(".user")) }
+        </li>
+        <li>
+          { SHtml.a(() => { User.logout; RedirectTo("/") }, Text("Log Out")) }
+        </li>
+      </ul>
+      { User.edit }
+    </xml:group>
+
+  private def openDialog(id: String) = Jq(Str(id)) ~> new JsMember { def toJsCmd = "dialog('open')" }
+  
 }

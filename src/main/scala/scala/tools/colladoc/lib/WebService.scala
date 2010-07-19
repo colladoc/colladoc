@@ -39,17 +39,19 @@ object WebService extends RestHelper {
 
   def changeSet(path: List[String]) =
     <scaladoc>
-      { processTemplate(pathToTemplate(Model.model.rootPackage, path.toList)) }
+      { processEntity(pathToEntity(Model.model.rootPackage, path.toList)) }
     </scaladoc>
 
-  def processTemplate(tpl: DocTemplateEntity): NodeSeq = tpl match {
+  def processEntity(mbr: MemberEntity): NodeSeq = mbr match {
       case p: Package => processPackage(p)
-      case t if t.isClass || t.isObject || t.isTrait => processClass(t)
+      case t: DocTemplateEntity => processClass(t)
+      case f: Def => processMethod(f)
+      case _ => <xml:group></xml:group>
     }
 
   def processPackage(pack: Package) =
     <xml:group>
-      { pack.members collect { case t: DocTemplateEntity => t } map { processTemplate(_) } }
+      { pack.members collect { case t: DocTemplateEntity => t } map { processEntity(_) } }
     </xml:group>
 
   def processClass(tpl: DocTemplateEntity) =
@@ -97,19 +99,23 @@ object WebService extends RestHelper {
     }
   }
 
-  private def pathToTemplate(rootPack: Package, path: List[String]): DocTemplateEntity = {
-    def doName(tpl: DocTemplateEntity): String =
-      NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
+  private def pathToEntity(rootPack: Package, path: List[String]): MemberEntity = {
+    def doName(mbr: MemberEntity): String =
+      NameTransformer.encode(mbr.name) + (mbr match {
+        case t: DocTemplateEntity if t.isObject => "$"
+        case _ => ""
+      })
     def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
       pack.packages.find{ _.name == path.head } match {
         case Some(p) => downPacks(p, path.tail)
         case None => (pack, path)
       }
     }
-    def downInner(tpl: DocTemplateEntity, path: List[String]): DocTemplateEntity = {
+    def downInner(tpl: DocTemplateEntity, path: List[String]): MemberEntity = {
       if (!(path isEmpty))
-        tpl.templates.find{ doName(_) == path.head } match {
-          case Some(t) => downInner(t, path.tail)
+        tpl.members.find{ doName(_) == path.head } match {
+          case Some(t: DocTemplateEntity) => downInner(t, path.tail)
+          case Some(m: MemberEntity) => m
           case None => tpl
         }
       else

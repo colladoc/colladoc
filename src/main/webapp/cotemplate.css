@@ -1,9 +1,9 @@
 h4 > a.control {
     color: #000000;
-    display: inline-block;
     float: right;
     font-family: sans-serif;
     font-size: 10pt;
+    font-weight: bold;
     margin: 0px 4px;
     text-decoration: none;
 }
@@ -32,6 +32,7 @@ form.edit div.buttons {
 
 form.edit div.buttons > a {
     color: #000000;
+    font-weight: bold;
     text-decoration: none;
 }
 

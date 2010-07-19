@@ -26,11 +26,11 @@ package snippet
 import tools.nsc.doc.html.page.Index
 import tools.colladoc.lib.LiftPaths
 import xml.{Elem, Text, NodeSeq}
-import model.comment.AuthenticatedIndex
+import model.comment.UserIndex
 import model.Model
 
 class IndexOps {
-  val index = new AuthenticatedIndex(Model.model) with LiftPaths
+  val index = new UserIndex(Model.model) with LiftPaths
 
   /** Return index title. */
   def title(xhtml: NodeSeq): NodeSeq =

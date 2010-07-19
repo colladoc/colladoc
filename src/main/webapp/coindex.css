@@ -1,4 +1,4 @@
-#login {
+#user {
     background: #B78E99;
     display: block;
     left: 0;
@@ -8,40 +8,60 @@
     width: 290px;
 }
 
-.loginform h3 {
-    background: #B78E99;
-    color: white;
-    display: block;
-    font-size: 12pt;
-    font-weight: bold;
-    padding: 4px;
+#user div {
+    display: inline;
 }
 
-.loginform table {
-    margin: 16px auto 8px;
+#user > div.avatar {
+    float: left;
 }
 
-.loginform th {
-    font-weight: normal;
-    text-align: right;
+#user > div.avatar img {
+    border: 1px solid white;
+    margin: -2px 2px 0px 0px;
     vertical-align: middle;
 }
 
-.loginform td > input {
-    border: 1px solid #CCCCCC;
-    padding: 4px;
-    width: 260px;
+#user > ul.usernav {
+    display: inline;
+    float: right;
 }
 
-.loginform td > input.button {
-    margin: 8px 0px 0px;
-    width: 80px;
+#user > ul.usernav > li {
+    display: inline;
+    margin: 0px 2px;
 }
 
-span.note {
+#user a {
+    font-weight: bold;
+}
+
+.form fieldset {
+    padding: 0;
+    border: 0;
+    margin-top: 8px;
+}
+
+.form p {
+    margin-bottom: 12px;
+}
+
+.form label, input {
+    display: block;
+}
+
+.form input[readonly] {
+    background: #DDD;
+}
+
+.form input.text {
+    width: 95%;
+    padding: .4em;
+}
+
+.form .error {
     color: #666666;
     display: block;
-    font-size: 10px;
+    font-size: 8pt;
     padding-top: 0.2em;
-    text-align: left;
 }

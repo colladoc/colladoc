@@ -1,6 +1,14 @@
 markItUpSettings = {
 	onShiftEnter: { keepDefault:false, replaceWith:'\n\n' },
 	markupSet: [
+        { name:'Heading', className:"headingButton", dropMenu: [
+            { name:'Heading 1', openWith:'=', closeWith:'=' },
+            { name:'Heading 2', openWith:'==', closeWith:'==' },
+            { name:'Heading 3', openWith:'===', closeWith:'===' },
+            { name:'Heading 4', openWith:'====', closeWith:'====' },
+            { name:'Heading 5', openWith:'=====', closeWith:'=====' }
+        ]},
+        { separator:'---------------' },
 		{ name:'Bold', key:'B', openWith:"'''", closeWith:"'''", className:"boldButton" },
 		{ name:'Italic', key:'I', openWith:"''", closeWith:"''", className:"italicButton" },
 		{ name:'Underline', key:'U', openWith:"__", closeWith:"__", className:"underlineButton" },

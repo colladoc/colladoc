@@ -28,9 +28,19 @@ import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
 import net.liftweb.util.Helpers._
 import net.liftweb.http.js.JsCmds._
+import xml.Text
 
 class User extends ProtoUser[User] with OneToMany[Long, User]  {
   def getSingleton = User
+
+  object userName extends MappedString(this, 32) {
+    override def dbIndexed_? = true
+    override def validations = valUnique(S.??("unique.user.name")) _ :: super.validations
+    override def displayName = fieldOwner.userNameDisplayName
+    override val fieldId = Some(Text("txtFirstName"))
+  }
+
+  def userNameDisplayName = S.??("user.name")
 
   object comments extends MappedOneToMany(Comment, Comment.user)
 }
@@ -65,18 +75,54 @@ object User extends User with KeyedMetaMapper[Long, User] {
     S.request.foreach(_.request.session.terminate)
   }
 
-  def signupHtml =
-    <form class="loginform" method="post" action={ S.uri }>
-      <h3>Sign Up New User</h3>
-      <table>
-        <tr><th>Full Name:</th><td><user:fullname /></td></tr>
-        <tr><th></th><td><span class="note">First and last name</span></td></tr>
-        <tr><th>Email:</th><td><user:username /></td></tr>
-        <tr><th></th><td><span class="note">Used as a username to login</span></td></tr>
-        <tr><th>Password:</th><td><user:password /></td></tr>
-        <tr><th></th><td><user:submit /></td></tr>
-      </table>
-    </form>
+  def userHtml =
+    <lift:form class="user form">
+      <fieldset>
+        <p>
+          <label for="name">Username:</label>
+          <user:username class="text required ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="name">Full Name:</label>
+          <user:fullname class="text ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="name">Email:</label>
+          <user:email class="text required email ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="password">Password:</label>
+          <user:password class="text required ui-widget-content ui-corner-all" />
+        </p>
+        <user:submit />
+      </fieldset>
+    </lift:form>
+
+  def edit = {
+    val user = currentUser.open_!
+
+    def doSave() {
+      user.validate match {
+        case Nil => S.notice("User saved")
+          user.save()
+        case n => S.error(n)
+      }
+    }
+
+    bind("user", userHtml,
+      "username" -%> SHtml.text(user.userName.is, text => (), ("readonly", "readonly")),
+      "fullname" -%> SHtml.text(user.shortName, name => {
+          val idx = name.indexOf(" ")
+          if (idx != -1) {
+            user.firstName(name.take(idx))
+            user.lastName(name.drop(idx + 1))
+          } else
+            user.firstName(name)
+        }),
+      "email" -%> SHtml.text(user.email.is, text => (), ("readonly", "readonly")),
+      "password" -%> SHtml.password("", user.password(_)),
+      "submit" -> SHtml.hidden(doSave _))
+  }
 
   def signup = {
     val user = create
@@ -87,58 +133,61 @@ object User extends User with KeyedMetaMapper[Long, User] {
           user.save()
           logUserIn(user)
         case n => S.error(n)
-          Console.println(n)
       }
     }
 
-    bind("user", signupHtml,
-      "fullname" -> FocusOnLoad(SHtml.text("", name => {
+    bind("user", userHtml,
+      "username" -%> SHtml.text("", user.userName(_)),
+      "fullname" -%> SHtml.text("", name => {
           val idx = name.indexOf(" ")
           if (idx != -1) {
             user.firstName(name.take(idx))
             user.lastName(name.drop(idx + 1))
           } else
             user.firstName(name)
-        })),
-      "username" -> SHtml.text("", user.email(_)),
-      "password" -> SHtml.password("", user.password(_)),
-      "submit" -> SHtml.submit("Sign Up", doSignup _, ("class", "button")))
+        }),
+      "email" -%> SHtml.text("", user.email(_)),
+      "password" -%> SHtml.password("", user.password(_)),
+      "submit" -> SHtml.hidden(doSignup _))
   }
 
-  def loginHtml = {
-    <form class="loginform" method="post" action={ S.uri }>
-      <h3>Sign In User</h3>
-      <table>
-        <tr><th>Email:</th><td><user:username /></td></tr>
-        <tr><th>Password:</th><td><user:password /></td></tr>
-        <tr><th>&nbsp;</th><td><user:submit /></td></tr>
-      </table>
-    </form>
-  }
+  def loginHtml =
+    <lift:form class="login form">
+      <fieldset>
+        <p>
+          <label for="name">Username:</label>
+          <user:username class="text required ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="password">Password:</label>
+          <user:password class="text required ui-widget-content ui-corner-all" />
+        </p>
+        <user:submit />
+      </fieldset>
+    </lift:form>
 
   def login = {
     var username: String = ""
     var password: String = "*"
 
     def doLogin = {
-      find(By(email, username)) match {
+      find(By(userName, username)) match {
         case Full(user) if user.password.match_?(password) =>
           S.notice("User logged in")
           logUserIn(user)
-          //S.redirectTo(homePage)
         case _ => S.error("Invalid user credentials")
       }
+      RedirectTo("/")
     }
 
     bind("user", loginHtml,
-      "username" -> SHtml.text("", username = _),
-      "password" -> SHtml.password("", password = _),
-      "submit" -> SHtml.submit("Log In", doLogin _, ("class", "button")))
+      "username" -%> SHtml.text("", username = _),
+      "password" -%> SHtml.password("", password = _),
+      "submit" -> SHtml.hidden(doLogin _))
   }
 
   def logout = {
     logoutCurrentUser
-    S.redirectTo("/")
   }
 
 }
