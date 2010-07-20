@@ -25,7 +25,7 @@ package model
 package comment
 
 import model.{Model, User}
-import tools.nsc.doc.html.page.Template
+import model.Model.factory._
 import java.io.{ File => JFile }
 import tools.colladoc.lib.{LiftPaths, DependencyFactory}
 import tools.nsc.doc.model.{MemberEntity, NonTemplateMemberEntity, Package, DocTemplateEntity}
@@ -39,11 +39,13 @@ import xml.{Text, Elem, NodeSeq}
 import net.liftweb.http.js._
 import net.liftweb.http.js.jquery.JqJsCmds._
 import java.util.Date
+import reflect.NameTransformer
+import java.net.URLEncoder
 
-class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
+class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
 
   private def id(mbr: MemberEntity, pos: String) =
-    "%s_%s".format(mbr.qualifiedName.replaceAll("[\\.\\#]", "_"), pos)
+    "%s_%s".format(mbr.identifier.replaceAll("""[ \[\]\(\)\,\.\#]""", "_"), pos)
 
   override def memberToShortCommentHtml(mbr: MemberEntity, isSelf: Boolean): NodeSeq =
     super.memberToShortCommentHtml(mbr, isSelf) \\% Map("id" -> id(mbr, "shortcomment"))
@@ -61,9 +63,8 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
         super.signature(mbr, isSelf)
     mbr match {
       case tpl: DocTemplateEntity if isSelf => getSignature(mbr, isSelf) \\+ export(tpl)
-      case tpl: DocTemplateEntity if mbr.comment.isDefined => super.signature(tpl, isSelf)
-      case _ if mbr.isDef => getSignature(mbr, isSelf) \\+ export(mbr)
-      case _ => super.signature(mbr, isSelf)
+      case tpl: DocTemplateEntity if mbr.comment.isDefined => super.signature(tpl, isSelf) \\+ export(mbr)
+      case _ => getSignature(mbr, isSelf) \\+ export(mbr)
     }
   }
 
@@ -111,12 +112,17 @@ class UpdatableTemplate(tpl: DocTemplateEntity) extends Template(tpl) {
     SHtml.a(doExport(mbr) _, Text("Export"), ("class", "control"))
 
   private def doExport(mbr: MemberEntity)(): JsCmd = {
-    def memberPath(mbr: MemberEntity) = (mbr match {
-        case tpl: DocTemplateEntity if tpl.isPackage => "package"
-        case tpl: DocTemplateEntity => tpl.name
-        case _ => mbr.inTemplate + "/" + mbr.name
-      }) + ".xml"
-    JsRaw("window.open('%s', 'Export')" format memberPath(mbr))
+    def doName(mbr: MemberEntity): String =
+      NameTransformer.encode(mbr.name) + (mbr match {
+        case t: DocTemplateEntity if t.isObject => "$"
+        case _ => ""
+      })
+    def memberPath(mbr: MemberEntity) = mbr match {
+        case tpl: DocTemplateEntity if tpl.isPackage => doName(tpl) + "/" + "package"
+        case tpl: DocTemplateEntity => doName(tpl)
+        case _ => doName(mbr.inTemplate) + "/" + NameTransformer.encode(mbr.identifier)
+      }
+    JsRaw("window.open('%s', 'Export')" format (memberPath(mbr) + ".xml"))
   }
 
 }

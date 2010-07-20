@@ -24,12 +24,13 @@ package scala.tools.colladoc
 package lib
 
 import net.liftweb.http.rest.RestHelper
-import net.liftweb.http.{Req, GetRequest}
 import reflect.NameTransformer
 import tools.colladoc.model.Model
 import tools.colladoc.model.Model.factory._
 import tools.nsc.doc.model._
-import xml.NodeSeq
+import xml.{Node, NodeSeq, Null}
+import net.liftweb.http.{S, Req, GetRequest}
+import java.net.URLDecoder
 
 object WebService extends RestHelper {
 
@@ -39,57 +40,51 @@ object WebService extends RestHelper {
 
   def changeSet(path: List[String]) =
     <scaladoc>
-      { processEntity(pathToEntity(Model.model.rootPackage, path.toList)) }
+      { process(pathToEntity(Model.model.rootPackage, path.toList)) }
     </scaladoc>
 
-  def processEntity(mbr: MemberEntity): NodeSeq = mbr match {
-      case p: Package => processPackage(p)
-      case t: DocTemplateEntity => processClass(t)
-      case f: Def => processMethod(f)
-      case _ => <xml:group></xml:group>
+  def process(mbr: MemberEntity): NodeSeq = mbr match {
+      case tpl: DocTemplateEntity => processTemplate(tpl)
+      case _ => processMember(mbr)
     }
 
-  def processPackage(pack: Package) =
+  def processTemplate(tpl: DocTemplateEntity): NodeSeq =
     <xml:group>
-      { pack.members collect { case t: DocTemplateEntity => t } map { processEntity(_) } }
+      { if (tpl.isUpdated) {
+          <item>
+            <type>{ tpl match {
+              case _ if tpl.isPackage => "package"
+              case _ if tpl.isTrait => "trait"
+              case _ if tpl.isClass => "class"
+              case _ if tpl.isObject => "object"
+            }}</type>
+            <filename>{ entityToFileName(tpl) }</filename>
+            <identifier>{ tpl.qualifiedIdentifier }</identifier>
+            <newcomment>{ tpl.comment.get.source.get }</newcomment>
+          </item>
+        }
+      }
+      { (tpl.values ++ tpl.abstractTypes ++ tpl.methods) map { processMember(_) } }
+      { tpl.members collect { case t: DocTemplateEntity => t } map { processTemplate(_) } }
     </xml:group>
 
-  def processClass(tpl: DocTemplateEntity) =
-    if (tpl.isUpdated)
-      <xml:group>
-        <item>
-          <type>{ tpl match {
-            case t if t.isTrait => "trait"
-            case t if t.isClass => "class"
-            case t if t.isObject => "object"
-          }}</type>
-          <filename>{ fileName(tpl) }</filename>
-          <identifier>{ tpl.qualifiedName }</identifier>
-          <newcomment>{ tpl.comment.get.source.get }</newcomment>
-        </item>
-        { tpl.methods map (processMethod(_)) }
-      </xml:group>
-    else <xml:group></xml:group>
-
-  def processMethod(fnc: Def) =
-    if (fnc.isUpdated && (fnc.inheritedFrom.isEmpty || fnc.inheritedFrom.contains(fnc.inTemplate))) {
-      def identifier(fnc: Def) = {
-        def params(vlss: List[ValueParam]): String = vlss match {
-          case Nil => ""
-          case vl :: Nil => vl.resultType.name
-          case vl :: vls => vl.resultType.name + ", " + params(vls)
+  def processMember(mbr: MemberEntity): Node =
+    <xml:group>
+      { if (mbr.isUpdated && (mbr.inheritedFrom.isEmpty || mbr.inheritedFrom.contains(mbr.inTemplate))) {
+          <item>
+            <type>{ mbr match {
+              case _ if mbr.isDef || mbr.isVal || mbr.isVar => "value"
+              case _ if mbr.isAbstractType || mbr.isAliasType => "type"
+            }}</type>
+            <filename>{ entityToFileName(mbr) }</filename>
+            <identifier>{ mbr.qualifiedIdentifier }</identifier>
+            <newcomment>{ mbr.comment.get.source.get }</newcomment>
+          </item>
         }
-        fnc.inTemplate.qualifiedName + "." + fnc.name + fnc.valueParams.map{ "(" + params(_) + ")" }.mkString
       }
-      <item>
-        <type>method</type>
-        <filename>{ fileName(fnc) }</filename>
-        <identifier>{ identifier(fnc) }</identifier>
-        <newcomment>{ fnc.comment.get.source.get }</newcomment>
-      </item>
-    } else <xml:group></xml:group>
+    </xml:group>
 
-  def fileName(mbr: MemberEntity) = {
+  def entityToFileName(mbr: MemberEntity) = {
     mbr.symbol match {
       case Some(sym) if sym.sourceFile != null =>
         val path = sym.sourceFile.path.stripPrefix(Model.settings.sourcepath.value)
@@ -101,7 +96,7 @@ object WebService extends RestHelper {
 
   private def pathToEntity(rootPack: Package, path: List[String]): MemberEntity = {
     def doName(mbr: MemberEntity): String =
-      NameTransformer.encode(mbr.name) + (mbr match {
+      NameTransformer.encode(mbr.identifier) + (mbr match {
         case t: DocTemplateEntity if t.isObject => "$"
         case _ => ""
       })
@@ -112,14 +107,13 @@ object WebService extends RestHelper {
       }
     }
     def downInner(tpl: DocTemplateEntity, path: List[String]): MemberEntity = {
-      if (!(path isEmpty))
+      if (!(path isEmpty)) {
         tpl.members.find{ doName(_) == path.head } match {
           case Some(t: DocTemplateEntity) => downInner(t, path.tail)
           case Some(m: MemberEntity) => m
           case None => tpl
         }
-      else
-        tpl
+      } else tpl
     }
     downPacks(rootPack, path) match {
       case (pack, "package" :: Nil) => pack

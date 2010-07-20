@@ -24,7 +24,6 @@ package scala.tools.colladoc
 package snippet
 
 import tools.colladoc.model.Model
-import tools.nsc.doc.html.page.Template
 import tools.nsc.io.File
 import reflect.NameTransformer
 import java.io.{ File => JFile }
@@ -33,13 +32,13 @@ import tools.nsc.doc.model.{MemberEntity, NonTemplateMemberEntity, Package, DocT
 import net.liftweb.http.{SHtml, S}
 import net.liftweb.http.jquery.JqSHtml
 import xml.{Text, NodeSeq}
-import tools.colladoc.model.comment.UpdatableTemplate
+import tools.colladoc.model.comment.Template
 
 class TemplateOps {
   val template = {
     val path = S.param("path") openOr "" split('/')
     val entity = pathToTemplate(Model.model.rootPackage, path.toList)
-    new UpdatableTemplate(entity) with LiftPaths
+    new Template(entity) with LiftPaths
   }
 
   //lazy val date: Box[Date] = DependencyFactory.inject[Date] // inject the date

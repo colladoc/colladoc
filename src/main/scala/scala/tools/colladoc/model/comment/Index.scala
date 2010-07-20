@@ -24,7 +24,6 @@ package scala.tools.colladoc
 package model
 package comment
 
-import tools.nsc.doc.html.page.Index
 import lib.XmlUtils._
 import model.{User, Model}
 
@@ -39,7 +38,7 @@ import net.liftweb.http.js.jquery.JqJE.{JqId, Jq, JqClick}
 import net.liftweb.http.js.JE.{JsFunc, Str}
 import xml.{NodeSeq, Text, Elem}
 
-class UserIndex(universe: Universe) extends Index(universe) {
+class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) {
 
   override def browser = super.browser \+ login
   

@@ -25,12 +25,11 @@ package model
 package comment
 
 import tools.nsc.doc.model.comment.{Comment, CommentFactory}
-import tools.nsc.doc.model.{MemberEntity, ModelFactory}
-
 import scala.tools.colladoc.model.{Comment => CComment}
 import net.liftweb.common.{Full, Empty}
 import net.liftweb.mapper._
 import java.util.Date
+import tools.nsc.doc.model.{ValueParam, Def, MemberEntity, ModelFactory}
 
 trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: ModelFactory with CommentFactory =>
 
@@ -44,36 +43,54 @@ trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: M
   
   override def update(mbr: MemberEntity, docStr: String) = {
     val comment = CComment.create
-      .qualifiedName(mbr.qualifiedName)
+      .qualifiedName(mbr.qualifiedIdentifier)
       .comment(docStr)
       .dateTime(new Date)
       .user(User.currentUser.open_!)
     comment.save
     super.update(mbr, docStr)
   }
+
+  implicit def identifiers(mbr: MemberEntity) = new {
+    def identifier() = mbr match {
+      case fnc: Def =>
+        def params(vlss: List[ValueParam]): String = vlss match {
+          case Nil => ""
+          case vl :: Nil => vl.resultType.name
+          case vl :: vls => vl.resultType.name + ", " + params(vls)
+        }
+        fnc.name + fnc.valueParams.map{ "(" + params(_) + ")" }.mkString
+      case _ => mbr.name
+    }
+
+    def qualifiedIdentifier() = mbr match {
+      case fnc: Def => fnc.inTemplate.qualifiedName + "#" + identifier
+      case _ => mbr.qualifiedName
+    }
+  }
   
   private def updatedComment(sym: global.Symbol, inTpl: => DocTemplateImpl) = {
-    CComment.findAll(By(CComment.qualifiedName, qualifiedName(sym, inTpl)),
-      OrderBy(CComment.dateTime, Descending),
-      MaxRows(1)) match {
-      case List(com: CComment, _*) if com.dateTime.is.getTime > sym.sourceFile.lastModified => Some(com)
-      case _ => None
+    makeMember(sym, inTpl) match {
+      case List(mbr, _*) => {
+        CComment.findAll(By(CComment.qualifiedName, mbr.qualifiedIdentifier),
+          OrderBy(CComment.dateTime, Descending),
+          MaxRows(1)) match {
+          case List(com: CComment, _*) if com.dateTime.is.getTime > sym.sourceFile.lastModified => Some(com)
+          case _ => None
+        }
+      }
     }
   }
 
-  private def qualifiedName(sym: global.Symbol, inTpl: => DocTemplateImpl) = sym match {
-    case s if s.isMethod => inTpl.qualifiedName + "#" + sym.nameString
-    case _ => if (inTpl.isRootPackage) sym.nameString else inTpl.qualifiedName + "." + sym.nameString
-  }
-
   implicit def isUpdated(mbr: MemberEntity) = new {
-      def isUpdated() = {
+    def isUpdated() =
+      if (mbr.comment.isDefined) {
         val com: UpdatableComment = mbr.comment.get.asInstanceOf[UpdatableComment]
         updatedComment(com.sym, com.inTpl) match {
           case Some(c) => true
           case None => false
         }
-    }
+      } else false
   }
   
 }

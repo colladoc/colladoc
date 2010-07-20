@@ -42,16 +42,17 @@ trait UpdatableCommentFactory extends CommentFactory { thisFactory: ModelFactory
       case None => new UpdatableComment(EmptyComment)(sym, inTpl)
     })
 
-  def update(mbr: MemberEntity, docStr: String) = {
-    val com: UpdatableComment = mbr.comment.get.asInstanceOf[UpdatableComment]
-    global.docComment(com.sym, docStr)
-    val key = (com.sym, com.inTpl)
-    commentCache -= key
-    super.comment(com.sym, com.inTpl) match {
-      case Some(c) => com.comment = c
-      case None =>
+  def update(mbr: MemberEntity, docStr: String) =
+    if (mbr.comment.isDefined) {
+      val com: UpdatableComment = mbr.comment.get.asInstanceOf[UpdatableComment]
+      global.docComment(com.sym, docStr)
+      val key = (com.sym, com.inTpl)
+      commentCache -= key
+      super.comment(com.sym, com.inTpl) match {
+        case Some(c) => com.comment = c
+        case None =>
+      }
     }
-  }
 
   class UpdatableComment(var comment: Comment)(val sym: global.Symbol, val inTpl: DocTemplateImpl) extends Comment {
     def body = comment.body
