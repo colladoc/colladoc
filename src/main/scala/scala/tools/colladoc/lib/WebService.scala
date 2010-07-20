@@ -31,6 +31,7 @@ import tools.nsc.doc.model._
 import xml.{Node, NodeSeq, Null}
 import net.liftweb.http.{S, Req, GetRequest}
 import java.net.URLDecoder
+import util.matching.Regex
 
 object WebService extends RestHelper {
 
@@ -95,11 +96,11 @@ object WebService extends RestHelper {
   }
 
   private def pathToEntity(rootPack: Package, path: List[String]): MemberEntity = {
-    def doName(mbr: MemberEntity): String =
-      NameTransformer.encode(mbr.identifier) + (mbr match {
-        case t: DocTemplateEntity if t.isObject => "$"
-        case _ => ""
-      })
+    val sep = new Regex("""(?<!^)[$](?!$)""")
+    def doName(mbr: MemberEntity): String = mbr match {
+        case tpl: DocTemplateEntity => NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
+        case mbr: MemberEntity => URLDecoder.decode(mbr.identifier, "UTF-8")
+      }
     def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
       pack.packages.find{ _.name == path.head } match {
         case Some(p) => downPacks(p, path.tail)
@@ -108,7 +109,7 @@ object WebService extends RestHelper {
     }
     def downInner(tpl: DocTemplateEntity, path: List[String]): MemberEntity = {
       if (!(path isEmpty)) {
-        tpl.members.find{ doName(_) == path.head } match {
+        tpl.members.find { doName(_) == path.head } match {
           case Some(t: DocTemplateEntity) => downInner(t, path.tail)
           case Some(m: MemberEntity) => m
           case None => tpl
@@ -117,7 +118,7 @@ object WebService extends RestHelper {
     }
     downPacks(rootPack, path) match {
       case (pack, "package" :: Nil) => pack
-      case (pack, path) => downInner(pack, path)
+      case (pack, path) => downInner(pack, path.flatMap { sep.split(_) })
     }
   }
 

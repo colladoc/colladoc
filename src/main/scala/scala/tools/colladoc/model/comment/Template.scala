@@ -28,7 +28,6 @@ import model.{Model, User}
 import model.Model.factory._
 import java.io.{ File => JFile }
 import tools.colladoc.lib.{LiftPaths, DependencyFactory}
-import tools.nsc.doc.model.{MemberEntity, NonTemplateMemberEntity, Package, DocTemplateEntity}
 import net.liftweb.http.{SHtml, S}
 import net.liftweb.http.jquery.JqSHtml
 import net.liftweb.http.js.JE.{Str, JsFunc, JsRaw}
@@ -41,6 +40,7 @@ import net.liftweb.http.js.jquery.JqJsCmds._
 import java.util.Date
 import reflect.NameTransformer
 import java.net.URLEncoder
+import tools.nsc.doc.model._
 
 class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
 
@@ -111,19 +111,24 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def export(mbr: MemberEntity, isSelf: Boolean) =
     SHtml.a(doExport(mbr, isSelf) _, Text("Export"), ("class", "control"))
 
-  private def doExport(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
-    def doName(mbr: MemberEntity): String =
-      NameTransformer.encode(mbr.name) + (mbr match {
-        case t: DocTemplateEntity if t.isObject => "$"
-        case _ => ""
-      })
-    def memberPath(mbr: MemberEntity, isSelf: Boolean) = mbr match {
-        case tpl: DocTemplateEntity if tpl.isPackage && isSelf => "package"
-        case tpl: DocTemplateEntity if tpl.isPackage => doName(tpl) + "/" + "package"
-        case tpl: DocTemplateEntity => doName(tpl)
-        case _ => doName(mbr.inTemplate) + "/" + NameTransformer.encode(mbr.identifier)
+  private def doExport(mbr: MemberEntity, isSelf: Boolean)(): JsCmd =
+    JsRaw("window.open('%s', 'Export')" format (memberToPath(mbr, isSelf) + ".xml"))
+
+  private def memberToPath(mbr: MemberEntity, isSelf: Boolean) = {
+    def doName(mbr: MemberEntity): String = mbr match {
+        case tpl: DocTemplateEntity => NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
+        case mbr: MemberEntity => URLEncoder.encode(mbr.identifier, "UTF-8")
       }
-    JsRaw("window.open('%s', 'Export')" format (memberPath(mbr, isSelf) + ".xml"))
+    def innerPath(nme: String, mbr: MemberEntity): String =
+      mbr.inTemplate match {
+        case inPkg: Package => nme
+        case inTpl: DocTemplateEntity if mbr.isTemplate => innerPath(doName(inTpl) + "$" + nme, inTpl)
+        case inTpl: DocTemplateEntity if !mbr.isTemplate => innerPath(doName(inTpl) + "/" + nme, inTpl)
+      }
+    mbr match {
+      case tpl: DocTemplateEntity if tpl.isPackage => (if (!isSelf) doName(tpl) + "/" else "") + "package"
+      case mbr: MemberEntity => innerPath(doName(mbr), mbr)
+    }
   }
 
 }

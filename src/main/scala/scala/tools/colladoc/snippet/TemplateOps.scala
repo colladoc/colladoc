@@ -33,6 +33,7 @@ import net.liftweb.http.{SHtml, S}
 import net.liftweb.http.jquery.JqSHtml
 import xml.{Text, NodeSeq}
 import tools.colladoc.model.comment.Template
+import util.matching.Regex
 
 class TemplateOps {
   val template = {
@@ -57,6 +58,7 @@ class TemplateOps {
     template.body
 
   private def pathToTemplate(rootPack: Package, path: List[String]): DocTemplateEntity = {
+    val sep = new Regex("""(?<!^)[$](?!$)""")
     def doName(tpl: DocTemplateEntity): String =
       NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
     def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
@@ -76,7 +78,7 @@ class TemplateOps {
     }
     downPacks(rootPack, path) match {
       case (pack, "package" :: Nil) => pack
-      case (pack, path) => downInner(pack, path)
+      case (pack, path) => downInner(pack, path.flatMap { sep.split(_) })
     }
   }
 
