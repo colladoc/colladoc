@@ -71,14 +71,14 @@ trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: M
   
   private def updatedComment(sym: global.Symbol, inTpl: => DocTemplateImpl) = {
     makeMember(sym, inTpl) match {
-      case List(mbr, _*) => {
+      case List(mbr, _*) =>
         CComment.findAll(By(CComment.qualifiedName, mbr.qualifiedIdentifier),
           OrderBy(CComment.dateTime, Descending),
           MaxRows(1)) match {
           case List(com: CComment, _*) if com.dateTime.is.getTime > sym.sourceFile.lastModified => Some(com)
           case _ => None
         }
-      }
+      case Nil => None
     }
   }
 

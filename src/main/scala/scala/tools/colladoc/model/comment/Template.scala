@@ -62,9 +62,9 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       else
         super.signature(mbr, isSelf)
     mbr match {
-      case tpl: DocTemplateEntity if isSelf => getSignature(mbr, isSelf) \\+ export(tpl)
-      case tpl: DocTemplateEntity if mbr.comment.isDefined => super.signature(tpl, isSelf) \\+ export(mbr)
-      case _ => getSignature(mbr, isSelf) \\+ export(mbr)
+      case tpl: DocTemplateEntity if isSelf => getSignature(mbr, isSelf) \\+ export(tpl, isSelf)
+      case tpl: DocTemplateEntity if mbr.comment.isDefined => super.signature(tpl, isSelf) \\+ export(mbr, isSelf)
+      case _ => getSignature(mbr, isSelf) \\+ export(mbr, isSelf)
     }
   }
 
@@ -108,21 +108,22 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def update(mbr: MemberEntity, text: String) =
     Model.factory.update(mbr, text)
 
-  private def export(mbr: MemberEntity) =
-    SHtml.a(doExport(mbr) _, Text("Export"), ("class", "control"))
+  private def export(mbr: MemberEntity, isSelf: Boolean) =
+    SHtml.a(doExport(mbr, isSelf) _, Text("Export"), ("class", "control"))
 
-  private def doExport(mbr: MemberEntity)(): JsCmd = {
+  private def doExport(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
     def doName(mbr: MemberEntity): String =
       NameTransformer.encode(mbr.name) + (mbr match {
         case t: DocTemplateEntity if t.isObject => "$"
         case _ => ""
       })
-    def memberPath(mbr: MemberEntity) = mbr match {
+    def memberPath(mbr: MemberEntity, isSelf: Boolean) = mbr match {
+        case tpl: DocTemplateEntity if tpl.isPackage && isSelf => "package"
         case tpl: DocTemplateEntity if tpl.isPackage => doName(tpl) + "/" + "package"
         case tpl: DocTemplateEntity => doName(tpl)
         case _ => doName(mbr.inTemplate) + "/" + NameTransformer.encode(mbr.identifier)
       }
-    JsRaw("window.open('%s', 'Export')" format (memberPath(mbr) + ".xml"))
+    JsRaw("window.open('%s', 'Export')" format (memberPath(mbr, isSelf) + ".xml"))
   }
 
 }
