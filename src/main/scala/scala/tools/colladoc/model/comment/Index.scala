@@ -37,6 +37,7 @@ import net.liftweb.widgets.gravatar.Gravatar
 import net.liftweb.http.js.jquery.JqJE.{JqId, Jq, JqClick}
 import net.liftweb.http.js.JE.{JsFunc, Str}
 import xml.{NodeSeq, Text, Elem}
+import lib.JsCmds._
 
 class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) {
 
@@ -55,10 +56,10 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
     <xml:group>
       <ul class="usernav">
         <li>
-          { SHtml.a(Text("Signup"), openDialog(".user")) }
+          { SHtml.a(Text("Signup"), Jq(Str(".user")) ~> OpenDialog()) }
         </li>
         <li>
-          { SHtml.a(Text("Login"), openDialog(".login")) }
+          { SHtml.a(Text("Login"), Jq(Str(".login")) ~> OpenDialog()) }
         </li>
       </ul>
       { User.signup }
@@ -75,7 +76,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       </div>
       <ul class="usernav">
         <li>
-          { SHtml.a(Text("Settings"), openDialog(".user")) }
+          { SHtml.a(Text("Settings"), Jq(Str(".user")) ~> OpenDialog()) }
         </li>
         <li>
           { SHtml.a(() => { User.logout; RedirectTo("/") }, Text("Log Out")) }
@@ -83,7 +84,5 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       </ul>
       { User.edit }
     </xml:group>
-
-  private def openDialog(id: String) = Jq(Str(id)) ~> new JsMember { def toJsCmd = "dialog('open')" }
   
 }

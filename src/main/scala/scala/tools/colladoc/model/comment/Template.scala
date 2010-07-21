@@ -41,6 +41,7 @@ import java.util.Date
 import reflect.NameTransformer
 import java.net.URLEncoder
 import tools.nsc.doc.model._
+import lib.JsCmds._
 
 class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
 
@@ -86,14 +87,11 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
             { SHtml.a(Text("Cancel"), cancel(mbr, isSelf)) }
           </div>
         </div>
-      </form>) & markItUp(id(mbr, "text")) & button("button")
+      </form>) & markItUp(id(mbr, "text")) & Jq(Str("button")) ~> Button()
   }
 
   private def markItUp(id: String) =
     JqId(Str(id)) ~> new JsMember { def toJsCmd = "markItUp(markItUpSettings)" }
-
-  private def button(id: String) =
-    Jq(Str(id)) ~> new JsMember { def toJsCmd = "button()" }
 
   private def save(mbr: MemberEntity, isSelf: Boolean) =
     Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) &
