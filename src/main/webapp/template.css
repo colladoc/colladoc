@@ -333,10 +333,13 @@ p.shortcomment {
 }
 
 div.fullcomment {
-  display: block;
   margin: 10px 0 10px 0;
   padding-right: 8px;
   padding-left: 8px;
+}
+
+#types div.fullcomment, #values div.fullcomment {
+  display:none
 }
 
 #template div.fullcomment {
