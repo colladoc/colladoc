@@ -60,7 +60,7 @@ class TemplateOps {
   private def pathToTemplate(rootPack: Package, path: List[String]): DocTemplateEntity = {
     val sep = new Regex("""(?<!^)[$](?!$)""")
     def doName(tpl: DocTemplateEntity): String =
-      NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
+      tpl.name + (if (tpl.isObject) "$" else "")
     def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
       pack.packages.find{ _.name == path.head } match {
         case Some(p) => downPacks(p, path.tail)
@@ -78,7 +78,7 @@ class TemplateOps {
     }
     downPacks(rootPack, path) match {
       case (pack, "package" :: Nil) => pack
-      case (pack, path) => downInner(pack, path.flatMap { sep.split(_) })
+      case (pack, path) => downInner(pack, path.flatMap { x => sep.split(NameTransformer.decode(x)) })
     }
   }
 
