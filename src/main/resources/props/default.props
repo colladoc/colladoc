@@ -1,4 +1,4 @@
-# Properties in this file will be read when running in dev mode
+#Application properties
 doctitle=Colladoc
 docversion=1.0-SNAPSHOT
 sourcepath=
