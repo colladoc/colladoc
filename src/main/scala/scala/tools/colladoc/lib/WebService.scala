@@ -32,6 +32,7 @@ import xml.{Node, NodeSeq, Null}
 import net.liftweb.http.{S, Req, GetRequest}
 import java.net.URLDecoder
 import util.matching.Regex
+import collection.mutable.HashSet
 
 object WebService extends RestHelper {
 
@@ -41,85 +42,100 @@ object WebService extends RestHelper {
 
   def changeSet(path: List[String]) =
     <scaladoc>
-      { process(pathToEntity(Model.model.rootPackage, path.toList)) }
+      { new ChangeSetFactory construct(Model.model.rootPackage, path) }
     </scaladoc>
 
-  def process(mbr: MemberEntity): NodeSeq = mbr match {
-      case tpl: DocTemplateEntity => processTemplate(tpl)
-      case _ => processMember(mbr)
+  class ChangeSetFactory {
+
+    protected val visited = HashSet.empty[MemberEntity]
+
+    def construct(pack: Package, path: List[String]): NodeSeq =
+      construct(pathToEntity(pack, path))
+
+    def construct(mbr: MemberEntity): NodeSeq =
+      <xml:group>
+        { if (!visited.contains(mbr)) {
+            visited += mbr
+            mbr match {
+              case tpl: DocTemplateEntity => processTemplate(tpl)
+              case _ => processMember(mbr)
+            }
+          }
+        }
+      </xml:group>
+
+    protected def processTemplate(tpl: DocTemplateEntity): NodeSeq =
+      <xml:group>
+        { if (tpl.isUpdated) {
+            <item>
+              <type>{ tpl match {
+                case _ if tpl.isPackage => "package"
+                case _ if tpl.isTrait => "trait"
+                case _ if tpl.isClass => "class"
+                case _ if tpl.isObject => "object"
+              }}</type>
+              <filename>{ entityToFileName(tpl) }</filename>
+              <identifier>{ tpl.qualifiedIdentifier }</identifier>
+              <newcomment>{ tpl.comment.get.source.get }</newcomment>
+            </item>
+          }
+        }
+        { (tpl.values ++ tpl.abstractTypes ++ tpl.methods) map { processMember(_) } }
+        { tpl.members collect { case t: DocTemplateEntity => t } map { construct(_) } }
+      </xml:group>
+
+    protected def processMember(mbr: MemberEntity): Node =
+      <xml:group>
+        { if ((mbr.inheritedFrom.isEmpty || mbr.inheritedFrom.contains(mbr.inTemplate)) && mbr.isUpdated) {
+            <item>
+              <type>{ mbr match {
+                case _ if mbr.isDef || mbr.isVal || mbr.isVar => "value"
+                case _ if mbr.isAbstractType || mbr.isAliasType => "type"
+              }}</type>
+              <filename>{ entityToFileName(mbr) }</filename>
+              <identifier>{ mbr.qualifiedIdentifier }</identifier>
+              <newcomment>{ mbr.comment.get.source.get }</newcomment>
+            </item>
+          }
+        }
+      </xml:group>
+
+    protected def entityToFileName(mbr: MemberEntity) = {
+      mbr.symbol match {
+        case Some(sym) if sym.sourceFile != null =>
+          val path = sym.sourceFile.path.stripPrefix(Model.settings.sourcepath.value)
+          if (path.startsWith("/")) path.stripPrefix("/")
+          else path
+        case _ => ""
+      }
     }
 
-  def processTemplate(tpl: DocTemplateEntity): NodeSeq =
-    <xml:group>
-      { if (tpl.isUpdated) {
-          <item>
-            <type>{ tpl match {
-              case _ if tpl.isPackage => "package"
-              case _ if tpl.isTrait => "trait"
-              case _ if tpl.isClass => "class"
-              case _ if tpl.isObject => "object"
-            }}</type>
-            <filename>{ entityToFileName(tpl) }</filename>
-            <identifier>{ tpl.qualifiedIdentifier }</identifier>
-            <newcomment>{ tpl.comment.get.source.get }</newcomment>
-          </item>
+    private def pathToEntity(rootPack: Package, path: List[String]): MemberEntity = {
+      val sep = new Regex("""(?<!^)[$](?!$)""")
+      def doName(mbr: MemberEntity): String = mbr match {
+          case tpl: DocTemplateEntity => tpl.name + (if (tpl.isObject) "$" else "")
+          case mbr: MemberEntity => URLDecoder.decode(mbr.identifier, "UTF-8")
+        }
+      def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
+        pack.packages.find{ _.name == path.head } match {
+          case Some(p) => downPacks(p, path.tail)
+          case None => (pack, path)
         }
       }
-      { (tpl.values ++ tpl.abstractTypes ++ tpl.methods) map { processMember(_) } }
-      { tpl.members collect { case t: DocTemplateEntity => t } map { processTemplate(_) } }
-    </xml:group>
-
-  def processMember(mbr: MemberEntity): Node =
-    <xml:group>
-      { if (mbr.isUpdated && (mbr.inheritedFrom.isEmpty || mbr.inheritedFrom.contains(mbr.inTemplate))) {
-          <item>
-            <type>{ mbr match {
-              case _ if mbr.isDef || mbr.isVal || mbr.isVar => "value"
-              case _ if mbr.isAbstractType || mbr.isAliasType => "type"
-            }}</type>
-            <filename>{ entityToFileName(mbr) }</filename>
-            <identifier>{ mbr.qualifiedIdentifier }</identifier>
-            <newcomment>{ mbr.comment.get.source.get }</newcomment>
-          </item>
-        }
+      def downInner(tpl: DocTemplateEntity, path: List[String]): MemberEntity = {
+        if (!(path isEmpty)) {
+          tpl.members.find { doName(_) == path.head } match {
+            case Some(t: DocTemplateEntity) => downInner(t, path.tail)
+            case Some(m: MemberEntity) => m
+            case None => tpl
+          }
+        } else tpl
       }
-    </xml:group>
-
-  def entityToFileName(mbr: MemberEntity) = {
-    mbr.symbol match {
-      case Some(sym) if sym.sourceFile != null =>
-        val path = sym.sourceFile.path.stripPrefix(Model.settings.sourcepath.value)
-        if (path.startsWith("/")) path.stripPrefix("/")
-        else path
-      case _ => ""
+      downPacks(rootPack, path) match {
+        case (pack, "package" :: Nil) => pack
+        case (pack, path) => downInner(pack, path.flatMap { x => sep.split(NameTransformer.decode(x)) })
+      }
     }
+
   }
-
-  private def pathToEntity(rootPack: Package, path: List[String]): MemberEntity = {
-    val sep = new Regex("""(?<!^)[$](?!$)""")
-    def doName(mbr: MemberEntity): String = mbr match {
-        case tpl: DocTemplateEntity => tpl.name + (if (tpl.isObject) "$" else "")
-        case mbr: MemberEntity => URLDecoder.decode(mbr.identifier, "UTF-8")
-      }
-    def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
-      pack.packages.find{ _.name == path.head } match {
-        case Some(p) => downPacks(p, path.tail)
-        case None => (pack, path)
-      }
-    }
-    def downInner(tpl: DocTemplateEntity, path: List[String]): MemberEntity = {
-      if (!(path isEmpty)) {
-        tpl.members.find { doName(_) == path.head } match {
-          case Some(t: DocTemplateEntity) => downInner(t, path.tail)
-          case Some(m: MemberEntity) => m
-          case None => tpl
-        }
-      } else tpl
-    }
-    downPacks(rootPack, path) match {
-      case (pack, "package" :: Nil) => pack
-      case (pack, path) => downInner(pack, path.flatMap { x => sep.split(NameTransformer.decode(x)) })
-    }
-  }
-
 }
