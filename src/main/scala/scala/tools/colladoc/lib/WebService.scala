@@ -111,9 +111,8 @@ object WebService extends RestHelper {
     }
 
     private def pathToEntity(rootPack: Package, path: List[String]): MemberEntity = {
-      val sep = new Regex("""(?<!^)[$](?!$)""")
       def doName(mbr: MemberEntity): String = mbr match {
-          case tpl: DocTemplateEntity => tpl.name + (if (tpl.isObject) "$" else "")
+          case tpl: DocTemplateEntity => NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
           case mbr: MemberEntity => URLDecoder.decode(mbr.identifier, "UTF-8")
         }
       def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
@@ -122,18 +121,19 @@ object WebService extends RestHelper {
           case None => (pack, path)
         }
       }
-      def downInner(tpl: DocTemplateEntity, path: List[String]): MemberEntity = {
-        if (!(path isEmpty)) {
-          tpl.members.find { doName(_) == path.head } match {
-            case Some(t: DocTemplateEntity) => downInner(t, path.tail)
+      def downInner(tpl: DocTemplateEntity, path: List[String]): MemberEntity = path match {
+        case p :: r if p.isEmpty => downInner(tpl, r)
+        case p :: r =>
+          tpl.members.sortBy{ t => -1 * doName(t).length }.find{ t => p.startsWith(doName(t)) } match {
+            case Some(t: DocTemplateEntity) => downInner(t, p.stripPrefix(doName(t)).stripPrefix("$") :: r)
             case Some(m: MemberEntity) => m
             case None => tpl
           }
-        } else tpl
+        case Nil => tpl
       }
       downPacks(rootPack, path) match {
         case (pack, "package" :: Nil) => pack
-        case (pack, path) => downInner(pack, path.flatMap { x => sep.split(NameTransformer.decode(x)) })
+        case (pack, path) => downInner(pack, path)
       }
     }
 

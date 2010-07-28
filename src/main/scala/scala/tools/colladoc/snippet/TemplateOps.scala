@@ -58,27 +58,26 @@ class TemplateOps {
     template.body
 
   private def pathToTemplate(rootPack: Package, path: List[String]): DocTemplateEntity = {
-    val sep = new Regex("""(?<!^)[$](?!$)""")
     def doName(tpl: DocTemplateEntity): String =
-      tpl.name + (if (tpl.isObject) "$" else "")
+      NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
     def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
-      pack.packages.find{ _.name == path.head } match {
+      pack.packages.find { _.name == path.head } match {
         case Some(p) => downPacks(p, path.tail)
         case None => (pack, path)
       }
     }
-    def downInner(tpl: DocTemplateEntity, path: List[String]): DocTemplateEntity = {
-      if (!(path isEmpty))
-        tpl.templates.find{ doName(_) == path.head } match {
-          case Some(t) => downInner(t, path.tail)
-          case None => tpl
-        }
-      else
-        tpl
-    }
+    def downInner(tpl: DocTemplateEntity, path: List[String]): DocTemplateEntity = path match {
+        case p :: r if p.isEmpty => downInner(tpl, r)
+        case p :: r =>
+          tpl.templates.sortBy{ t => -1 * doName(t).length }.find{ t => p.startsWith(doName(t)) } match {
+            case Some(t) => downInner(t, p.stripPrefix(doName(t)).stripPrefix("$") :: r)
+            case None => tpl
+          }
+        case Nil => tpl
+      }
     downPacks(rootPack, path) match {
       case (pack, "package" :: Nil) => pack
-      case (pack, path) => downInner(pack, path.flatMap { x => sep.split(NameTransformer.decode(x)) })
+      case (pack, path) => downInner(pack, path)
     }
   }
 
