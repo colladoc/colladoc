@@ -46,7 +46,7 @@ import lib.JsCmds._
 class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
 
   private def id(mbr: MemberEntity, pos: String) =
-    "%s_%s".format(mbr.identifier.replaceAll("""[ \[\]\(\)\,\.\#]""", "_"), pos)
+    "%s_%s".format(mbr.identifier.replaceAll("""[ \[\]\(\)\,\.\#\$]""", "_"), pos)
 
   override def memberToShortCommentHtml(mbr: MemberEntity, isSelf: Boolean): NodeSeq =
     super.memberToShortCommentHtml(mbr, isSelf) \\% Map("id" -> id(mbr, "shortcomment"))
