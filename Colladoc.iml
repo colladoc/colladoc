@@ -52,16 +52,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-actor-2.0-scala280-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-textile-2.0-scala280-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-actor_2.8.0-2.1-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -88,7 +79,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-machine-2.0-scala280-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-common_2.8.0-2.1-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -97,16 +88,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-common-2.0-scala280-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-mapper-2.0-scala280-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-mapper_2.8.0-2.1-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -133,34 +115,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-widgets-2.0-scala280-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/smackx-3.1.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/commons-io-1.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/amqp-client-1.7.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-widgets_2.8.0-2.1-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -178,7 +133,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-util-2.0-scala280-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-util_2.8.0-2.1-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -187,16 +142,7 @@
     <orderEntry type="module-library" exported="" scope="RUNTIME">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/runtime/h2-1.2.134.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="" scope="PROVIDED">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/provided/servlet-api-2.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/h2-1.2.138.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -205,25 +151,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-facebook-2.0-scala280-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/h2-1.2.134.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-webkit-2.0-scala280-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-webkit_2.8.0-2.1-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -242,15 +170,6 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/joda-time-1.6.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-amqp-2.0-scala280-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -277,15 +196,6 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/commons-cli-1.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/slf4j-log4j12-1.5.11.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -295,7 +205,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-json-2.0-scala280-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-json_2.8.0-2.1-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -331,43 +241,7 @@
     <orderEntry type="module-library" exported="" scope="TEST">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/test/specs_2.8.0.Beta1-1.6.3.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/smack-3.1.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-core-2.0-scala280-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-record-2.0-scala280-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/compile/lift-xmpp-2.0-scala280-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0-local/test/specs_2.8.0-1.6.5-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

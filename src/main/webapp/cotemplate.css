@@ -1,6 +1,9 @@
-h4 > a.control {
+div.controls {
+    margin: 0.4em 0em 0em;
+}
+
+div.controls > a.control {
     color: #000000;
-    float: right;
     font-family: sans-serif;
     font-size: 10pt;
     font-weight: bold;
@@ -8,7 +11,7 @@ h4 > a.control {
     text-decoration: none;
 }
 
-h4 > a.control:hover {
+div.controls > a.control:hover {
     text-decoration: underline;
 }
 

@@ -1,5 +1,5 @@
 #Application properties
-doctitle=Colladoc
-docversion=1.0-SNAPSHOT
-sourcepath=
-classpath=
+-doc-title=Colladoc
+-doc-version=1.0-SNAPSHOT
+-sourcepath=
+-classpath=

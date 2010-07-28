@@ -20,25 +20,27 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package model
+package scala.tools.colladoc {
+package model {
 
 import comment.{PersistableCommentFactory, UpdatableCommentFactory}
+import tools.nsc.doc.model.{MemberEntity, ModelFactory}
+
+import net.liftweb.common.Logger
+import net.liftweb.util.Props
+
 import tools.nsc.Global
 import tools.nsc.doc.{SourcelessComments, Settings}
 import tools.nsc.reporters.{ConsoleReporter, Reporter}
-import net.liftweb.common.Logger
-import tools.nsc.doc.model.ModelFactory
 import tools.nsc.io.Directory
+
 import java.io.File
-import net.liftweb.util.Props
 
 object Model extends Logger {
   object settings extends Settings(msg => error(msg)) {
-    doctitle.value = Props.get("doctitle") openOr "Colladoc"
-    docversion.value = Props.get("docversion") openOr "1.0"
-    classpath.value = Props.get("classpath") openOr ""
-    sourcepath.value = Props.get("sourcepath") openOr "."
+    processArguments((Props.props.flatMap {
+      case (k, v) => if (!v.isEmpty) Array(k, v) else Array(k)
+    }) toList, false)
   }
 
   /** The unique compiler instance used by this processor and constructed from its `settings`. */
@@ -79,4 +81,8 @@ object Model extends Logger {
   def init() {
     List(model)
   }
+
+}
+
+}
 }

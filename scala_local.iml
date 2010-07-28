@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Scala" name="Scala">
+      <configuration>
+        <option name="takeFromSettings" value="true" />
+        <option name="myScalaCompilerJarPaths">
+          <array>
+            <option value="$MODULE_DIR$/scala/build/pack/lib/scala-compiler.jar" />
+          </array>
+        </option>
+        <option name="myScalaSdkJarPaths">
+          <array>
+            <option value="$MODULE_DIR$/scala/build/pack/lib/scala-library.jar" />
+          </array>
+        </option>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/scala">
+      <sourceFolder url="file://$MODULE_DIR$/scala/src/library" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/src/swing" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/src/scalap" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/src/compiler" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/src/dbc" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scala/src/partest" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/scala/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
+

@@ -20,28 +20,31 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package model
-package comment
+package scala.tools.colladoc {
+package lib {
+package page {
 
-import model.{Model, User}
 import model.Model.factory._
-import java.io.{ File => JFile }
-import tools.colladoc.lib.{LiftPaths, DependencyFactory}
+import model.{Comment, Model, User}
+import lib.{LiftPaths, DependencyFactory}
+import lib.XmlUtils._
+import lib.JsCmds._
+
 import net.liftweb.http.{SHtml, S}
-import net.liftweb.http.jquery.JqSHtml
+import net.liftweb.http.js._
+import net.liftweb.http.js.jquery.JqJE._
+import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.http.js.JE.{Str, JsFunc, JsRaw}
 import net.liftweb.http.js.JsCmds.{Run, Replace, SetHtml}
-import tools.colladoc.lib.XmlUtils._
-import net.liftweb.http.js.jquery.JqJE._
+import net.liftweb.http.jquery.JqSHtml
+
+import tools.nsc.doc.model._
 import xml.{Text, Elem, NodeSeq}
-import net.liftweb.http.js._
-import net.liftweb.http.js.jquery.JqJsCmds._
-import java.util.Date
 import reflect.NameTransformer
 import java.net.URLEncoder
-import tools.nsc.doc.model._
-import lib.JsCmds._
+
+import model.comment.DynamicModelFactory
+import net.liftweb.common.Full
 
 class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
 
@@ -53,24 +56,26 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   override def memberToCommentBodyHtml(mbr: MemberEntity, isSelf: Boolean) =
     <div id={ id(mbr, "comment") }>
+      { content(mbr, isSelf) }
+      { controls(mbr, isSelf) }
+    </div>
+
+  private def content(mbr: MemberEntity, isSelf: Boolean) =
+    <div id={ id(mbr, "content") }>
       { super.memberToCommentBodyHtml(mbr, isSelf) }
     </div>
 
-  override def signature(mbr: MemberEntity, isSelf: Boolean): NodeSeq = {
-    def getSignature(mbr: MemberEntity, isSelf: Boolean): NodeSeq =
-      if (User.loggedIn_?)
-        super.signature(mbr, isSelf) \\+ edit(mbr, isSelf)
-      else
-        super.signature(mbr, isSelf)
-    mbr match {
-      case tpl: DocTemplateEntity if isSelf => getSignature(mbr, isSelf) \\+ export(tpl, isSelf)
-      case tpl: DocTemplateEntity if mbr.comment.isDefined => super.signature(tpl, isSelf) \\+ export(mbr, isSelf)
-      case _ => getSignature(mbr, isSelf) \\+ export(mbr, isSelf)
-    }
-  }
+  private def controls(mbr: MemberEntity, isSelf: Boolean) =
+    <div class="controls">
+      { select(mbr, isSelf) }
+      { if (User.loggedIn_?)
+          edit(mbr, isSelf)
+      }
+      { export(mbr, isSelf) }
+    </div>
 
   private def edit(mbr: MemberEntity, isSelf: Boolean) = {
-    SHtml.a(doEdit(mbr, isSelf) _, Text("Edit"), ("class", "control edit"))
+    SHtml.a(doEdit(mbr, isSelf) _, Text("Edit"), ("class", "button"))
   }
 
   private def doEdit(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
@@ -87,24 +92,40 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
             { SHtml.a(Text("Cancel"), cancel(mbr, isSelf)) }
           </div>
         </div>
-      </form>) & markItUp(id(mbr, "text")) & Jq(Str("button")) ~> Button()
+      </form>) &
+            JqId(Str(id(mbr, "text"))) ~> Editor() &
+            Jq(Str("button")) ~> Button()
   }
-
-  private def markItUp(id: String) =
-    JqId(Str(id)) ~> new JsMember { def toJsCmd = "markItUp(markItUpSettings)" }
 
   private def save(mbr: MemberEntity, isSelf: Boolean) =
     Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) &
-    (if (isSelf)
-      JsCmds.Noop
-    else
-      SetHtml(id(mbr, "shortcomment"), inlineToHtml(mbr.comment.get.short)))
+            (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(mbr.comment.get.short))
+            else JsCmds.Noop) &
+            Jq(Str("#" + id(mbr, "comment") + " .button")) ~> Button() &
+            Jq(Str("#" + id(mbr, "comment") + " .select")) ~> SelectMenu()
 
   private def cancel(mbr: MemberEntity, isSelf: Boolean) =
-    Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf))
+    Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) &
+            Jq(Str("#" + id(mbr, "comment") + " .button")) ~> Button() &
+            Jq(Str("#" + id(mbr, "comment") + " .select")) ~> SelectMenu()
 
   private def update(mbr: MemberEntity, text: String) =
     Model.factory.update(mbr, text)
+
+  private def select(mbr: MemberEntity, isSelf: Boolean) = {
+    def replace(cid: String) = {
+      Comment.find(cid) match {
+        case Full(c) =>
+          val comment = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
+          val entity = DynamicModelFactory.createMember(mbr, comment)
+          Replace(id(entity, "content"), content(entity, isSelf))&
+                  (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(comment.short))
+                  else JsCmds.Noop)
+        case _ => JsCmds.Noop
+      }
+    }
+    Comment.select(mbr.qualifiedIdentifier, replace _)
+  }
 
   private def export(mbr: MemberEntity, isSelf: Boolean) =
     SHtml.a(doExport(mbr, isSelf) _, Text("Export"), ("class", "control"))
@@ -129,4 +150,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     }
   }
 
+}
+
+}
+}
 }

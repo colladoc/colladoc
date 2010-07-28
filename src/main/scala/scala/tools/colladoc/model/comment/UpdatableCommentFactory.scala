@@ -30,6 +30,7 @@ import collection.mutable.WeakHashMap
 import tools.nsc.doc.model.comment.{Text, Body, Comment, CommentFactory}
 import net.liftweb.common.{Empty, Full}
 import net.liftweb.mapper._
+import tools.nsc.util.{NoPosition, Position}
 
 trait UpdatableCommentFactory extends CommentFactory { thisFactory: ModelFactory with CommentFactory =>
 
@@ -41,6 +42,11 @@ trait UpdatableCommentFactory extends CommentFactory { thisFactory: ModelFactory
       case Some(c) => new UpdatableComment(c)(sym, inTpl)
       case None => new UpdatableComment(EmptyComment)(sym, inTpl)
     })
+
+  def parse(sym: global.Symbol, inTpl: => DocTemplateImpl, comment: String): Comment = {
+    val c = global.expandedDocComment(sym, inTpl.sym, comment).trim
+    new UpdatableComment(parse(sym, c, comment, NoPosition))(sym, inTpl)
+  }
 
   def update(mbr: MemberEntity, docStr: String) =
     if (mbr.comment.isDefined) {
@@ -93,6 +99,11 @@ trait UpdatableCommentFactory extends CommentFactory { thisFactory: ModelFactory
   implicit def symbols(mbr: MemberEntity) = new {
     def symbol(): Option[global.Symbol] = mbr.comment match {
       case Some(uc: UpdatableComment) => Some(uc.sym)
+      case _ => None
+    }
+
+    def template(): Option[DocTemplateImpl] = mbr.comment match {
+      case Some(uc: UpdatableComment) => Some(uc.inTpl)
       case _ => None
     }
   }

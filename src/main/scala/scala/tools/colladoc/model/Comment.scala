@@ -24,6 +24,12 @@ package scala.tools.colladoc
 package model
 
 import net.liftweb.mapper._
+import net.liftweb.http.SHtml
+import net.liftweb.common.Empty
+import net.liftweb.http.js.JsCmds._
+import java.text.SimpleDateFormat
+import net.liftweb.http.js.JsCmd
+import java.util.Date
 
 class Comment extends LongKeyedMapper[Comment] with IdPK {
   def getSingleton = Comment
@@ -43,4 +49,16 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
 
 object Comment extends Comment with LongKeyedMetaMapper[Comment] {
   override def dbTableName = "comments"
+
+  def select(qualifiedName: String, func: (String) => JsCmd) = {
+    val fmt = new SimpleDateFormat("HH:mm:ss MM/dd/yy")
+    def format(c: Comment) =
+      "%s by %s".format(fmt.format(c.dateTime.is), User.find(c.user.is).open_!.userName)
+
+    val opts = findAll(By(Comment.qualifiedName, qualifiedName), OrderBy(Comment.dateTime, Descending))
+    if (!opts.isEmpty)
+      SHtml.ajaxSelect(opts.map { c: Comment => (c.id.is.toString, format(c).toString) }, Empty, func, ("class", "select"))
+    else
+      <xml:group></xml:group>
+  }
 }

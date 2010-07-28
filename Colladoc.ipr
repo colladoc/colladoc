@@ -3403,6 +3403,53 @@
               <file url="file://$PROJECT_DIR$/scala_local/test/pending/shootout/sieve.scala" />
             </files>
           </module>
+          <module name="Colladoc">
+            <files>
+              <file url="file://$PROJECT_DIR$/src/main/scala/bootstrap/liftweb/Boot.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/lib/DepencyFactory.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/lib/IndexStuff.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/lib/JsCmds.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/lib/LiftPaths.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/lib/TemplateStuff.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/lib/WebService.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/lib/XmlUtils.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/lib/page/Index.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/lib/page/Template.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/model/Comment.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/model/Model.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/model/User.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/model/comment/DynamicDocComments.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/model/comment/DynamicModelFactory.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/model/comment/EntityFactory.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/model/comment/ModelTransformer.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/model/comment/PersistableCommentFactory.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/model/comment/UpdatableCommentFactory.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/snippet/IndexOps.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/snippet/TemplateOps.scala" />
+              <file url="file://$PROJECT_DIR$/src/main/scala/scala/tools/colladoc/view/IndexView.scala" />
+              <file url="file://$PROJECT_DIR$/src/test/scala/LiftConsole.scala" />
+              <file url="file://$PROJECT_DIR$/src/test/scala/RunWebApp.scala" />
+              <file url="file://$PROJECT_DIR$/src/test/scala/scala/tools/colladoc/AppTest.scala" />
+              <file url="file://$PROJECT_DIR$/src/test/scala/scala/tools/colladoc/snippet/IndexHelperTest.scala" />
+              <file url="file://$PROJECT_DIR$/src/test/scala/scala/tools/colladoc/snippet/TemplateHelperTest.scala" />
+            </files>
+          </module>
+          <module name="sbt_project_definition">
+            <files>
+              <file url="file://$PROJECT_DIR$/project/build/ColladocProject.scala" />
+              <file url="file://$PROJECT_DIR$/project/plugins/Plugins.scala" />
+              <file url="file://$PROJECT_DIR$/project/plugins/src_managed/sbt-winstone-plugin-1.0-SNAPSHOT/WinstoneProject.scala" />
+            </files>
+          </module>
+        </modules>
+      </facet-type>
+      <facet-type id="web">
+        <modules>
+          <module name="Colladoc">
+            <files>
+              <file url="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/web.xml" />
+            </files>
+          </module>
         </modules>
       </facet-type>
     </autodetection-disabled>
@@ -3436,9 +3483,9 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$//Colladoc.iml" filepath="$PROJECT_DIR$//Colladoc.iml" />
-      <module fileurl="file://$PROJECT_DIR$/project/sbt_project_definition.iml" filepath="$PROJECT_DIR$/project/sbt_project_definition.iml" />
-      <module fileurl="file://$PROJECT_DIR$/scala/scala_local.iml" filepath="$PROJECT_DIR$/scala/scala_local.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Colladoc.iml" filepath="$PROJECT_DIR$/Colladoc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sbt_project_definition.iml" filepath="$PROJECT_DIR$/sbt_project_definition.iml" />
+      <module fileurl="file://$PROJECT_DIR$/scala_local.iml" filepath="$PROJECT_DIR$/scala_local.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK">

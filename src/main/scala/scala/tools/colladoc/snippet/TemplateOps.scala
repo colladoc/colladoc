@@ -20,19 +20,21 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package snippet
+package scala.tools.colladoc {
+package snippet {
 
-import tools.colladoc.model.Model
+import lib.page.Template
+import model.Model
+import lib.{LiftPaths, DependencyFactory}
+
+import net.liftweb.http.{SHtml, S}
+import net.liftweb.http.jquery.JqSHtml
+
+import tools.nsc.doc.model.{MemberEntity, NonTemplateMemberEntity, Package, DocTemplateEntity}
 import tools.nsc.io.File
 import reflect.NameTransformer
 import java.io.{ File => JFile }
-import tools.colladoc.lib.{LiftPaths, DependencyFactory}
-import tools.nsc.doc.model.{MemberEntity, NonTemplateMemberEntity, Package, DocTemplateEntity}
-import net.liftweb.http.{SHtml, S}
-import net.liftweb.http.jquery.JqSHtml
 import xml.{Text, NodeSeq}
-import tools.colladoc.model.comment.Template
 import util.matching.Regex
 
 class TemplateOps {
@@ -81,4 +83,7 @@ class TemplateOps {
     }
   }
 
+}
+
+}
 }

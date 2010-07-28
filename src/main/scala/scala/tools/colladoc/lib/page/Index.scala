@@ -20,29 +20,29 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package model
-package comment
+package scala.tools.colladoc {
+package lib {
+package page {
 
-import lib.XmlUtils._
 import model.{User, Model}
+import lib.XmlUtils._
+import lib.JsCmds._
 
 import net.liftweb.http.{S, SHtml}
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.http.js.{JsCmds, JsMember}
-import tools.nsc.doc.Universe
-
-import net.liftweb.widgets.gravatar.Gravatar
 import net.liftweb.http.js.jquery.JqJE.{JqId, Jq, JqClick}
 import net.liftweb.http.js.JE.{JsFunc, Str}
+import net.liftweb.widgets.gravatar.Gravatar
+
+import tools.nsc.doc.Universe
 import xml.{NodeSeq, Text, Elem}
-import lib.JsCmds._
 
 class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) {
 
   override def browser = super.browser \+ login
-  
+
   def login: Elem =
     <div id="user">
       { if (User.loggedIn_?)
@@ -84,5 +84,9 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       </ul>
       { User.edit }
     </xml:group>
-  
+
+}
+
+}
+}
 }

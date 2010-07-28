@@ -20,13 +20,14 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package snippet
+package scala.tools.colladoc {
+package snippet {
 
-import tools.colladoc.lib.LiftPaths
-import xml.{Elem, Text, NodeSeq}
-import model.comment.Index
+import lib.LiftPaths
+import lib.page.Index
 import model.Model
+
+import xml.{Elem, Text, NodeSeq}
 
 class IndexOps {
   val index = new Index(Model.model) with LiftPaths
@@ -39,4 +40,7 @@ class IndexOps {
   def body(xhtml: NodeSeq): NodeSeq =
     index.body
 
+}
+
+}
 }
