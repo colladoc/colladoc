@@ -20,8 +20,27 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package scala.tools.colladoc {
+package snippet {
 
-$(document).ready(function() {
-    $('.button').button();
-    $('.select').selectmenu({ width: 250 });
-})
+import xml.{Text, NodeSeq}
+import net.liftweb.http.SHtml
+import lib.page.History
+import java.util.Date
+import java.text.SimpleDateFormat
+
+class HistoryOps {
+  val history = new History
+
+  /** Return history title. */
+  def title(xhtml: NodeSeq): NodeSeq =
+    Text(history.title)
+
+  /** Return history body. */
+  def body(xhtml: NodeSeq): NodeSeq =
+    history.body
+
+}
+
+}
+}

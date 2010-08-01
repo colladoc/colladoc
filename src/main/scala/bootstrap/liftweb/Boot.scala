@@ -33,7 +33,7 @@ import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConn
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.scala.tools.colladoc.model._
 import js.jquery.JQuery14Artifacts
-import tools.colladoc.lib.{WebService, IndexStuff, TemplateStuff}
+import tools.colladoc.lib.{HistoryStuff, WebService, IndexStuff, TemplateStuff}
 
 /**
  * A class that's instantiated early and run.  It allows the application to modify lift's environment
@@ -56,7 +56,10 @@ class Boot {
 
     // Build SiteMap
     def sitemap() = SiteMap(
+      //Menu("Index") / "index",
+      //Menu("History") / "history",
       Menu(IndexStuff),
+      Menu(HistoryStuff),
       Menu(TemplateStuff)
       )
 

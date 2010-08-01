@@ -1,0 +1,25 @@
+.history #definition {
+  background-color: #333;
+}
+
+#mbrsel > div#date > ol > li.from {
+    width: 2em;
+}
+
+#mbrsel > div#date > ol > li.to {
+    width: 2em;
+}
+
+#mbrsel > div#date > ol > li input {
+    width: 5em;
+}
+
+#mbrsel > div#user > ol > li input {
+    width: 12em;
+}
+
+.filter > span {
+    background: url("images/filter_box_left.png") no-repeat left top;
+    margin: 0 0 0 -8px;
+    padding: 2px 0 0 22px;
+}

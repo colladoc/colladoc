@@ -36,6 +36,10 @@
     font-weight: bold;
 }
 
+.form {
+    display: none;
+}
+
 .form fieldset {
     padding: 0;
     border: 0;

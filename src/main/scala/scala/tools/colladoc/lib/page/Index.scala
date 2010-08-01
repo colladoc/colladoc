@@ -56,6 +56,9 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
     <xml:group>
       <ul class="usernav">
         <li>
+          <a href="/history.html" target="template">History</a>
+        </li>
+        <li>
           { SHtml.a(Text("Signup"), Jq(Str(".user")) ~> OpenDialog()) }
         </li>
         <li>
@@ -75,6 +78,9 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
         </span>
       </div>
       <ul class="usernav">
+        <li>
+          <a href="/history.html" target="template">History</a>
+        </li>
         <li>
           { SHtml.a(Text("Settings"), Jq(Str(".user")) ~> OpenDialog()) }
         </li>
