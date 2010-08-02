@@ -20,8 +20,8 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package model
+package scala.tools.colladoc {
+package model {
 
 import lib.JsCmds._
 
@@ -29,6 +29,7 @@ import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
 import net.liftweb.util.Helpers._
+import net.liftweb.http.js.JsCmd
 import net.liftweb.http.js.JsCmds._
 import xml.Text
 
@@ -128,7 +129,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "submit" -> SHtml.hidden(doSave _))
   }
 
-  def signup = {
+  def signup(onSuccess: () => JsCmd) = {
     val user = create
 
     def doSignup() {
@@ -137,6 +138,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
           S.notice("User succesfully created")
           user.save()
           logUserIn(user)
+          onSuccess()
         case n =>
           S.error(n)
       }
@@ -172,7 +174,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       </fieldset>
     </lift:form>
 
-  def login = {
+  def login(onSuccess: () => JsCmd) = {
     var username: String = ""
     var password: String = "*"
 
@@ -181,7 +183,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
         case Full(user) if user.password.match_?(password) =>
           S.notice("User logged in")
           logUserIn(user)
-          RedirectTo("/")
+          onSuccess()
         case _ =>
           S.error("Invalid user credentials")
       }
@@ -197,4 +199,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
     logoutCurrentUser
   }
 
+}
+
+}
 }

@@ -20,13 +20,17 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package lib
+package scala.tools.colladoc {
+package lib {
 
 import net.liftweb.http.js.{JsMember, JsExp, JsCmd}
 import net.liftweb.http.js.jquery.{JQueryLeft, JQueryRight}
 
 object JsCmds {
+
+  case class Reload() extends JsExp with JsMember {
+    override def toJsCmd = "each(function() {this.contentWindow.location.reload(true);})"
+  }
 
   case class Button() extends JsExp with JsMember {
     override def toJsCmd = "button()"
@@ -59,4 +63,7 @@ object JsCmds {
     override def toJsCmd = "jQuery.notify({ text: '" + text + "', type: '" + _type.toString + "'});" 
   }
 
+}
+
+}
 }

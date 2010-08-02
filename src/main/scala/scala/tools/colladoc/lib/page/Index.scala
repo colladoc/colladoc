@@ -32,12 +32,12 @@ import net.liftweb.http.{S, SHtml}
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.http.js.{JsCmds, JsMember}
-import net.liftweb.http.js.jquery.JqJE.{JqId, Jq, JqClick}
-import net.liftweb.http.js.JE.{JsFunc, Str}
 import net.liftweb.widgets.gravatar.Gravatar
 
 import tools.nsc.doc.Universe
 import xml.{NodeSeq, Text, Elem}
+import net.liftweb.http.js.jquery.JqJE._
+import net.liftweb.http.js.JE.{JsRaw, JsFunc, Str}
 
 class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) {
 
@@ -65,9 +65,13 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
           { SHtml.a(Text("Login"), Jq(Str(".login")) ~> OpenDialog()) }
         </li>
       </ul>
-      { User.signup }
-      { User.login }
+      { User.signup(doLogin _) }
+      { User.login(doLogin _) }
     </xml:group>
+
+  private def doLogin = {
+    Replace("user", login) & Jq(Str("iframe[name='template']")) ~> Reload()
+  }
 
   private def loggedIn =
     <xml:group>
@@ -85,11 +89,15 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
           { SHtml.a(Text("Settings"), Jq(Str(".user")) ~> OpenDialog()) }
         </li>
         <li>
-          { SHtml.a(() => { User.logout; RedirectTo("/") }, Text("Log Out")) }
+          { SHtml.a(() => {User.logout; doLogout}, Text("Log Out")) }
         </li>
       </ul>
       { User.edit }
     </xml:group>
+
+  private def doLogout = {
+    Replace("user", login) & Jq(Str("iframe[name='template']")) ~> Reload()
+  }
 
 }
 
