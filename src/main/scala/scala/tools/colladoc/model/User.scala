@@ -23,6 +23,8 @@
 package scala.tools.colladoc
 package model
 
+import lib.JsCmds._
+
 import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
@@ -103,9 +105,11 @@ object User extends User with KeyedMetaMapper[Long, User] {
 
     def doSave() {
       user.validate match {
-        case Nil => S.notice("User saved")
+        case Nil =>
+          S.notice("User succesfully saved")
           user.save()
-        case n => S.error(n)
+        case n =>
+          S.error(n)
       }
     }
 
@@ -129,10 +133,12 @@ object User extends User with KeyedMetaMapper[Long, User] {
 
     def doSignup() {
       user.validate match {
-        case Nil => S.notice("User saved")
+        case Nil =>
+          S.notice("User succesfully created")
           user.save()
           logUserIn(user)
-        case n => S.error(n)
+        case n =>
+          S.error(n)
       }
     }
 
@@ -175,9 +181,10 @@ object User extends User with KeyedMetaMapper[Long, User] {
         case Full(user) if user.password.match_?(password) =>
           S.notice("User logged in")
           logUserIn(user)
-        case _ => S.error("Invalid user credentials")
+          RedirectTo("/")
+        case _ =>
+          S.error("Invalid user credentials")
       }
-      RedirectTo("/")
     }
 
     bind("user", loginHtml,

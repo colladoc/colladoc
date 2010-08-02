@@ -32,8 +32,12 @@ import Helpers._
 import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.scala.tools.colladoc.model._
+import js.JsCmds._
 import js.jquery.JQuery14Artifacts
+
 import tools.colladoc.lib.{HistoryStuff, WebService, IndexStuff, TemplateStuff}
+import tools.colladoc.lib.JsCmds._
+import scala.xml.NodeSeq
 
 /**
  * A class that's instantiated early and run.  It allows the application to modify lift's environment
@@ -74,6 +78,8 @@ class Boot {
     LiftRules.ajaxEnd =
       Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
 
+    LiftRules.noticesToJsCmd = notices _
+
     LiftRules.early.append(makeUtf8)
     LiftRules.jsArtifacts = JQuery14Artifacts    
 
@@ -97,5 +103,15 @@ class Boot {
    */
   private def makeUtf8(req: HTTPRequest) {
     req.setCharacterEncoding("UTF-8")
+  }
+
+  private def notices() = {
+    def cmds(msgs: List[(NodeSeq, Box[String])], _type: Type.Type) =
+      msgs.foldLeft(Noop) { (c, m) => c & (m match {
+        case (n, Full(t)) => Notify(_type, n.toString, t)
+        case (n, _) => Notify(_type, n.toString)
+      })}
+
+    cmds(S.notices, Type.notice) & cmds(S.warnings, Type.notice) & cmds(S.errors, Type.error)
   }
 }

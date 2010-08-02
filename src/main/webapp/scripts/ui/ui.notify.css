@@ -1,0 +1,55 @@
+/*
+ * jQuery Notify Plugin 1.0.0 Beta 1
+ *
+ * Copyright (c) 2009 Hunter Perrin
+ *
+ * Licensed under the GNU Affero GPL:
+ *	  http://www.gnu.org/licenses/agpl.html
+ */
+
+/* Notice
+----------------------------------*/
+.ui-notify {
+	top: 18px;
+	right: 18px;
+	position: absolute;
+	height: auto;
+	/* Ensure that the notices are on top of everything else. */
+	z-index: 9999;
+}
+/* This hides position: fixed from IE6, which doesn't understand it. */
+html > body .ui-notify {
+	position: fixed;
+}
+.ui-notify .ui-notify-shadow {
+	margin: 0;
+	position: absolute;
+	top: .1em;
+	left: .1em;
+	bottom: -.2em;
+	right: -.2em;
+	z-index: -1;
+}
+.ui-notify-container {
+	background-position: 0 0;
+	padding: .8em;
+	height: 100%;
+}
+.ui-notify-closer {
+	float: right;
+	margin-left: .2em;
+}
+.ui-notify-title {
+	display: block;
+	font-size: 1.2em;
+	font-weight: bold;
+	margin-bottom: .4em;
+}
+.ui-notify-text {
+	display: block;
+}
+.ui-notify-icon, .ui-notify-icon span {
+	display: block;
+	float: left;
+	margin-right: .2em;
+}

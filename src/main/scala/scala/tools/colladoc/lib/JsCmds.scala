@@ -48,4 +48,15 @@ object JsCmds {
     override def toJsCmd = "dialog('close')"
   }
 
+  object Type extends Enumeration("notice", "error") {
+    type Type = Value
+    val notice, error = Value
+  }
+
+  import Type._
+
+  case class Notify(_type: Type, text: String, title: String = "") extends JsCmd {
+    override def toJsCmd = "jQuery.notify({ text: '" + text + "', type: '" + _type.toString + "'});" 
+  }
+
 }
