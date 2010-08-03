@@ -23,6 +23,7 @@
 package scala.tools.colladoc {
 package lib {
 
+import net.liftweb.util.Helpers._
 import net.liftweb.http.js.{JsMember, JsExp, JsCmd}
 import net.liftweb.http.js.jquery.{JQueryLeft, JQueryRight}
 
@@ -59,8 +60,9 @@ object JsCmds {
 
   import Type._
 
-  case class Notify(_type: Type, text: String, title: String = "") extends JsCmd {
-    override def toJsCmd = "jQuery.notify({ text: '" + text + "', type: '" + _type.toString + "'});" 
+  case class Notify(_type: Type, text: String, title: String = "", hide: Boolean = true) extends JsCmd {
+    override def toJsCmd = "jQuery.notify({ text: " + text.encJs + ", type: " + _type.toString.encJs +
+            (if (title.nonEmpty) ", title: " + title.encJs else "") + ", hide: " + hide.toString + " });"
   }
 
 }

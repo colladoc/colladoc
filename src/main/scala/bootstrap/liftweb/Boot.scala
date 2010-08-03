@@ -26,18 +26,18 @@ import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 import _root_.net.liftweb.http._
 import _root_.net.liftweb.http.provider._
+import _root_.net.liftweb.http.js.JsCmds._
+import _root_.net.liftweb.http.js.jquery.JQuery14Artifacts
 import _root_.net.liftweb.sitemap._
 import _root_.net.liftweb.sitemap.Loc._
 import Helpers._
 import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.scala.tools.colladoc.model._
-import js.JsCmds._
-import js.jquery.JQuery14Artifacts
 
 import tools.colladoc.lib.{HistoryStuff, WebService, IndexStuff, TemplateStuff}
 import tools.colladoc.lib.JsCmds._
-import scala.xml.NodeSeq
+import xml.{Elem, Text, NodeSeq}
 
 /**
  * A class that's instantiated early and run.  It allows the application to modify lift's environment
@@ -108,8 +108,10 @@ class Boot {
   private def notices() = {
     def cmds(msgs: List[(NodeSeq, Box[String])], _type: Type.Type) =
       msgs.foldLeft(Noop) { (c, m) => c & (m match {
-        case (n, Full(t)) => Notify(_type, n.toString, t)
-        case (n, _) => Notify(_type, n.toString)
+        case (Text(t), Full(h)) => Notify(_type, h)
+        case (Text(t), _) => Notify(_type, t)
+        case (n, Full(h)) => Notify(_type, n.toString, h, false)
+        case (n, _) => Notify(_type, n.toString, hide = false)
       })}
 
     cmds(S.notices, Type.notice) & cmds(S.warnings, Type.notice) & cmds(S.errors, Type.error)

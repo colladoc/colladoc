@@ -37,7 +37,6 @@ import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.http.js.JE.{Str, JsFunc, JsRaw}
 import net.liftweb.http.js.JsCmds.{Run, Replace, SetHtml}
 import net.liftweb.http.jquery.JqSHtml
-import net.liftweb.common.Full
 
 import tools.nsc.doc.model._
 import xml.{Text, Elem, NodeSeq}
@@ -45,6 +44,7 @@ import reflect.NameTransformer
 import java.net.URLEncoder
 
 import model.comment.DynamicModelFactory
+import net.liftweb.common.Full
 
 class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
 

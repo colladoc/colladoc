@@ -640,7 +640,7 @@
 		// Remove the notice's elements from the DOM after it is removed.
 		dispose: true,
 		// Change new lines to br tags.
-		insert_brs: true,
+		insert_brs: false,
 		// The stack on which the notices will be placed. Also controls the direction the notices stack.
 		stack: {"dir1": "down", "dir2": "left", "push": "bottom"}
 	};

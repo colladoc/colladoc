@@ -25,9 +25,12 @@ package model {
 
 import comment.{PersistableCommentFactory, UpdatableCommentFactory}
 import tools.nsc.doc.model.{MemberEntity, ModelFactory}
+import tools.nsc.reporters.AbstractReporter
+import tools.nsc.util.Position
 
 import net.liftweb.common.Logger
 import net.liftweb.util.Props
+import net.liftweb.http.S
 
 import tools.nsc.Global
 import tools.nsc.doc.{SourcelessComments, Settings}
@@ -37,6 +40,7 @@ import tools.nsc.io.Directory
 import java.io.File
 
 object Model extends Logger {
+
   object settings extends Settings(msg => error(msg)) {
     processArguments((Props.props.flatMap {
       case (k, v) => if (!v.isEmpty) Array(k, v) else Array(k)
@@ -44,7 +48,7 @@ object Model extends Logger {
   }
 
   /** The unique compiler instance used by this processor and constructed from its `settings`. */
-  object compiler extends Global(settings, new ConsoleReporter(settings)) {
+  object compiler extends Global(settings, new LiftReporter) {
     override protected def computeInternalPhases() {
       phasesSet += syntaxAnalyzer
       phasesSet += analyzer.namerFactory
@@ -80,6 +84,19 @@ object Model extends Logger {
 
   def init() {
     List(model)
+  }
+
+  class LiftReporter extends AbstractReporter {
+    val settings = Model.settings
+
+    def display(pos: Position, msg: String, severity: Severity) = severity match {
+      case INFO => S.notice(msg)
+      case WARNING => S.warning(msg)
+      case ERROR => S.error(msg)
+    }
+
+    def displayPrompt = ()
+
   }
 
 }
