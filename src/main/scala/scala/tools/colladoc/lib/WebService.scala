@@ -37,17 +37,24 @@ import collection.mutable.HashSet
 object WebService extends RestHelper {
 
   serve {
-    case Req(path, "xml", GetRequest) => changeSet(path)
+    case r @ Req(path, "xml", GetRequest) => changeSet(path, r)
   }
 
-  def changeSet(path: List[String]) =
+  def changeSet(path: List[String], req: Req) = {
+    val rec = try { req.param("recursive").getOrElse(true.toString).toBoolean }
+      catch { case _: java.lang.NumberFormatException => true }
+    val lim = try { req.param("limit").getOrElse(Integer.MAX_VALUE.toString).toInt }
+      catch { case _: java.lang.NumberFormatException => Integer.MAX_VALUE }
+    
     <scaladoc>
-      { new ChangeSetFactory construct(Model.model.rootPackage, path) }
+      { new ChangeSetFactory(rec, lim) construct(Model.model.rootPackage, path) }
     </scaladoc>
+  }
 
-  class ChangeSetFactory {
+  class ChangeSetFactory(recursive: Boolean, limit: Int) {
 
     protected val visited = HashSet.empty[MemberEntity]
+    private var depth = 0
 
     def construct(pack: Package, path: List[String]): NodeSeq =
       construct(pathToEntity(pack, path))
@@ -80,8 +87,12 @@ object WebService extends RestHelper {
             </item>
           }
         }
-        { (tpl.values ++ tpl.abstractTypes ++ tpl.methods) map { processMember(_) } }
-        { tpl.members collect { case t: DocTemplateEntity => t } map { construct(_) } }
+        { if (recursive && depth < limit) {
+            depth += 1
+            ((tpl.values ++ tpl.abstractTypes ++ tpl.methods) map { processMember(_) }) ++
+            (tpl.members collect { case t: DocTemplateEntity => t } map { construct(_) })
+          }
+        }
       </xml:group>
 
     protected def processMember(mbr: MemberEntity): Node =
