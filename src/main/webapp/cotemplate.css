@@ -1,3 +1,7 @@
+body > .fullcomment div.controls {
+    display: none;
+}
+
 div.controls {
     margin: 0.4em 0em 0em;
 }

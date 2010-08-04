@@ -24,4 +24,19 @@
 $(document).ready(function() {
     $('.button').button();
     $('.select').selectmenu({ width: 250 });
+
+    var docSig = $("body > .signature");
+    function commentShow(controls){
+        var vis = $(":visible", controls);
+        if (vis.length > 0) {
+            controls.slideUp(100);
+        }
+        else {
+            controls.slideDown(100);
+        }
+    };
+    docSig.css("cursor", "pointer");
+    docSig.click(function(){
+        commentShow($("div.controls", $("+ div.fullcomment", $(this))));
+    });
 })
