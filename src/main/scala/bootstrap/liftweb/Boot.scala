@@ -119,14 +119,17 @@ class Boot {
     def apply(req: Req): () => Box[LiftResponse] = {
       val path = req.path.partPath.mkString("/", "/", if (req.path.suffix.nonEmpty) "." + req.path.suffix else "")
       val stream = getClass.getResourceAsStream("/scala/tools/nsc/doc/html/resource" + path)
-      () => Full(req.path match {
+      () => req.path match {
         case ParsePath(_, "css", _, _) =>
-          CSSResponse(new Streamable.Chars { val inputStream = stream }.slurp)
+          Full(CSSResponse(new Streamable.Chars { val inputStream = stream }.slurp))
         case ParsePath(_, "js", _, _) =>
-          JavaScriptResponse(JsRaw(new Streamable.Chars { val inputStream = stream }.slurp))
+          Full(JavaScriptResponse(JsRaw(new Streamable.Chars { val inputStream = stream }.slurp)))
+        case ParsePath(_, "png", _, _) =>
+          val bytes = new Streamable.Bytes { val inputStream = stream }.toByteArray
+          Full(InMemoryResponse(bytes, List("Content-Type" -> "image/png", "Content-Length" -> bytes.length.toString), Nil, 200))
         case ParsePath(_, _, _, _) =>
-          InMemoryResponse(new Streamable.Bytes { val inputStream = stream }.toByteArray, S.getHeaders(Nil), S.responseCookies, 200)
-      })
+          Full(InMemoryResponse(new Streamable.Bytes { val inputStream = stream }.toByteArray, S.getHeaders(Nil), S.responseCookies, 200))
+      }
     }
   }
 

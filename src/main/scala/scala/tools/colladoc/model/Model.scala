@@ -43,7 +43,8 @@ object Model extends Logger {
 
   object settings extends Settings(msg => error(msg)) {
     processArguments((Props.props.flatMap {
-      case (k, v) => if (!v.isEmpty) Array(k, v) else Array(k)
+      case (k, v) if k.startsWith("-") => if (!v.isEmpty) List(k, v) else List(k)
+      case (_, _) => Nil
     }) toList, false)
   }
 
