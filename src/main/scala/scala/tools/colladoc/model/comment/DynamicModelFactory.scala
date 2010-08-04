@@ -72,6 +72,7 @@ object DynamicModelFactory {
     def isAliasType = mbr.isAliasType
     def isAbstractType = mbr.isAbstractType
     def isTemplate = mbr.isTemplate
+    def universe = mbr.universe
   }
 
   class DocTemplateEntityProxy(tpl: DocTemplateEntity, cmt: Comment) extends MemberEntityProxy(tpl, cmt) with DocTemplateEntity {
@@ -79,8 +80,8 @@ object DynamicModelFactory {
     def inSource = tpl.inSource
     def sourceUrl = tpl.sourceUrl
     def parentType = tpl.parentType
-    def parentTemplates = tpl.parentTemplates
     def linearization = tpl.linearization
+    def linearizationTemplates = tpl.linearizationTemplates
     def linearizationTypes = tpl.linearizationTypes
     def subClasses = tpl.subClasses
     def members = tpl.members
