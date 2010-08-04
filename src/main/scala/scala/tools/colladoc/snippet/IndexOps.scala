@@ -23,14 +23,13 @@
 package scala.tools.colladoc {
 package snippet {
 
-import lib.LiftPaths
 import lib.page.Index
 import model.Model
 
 import xml.{Elem, Text, NodeSeq}
 
 class IndexOps {
-  val index = new Index(Model.model) with LiftPaths
+  val index = new Index(Model.model)
 
   /** Return index title. */
   def title(xhtml: NodeSeq): NodeSeq =

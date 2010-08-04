@@ -19,7 +19,7 @@
 }
 
 .filter > span {
-    background: url("images/filter_box_left.png") no-repeat left top;
+    background: url("lib/filter_box_left.png") no-repeat left top;
     margin: 0 0 0 -8px;
     padding: 2px 0 0 22px;
 }

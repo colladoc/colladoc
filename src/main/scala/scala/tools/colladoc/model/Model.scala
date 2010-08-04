@@ -95,7 +95,7 @@ object Model extends Logger {
       case ERROR => S.error(msg)
     }
 
-    def displayPrompt = ()
+    def displayPrompt = S.error("There was an error while processing comment")
 
   }
 

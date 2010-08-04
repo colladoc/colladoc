@@ -23,9 +23,9 @@
 package scala.tools.colladoc {
 package snippet {
 
-import lib.page.Template
 import model.Model
-import lib.{LiftPaths, DependencyFactory}
+import lib.page.Template
+import lib.DependencyFactory
 
 import net.liftweb.http.{SHtml, S}
 import net.liftweb.http.jquery.JqSHtml
@@ -41,7 +41,7 @@ class TemplateOps {
   val template = {
     val path = S.param("path") openOr "" split('/')
     val entity = pathToTemplate(Model.model.rootPackage, path.toList)
-    new Template(entity) with LiftPaths
+    new Template(entity)
   }
 
   //lazy val date: Box[Date] = DependencyFactory.inject[Date] // inject the date

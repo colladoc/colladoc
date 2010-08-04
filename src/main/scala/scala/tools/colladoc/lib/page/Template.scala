@@ -26,7 +26,6 @@ package page {
 
 import model.Model.factory._
 import model.{Comment, Model, User}
-import lib.{LiftPaths, DependencyFactory}
 import lib.XmlUtils._
 import lib.JsCmds._
 

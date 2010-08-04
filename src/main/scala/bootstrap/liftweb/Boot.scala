@@ -35,9 +35,12 @@ import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConn
 import _root_.java.sql.{Connection, DriverManager}
 import _root_.scala.tools.colladoc.model._
 
+import js.JE.JsRaw
 import tools.colladoc.lib.{HistoryStuff, WebService, IndexStuff, TemplateStuff}
 import tools.colladoc.lib.JsCmds._
 import xml.{Elem, Text, NodeSeq}
+import java.io.{InputStream, InputStreamReader, BufferedReader}
+import tools.nsc.io.Streamable
 
 /**
  * A class that's instantiated early and run.  It allows the application to modify lift's environment
@@ -58,10 +61,10 @@ class Boot {
     LiftRules.addToPackages("scala.tools.colladoc")
     Schemifier.schemify(true, Schemifier.infoF _, User, Comment)
 
+    LiftRules.dispatch.prepend(scaladocResources)
+
     // Build SiteMap
     def sitemap() = SiteMap(
-      //Menu("Index") / "index",
-      //Menu("History") / "history",
       Menu(IndexStuff),
       Menu(HistoryStuff),
       Menu(TemplateStuff)
@@ -103,6 +106,28 @@ class Boot {
    */
   private def makeUtf8(req: HTTPRequest) {
     req.setCharacterEncoding("UTF-8")
+  }
+
+  private def scaladocResources() = new LiftRules.DispatchPF {
+    def functionName = "Scaladoc resources"
+
+    def isDefinedAt(req: Req): Boolean = req.path match {
+      case ParsePath("lib" :: resource, _, _, _) => true
+      case _ => false
+    }
+
+    def apply(req: Req): () => Box[LiftResponse] = {
+      val path = req.path.partPath.mkString("/", "/", if (req.path.suffix.nonEmpty) "." + req.path.suffix else "")
+      val stream = getClass.getResourceAsStream("/scala/tools/nsc/doc/html/resource" + path)
+      () => Full(req.path match {
+        case ParsePath(_, "css", _, _) =>
+          CSSResponse(new Streamable.Chars { val inputStream = stream }.slurp)
+        case ParsePath(_, "js", _, _) =>
+          JavaScriptResponse(JsRaw(new Streamable.Chars { val inputStream = stream }.slurp))
+        case ParsePath(_, _, _, _) =>
+          InMemoryResponse(new Streamable.Bytes { val inputStream = stream }.toByteArray, S.getHeaders(Nil), S.responseCookies, 200)
+      })
+    }
   }
 
   private def notices() = {

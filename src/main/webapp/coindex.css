@@ -3,9 +3,9 @@
     display: block;
     left: 0;
     padding: 5px;
-    position: fixed;
+    position: absolute;
+    right: 0px;
     top: 0px;
-    width: 290px;
 }
 
 #user div {
