@@ -48,8 +48,23 @@ object Model extends Logger {
     }) toList, false)
   }
 
+  object reporter extends AbstractReporter {
+    val settings = Model.settings
+
+    def display(pos: Position, msg: String, severity: Severity) = {
+      severity.count += 1
+      severity match {
+        case INFO => S.notice(msg)
+        case WARNING => S.warning(msg)
+        case ERROR => S.error(msg)
+      }
+    }
+
+    def displayPrompt = S.error("There was an error while processing comment")
+  }
+
   /** The unique compiler instance used by this processor and constructed from its `settings`. */
-  object compiler extends Global(settings, new LiftReporter) {
+  object compiler extends Global(settings, reporter) {
     override protected def computeInternalPhases() {
       phasesSet += syntaxAnalyzer
       phasesSet += analyzer.namerFactory
@@ -85,19 +100,6 @@ object Model extends Logger {
 
   def init() {
     List(model)
-  }
-
-  class LiftReporter extends AbstractReporter {
-    val settings = Model.settings
-
-    def display(pos: Position, msg: String, severity: Severity) = severity match {
-      case INFO => S.notice(msg)
-      case WARNING => S.warning(msg)
-      case ERROR => S.error(msg)
-    }
-
-    def displayPrompt = S.error("There was an error while processing comment")
-
   }
 
 }

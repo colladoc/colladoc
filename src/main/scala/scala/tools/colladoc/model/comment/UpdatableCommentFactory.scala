@@ -55,8 +55,9 @@ trait UpdatableCommentFactory extends CommentFactory { thisFactory: ModelFactory
       val key = (com.sym, com.inTpl)
       commentCache -= key
       super.comment(com.sym, com.inTpl) match {
-        case Some(c) => com.comment = c
-        case None =>
+        case Some(c) if !reporter.hasWarnings && !reporter.hasErrors =>
+          com.comment = c
+        case _ =>
       }
     }
 

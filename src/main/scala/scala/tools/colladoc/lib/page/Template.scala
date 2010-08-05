@@ -92,24 +92,28 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           </div>
         </div>
       </form>) &
-            JqId(Str(id(mbr, "text"))) ~> Editor() &
-            Jq(Str("button")) ~> Button()
+        JqId(Str(id(mbr, "text"))) ~> Editor() &
+        Jq(Str("button")) ~> Button()
   }
 
-  private def save(mbr: MemberEntity, isSelf: Boolean) =
-    Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) &
-            (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(mbr.comment.get.short))
-            else JsCmds.Noop) &
-            Jq(Str("#" + id(mbr, "comment") + " .button")) ~> Button() &
-            Jq(Str("#" + id(mbr, "comment") + " .select")) ~> SelectMenu()
+  private def save(mbr: MemberEntity, isSelf: Boolean): JsCmd =
+    if (Model.reporter.hasWarnings || Model.reporter.hasErrors)
+      JqId(Str(id(mbr, "text"))) ~> AddClass("ui-state-error")
+    else
+      Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) &
+        (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(mbr.comment.get.short)) else JsCmds.Noop) &
+        Jq(Str("#" + id(mbr, "comment") + " .button")) ~> Button() &
+        Jq(Str("#" + id(mbr, "comment") + " .select")) ~> SelectMenu()
 
-  private def cancel(mbr: MemberEntity, isSelf: Boolean) =
+  private def cancel(mbr: MemberEntity, isSelf: Boolean): JsCmd =
     Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) &
-            Jq(Str("#" + id(mbr, "comment") + " .button")) ~> Button() &
-            Jq(Str("#" + id(mbr, "comment") + " .select")) ~> SelectMenu()
+      Jq(Str("#" + id(mbr, "comment") + " .button")) ~> Button() &
+      Jq(Str("#" + id(mbr, "comment") + " .select")) ~> SelectMenu()
 
-  private def update(mbr: MemberEntity, text: String) =
+  private def update(mbr: MemberEntity, text: String) = Model.synchronized {
+    Model.reporter.reset
     Model.factory.update(mbr, text)
+  }
 
   private def select(mbr: MemberEntity, isSelf: Boolean) = {
     def replace(cid: String) = {
@@ -118,8 +122,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           val comment = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
           val entity = DynamicModelFactory.createMember(mbr, comment)
           Replace(id(entity, "content"), content(entity, isSelf))&
-                  (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(comment.short))
-                  else JsCmds.Noop)
+            (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(comment.short)) else JsCmds.Noop)
         case _ => JsCmds.Noop
       }
     }

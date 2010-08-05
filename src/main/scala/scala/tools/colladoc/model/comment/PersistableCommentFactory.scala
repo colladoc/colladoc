@@ -24,8 +24,9 @@ package scala.tools.colladoc
 package model
 package comment
 
-import tools.nsc.doc.model.comment.{Comment, CommentFactory}
-import scala.tools.colladoc.model.{Comment => CComment}
+import tools.nsc.Global
+import tools.nsc.doc.model.comment.{Comment => ModelComment, CommentFactory}
+import scala.tools.colladoc.model.{Comment}
 import net.liftweb.common.{Full, Empty}
 import net.liftweb.mapper._
 import java.util.Date
@@ -33,7 +34,10 @@ import tools.nsc.doc.model.{ValueParam, Def, MemberEntity, ModelFactory}
 
 trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: ModelFactory with CommentFactory =>
 
-  override def comment(sym: global.Symbol, inTpl: => DocTemplateImpl): Option[Comment] = {
+  val global: Global
+  import global.reporter
+
+  override def comment(sym: global.Symbol, inTpl: => DocTemplateImpl) = {
     updatedComment(sym, inTpl) match {
       case Some(com) => global.docComment(sym, com.comment.is)
       case None =>
@@ -42,13 +46,15 @@ trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: M
   }
   
   override def update(mbr: MemberEntity, docStr: String) = {
-    val comment = CComment.create
-      .qualifiedName(mbr.qualifiedIdentifier)
-      .comment(docStr)
-      .dateTime(new Date)
-      .user(User.currentUser.open_!)
-    comment.save
     super.update(mbr, docStr)
+    if (!reporter.hasWarnings && !reporter.hasErrors) {
+      val comment: Comment = Comment.create
+        .qualifiedName(mbr.qualifiedIdentifier)
+        .comment(docStr)
+        .dateTime(new Date)
+        .user(User.currentUser.open_!)
+      comment.save
+    }
   }
 
   implicit def identifiers(mbr: MemberEntity) = new {
@@ -72,10 +78,10 @@ trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: M
   private def updatedComment(sym: global.Symbol, inTpl: => DocTemplateImpl) = {
     makeMember(sym, inTpl) match {
       case List(mbr, _*) =>
-        CComment.findAll(By(CComment.qualifiedName, mbr.qualifiedIdentifier),
-          OrderBy(CComment.dateTime, Descending),
+        Comment.findAll(By(Comment.qualifiedName, mbr.qualifiedIdentifier),
+          OrderBy(Comment.dateTime, Descending),
           MaxRows(1)) match {
-          case List(com: CComment, _*) if com.dateTime.is.getTime > sym.sourceFile.lastModified => Some(com)
+          case List(com: Comment, _*) if com.dateTime.is.getTime > sym.sourceFile.lastModified => Some(com)
           case _ => None
         }
       case Nil => None

@@ -33,6 +33,14 @@ object JsCmds {
     override def toJsCmd = "each(function() {this.contentWindow.location.reload(true);})"
   }
 
+  case class AddClass(_class: String) extends JsExp with JsMember {
+    override def toJsCmd = "addClass(" + _class.encJs + ")"
+  }
+
+  case class RemoveClass(_class: String) extends JsExp with JsMember {
+    override def toJsCmd = "removeClass(" + _class.encJs + ")"
+  }
+
   case class Button() extends JsExp with JsMember {
     override def toJsCmd = "button()"
   }
