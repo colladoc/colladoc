@@ -142,6 +142,6 @@ class Boot {
         case (n, _) => Notify(_type, n.toString, hide = false)
       })}
 
-    cmds(S.notices, Type.notice) & cmds(S.warnings, Type.notice) & cmds(S.errors, Type.error)
+    cmds(S.notices, Type.notice) & cmds(S.warnings, Type.error) & cmds(S.errors, Type.error)
   }
 }

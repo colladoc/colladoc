@@ -47,6 +47,7 @@ import net.liftweb.http.js.JE.{JsRaw, Str, JsFunc}
 import net.liftweb.http.{JsonResponse, LiftRules, S, SHtml}
 import model.{User, Comment, Model}
 import net.liftweb.common.Full
+import collection.mutable.{LinkedList, HashMap}
 
 class History extends Template(Model.model.rootPackage) {
 
@@ -130,6 +131,7 @@ class History extends Template(Model.model.rootPackage) {
 
   def historyToHtml(from: Date, to: Date, user: String): NodeSeq =
     <div id="history">
+      <h3>Changed Members</h3>
       { User.find(Like(User.userName, user)) match {
           case Full(u) =>
             commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from), By_<(Comment.dateTime, to), By(Comment.user, u.id.is)))
@@ -141,6 +143,27 @@ class History extends Template(Model.model.rootPackage) {
 
   protected def commentsToHtml(cmts: List[Comment]): NodeSeq = {
     val mbrs = cmts.map{ processComment(_) }
+    val tpls = HashMap.empty[DocTemplateEntity, List[MemberEntity]]
+    for (mbr <- mbrs) {
+      val tpl = mbr.inTemplate
+      if (!tpls.contains(tpl))
+        tpls += tpl -> (mbr :: Nil)
+      else {
+        tpls += tpl -> (mbr :: tpls(tpl))
+      }
+    }
+    <xml:group>
+      { tpls map { case (tpl, mbrs) =>
+          <div class="changeset">
+            { signature(tpl, false) }
+            { membersToHtml(mbrs) }
+          </div>
+        }
+      }
+    </xml:group>
+  }
+
+  protected def membersToHtml(mbrs: List[MemberEntity]): NodeSeq = {
     val valueMembers = mbrs collect {
       case (tpl: TemplateEntity) if tpl.isObject || tpl.isPackage => tpl
       case (mbr: MemberEntity) if mbr.isDef || mbr.isVal || mbr.isVar => mbr
@@ -154,19 +177,19 @@ class History extends Template(Model.model.rootPackage) {
       { if (constructors.isEmpty) NodeSeq.Empty else
           <div id="constructors" class="members">
             <h3>Instance constructors</h3>
-            <ol>{ constructors map { mbr => updateName(memberToHtml(mbr), mbr) } }</ol>
+            <ol>{ constructors map { memberToHtml(_) } }</ol>
           </div>
       }
       { if (typeMembers.isEmpty) NodeSeq.Empty else
           <div id="types" class="types members">
             <h3>Type Members</h3>
-            <ol>{ typeMembers map { mbr => updateName(memberToHtml(mbr), mbr) } }</ol>
+            <ol>{ typeMembers map { memberToHtml(_) } }</ol>
           </div>
       }
       { if (valueMembers.isEmpty) NodeSeq.Empty else
           <div id="values" class="values members">
             <h3>Value Members</h3>
-            <ol>{ valueMembers map { mbr => updateName(memberToHtml(mbr), mbr) } }</ol>
+            <ol>{ valueMembers map { memberToHtml(_) } }</ol>
           </div>
       }
     </xml:group>

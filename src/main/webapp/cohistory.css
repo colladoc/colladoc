@@ -23,3 +23,41 @@
     margin: 0 0 0 -8px;
     padding: 2px 0 0 22px;
 }
+
+#history > h3 {
+    padding: 4px;
+    color: white;
+    font-weight: bold;
+    font-size: 12pt;
+    background-color: #333;
+}
+
+#history div.members > h3 {
+    padding-left: 2em;
+}
+
+.changeset > div.members {
+    display: none;
+}
+
+.changeset > h4 span.kind {
+    color: black;
+    font-size: 11pt;
+    display: inline;
+    float: left;
+    text-align: left;
+    width: auto;
+    padding-left: 6px;
+}
+
+.changeset > h4 span.name {
+    color: black;
+    font-size: 11pt;
+    text-align: left;
+}
+
+.changeset > h4 span.result {
+    color: black;
+    font-size: 11pt;
+    text-align: left;
+}

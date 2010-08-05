@@ -90,7 +90,22 @@ function reload() {
             $(this.getTip()).text(this.getTrigger().attr("name"));
         }
     });
-    
+
+    var docSigs = $(".changeset > .signature");
+    function commentShow(controls){
+        var vis = $(":visible", controls);
+        if (vis.length > 0) {
+            controls.slideUp(100);
+        }
+        else {
+            controls.slideDown(100);
+        }
+    };
+    docSigs.css("cursor", "pointer");
+    docSigs.click(function(){
+        commentShow($("+ div.members", $(this)));
+    });
+
     var docAllSigs = $("#template .signature");
     function commentShowFct(fullComment){
         var vis = $(":visible", fullComment);
@@ -170,7 +185,6 @@ function filter() {
         };
     });
     $(".members").each(function(){
-        $(this).show();
         if ($(" > ol > li:visible", this).length == 0) { $(this).hide(); }
     });
     return false
