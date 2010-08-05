@@ -41,20 +41,17 @@ object WebService extends RestHelper {
   }
 
   def changeSet(path: List[String], req: Req) = {
-    val rec = try { req.param("recursive").getOrElse(true.toString).toBoolean }
-      catch { case _: java.lang.NumberFormatException => true }
-    val lim = try { req.param("limit").getOrElse(Integer.MAX_VALUE.toString).toInt }
-      catch { case _: java.lang.NumberFormatException => Integer.MAX_VALUE }
+    val rec = try { req.param("recursive").getOrElse(false.toString).toBoolean }
+      catch { case _: java.lang.NumberFormatException => false }
     
     <scaladoc>
-      { new ChangeSetFactory(rec, lim) construct(Model.model.rootPackage, path) }
+      { new ChangeSetFactory(rec) construct(Model.model.rootPackage, path) }
     </scaladoc>
   }
 
-  class ChangeSetFactory(recursive: Boolean, limit: Int) {
+  class ChangeSetFactory(recursive: Boolean) {
 
     protected val visited = HashSet.empty[MemberEntity]
-    private var depth = 0
 
     def construct(pack: Package, path: List[String]): NodeSeq =
       construct(pathToEntity(pack, path))
@@ -87,12 +84,8 @@ object WebService extends RestHelper {
             </item>
           }
         }
-        { if (recursive && depth < limit) {
-            depth += 1
-            ((tpl.values ++ tpl.abstractTypes ++ tpl.methods) map { processMember(_) }) ++
-            (tpl.members collect { case t: DocTemplateEntity => t } map { construct(_) })
-          }
-        }
+        { (tpl.values ++ tpl.abstractTypes ++ tpl.methods) map { processMember(_) } }
+        { tpl.members collect { case t: DocTemplateEntity if !t.isPackage || recursive => t } map { construct(_) } }
       </xml:group>
 
     protected def processMember(mbr: MemberEntity): Node =

@@ -129,11 +129,20 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     Comment.select(mbr.qualifiedIdentifier, replace _)
   }
 
-  private def export(mbr: MemberEntity, isSelf: Boolean) =
-    SHtml.a(doExport(mbr, isSelf) _, Text("Export"), ("class", "control"))
+  private def export(mbr: MemberEntity, isSelf: Boolean) = mbr match {
+    case tpl: DocTemplateEntity if tpl.isPackage =>
+      <xml:group>
+        { SHtml.a(doExport(mbr, isSelf, false) _, Text("Export"), ("class", "control")) }
+        { SHtml.a(doExport(mbr, isSelf, true) _, Text("Export Recursively"), ("class", "control")) }
+      </xml:group>
+    case _ =>
+      SHtml.a(doExport(mbr, isSelf, false) _, Text("Export"), ("class", "control"))
+  }
 
-  private def doExport(mbr: MemberEntity, isSelf: Boolean)(): JsCmd =
-    JsRaw("window.open('%s', 'Export')" format (memberToPath(mbr, isSelf) + ".xml"))
+  private def doExport(mbr: MemberEntity, isSelf: Boolean, recursive: Boolean)(): JsCmd = {
+    val path = memberToPath(mbr, isSelf) + ".xml" + (if (recursive) "?recursive=true" else "")
+    JsRaw("window.open('%s', 'Export')" format (path))
+  }
 
   private def memberToPath(mbr: MemberEntity, isSelf: Boolean) = {
     def doName(mbr: MemberEntity): String = mbr match {
