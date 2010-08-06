@@ -134,15 +134,34 @@ class History extends Template(Model.model.rootPackage) {
       <h3>Changed Members</h3>
       { User.find(Like(User.userName, user)) match {
           case Full(u) =>
-            commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from), By_<(Comment.dateTime, to), By(Comment.user, u.id.is)))
+            commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from),
+              By_<(Comment.dateTime, to),
+              By(Comment.user, u.id.is),
+              OrderBy(Comment.dateTime, Descending)))
           case _ =>
-            commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from), By_<(Comment.dateTime, to)))
+            commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from),
+              By_<(Comment.dateTime, to),
+              OrderBy(Comment.dateTime, Descending)))
         }
       }
     </div>
 
   protected def commentsToHtml(cmts: List[Comment]): NodeSeq = {
-    val mbrs = cmts.map{ processComment(_) }
+    def diff(date1: Date, date2: Date) = {
+      val cal1 = Calendar.getInstance
+      cal1.setTime(date1)
+      val cal2 = Calendar.getInstance
+      cal2.setTime(date2)
+      (cal2.getTimeInMillis - cal1.getTimeInMillis) / (60 * 1000)
+    }
+    def merge(cmts: List[Comment]) = {
+      cmts.groupBy(c => c.qualifiedName.is + c.user.is).values.flatMap{ cs =>
+        cs.head :: ((cs zip cs.tail) collect {
+          case (c1, c2) if diff(c1.dateTime.is, c2.dateTime.is) > 30 => c1
+        })
+      }
+    }
+    val mbrs = merge(cmts).map{ processComment(_) }
     val tpls = HashMap.empty[DocTemplateEntity, List[MemberEntity]]
     for (mbr <- mbrs) {
       val tpl = mbr.inTemplate
