@@ -25,8 +25,10 @@ package lib {
 package page {
 
 import model.comment.DynamicModelFactory
+import model.comment.DynamicModelFactory._
 import model.Model.factory._
 import lib.Widgets._
+import lib.XmlUtils._
 
 import net.liftweb.http.S._
 import net.liftweb.http.js.JsCmds._
@@ -173,7 +175,7 @@ class History extends Template(Model.model.rootPackage) {
     }
     <xml:group>
       { tpls map { case (tpl, mbrs) =>
-          <div class="changeset">
+          <div class="changeset" name={ tpl.qualifiedName }>
             { signature(tpl, false) }
             { membersToHtml(mbrs) }
           </div>
@@ -214,10 +216,13 @@ class History extends Template(Model.model.rootPackage) {
     </xml:group>
   }
 
+  override def memberToHtml(mbr: MemberEntity) =
+    super.memberToHtml(mbr) \\% Map("date" -> mbr.date.getOrElse(new Date).toString)
+
   def processComment(cmt: Comment) = {
     val mbr = pathToEntity(Model.model.rootPackage, cmt.qualifiedName.is.split("""[.#]""").toList)
     val comment = Model.factory.parse(mbr.symbol.get, mbr.template.get, cmt.comment.is)
-    DynamicModelFactory.createMember(mbr, comment)
+    DynamicModelFactory.createMember(mbr, comment, cmt.dateTime.is)
   }
 
   def updateName(node: NodeSeq, mbr: MemberEntity): NodeSeq = {

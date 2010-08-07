@@ -61,6 +61,10 @@ object JsCmds {
     override def toJsCmd = "dialog('close')"
   }
 
+  case class DestroyDialog() extends JsExp with JsMember {
+    override def toJsCmd = "dialog('destroy')"
+  }
+
   object Type extends Enumeration("notice", "error") {
     type Type = Value
     val notice, error = Value

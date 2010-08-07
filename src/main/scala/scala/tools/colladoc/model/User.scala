@@ -129,7 +129,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "submit" -> SHtml.hidden(doSave _))
   }
 
-  def signup(onSuccess: () => JsCmd) = {
+  def signup = {
     val user = create
 
     def doSignup() {
@@ -138,7 +138,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
           S.notice("User succesfully created")
           user.save()
           logUserIn(user)
-          onSuccess()
+          RedirectTo("/")
         case n =>
           S.error(n)
       }
@@ -174,7 +174,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       </fieldset>
     </lift:form>
 
-  def login(onSuccess: () => JsCmd) = {
+  def login = {
     var username: String = ""
     var password: String = "*"
 
@@ -183,7 +183,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
         case Full(user) if user.password.match_?(password) =>
           S.notice("User logged in")
           logUserIn(user)
-          onSuccess()
+          RedirectTo("/")
         case _ =>
           S.error("Invalid user credentials")
       }

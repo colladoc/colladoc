@@ -120,7 +120,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       Comment.find(cid) match {
         case Full(c) =>
           val comment = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
-          val entity = DynamicModelFactory.createMember(mbr, comment)
+          val entity = DynamicModelFactory.createMember(mbr, comment, c.dateTime.is)
           Replace(id(entity, "content"), content(entity, isSelf))&
             (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(comment.short)) else JsCmds.Noop)
         case _ => JsCmds.Noop

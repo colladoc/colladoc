@@ -65,13 +65,9 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
           { SHtml.a(Text("Login"), Jq(Str(".login")) ~> OpenDialog()) }
         </li>
       </ul>
-      { User.signup(doLogin _) }
-      { User.login(doLogin _) }
+      { User.signup }
+      { User.login }
     </xml:group>
-
-  private def doLogin = {
-    Replace("user", login) & Jq(Str("iframe[name='template']")) ~> Reload()
-  }
 
   private def loggedIn =
     <xml:group>
@@ -89,15 +85,11 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
           { SHtml.a(Text("Settings"), Jq(Str(".user")) ~> OpenDialog()) }
         </li>
         <li>
-          { SHtml.a(() => {User.logout; doLogout}, Text("Log Out")) }
+          { SHtml.a(() => {User.logout; JsCmds.Noop}, Text("Log Out")) }
         </li>
       </ul>
       { User.edit }
     </xml:group>
-
-  private def doLogout = {
-    Replace("user", login) & Jq(Str("iframe[name='template']")) ~> Reload()
-  }
 
 }
 

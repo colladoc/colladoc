@@ -149,18 +149,6 @@ function reload() {
     filter();
 }
 
-function orderAlpha() {
-    $("#template > div.parent").hide();
-    $("#ancestors").show();
-    filter();
-};
-
-function orderDate() {
-    $("#template > div.parent").show();
-    $("#ancestors").hide();
-    filter();
-};
-
 function filter() {
     var query = $("#textfilter > input").attr("value").toLowerCase();
     var queryRegExp = new RegExp(query, "i");
@@ -184,8 +172,28 @@ function filter() {
           $(this).hide();
         };
     });
+    var comparator = $("#order > ol > li.alpha").hasClass("in") ?
+        function(a, b) { return $(a).attr("name") > $(b).attr("name") ? 1 : -1; }:
+        function(a, b) { return $(a).attr("date") < $(b).attr("date") ? 1 : -1; };
+    $(".members > ol").each(function() {
+      order($("li", this), comparator);
+    });
     $(".members").each(function(){
         if ($(" > ol > li:visible", this).length == 0) { $(this).hide(); }
     });
     return false
+};
+
+function order(members, comparator) {
+    var sort = [].sort;
+    var last = null;
+    return sort.call(members, comparator).each(function(i) {
+        var node = $(this);
+        if (last) {
+            last.after(node);
+        } else {
+            node.parent().prepend(node);
+        }
+        last = node;
+    });
 };
