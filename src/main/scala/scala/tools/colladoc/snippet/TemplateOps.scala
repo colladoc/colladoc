@@ -24,8 +24,8 @@ package scala.tools.colladoc {
 package snippet {
 
 import model.Model
+import lib.{Paths, DependencyFactory}
 import lib.page.Template
-import lib.DependencyFactory
 
 import net.liftweb.http.{SHtml, S}
 import net.liftweb.http.jquery.JqSHtml
@@ -33,14 +33,13 @@ import net.liftweb.http.jquery.JqSHtml
 import tools.nsc.doc.model.{MemberEntity, NonTemplateMemberEntity, Package, DocTemplateEntity}
 import tools.nsc.io.File
 import reflect.NameTransformer
-import java.io.{ File => JFile }
-import xml.{Text, NodeSeq}
 import util.matching.Regex
+import xml.{Text, NodeSeq}
 
 class TemplateOps {
   val template = {
     val path = S.param("path") openOr "" split('/')
-    val entity = pathToTemplate(Model.model.rootPackage, path.toList)
+    val entity = Paths.pathToTemplate(Model.model.rootPackage, path.toList)
     new Template(entity)
   }
 
@@ -58,30 +57,6 @@ class TemplateOps {
    */
   def body(xhtml: NodeSeq): NodeSeq =
     template.body
-
-  private def pathToTemplate(rootPack: Package, path: List[String]): DocTemplateEntity = {
-    def doName(tpl: DocTemplateEntity): String =
-      NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
-    def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
-      pack.packages.find { _.name == path.head } match {
-        case Some(p) => downPacks(p, path.tail)
-        case None => (pack, path)
-      }
-    }
-    def downInner(tpl: DocTemplateEntity, path: List[String]): DocTemplateEntity = path match {
-        case p :: r if p.isEmpty => downInner(tpl, r)
-        case p :: r =>
-          tpl.templates.sortBy{ t => -1 * doName(t).length }.find{ t => p.startsWith(doName(t)) } match {
-            case Some(t) => downInner(t, p.stripPrefix(doName(t)).stripPrefix("$") :: r)
-            case None => tpl
-          }
-        case Nil => tpl
-      }
-    downPacks(rootPack, path) match {
-      case (pack, "package" :: Nil) => pack
-      case (pack, path) => downInner(pack, path)
-    }
-  }
 
 }
 

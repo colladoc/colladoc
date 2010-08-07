@@ -20,19 +20,22 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package lib
+package scala.tools.colladoc {
+package lib {
 
-import net.liftweb.http.rest.RestHelper
-import reflect.NameTransformer
 import tools.colladoc.model.Model
 import tools.colladoc.model.Model.factory._
-import tools.nsc.doc.model._
-import xml.{Node, NodeSeq, Null}
+
 import net.liftweb.http.{S, Req, GetRequest}
-import java.net.URLDecoder
-import util.matching.Regex
+import net.liftweb.http.rest.RestHelper
+
 import collection.mutable.HashSet
+import reflect.NameTransformer
+import tools.nsc.doc.model._
+import util.matching.Regex
+import xml.{Node, NodeSeq, Null}
+
+import java.net.URLDecoder
 
 object WebService extends RestHelper {
 
@@ -54,7 +57,7 @@ object WebService extends RestHelper {
     protected val visited = HashSet.empty[MemberEntity]
 
     def construct(pack: Package, path: List[String]): NodeSeq =
-      construct(pathToEntity(pack, path))
+      construct(Paths.pathToMember(pack, path))
 
     def construct(mbr: MemberEntity): NodeSeq =
       <xml:group>
@@ -114,32 +117,8 @@ object WebService extends RestHelper {
       }
     }
 
-    private def pathToEntity(rootPack: Package, path: List[String]): MemberEntity = {
-      def doName(mbr: MemberEntity): String = mbr match {
-          case tpl: DocTemplateEntity => NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
-          case mbr: MemberEntity => URLDecoder.decode(mbr.identifier, "UTF-8")
-        }
-      def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
-        pack.packages.find{ _.name == path.head } match {
-          case Some(p) => downPacks(p, path.tail)
-          case None => (pack, path)
-        }
-      }
-      def downInner(tpl: DocTemplateEntity, path: List[String]): MemberEntity = path match {
-        case p :: r if p.isEmpty => downInner(tpl, r)
-        case p :: r =>
-          tpl.members.sortBy{ t => -1 * doName(t).length }.find{ t => p.startsWith(doName(t)) } match {
-            case Some(t: DocTemplateEntity) => downInner(t, p.stripPrefix(doName(t)).stripPrefix("$") :: r)
-            case Some(m: MemberEntity) => m
-            case None => tpl
-          }
-        case Nil => tpl
-      }
-      downPacks(rootPack, path) match {
-        case (pack, "package" :: Nil) => pack
-        case (pack, path) => downInner(pack, path)
-      }
-    }
-
   }
+}
+
+}
 }

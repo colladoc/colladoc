@@ -24,26 +24,23 @@ package scala.tools.colladoc {
 package lib {
 package page {
 
-import model.Model.factory._
 import model.{Comment, Model, User}
+import model.Model.factory._
 import lib.XmlUtils._
 import lib.JsCmds._
 
+import net.liftweb.common.Full
 import net.liftweb.http.{SHtml, S}
 import net.liftweb.http.js._
 import net.liftweb.http.js.jquery.JqJE._
 import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.http.js.JE.{Str, JsFunc, JsRaw}
 import net.liftweb.http.js.JsCmds.{Run, Replace, SetHtml}
-import net.liftweb.http.jquery.JqSHtml
 
 import tools.nsc.doc.model._
 import xml.{Text, Elem, NodeSeq}
-import reflect.NameTransformer
-import java.net.URLEncoder
 
 import model.comment.DynamicModelFactory
-import net.liftweb.common.Full
 
 class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
 
@@ -140,25 +137,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   }
 
   private def doExport(mbr: MemberEntity, isSelf: Boolean, recursive: Boolean)(): JsCmd = {
-    val path = memberToPath(mbr, isSelf) + ".xml" + (if (recursive) "?recursive=true" else "")
+    val path = Paths.memberToPath(mbr, isSelf) + ".xml" + (if (recursive) "?recursive=true" else "")
     JsRaw("window.open('%s', 'Export')" format (path))
-  }
-
-  private def memberToPath(mbr: MemberEntity, isSelf: Boolean) = {
-    def doName(mbr: MemberEntity): String = mbr match {
-        case tpl: DocTemplateEntity => NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
-        case mbr: MemberEntity => URLEncoder.encode(mbr.identifier, "UTF-8")
-      }
-    def innerPath(nme: String, mbr: MemberEntity): String =
-      mbr.inTemplate match {
-        case inPkg: Package => nme
-        case inTpl: DocTemplateEntity if mbr.isTemplate => innerPath(doName(inTpl) + "$" + nme, inTpl)
-        case inTpl: DocTemplateEntity if !mbr.isTemplate => innerPath(doName(inTpl) + "/" + nme, inTpl)
-      }
-    mbr match {
-      case tpl: DocTemplateEntity if tpl.isPackage => (if (!isSelf) doName(tpl) + "/" else "") + "package"
-      case mbr: MemberEntity => innerPath(doName(mbr), mbr)
-    }
   }
 
 }

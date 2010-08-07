@@ -24,32 +24,29 @@ package scala.tools.colladoc {
 package lib {
 package page {
 
+import model.{User, Comment, Model}
 import model.comment.DynamicModelFactory
 import model.comment.DynamicModelFactory._
 import model.Model.factory._
 import lib.Widgets._
 import lib.XmlUtils._
 
+import net.liftweb.common.Full
 import net.liftweb.http.S._
+import net.liftweb.http.{JsonResponse, LiftRules, S, SHtml}
+import net.liftweb.http.js.JE.{JsRaw, Str, JsFunc}
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.JsCmds.{Run, Replace, SetHtml}
-
-import java.net.URLDecoder
-import reflect.NameTransformer
-
-import tools.nsc.doc.model._
 import net.liftweb.mapper._
-import xml.transform.{RuleTransformer, RewriteRule}
+import net.liftweb.util.Helpers
+
+import collection.mutable.{LinkedList, HashMap}
+import tools.nsc.doc.model._
 import xml._
+import xml.transform.{RuleTransformer, RewriteRule}
 
 import java.util.{Calendar, Date}
 import java.text.SimpleDateFormat
-import net.liftweb.util.Helpers
-import net.liftweb.http.js.JE.{JsRaw, Str, JsFunc}
-import net.liftweb.http.{JsonResponse, LiftRules, S, SHtml}
-import model.{User, Comment, Model}
-import net.liftweb.common.Full
-import collection.mutable.{LinkedList, HashMap}
 
 class History extends Template(Model.model.rootPackage) {
 
@@ -220,7 +217,7 @@ class History extends Template(Model.model.rootPackage) {
     super.memberToHtml(mbr) \\% Map("date" -> mbr.date.getOrElse(new Date).toString)
 
   def processComment(cmt: Comment) = {
-    val mbr = pathToEntity(Model.model.rootPackage, cmt.qualifiedName.is.split("""[.#]""").toList)
+    val mbr = Paths.pathToMember(Model.model.rootPackage, cmt.qualifiedName.is.split("""[.#]""").toList)
     val comment = Model.factory.parse(mbr.symbol.get, mbr.template.get, cmt.comment.is)
     DynamicModelFactory.createMember(mbr, comment, cmt.dateTime.is)
   }
@@ -237,33 +234,6 @@ class History extends Template(Model.model.rootPackage) {
         case other => other
       }
     updateNodes(node.theSeq)
-  }
-
-  private def pathToEntity(rootPack: Package, path: List[String]): MemberEntity = {
-    def doName(mbr: MemberEntity): String = mbr match {
-        case tpl: DocTemplateEntity => NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
-        case mbr: MemberEntity => URLDecoder.decode(mbr.identifier, "UTF-8")
-      }
-    def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
-      pack.packages.find{ _.name == path.head } match {
-        case Some(p) => downPacks(p, path.tail)
-        case None => (pack, path)
-      }
-    }
-    def downInner(tpl: DocTemplateEntity, path: List[String]): MemberEntity = path match {
-      case p :: r if p.isEmpty => downInner(tpl, r)
-      case p :: r =>
-        tpl.members.sortBy{ t => -1 * doName(t).length }.find{ t => p.startsWith(doName(t)) } match {
-          case Some(t: DocTemplateEntity) => downInner(t, p.stripPrefix(doName(t)).stripPrefix("$") :: r)
-          case Some(m: MemberEntity) => m
-          case None => tpl
-        }
-      case Nil => tpl
-    }
-    downPacks(rootPack, path) match {
-      case (pack, "package" :: Nil) => pack
-      case (pack, path) => downInner(pack, path)
-    }
   }
 
 }
