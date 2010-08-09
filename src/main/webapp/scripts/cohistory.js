@@ -145,8 +145,6 @@ function reload() {
     $("p.shortcomment").click(function(){
         commentToggleFct($(this));
     });
-
-    filter();
 }
 
 function filter() {
@@ -172,12 +170,15 @@ function filter() {
           $(this).hide();
         };
     });
+    
     var comparator = $("#order > ol > li.alpha").hasClass("in") ?
         function(a, b) { return $(a).attr("name") > $(b).attr("name") ? 1 : -1; }:
         function(a, b) { return $(a).attr("date") < $(b).attr("date") ? 1 : -1; };
+    order($(".changeset"), comparator);
     $(".members > ol").each(function() {
       order($("li", this), comparator);
     });
+
     $(".members").each(function(){
         if ($(" > ol > li:visible", this).length == 0) { $(this).hide(); }
     });

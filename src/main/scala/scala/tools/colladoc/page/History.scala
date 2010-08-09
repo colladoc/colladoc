@@ -96,7 +96,7 @@ class History extends tools.nsc.doc.html.page.Template(Model.model.rootPackage) 
             </div>
           }
         </div>
-
+        <h3>Changed Members</h3>
         { historyToHtml(fromDate, toDate, userName) }
       </div>
     </body>
@@ -126,7 +126,6 @@ class History extends tools.nsc.doc.html.page.Template(Model.model.rootPackage) 
 //        where dateTime >= ? and dateTime <= ? %s group by qualifiedName, changeSet
 //      ) cmt on (cmts.qualifiedName = cmt.qualifiedName and cmts.dateTime = cmt.dateTime)"""
 //    <div id="history">
-//      <h3>Changed Members</h3>
 //      { User.find(Like(User.userName, user)) match {
 //          case Full(u) =>
 //            commentsToHtml(Comment.findAllByPreparedStatement({conn =>
@@ -150,7 +149,6 @@ class History extends tools.nsc.doc.html.page.Template(Model.model.rootPackage) 
 
   def historyToHtml(from: Date, to: Date, user: String): NodeSeq =
     <div id="history">
-      <h3>Changed Members</h3>
       { User.find(Like(User.userName, user)) match {
           case Full(u) =>
             commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from),
@@ -176,6 +174,8 @@ class History extends tools.nsc.doc.html.page.Template(Model.model.rootPackage) 
     }
   }
 
+  import scala.math.Ordering._
+
   protected def commentsToHtml(cmts: List[Comment]): NodeSeq = {
     val mbrs = merge(cmts).map{ processComment(_) }
     val tpls = HashMap.empty[DocTemplateEntity, List[MemberEntity]]
@@ -188,11 +188,13 @@ class History extends tools.nsc.doc.html.page.Template(Model.model.rootPackage) 
       }
     }
     <xml:group>
-      { tpls.toList.sortBy{ _._1.name } map{ case (tpl, mbrs) =>
-          <div class="changeset" name={ tpl.qualifiedName }>
-            { signature(tpl, false) }
+      { tpls.toList.sortBy{ _._1.name } map{ case (tpl, mbrs) => {
+          val date = time(mbrs map{ _.tag } collect{ case c: Comment => c.dateTime.is.getTime } max)
+          <div class="changeset" name={ tpl.qualifiedName } date={ timestamp(date).toString }>
+            { signature(tpl, true) }
             { membersToHtml(mbrs) }
           </div>
+          }
         }
       }
     </xml:group>
@@ -236,7 +238,7 @@ class History extends tools.nsc.doc.html.page.Template(Model.model.rootPackage) 
   }
 
   override def memberToHtml(mbr: MemberEntity) = mbr.tag match {
-    case cmt: Comment => super.memberToHtml(mbr) \\% Map("date" -> cmt.dateTime.is.toString)
+    case cmt: Comment => super.memberToHtml(mbr) \\% Map("date" -> timestamp(cmt.dateTime.is).toString)
     case _ => super.memberToHtml(mbr)
   }
 

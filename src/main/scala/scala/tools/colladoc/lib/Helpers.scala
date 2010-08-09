@@ -114,6 +114,8 @@ trait TimeHelpers {
     def rollYear(a: Int) = { c.roll(Calendar.YEAR, a); c }
   }
 
+  def timestamp(time: Long) = new java.sql.Timestamp(time)
+
 }
 
 trait XmlHelpers {
