@@ -24,7 +24,7 @@ package scala.tools.colladoc.lib
 
 import Helpers._
 
-object Helpers extends PathHelpers with TimeHelpers with XmlHelpers
+object Helpers extends PathHelpers with StringHelpers with TimeHelpers with XmlHelpers
 
 trait PathHelpers {
   import tools.colladoc.model.Model.factory._
@@ -87,6 +87,18 @@ trait PathHelpers {
       case mbr: MemberEntity => mbr.inTemplate
     }
 
+}
+
+trait StringHelpers {
+  import util.matching.Regex
+
+  import net.liftweb.util.Helpers._
+
+  val unsafeChars = new Regex("""[^A-Za-z0-9_]""")
+
+  def htmlAttributeEncode(in: String) =
+    unsafeChars.replaceAllIn(in.encJs, "_")
+  
 }
 
 trait TimeHelpers {
