@@ -54,7 +54,7 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
     case _ => ""
   }
 
-  def dateFormat = new SimpleDateFormat("HH:mm:ss MM/dd/yy")
+  def dateFormat = new SimpleDateFormat("HH:mm:ss dd MMM yyyy")
 
   def userNameDate: String =
     "%s by %s".format(dateFormat.format(dateTime.is), userName)
@@ -64,13 +64,9 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
   override def dbTableName = "comments"
 
   def select(qualifiedName: String, func: (String) => JsCmd) = {
-    val fmt = new SimpleDateFormat("HH:mm:ss MM/dd/yy")
-    def format(c: Comment) =
-      "%s by %s".format(fmt.format(c.dateTime.is), User.find(c.user.is).open_!.userName)
-
     val opts = findAll(By(Comment.qualifiedName, qualifiedName), OrderBy(Comment.dateTime, Descending))
     if (!opts.isEmpty)
-      SHtml.ajaxSelect(opts.map { c: Comment => (c.id.is.toString, format(c).toString) }, Empty, func, ("class", "select"))
+      SHtml.ajaxSelect(opts.map { c: Comment => (c.id.is.toString, c.userNameDate) }, Empty, func, ("class", "select"))
     else
       NodeSeq.Empty
   }
