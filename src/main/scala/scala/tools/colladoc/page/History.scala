@@ -180,10 +180,13 @@ class History extends tools.nsc.doc.html.page.Template(Model.model.rootPackage) 
     val mbrs = merge(cmts).map{ processComment(_) }
     val tpls = HashMap.empty[DocTemplateEntity, List[MemberEntity]]
     for (mbr <- mbrs) {
-      val tpl = mbr.inTemplate
-      if (!tpls.contains(tpl))
+      val tpl = mbr match {
+        case tpl: DocTemplateEntity => tpl
+        case _ => mbr.inTemplate
+      }
+      if (!tpls.contains(tpl)) {
         tpls += tpl -> (mbr :: Nil)
-      else {
+      } else {
         tpls += tpl -> (mbr :: tpls(tpl))
       }
     }

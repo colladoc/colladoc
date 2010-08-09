@@ -77,6 +77,11 @@ trait UpdatableCommentFactory extends CommentFactory { thisFactory: ModelFactory
     def example = comment.example
     def short = comment.short
     def source = comment.source
+    override def equals(other: Any) = other match {
+      case that: UpdatableComment => comment.equals(that.comment)
+      case _ => comment.equals(other)
+    }
+    override def hashCode = comment.hashCode
   }
 
   object EmptyComment extends Comment {
