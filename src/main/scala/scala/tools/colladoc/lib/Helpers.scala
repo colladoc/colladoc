@@ -20,23 +20,24 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc {
-package lib {
+package scala.tools.colladoc.lib
 
-import tools.colladoc.model.Model.factory._
+import Helpers._
 
-import tools.nsc.doc.model._
-import tools.nsc.doc.model.{DocTemplateEntity, MemberEntity}
-import reflect.NameTransformer
+object Helpers extends PathHelpers with TimeHelpers with XmlHelpers
 
-import java.net.{URLEncoder, URLDecoder}
+trait PathHelpers {
+  import tools.colladoc.model.Model.factory._
+  
+  import reflect.NameTransformer
+  import tools.nsc.doc.model.{DocTemplateEntity, MemberEntity, Package}
 
-object Paths {
+  import net.liftweb.util.Helpers._
 
   def memberToPath(mbr: MemberEntity, isSelf: Boolean) = {
     def doName(mbr: MemberEntity): String = mbr match {
         case tpl: DocTemplateEntity => NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
-        case mbr: MemberEntity => URLEncoder.encode(mbr.identifier, "UTF-8")
+        case mbr: MemberEntity => urlEncode(mbr.identifier)
       }
     def innerPath(nme: String, mbr: MemberEntity): String =
       mbr.inTemplate match {
@@ -56,7 +57,7 @@ object Paths {
   def pathToMember(rootPack: Package, path: List[String]): MemberEntity = {
     def doName(mbr: MemberEntity): String = mbr match {
         case tpl: DocTemplateEntity => NameTransformer.encode(tpl.name) + (if (tpl.isObject) "$" else "")
-        case mbr: MemberEntity => URLDecoder.decode(mbr.identifier, "UTF-8")
+        case mbr: MemberEntity => urlDecode(mbr.identifier)
       }
     def downPacks(pack: Package, path: List[String]): (Package, List[String]) = {
       pack.packages.find{ _.name == path.head } match {
@@ -88,5 +89,50 @@ object Paths {
 
 }
 
+trait TimeHelpers {
+  import java.util.{Date, Calendar}
+
+  implicit def toDate(c: Calendar) = c.getTime
+
+  implicit def toTime(d: Date) = d.getTime
+
+  implicit def toCalendar(c: Calendar) = new {
+    def rollDay(a: Int) = { c.roll(Calendar.DAY_OF_MONTH, a); c }
+    def rollMonth(a: Int) = { c.roll(Calendar.MONTH, a); c }
+    def rollYear(a: Int) = { c.roll(Calendar.YEAR, a); c }
+  }
+
 }
+
+trait XmlHelpers {
+  import xml._
+
+  implicit def addAttribute(elem: Elem) = new {
+    def %(attrs: Map[String, String]) = {
+      val seq = for((n, v) <- attrs) yield new UnprefixedAttribute(n, v, Null)
+      (elem /: seq) { _ % _ }
+    }
+  }
+
+  implicit def addNode(elem: Elem) = new {
+    def \+(newChild: Node) = elem match {
+      case Elem(prefix, labels, attrs, scope, child @ _*) =>
+        Elem(prefix, labels, attrs, scope, child ++ newChild : _*)
+    }
+  }
+
+  implicit def addNodeSeq(seq: NodeSeq) = new {
+    def \\%(attrs: Map[String, String]) = seq theSeq match {
+      case Seq(elem: Elem, rest @ _*) =>
+        elem % attrs ++ rest
+      case elem => elem
+    }
+
+    def \\+(newChild: Node) = seq theSeq match {
+      case Seq(elem: Elem, rest @ _*) =>
+        elem \+ newChild ++ rest
+      case elem => elem
+    }
+  }
+
 }

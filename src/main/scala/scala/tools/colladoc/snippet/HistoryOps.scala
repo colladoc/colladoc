@@ -23,13 +23,13 @@
 package scala.tools.colladoc {
 package snippet {
 
-import xml.{Text, NodeSeq}
-import net.liftweb.http.SHtml
-import lib.page.History
-import java.util.Date
-import java.text.SimpleDateFormat
+import lib.DependencyFactory._
+import page.History
+
+import xml._
 
 class HistoryOps {
+
   val history = new History
 
   /** Return history title. */

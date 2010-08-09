@@ -21,12 +21,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scala.tools.colladoc {
-package lib {
 package page {
 
-import model.{Comment, Model, User}
+import model._
 import model.Model.factory._
-import lib.XmlUtils._
+import model.comment.DynamicModelFactory
+import lib.Helpers._
 import lib.JsCmds._
 
 import net.liftweb.common.Full
@@ -34,13 +34,11 @@ import net.liftweb.http.{SHtml, S}
 import net.liftweb.http.js._
 import net.liftweb.http.js.jquery.JqJE._
 import net.liftweb.http.js.jquery.JqJsCmds._
-import net.liftweb.http.js.JE.{Str, JsFunc, JsRaw}
-import net.liftweb.http.js.JsCmds.{Run, Replace, SetHtml}
+import net.liftweb.http.js.JE._
+import net.liftweb.http.js.JsCmds._
 
 import tools.nsc.doc.model._
-import xml.{Text, Elem, NodeSeq}
-
-import model.comment.DynamicModelFactory
+import xml.{NodeSeq, Node, Elem, Text}
 
 class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
 
@@ -117,7 +115,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       Comment.find(cid) match {
         case Full(c) =>
           val comment = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
-          val entity = DynamicModelFactory.createMember(mbr, comment, c.dateTime.is)
+          val entity = DynamicModelFactory.createMember(mbr, comment)
           Replace(id(entity, "content"), content(entity, isSelf))&
             (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(comment.short)) else JsCmds.Noop)
         case _ => JsCmds.Noop
@@ -137,12 +135,11 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   }
 
   private def doExport(mbr: MemberEntity, isSelf: Boolean, recursive: Boolean)(): JsCmd = {
-    val path = Paths.memberToPath(mbr, isSelf) + ".xml" + (if (recursive) "?recursive=true" else "")
+    val path = memberToPath(mbr, isSelf) + ".xml" + (if (recursive) "?recursive=true" else "")
     JsRaw("window.open('%s', 'Export')" format (path))
   }
 
 }
 
-}
 }
 }

@@ -26,7 +26,8 @@ package lib
 import net.liftweb.sitemap.Loc
 import net.liftweb.util.NamedPF
 import net.liftweb.common.Full
-import net.liftweb.http.{RewriteResponse, ParsePath, RewriteRequest}
+import net.liftweb.http.{S, RewriteResponse, ParsePath, RewriteRequest}
+
 import xml.Text
 
 case class TemplateLoc(path: List[String])
@@ -52,5 +53,10 @@ object TemplateStuff extends Loc[TemplateLoc] {
     case RewriteRequest(ParsePath(path, "html", _, _), _, _) =>
       (RewriteResponse("template" :: Nil, Map("path" -> path.mkString("/"))), TemplateLoc(path))
   })
+
+  override val snippets: SnippetTest = {
+    case ("template", Full(TemplateLoc(path))) =>
+      DependencyFactory.path.doWith(path.toArray) { S.locateSnippet("template").open_! }
+  }
 
 }

@@ -36,7 +36,8 @@ import _root_.java.sql.{Connection, DriverManager}
 import _root_.scala.tools.colladoc.model._
 
 import js.JE.JsRaw
-import tools.colladoc.lib.{HistoryStuff, WebService, IndexStuff, TemplateStuff}
+import tools.colladoc.api.ExportService
+import tools.colladoc.lib.{HistoryStuff, IndexStuff, TemplateStuff}
 import tools.colladoc.lib.JsCmds._
 import xml.{Elem, Text, NodeSeq}
 import java.io.{InputStream, InputStreamReader, BufferedReader}
@@ -71,7 +72,7 @@ class Boot {
       )
 
     LiftRules.setSiteMapFunc(sitemap)
-    LiftRules.statelessDispatchTable.append(WebService)
+    LiftRules.statelessDispatchTable.append(ExportService)
 
     // Show the spinny image when an Ajax call starts
     LiftRules.ajaxStart =

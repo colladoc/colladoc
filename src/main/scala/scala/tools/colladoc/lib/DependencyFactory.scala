@@ -20,39 +20,32 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc.lib
+package scala.tools.colladoc {
+package lib {
 
-import xml._
-import XmlUtils._
+import model.Model
 
-object XmlUtils {
+import net.liftweb._
+import http._
+import util._
+import common._
+import _root_.java.util.Date
 
-  implicit def addAttribute(elem: Elem) = new {
-    def %(attrs: Map[String, String]) = {
-      val seq = for((n, v) <- attrs) yield new UnprefixedAttribute(n, v, Null)
-      (elem /: seq) { _ % _ }
-    }
+object DependencyFactory extends Factory {
+  implicit object model extends FactoryMaker(getModel _)
+  implicit object path extends FactoryMaker(getPath _)
+
+  def getModel =
+    Model.model
+
+  def getPath =
+    S.param("path") openOr "" split('/')
+
+  private def init() {
+    List(model, path)
   }
+  init()
+}
 
-  implicit def addNode(elem: Elem) = new {
-    def \+(newChild: Node) = elem match {
-      case Elem(prefix, labels, attrs, scope, child @ _*) =>
-        Elem(prefix, labels, attrs, scope, child ++ newChild : _*)
-    }
-  }
-
-  implicit def addNodeSeq(seq: NodeSeq) = new {
-    def \\%(attrs: Map[String, String]) = seq theSeq match {
-      case Seq(elem: Elem, rest @ _*) =>
-        elem % attrs ++ rest
-      case elem => elem
-    }
-    
-    def \\+(newChild: Node) = seq theSeq match {
-      case Seq(elem: Elem, rest @ _*) =>
-        elem \+ newChild ++ rest
-      case elem => elem
-    }
-  }
-
+}
 }

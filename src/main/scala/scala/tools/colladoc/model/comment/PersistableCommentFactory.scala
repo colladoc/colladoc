@@ -20,17 +20,22 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package model
-package comment
+package scala.tools.colladoc {
+package model {
+package comment {
+
+import model.Comment
+import lib.Helpers._
+
+import net.liftweb.common.{Full, Empty}
+import net.liftweb.mapper._
+import net.liftweb.util.Helpers._
 
 import tools.nsc.Global
 import tools.nsc.doc.model.comment.{Comment => ModelComment, CommentFactory}
-import scala.tools.colladoc.model.{Comment}
-import net.liftweb.common.{Full, Empty}
-import net.liftweb.mapper._
-import java.util.Date
 import tools.nsc.doc.model.{ValueParam, Def, MemberEntity, ModelFactory}
+
+import java.util.{Calendar, Date}
 
 trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: ModelFactory with CommentFactory =>
 
@@ -53,6 +58,15 @@ trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: M
         .comment(docStr)
         .dateTime(new Date)
         .user(User.currentUser.open_!)
+
+      Comment.findAll(By(Comment.qualifiedName, mbr.qualifiedIdentifier), By(Comment.user, User.currentUser.open_!),
+          OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
+        case List(c: Comment, _*) if c.dateTime.is - comment.dateTime.is < minutes(30) =>
+          comment.changeSet(c.changeSet.is)
+        case _ =>
+          comment.changeSet(new Date)
+      }
+
       comment.save
     }
   }
@@ -79,9 +93,8 @@ trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: M
     makeMember(sym, inTpl) match {
       case List(mbr, _*) =>
         Comment.findAll(By(Comment.qualifiedName, mbr.qualifiedIdentifier),
-          OrderBy(Comment.dateTime, Descending),
-          MaxRows(1)) match {
-          case List(com: Comment, _*) if com.dateTime.is.getTime > sym.sourceFile.lastModified => Some(com)
+          OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
+          case List(c: Comment, _*) if c.dateTime.is.getTime > sym.sourceFile.lastModified => Some(c)
           case _ => None
         }
       case Nil => None
@@ -99,4 +112,8 @@ trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: M
       } else false
   }
   
+}
+
+}
+}
 }

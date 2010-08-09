@@ -61,3 +61,11 @@
     font-size: 11pt;
     text-align: left;
 }
+
+span.stamp {
+    color: #000000;
+    float: right;
+    font-family: sans-serif;
+    font-size: 10pt;
+    margin: 0px 4px;
+}

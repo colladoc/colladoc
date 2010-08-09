@@ -21,29 +21,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scala.tools.colladoc {
-package lib {
 package page {
 
-import model.{User, Model}
-import lib.XmlUtils._
+import lib.Helpers._
 import lib.JsCmds._
+import model._
 
 import net.liftweb.http.{S, SHtml}
 import net.liftweb.http.js.JsCmds._
+import net.liftweb.http.js._
 import net.liftweb.http.js.jquery.JqJsCmds._
-import net.liftweb.http.js.{JsCmds, JsMember}
+import net.liftweb.http.js.jquery.JqJE._
+import net.liftweb.http.js.JE._
 import net.liftweb.widgets.gravatar.Gravatar
 
 import tools.nsc.doc.Universe
-import xml.{NodeSeq, Text, Elem}
-import net.liftweb.http.js.jquery.JqJE._
-import net.liftweb.http.js.JE.{JsRaw, JsFunc, Str}
+import xml.{NodeSeq, Node, Elem, Text}
 
 class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) {
 
-  override def browser = super.browser \+ login
-
-  def login: Elem =
+  override def browser = super.browser \+
     <div id="user">
       { if (User.loggedIn_?)
           loggedIn
@@ -55,15 +52,9 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
   private def loggedOut =
     <xml:group>
       <ul class="usernav">
-        <li>
-          <a href="/history.html" target="template">History</a>
-        </li>
-        <li>
-          { SHtml.a(Text("Signup"), Jq(Str(".user")) ~> OpenDialog()) }
-        </li>
-        <li>
-          { SHtml.a(Text("Login"), Jq(Str(".login")) ~> OpenDialog()) }
-        </li>
+        <li><a href="/history.html" target="template">History</a></li>
+        <li>{ SHtml.a(Text("Signup"), Jq(Str(".user")) ~> OpenDialog()) }</li>
+        <li>{ SHtml.a(Text("Login"), Jq(Str(".login")) ~> OpenDialog()) }</li>
       </ul>
       { User.signup }
       { User.login }
@@ -78,21 +69,14 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
         </span>
       </div>
       <ul class="usernav">
-        <li>
-          <a href="/history.html" target="template">History</a>
-        </li>
-        <li>
-          { SHtml.a(Text("Settings"), Jq(Str(".user")) ~> OpenDialog()) }
-        </li>
-        <li>
-          { SHtml.a(() => {User.logout; JsCmds.Noop}, Text("Log Out")) }
-        </li>
+        <li><a href="/history.html" target="template">History</a></li>
+        <li>{ SHtml.a(Text("Settings"), Jq(Str(".user")) ~> OpenDialog()) }</li>
+        <li>{ SHtml.a(() => {User.logout; JsCmds.Noop}, Text("Log Out")) }</li>
       </ul>
       { User.edit }
     </xml:group>
 
 }
 
-}
 }
 }

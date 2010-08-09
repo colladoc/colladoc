@@ -21,48 +21,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scala.tools.colladoc {
-package lib {
 package page {
 
 import model.{User, Comment, Model}
 import model.comment.DynamicModelFactory
 import model.comment.DynamicModelFactory._
 import model.Model.factory._
+import lib.Helpers._
 import lib.Widgets._
-import lib.XmlUtils._
+import lib.DependencyFactory
 
-import net.liftweb.common.Full
-import net.liftweb.http.S._
-import net.liftweb.http.{JsonResponse, LiftRules, S, SHtml}
-import net.liftweb.http.js.JE.{JsRaw, Str, JsFunc}
+import net.liftweb.common._
+import net.liftweb.http._
+import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.http.js.JsCmds.{Run, Replace, SetHtml}
 import net.liftweb.mapper._
-import net.liftweb.util.Helpers
+import net.liftweb.util.Helpers._
 
 import collection.mutable.{LinkedList, HashMap}
 import tools.nsc.doc.model._
-import xml._
-import xml.transform.{RuleTransformer, RewriteRule}
+import xml.{NodeSeq, Node, Elem, Text}
 
 import java.util.{Calendar, Date}
 import java.text.SimpleDateFormat
 
-class History extends Template(Model.model.rootPackage) {
+class History extends tools.nsc.doc.html.page.Template(Model.model.rootPackage) {
 
   val dateFormat = new SimpleDateFormat("MM/dd/yyyy")
-  var fromDate: Date = new Date
-  var toDate: Date = {
-    val calendar = Calendar.getInstance
-    calendar.roll(Calendar.DATE, 1)
-    calendar.getTime
-  }
-  var userName: String = {
+  var fromDate: Date = today
+  var toDate: Date = today.rollDay(1)
+  var userName: String =
     if (User.loggedIn_?)
       User.currentUser.open_! userName
     else
       ""
-  }
 
   override val title = "History"
 
@@ -128,6 +120,34 @@ class History extends Template(Model.model.rootPackage) {
     Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()")
   }
 
+//  def historyToHtml(from: Date, to: Date, user: String): NodeSeq = {
+//    val historyStatement = """select cmts.* from comments cmts
+//      inner join (select qualifiedName, max(dateTime) as dateTime from comments
+//        where dateTime >= ? and dateTime <= ? %s group by qualifiedName, changeSet
+//      ) cmt on (cmts.qualifiedName = cmt.qualifiedName and cmts.dateTime = cmt.dateTime)"""
+//    <div id="history">
+//      <h3>Changed Members</h3>
+//      { User.find(Like(User.userName, user)) match {
+//          case Full(u) =>
+//            commentsToHtml(Comment.findAllByPreparedStatement({conn =>
+//              val stmt = conn.connection.prepareStatement(historyStatement.format("and user_c = ?"))
+//              stmt.setDate(1, new java.sql.Date(from.getTime))
+//              stmt.setDate(2, new java.sql.Date(to.getTime))
+//              stmt.setLong(3, u.id.is)
+//              stmt
+//            }))
+//          case _ =>
+//            commentsToHtml(Comment.findAllByPreparedStatement({conn =>
+//              val stmt = conn.connection.prepareStatement(historyStatement.format(""))
+//              stmt.setDate(1, new java.sql.Date(from.getTime))
+//              stmt.setDate(2, new java.sql.Date(to.getTime))
+//              stmt
+//            }))
+//        }
+//      }
+//    </div>
+//  }
+
   def historyToHtml(from: Date, to: Date, user: String): NodeSeq =
     <div id="history">
       <h3>Changed Members</h3>
@@ -145,21 +165,18 @@ class History extends Template(Model.model.rootPackage) {
       }
     </div>
 
+  /**
+   * This method and its call may be removed when changeset column will be properly filled
+   */
+  def merge(cmts: List[Comment]) = {
+    cmts.groupBy(c => c.qualifiedName.is + c.user.is).values.flatMap{ cs =>
+      cs.head :: ((cs zip cs.tail) collect {
+        case (c1, c2) if c1.dateTime.is - c2.dateTime.is > minutes(30) => c2
+      })
+    }
+  }
+
   protected def commentsToHtml(cmts: List[Comment]): NodeSeq = {
-    def diff(date1: Date, date2: Date) = {
-      val cal1 = Calendar.getInstance
-      cal1.setTime(date1)
-      val cal2 = Calendar.getInstance
-      cal2.setTime(date2)
-      (cal2.getTimeInMillis - cal1.getTimeInMillis) / (60 * 1000)
-    }
-    def merge(cmts: List[Comment]) = {
-      cmts.groupBy(c => c.qualifiedName.is + c.user.is).values.flatMap{ cs =>
-        cs.head :: ((cs zip cs.tail) collect {
-          case (c1, c2) if diff(c1.dateTime.is, c2.dateTime.is) > 30 => c1
-        })
-      }
-    }
     val mbrs = merge(cmts).map{ processComment(_) }
     val tpls = HashMap.empty[DocTemplateEntity, List[MemberEntity]]
     for (mbr <- mbrs) {
@@ -171,7 +188,7 @@ class History extends Template(Model.model.rootPackage) {
       }
     }
     <xml:group>
-      { tpls map { case (tpl, mbrs) =>
+      { tpls.toList.sortBy{ _._1.name } map{ case (tpl, mbrs) =>
           <div class="changeset" name={ tpl.qualifiedName }>
             { signature(tpl, false) }
             { membersToHtml(mbrs) }
@@ -213,31 +230,23 @@ class History extends Template(Model.model.rootPackage) {
     </xml:group>
   }
 
-  override def memberToHtml(mbr: MemberEntity) =
-    super.memberToHtml(mbr) \\% Map("date" -> mbr.date.getOrElse(new Date).toString)
+  override def signature(mbr: MemberEntity, isSelf: Boolean, isReduced: Boolean = false) = mbr.tag match {
+    case cmt: Comment => super.signature(mbr, isSelf, isReduced) \\+ <span class="stamp">{ cmt.userNameDate }</span>
+    case _ => super.signature(mbr, isSelf, isReduced)
+  }
+
+  override def memberToHtml(mbr: MemberEntity) = mbr.tag match {
+    case cmt: Comment => super.memberToHtml(mbr) \\% Map("date" -> cmt.dateTime.is.toString)
+    case _ => super.memberToHtml(mbr)
+  }
 
   def processComment(cmt: Comment) = {
-    val mbr = Paths.pathToMember(Model.model.rootPackage, cmt.qualifiedName.is.split("""[.#]""").toList)
+    val mbr = pathToMember(Model.model.rootPackage, cmt.qualifiedName.is.split("""[.#]""").toList)
     val comment = Model.factory.parse(mbr.symbol.get, mbr.template.get, cmt.comment.is)
-    DynamicModelFactory.createMember(mbr, comment, cmt.dateTime.is)
-  }
-
-  def updateName(node: NodeSeq, mbr: MemberEntity): NodeSeq = {
-    def updateNodes(ns: Seq[Node]): Seq[Node] =
-      for(subnode <- ns) yield subnode match {
-        case Elem(prefix, "span", attrib @ UnprefixedAttribute("class", Text("name"), _), scope, _) =>
-          Elem(prefix, "span", attrib, scope, Text(mbr.qualifiedName))
-        case Elem(prefix, label, attribs, scope, children @ _*) =>
-          Elem(prefix, label, attribs, scope, updateNodes(children) : _*)
-        case Group(children) =>
-          Group(updateNodes(children))
-        case other => other
-      }
-    updateNodes(node.theSeq)
+    DynamicModelFactory.createMember(mbr, comment, cmt)
   }
 
 }
 
-}
 }
 }

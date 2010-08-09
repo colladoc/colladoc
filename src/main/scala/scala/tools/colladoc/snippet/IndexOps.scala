@@ -23,13 +23,14 @@
 package scala.tools.colladoc {
 package snippet {
 
-import lib.page.Index
-import model.Model
+import lib.DependencyFactory._
+import page.Index
 
-import xml.{Elem, Text, NodeSeq}
+import xml._
 
 class IndexOps {
-  val index = new Index(Model.model)
+
+  val index = new Index(model.vend)
 
   /** Return index title. */
   def title(xhtml: NodeSeq): NodeSeq =

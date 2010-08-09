@@ -21,43 +21,46 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scala.tools.colladoc {
-package lib {
+package api {
 
 import tools.colladoc.model.Model
 import tools.colladoc.model.Model.factory._
+import lib.Helpers._
 
+import net.liftweb.util.Helpers._
 import net.liftweb.http.{S, Req, GetRequest}
 import net.liftweb.http.rest.RestHelper
 
 import collection.mutable.HashSet
-import reflect.NameTransformer
 import tools.nsc.doc.model._
-import util.matching.Regex
 import xml.{Node, NodeSeq, Null}
 
-import java.net.URLDecoder
-
-object WebService extends RestHelper {
+object ExportService extends RestHelper {
 
   serve {
     case r @ Req(path, "xml", GetRequest) => changeSet(path, r)
   }
 
   def changeSet(path: List[String], req: Req) = {
-    val rec = try { req.param("recursive").getOrElse(false.toString).toBoolean }
-      catch { case _: java.lang.NumberFormatException => false }
-    
+    val rec = req.param("recursive").getOrElse(false.toString) match {
+      case AsBoolean(true) => true
+      case _ => false
+    }
+    val dte = req.param("date").getOrElse(Long.MinValue.toString) match {
+      case AsLong(long) => long
+      case _ => Long.MaxValue
+    }
     <scaladoc>
-      { new ChangeSetFactory(rec) construct(Model.model.rootPackage, path) }
+      { new Traversal(rec) construct(Model.model.rootPackage, path) }
     </scaladoc>
   }
 
-  class ChangeSetFactory(recursive: Boolean) {
+  class Traversal(recursive: Boolean) {
 
     protected val visited = HashSet.empty[MemberEntity]
 
     def construct(pack: Package, path: List[String]): NodeSeq =
-      construct(Paths.pathToMember(pack, path))
+      construct(pathToMember(pack, path))
 
     def construct(mbr: MemberEntity): NodeSeq =
       <xml:group>

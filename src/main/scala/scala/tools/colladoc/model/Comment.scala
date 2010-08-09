@@ -25,11 +25,16 @@ package model
 
 import net.liftweb.mapper._
 import net.liftweb.http.SHtml
-import net.liftweb.common.Empty
 import net.liftweb.http.js.JsCmds._
-import java.text.SimpleDateFormat
 import net.liftweb.http.js.JsCmd
+import net.liftweb.util.Helpers
+import net.liftweb.util.Helpers._
+
+import xml.NodeSeq
+
+import java.text.SimpleDateFormat
 import java.util.Date
+import net.liftweb.common.{Full, Empty}
 
 class Comment extends LongKeyedMapper[Comment] with IdPK {
   def getSingleton = Comment
@@ -43,6 +48,16 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
 
   object user extends LongMappedMapper(this, User)
   object dateTime extends MappedDateTime(this)
+
+  def userName: String = User.find(user.is) match {
+    case Full(u) => u.userName
+    case _ => ""
+  }
+
+  def dateFormat = new SimpleDateFormat("HH:mm:ss MM/dd/yy")
+
+  def userNameDate: String =
+    "%s by %s".format(dateFormat.format(dateTime.is), userName)
 }
 
 object Comment extends Comment with LongKeyedMetaMapper[Comment] {
@@ -57,6 +72,6 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
     if (!opts.isEmpty)
       SHtml.ajaxSelect(opts.map { c: Comment => (c.id.is.toString, format(c).toString) }, Empty, func, ("class", "select"))
     else
-      <xml:group></xml:group>
+      NodeSeq.Empty
   }
 }

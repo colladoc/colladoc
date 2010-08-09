@@ -23,38 +23,21 @@
 package scala.tools.colladoc {
 package snippet {
 
-import model.Model
-import lib.{Paths, DependencyFactory}
-import lib.page.Template
+import lib.DependencyFactory._
+import lib.Helpers._
+import page.Template
 
-import net.liftweb.http.{SHtml, S}
-import net.liftweb.http.jquery.JqSHtml
-
-import tools.nsc.doc.model.{MemberEntity, NonTemplateMemberEntity, Package, DocTemplateEntity}
-import tools.nsc.io.File
-import reflect.NameTransformer
-import util.matching.Regex
-import xml.{Text, NodeSeq}
+import xml._
 
 class TemplateOps {
-  val template = {
-    val path = S.param("path") openOr "" split('/')
-    val entity = Paths.pathToTemplate(Model.model.rootPackage, path.toList)
-    new Template(entity)
-  }
 
-  //lazy val date: Box[Date] = DependencyFactory.inject[Date] // inject the date
-  //lazy val date: Date = DependencyFactory.time.vend // create the date via factory
+  val template = new Template(pathToTemplate(model.vend.rootPackage, path.vend.toList))
 
-  /**
-   *  Return template title.
-   */
+  /** Return template title. */
   def title(xhtml: NodeSeq): NodeSeq =
     Text(template.title)
 
-  /**
-   * Return template body.
-   */
+  /** Return template body. */
   def body(xhtml: NodeSeq): NodeSeq =
     template.body
 
