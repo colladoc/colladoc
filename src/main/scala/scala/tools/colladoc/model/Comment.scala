@@ -20,21 +20,21 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package model
+package scala.tools.colladoc {
+package model {
 
+import lib.Helpers._
+
+import net.liftweb.common._
 import net.liftweb.mapper._
 import net.liftweb.http.SHtml
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.JsCmd
-import net.liftweb.util.Helpers
 import net.liftweb.util.Helpers._
 
 import xml.NodeSeq
 
 import java.text.SimpleDateFormat
-import java.util.Date
-import net.liftweb.common.{Full, Empty}
 
 class Comment extends LongKeyedMapper[Comment] with IdPK {
   def getSingleton = Comment
@@ -63,11 +63,23 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
 object Comment extends Comment with LongKeyedMetaMapper[Comment] {
   override def dbTableName = "comments"
 
-  def select(qualifiedName: String, func: (String) => JsCmd) = {
-    val opts = findAll(By(Comment.qualifiedName, qualifiedName), OrderBy(Comment.dateTime, Descending))
-    if (!opts.isEmpty)
-      SHtml.ajaxSelect(opts.map { c: Comment => (c.id.is.toString, c.userNameDate) }, Empty, func, ("class", "select"))
+  def select(qualName: String, func: (String) => JsCmd, deflt: Box[String] = Empty) = {
+    val cmts = changeSets(findAll(By(qualifiedName, qualName), OrderBy(Comment.dateTime, Descending)))
+    if (cmts.nonEmpty)
+      SHtml.ajaxSelect(cmts.map { c => (c.id.is.toString, c.userNameDate) }, deflt, func, ("class", "select"))
     else
       NodeSeq.Empty
   }
+
+  def changeSets(cmts: List[Comment]) =
+    if (cmts.nonEmpty)
+      cmts.head :: ((cmts zip cmts.tail) collect {
+        case (c1, c2) if c1.dateTime.is - c2.dateTime.is > minutes(30) => c2
+      })
+    else
+      cmts
+
+}
+
+}
 }

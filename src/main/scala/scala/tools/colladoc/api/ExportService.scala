@@ -42,20 +42,20 @@ object ExportService extends RestHelper {
   }
 
   def changeSet(path: List[String], req: Req) = {
-    val rec = req.param("recursive").getOrElse(false.toString) match {
+    val rec = req.param("rec").getOrElse(false.toString) match {
       case AsBoolean(true) => true
       case _ => false
     }
-    val dte = req.param("date").getOrElse(Long.MinValue.toString) match {
+    val rev = req.param("rev").getOrElse(Long.MinValue.toString) match {
       case AsLong(long) => long
       case _ => Long.MaxValue
     }
     <scaladoc>
-      { new Traversal(rec) construct(Model.model.rootPackage, path) }
+      { new Traversal(rec, rev) construct(Model.model.rootPackage, path) }
     </scaladoc>
   }
 
-  class Traversal(recursive: Boolean) {
+  class Traversal(recursive: Boolean, revision: Long) {
 
     protected val visited = HashSet.empty[MemberEntity]
 

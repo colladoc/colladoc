@@ -80,9 +80,7 @@ function reload() {
     })
 
     $('.button').button();
-    $('.select').selectmenu({
-        width: 250
-    });
+    $('.select').selectmenu({ width: 250 });
     $(".extype").tooltip({
         tip: "#tooltip",
         position:"top center",

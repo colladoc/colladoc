@@ -23,7 +23,6 @@
 package scala.tools.colladoc {
 package page {
 
-import model.{User, Comment, Model}
 import model.comment.DynamicModelFactory
 import model.comment.DynamicModelFactory._
 import model.Model.factory._
@@ -44,6 +43,7 @@ import xml.{NodeSeq, Node, Elem, Text}
 
 import java.util.{Calendar, Date}
 import java.text.SimpleDateFormat
+import model.{Comment, User, Model}
 
 class History extends Template(Model.model.rootPackage) {
 
@@ -120,33 +120,6 @@ class History extends Template(Model.model.rootPackage) {
     Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()")
   }
 
-//  def historyToHtml(from: Date, to: Date, user: String): NodeSeq = {
-//    val historyStatement = """select cmts.* from comments cmts
-//      inner join (select qualifiedName, max(dateTime) as dateTime from comments
-//        where dateTime >= ? and dateTime <= ? %s group by qualifiedName, changeSet
-//      ) cmt on (cmts.qualifiedName = cmt.qualifiedName and cmts.dateTime = cmt.dateTime)"""
-//    <div id="history">
-//      { User.find(Like(User.userName, user)) match {
-//          case Full(u) =>
-//            commentsToHtml(Comment.findAllByPreparedStatement({conn =>
-//              val stmt = conn.connection.prepareStatement(historyStatement.format("and user_c = ?"))
-//              stmt.setDate(1, new java.sql.Date(from.getTime))
-//              stmt.setDate(2, new java.sql.Date(to.getTime))
-//              stmt.setLong(3, u.id.is)
-//              stmt
-//            }))
-//          case _ =>
-//            commentsToHtml(Comment.findAllByPreparedStatement({conn =>
-//              val stmt = conn.connection.prepareStatement(historyStatement.format(""))
-//              stmt.setDate(1, new java.sql.Date(from.getTime))
-//              stmt.setDate(2, new java.sql.Date(to.getTime))
-//              stmt
-//            }))
-//        }
-//      }
-//    </div>
-//  }
-
   def historyToHtml(from: Date, to: Date, user: String): NodeSeq =
     <div id="history">
       { User.find(Like(User.userName, user)) match {
@@ -163,21 +136,9 @@ class History extends Template(Model.model.rootPackage) {
       }
     </div>
 
-  /**
-   * This method and its call may be removed when changeset column will be properly filled
-   */
-  def merge(cmts: List[Comment]) = {
-    cmts.groupBy(c => c.qualifiedName.is + c.user.is).values.flatMap{ cs =>
-      cs.head :: ((cs zip cs.tail) collect {
-        case (c1, c2) if c1.dateTime.is - c2.dateTime.is > minutes(30) => c2
-      })
-    }
-  }
-
-  import scala.math.Ordering._
-
   protected def commentsToHtml(cmts: List[Comment]): NodeSeq = {
-    val mbrs = merge(cmts).map{ processComment(_) }
+    val mbrs = cmts.groupBy(c => c.qualifiedName.is + c.user.is).values
+            .flatMap(Comment.changeSets _).map(processComment _)
     val tpls = HashMap.empty[DocTemplateEntity, List[MemberEntity]]
     for (mbr <- mbrs) {
       val tpl = mbr match {
