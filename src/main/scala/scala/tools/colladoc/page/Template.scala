@@ -78,6 +78,24 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       { export(mbr, isSelf) }
     </div>
 
+  private def select(mbr: MemberEntity, isSelf: Boolean) = {
+    def replace(cid: String) = {
+      Comment.find(cid) match {
+        case Full(c) =>
+          val cmt = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
+          val entity = DynamicModelFactory.createMember(mbr, cmt, c)
+          (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(cmt.short)) else JsCmds.Noop) &
+            Replace(id(entity, "comment"), memberToCommentBodyHtml(entity, isSelf)) &
+            Run("reinit('#" + id(mbr, "comment") + "')")
+        case _ => JsCmds.Noop
+      }
+    }
+    mbr.tag match {
+      case cmt: Comment => Comment.select(mbr.qualifiedIdentifier, replace _, Full(cmt.id.is.toString))
+      case _ => Comment.select(mbr.qualifiedIdentifier, replace _)
+    }
+  }
+
   private def edit(mbr: MemberEntity, isSelf: Boolean) = {
     SHtml.a(doEdit(mbr, isSelf) _, Text("Edit"), ("class", "button"))
   }
@@ -107,40 +125,31 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     else
       Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) &
         (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(mbr.comment.get.short)) else JsCmds.Noop) &
-        reinitForm(mbr)
+        Run("reinit('#" + id(mbr, "comment") + "')")
 
   private def cancel(mbr: MemberEntity, isSelf: Boolean): JsCmd =
     Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) &
-      reinitForm(mbr)
+      Run("reinit('#" + id(mbr, "comment") + "')")
 
   private def update(mbr: MemberEntity, text: String) = Model.synchronized {
     Model.reporter.reset
     Model.factory.update(mbr, text)
   }
 
-  private def select(mbr: MemberEntity, isSelf: Boolean) = {
-    def replace(cid: String) = {
-      Comment.find(cid) match {
-        case Full(c) =>
-          val cmt = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
-          val entity = DynamicModelFactory.createMember(mbr, cmt, c)
-          (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(cmt.short)) else JsCmds.Noop) &
-            Replace(id(entity, "comment"), memberToCommentBodyHtml(entity, isSelf)) &
-            reinitForm(mbr)
-        case _ => JsCmds.Noop
-      }
-    }
-    mbr.tag match {
-      case cmt: Comment => Comment.select(mbr.qualifiedIdentifier, replace _, Full(cmt.id.is.toString))
-      case _ => Comment.select(mbr.qualifiedIdentifier, replace _)
-    }
+  private def remove(mbr: MemberEntity, isSelf: Boolean) = {
+    SHtml.a(doEdit(mbr, isSelf) _, Text("Remove"), ("class", "button"))
   }
 
   private def export(mbr: MemberEntity, isSelf: Boolean) = mbr match {
-    case tpl: DocTemplateEntity if tpl.isPackage =>
+    case tpl: DocTemplateEntity =>
       <xml:group>
-        { SHtml.a(doExport(mbr, isSelf, false) _, Text("Export"), ("class", "control")) }
-        { SHtml.a(doExport(mbr, isSelf, true) _, Text("Export Recursively"), ("class", "control")) }
+        <div id={ id(mbr, "export") } style="display: none;">
+          <ul>
+            <li>{ SHtml.a(doExport(mbr, isSelf, false) _, Text("Symbol Only")) }</li>
+            <li>{ SHtml.a(doExport(mbr, isSelf, true) _, Text("All Subsymbols")) }</li>
+          </ul>
+        </div>
+        <a class="control menu" data-menu={ "#" + id(mbr, "export") }>Export</a>
       </xml:group>
     case _ =>
       SHtml.a(doExport(mbr, isSelf, false) _, Text("Export"), ("class", "control"))
@@ -160,10 +169,6 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     val path = memberToPath(mbr, isSelf) + ".xml" + pars.mkString("?", "&", "")
     JsRaw("window.open('%s', 'Export')" format (path))
   }
-
-  private def reinitForm(mbr: MemberEntity) =
-    Jq(Str("#" + id(mbr, "comment") + " .button")) ~> Button() &
-    Jq(Str("#" + id(mbr, "comment") + " .select")) ~> SelectMenu()
 
 }
 

@@ -25,39 +25,43 @@
 }
 
 #template > h3 {
-    padding: 4px;
+    background-color: #333;
     color: white;
     font-weight: bold;
     font-size: 12pt;
-    background-color: #333;
+    padding: 4px;
 }
 
 #history div.members > h3 {
     padding-left: 2em;
 }
 
-/*.changeset > div.members {
+.definition {
+    color: white;
+    font-weight: bold;
+    font-size: 12pt;
+    padding: 4px;
+}
+
+.value .definition {
+    background-color: #7996AC;
+}
+
+.type .definition {
+    background-color: #799F5A;
+}
+
+#template .changeset > .fullcomment {
+    display: block;
+    margin: 0 0 4px 0;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+#template .changeset > .fullcomment div.controls {
     display: none;
-}*/
-
-.changeset > h4 span.kind {
-    color: black;
-    font-size: 11pt;
-    display: inline;
-    float: left;
-    text-align: left;
-    width: auto;
-    padding-left: 6px;
 }
 
-.changeset > h4 span.name {
-    color: black;
-    font-size: 11pt;
-    text-align: left;
-}
-
-.changeset > h4 span.result {
-    color: black;
-    font-size: 11pt;
-    text-align: left;
+#template .changeset > .signature {
+    margin: 0 0 4px 0;
 }

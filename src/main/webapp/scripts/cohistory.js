@@ -49,21 +49,6 @@ function reload() {
         filter();
     });
 
-    $("#visbl > ol > li.public").click(function() {
-        if ($(this).hasClass("out")) {
-            $(this).removeClass("out").addClass("in");
-            $("#visbl > ol > li.all").removeClass("in").addClass("out");
-            filter();
-        };
-    })
-    $("#visbl > ol > li.all").click(function() {
-        if ($(this).hasClass("out")) {
-            $(this).removeClass("out").addClass("in");
-            $("#visbl > ol > li.public").removeClass("in").addClass("out");
-            filter();
-        };
-    });
-
     $("#order > ol > li.date").click(function() {
         if ($(this).hasClass("out")) {
             $(this).removeClass("out").addClass("in");
@@ -79,8 +64,7 @@ function reload() {
         };
     })
 
-    $('.button').button();
-    $('.select').selectmenu({ width: 250 });
+    reinit('body');
     $(".extype").tooltip({
         tip: "#tooltip",
         position:"top center",
@@ -89,7 +73,7 @@ function reload() {
         }
     });
 
-    var docSetSigs = $(".changeset > .signature");
+    var docSetSigs = $(".changeset > .definition");
     function commentShow(element){
         var vis = $(":visible", element);
         if (vis.length > 0) {
@@ -101,9 +85,14 @@ function reload() {
     };
     docSetSigs.css("cursor", "pointer");
     docSetSigs.click(function(){
-        commentShow($("+ div.members", $(this)));
+        commentShow($("~ div.members", $(this)));
     });
-    var docAllSigs = $("#template .signature");
+    var docSigs = $(".changeset > .signature");
+    docSigs.css("cursor", "pointer");
+    docSigs.click(function(){
+        commentShow($("div.controls", $("+ div.fullcomment", $(this))));
+    });
+    var docAllSigs = $(".members .signature");
     var docShowSigs = docAllSigs.filter(function(){
         return $("+ div.fullcomment", $(this)).length > 0;
     });
@@ -139,20 +128,14 @@ function reload() {
 function filter() {
     var query = $("#textfilter > input").attr("value").toLowerCase();
     var queryRegExp = new RegExp(query, "i");
-    var prtVisbl = $("#visbl > ol > li.all").hasClass("in");
     $(".members > ol > li").each(function(){
-        var vis1 = $(this).attr("visbl");
         var qualName1 = $(this).attr("name");
-        var showByVis = true;
-        if (vis1 == "prt") {
-            showByVis = prtVisbl;
-        };
         var showByName = true;
         if (query != "") {
             var content = $(this).attr("name") + $("> .fullcomment .cmt", this).text();
             showByName = queryRegExp.test(content);
         };
-        if (showByVis && showByName) {
+        if (showByName) {
           $(this).show();
         }
         else {
@@ -165,7 +148,7 @@ function filter() {
         function(a, b) { return $(a).attr("date") < $(b).attr("date") ? 1 : -1; };
     order($(".changeset"), comparator);
     $(".members > ol").each(function() {
-      order($("li", this), comparator);
+      order($("> li", this), comparator);
     });
 
     $(".members").each(function() {

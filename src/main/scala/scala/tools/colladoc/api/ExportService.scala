@@ -58,13 +58,13 @@ object ExportService extends RestHelper {
     </scaladoc>
   }
 
-  class Traversal(recursive: Boolean, revision: Long) {
+  class Traversal(rec: Boolean, rev: Long) {
 
     protected val visited = HashSet.empty[MemberEntity]
 
     def construct(pack: Package, path: List[String]): NodeSeq = {
       val mbr = pathToMember(pack, path)
-      Comment.find(By(Comment.qualifiedName, mbr.qualifiedIdentifier), By(Comment.dateTime, time(revision))) match {
+      Comment.find(By(Comment.qualifiedName, mbr.qualifiedIdentifier), By(Comment.dateTime, time(rev))) match {
         case Full(c) =>
           val cmt = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
           construct(DynamicModelFactory.createMember(mbr, cmt, c))
@@ -102,7 +102,7 @@ object ExportService extends RestHelper {
           }
         }
         { (tpl.values ++ tpl.abstractTypes ++ tpl.methods) map { processMember(_) } }
-        { tpl.members collect { case t: DocTemplateEntity if !t.isPackage || recursive => t } map { construct(_) } }
+        { tpl.members collect { case t: DocTemplateEntity if rec => t } map { construct(_) } }
       </xml:group>
 
     protected def processMember(mbr: MemberEntity): Node =

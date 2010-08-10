@@ -49,6 +49,10 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
   object user extends LongMappedMapper(this, User)
   object dateTime extends MappedDateTime(this)
 
+  object valid extends MappedBoolean(this) {
+    override def defaultValue = true
+  }
+
   def userName: String = User.find(user.is) match {
     case Full(u) => u.userName
     case _ => ""

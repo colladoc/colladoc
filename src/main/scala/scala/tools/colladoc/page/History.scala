@@ -37,7 +37,7 @@ import net.liftweb.http.js.JsCmds._
 import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
-import collection.mutable.{LinkedList, HashMap}
+import collection.mutable.{HashMap, HashSet}
 import tools.nsc.doc.model._
 import xml.{NodeSeq, Node, Elem, Text}
 
@@ -68,11 +68,6 @@ class History extends Template(Model.model.rootPackage) {
 
         <div id="mbrsel">
           <div id='textfilter'><span class='pre'/><input type='text' accesskey='/'/><span class='post'/></div>
-          { <div id="visbl">
-              <span class="filtertype">Visibility</span>
-              <ol><li class="public in">Public</li><li class="all out">All</li></ol>
-            </div>
-          }
           { <div id="order">
               <span class="filtertype">Ordering</span>
               <ol><li class="date in">Date</li><li class="alpha out">Alphabetic</li></ol>
@@ -139,23 +134,38 @@ class History extends Template(Model.model.rootPackage) {
   protected def commentsToHtml(cmts: List[Comment]): NodeSeq = {
     val mbrs = cmts.groupBy(c => c.qualifiedName.is + c.user.is).values
             .flatMap(Comment.changeSets _).map(processComment _)
-    val tpls = HashMap.empty[DocTemplateEntity, List[MemberEntity]]
-    for (mbr <- mbrs) {
-      val tpl = mbr match {
-        case tpl: DocTemplateEntity => tpl
-        case _ => mbr.inTemplate
-      }
-      if (!tpls.contains(tpl)) {
-        tpls += tpl -> (mbr :: Nil)
-      } else {
-        tpls += tpl -> (mbr :: tpls(tpl))
-      }
+    
+    val tpls = HashSet.empty[DocTemplateEntity]
+    val tplsMbrs = HashMap.empty[DocTemplateEntity, List[MemberEntity]]
+    for (mbr <- mbrs) mbr match {
+      case tpl: DocTemplateEntity =>
+        tpls += tpl
+        if (!tplsMbrs.contains(tpl)) {
+          tplsMbrs += tpl -> Nil
+        }
+      case _ =>
+        val tpl = mbr.inTemplate
+        if (!tplsMbrs.contains(tpl)) {
+          tplsMbrs += tpl -> (mbr :: Nil)
+        } else {
+          tplsMbrs += tpl -> (mbr :: tplsMbrs(tpl))
+        }
     }
     <xml:group>
-      { tpls.toList.sortBy{ _._1.name } map{ case (tpl, mbrs) => {
-          val date = time(mbrs map{ _.tag } collect{ case c: Comment => c.dateTime.is.getTime } max)
-          <div class="changeset" name={ tpl.qualifiedName } date={ timestamp(date).toString }>
-            { signature(tpl, true) }
+      { tplsMbrs.toList.sortBy{ _._1.name } map{ case (tpl, mbrs) => {
+          var dte = tpl.tag match {
+            case c: Comment => c.dateTime.is.getTime
+            case _ if (mbrs nonEmpty) => mbrs map{ _.tag } collect{ case c: Comment => c.dateTime.is.getTime } max
+          }
+          <div class={ "changeset" + (if (tpl.isTrait || tpl.isClass) " type" else " value") } name={ tpl.qualifiedName } date={ timestamp(dte).toString }>
+            <h4 class="definition">
+              <img src={ relativeLinkTo{List(kindToString(tpl) + ".png", "lib")} }/>
+              <span>{ if (tpl.isRootPackage) "root package" else tpl.qualifiedName }</span>
+            </h4>
+            { signature(tpl, isSelf = true) }
+            { if (tpls.contains(tpl))
+                <div class="fullcomment">{ memberToCommentBodyHtml(tpl, isSelf = true) }</div>
+            }
             { membersToHtml(mbrs) }
           </div>
           }
@@ -177,19 +187,16 @@ class History extends Template(Model.model.rootPackage) {
     <xml:group>
       { if (constructors.isEmpty) NodeSeq.Empty else
           <div id="constructors" class="members">
-            <h3>Instance constructors</h3>
             <ol>{ constructors map { memberToHtml(_) } }</ol>
           </div>
       }
       { if (typeMembers.isEmpty) NodeSeq.Empty else
           <div id="types" class="types members">
-            <h3>Type Members</h3>
             <ol>{ typeMembers map { memberToHtml(_) } }</ol>
           </div>
       }
       { if (valueMembers.isEmpty) NodeSeq.Empty else
           <div id="values" class="values members">
-            <h3>Value Members</h3>
             <ol>{ valueMembers map { memberToHtml(_) } }</ol>
           </div>
       }

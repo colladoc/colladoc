@@ -22,8 +22,7 @@
  */
 
 $(document).ready(function() {
-    $('.button').button();
-    $('.select').selectmenu({ width: 250 });
+    reinit('body');
 
     function commentShow(element){
         var vis = $(":visible", element);
@@ -40,3 +39,11 @@ $(document).ready(function() {
         commentShow($("div.controls", $("+ div.fullcomment", $(this))));
     });
 })
+
+function reinit(selector) {
+    $('.button', $(selector)).button();
+    $('.select', $(selector)).selectmenu({ width: 250 });
+    $('.menu', $(selector)).each(function() {
+        $(this).menu({ content: $($(this).attr("data-menu")).html() });
+    });
+};
