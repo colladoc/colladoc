@@ -77,11 +77,19 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
 
   def changeSets(cmts: List[Comment]) =
     if (cmts.nonEmpty)
-      cmts.head :: ((cmts zip cmts.tail) collect {
-        case (c1, c2) if c1.dateTime.is - c2.dateTime.is > minutes(30) => c2
-      })
+      cmts.groupBy(c => c.qualifiedName.is + c.user.is).values.flatMap { cs =>
+        cs.head :: ((cs zip cs.tail) collect {
+          case (c1, c2) if c1.dateTime.is - c2.dateTime.is > minutes(30) => c2
+        })
+      }.toList sortWith(_.dateTime.is.getTime > _.dateTime.is.getTime)
     else
       cmts
+//    if (cmts.nonEmpty)
+//      cmts.head :: ((cmts zip cmts.tail) collect {
+//        case (c1, c2) if c1.dateTime.is - c2.dateTime.is > minutes(30) => c2
+//      })
+//    else
+//      cmts
 
 }
 

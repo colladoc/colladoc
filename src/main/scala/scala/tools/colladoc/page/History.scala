@@ -101,17 +101,17 @@ class History extends Template(Model.model.rootPackage) {
 
   def user(user: String) = {
     userName = user
-    Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()")
+    Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()") & Run("reinit('#history')")
   }
 
   def dateFrom(dte: String) = {
     fromDate = dateFormat.parse(dte)
-    Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()")
+    Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()") & Run("reinit('#history')")
   }
 
   def dateTo(dte: String) = {
     toDate = dateFormat.parse(dte)
-    Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()")
+    Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()") & Run("reinit('#history')")
   }
 
   def historyToHtml(from: Date, to: Date, user: String): NodeSeq =
@@ -129,29 +129,41 @@ class History extends Template(Model.model.rootPackage) {
     </div>
 
   protected def commentsToHtml(cmts: List[Comment]): NodeSeq = {
-    val mbrs = cmts.groupBy(c => c.qualifiedName.is + c.user.is).values
-            .flatMap(Comment.changeSets _).map(processComment _)
+    def aggregateComments(mbrs: Iterable[MemberEntity]) = {
+      val changeset = new HashMap[DocTemplateEntity, List[MemberEntity]] {
+        override def default(key: DocTemplateEntity) = Nil
+      }
+      val timeline = new HashMap[DocTemplateEntity, List[List[MemberEntity]]] {
+        override def default(key: DocTemplateEntity) = Nil
+      }
 
-    val tpls = HashSet.empty[DocTemplateEntity]
-    val tplsMbrs = HashMap.empty[DocTemplateEntity, List[MemberEntity]]
-    for (mbr <- mbrs) mbr match {
-      case tpl: DocTemplateEntity =>
-        tpls += tpl
-        if (!tplsMbrs.contains(tpl)) {
-          tplsMbrs += tpl -> Nil
+      for (mbr <- mbrs) {
+        val tpl = mbr match {
+          case tpl: DocTemplateEntity => tpl
+          case _ => mbr.inTemplate
         }
-      case _ =>
-        val tpl = mbr.inTemplate
-        if (!tplsMbrs.contains(tpl)) {
-          tplsMbrs += tpl -> (mbr :: Nil)
+        if (!changeset(tpl).contains(mbr)) {
+          changeset += tpl -> (mbr :: changeset(tpl))
         } else {
-          tplsMbrs += tpl -> (mbr :: tplsMbrs(tpl))
+          timeline += tpl -> (changeset(tpl) :: timeline(tpl))
+          changeset += tpl -> (mbr :: Nil)
         }
+      }
+      for ((tpl, mbr) <- changeset)
+        timeline += tpl -> (mbr :: timeline(tpl))
+
+      timeline
     }
+
+    val mbrs = Comment.changeSets(cmts).map(processComment _)
     <xml:group>
-      { tplsMbrs.toList.sortBy{ _._1.name } map{ case (tpl, mbrs) => {
-          var dte = tpl.tag match {
-            case c: Comment => c.dateTime.is.getTime
+      { aggregateComments(mbrs) flatMap { case (grp, csets) => csets flatMap { mbrs =>
+          val tpl = mbrs.filter(_ == grp) match {
+            case List(t: DocTemplateEntity, _*) => t
+            case Nil => grp
+          }
+          val dte = tpl.tag match {
+            case c: Comment if mbrs.contains(tpl) => c.dateTime.is.getTime
             case _ if (mbrs nonEmpty) => mbrs map{ _.tag } collect{ case c: Comment => c.dateTime.is.getTime } max
           }
           <div class={ "changeset" + (if (tpl.isTrait || tpl.isClass) " type" else " value") } name={ tpl.qualifiedName } date={ timestamp(dte).toString }>
@@ -159,13 +171,13 @@ class History extends Template(Model.model.rootPackage) {
               <img src={ relativeLinkTo{List(kindToString(tpl) + ".png", "lib")} }/>
               <span>{ if (tpl.isRootPackage) "root package" else tpl.qualifiedName }</span>
             </h4>
-            { if (tpls.contains(tpl))
+            { if (mbrs.contains(tpl))
                 <xml:group>
                   { signature(tpl, isSelf = true) }
                   <div class="fullcomment">{ memberToCommentBodyHtml(tpl, isSelf = false) }</div>
                 </xml:group>
             }
-            { membersToHtml(mbrs) }
+            { membersToHtml(mbrs filterNot (_ == tpl)) }
           </div>
           }
         }
@@ -173,7 +185,7 @@ class History extends Template(Model.model.rootPackage) {
     </xml:group>
   }
 
-  protected def membersToHtml(mbrs: List[MemberEntity]): NodeSeq = {
+  protected def membersToHtml(mbrs: Iterable[MemberEntity]): NodeSeq = {
     val valueMembers = mbrs collect {
       case (tpl: TemplateEntity) if tpl.isObject || tpl.isPackage => tpl
       case (mbr: MemberEntity) if mbr.isDef || mbr.isVal || mbr.isVar => mbr

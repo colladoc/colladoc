@@ -64,7 +64,6 @@ function reload() {
         };
     })
 
-    reinit('body');
     $(".extype").tooltip({
         tip: "#tooltip",
         position:"top center",
