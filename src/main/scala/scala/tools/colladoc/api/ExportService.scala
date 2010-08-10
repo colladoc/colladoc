@@ -23,13 +23,16 @@
 package scala.tools.colladoc {
 package api {
 
-import tools.colladoc.model.Model
-import tools.colladoc.model.Model.factory._
+import model.{Comment, Model}
+import model.comment.DynamicModelFactory
+import model.Model.factory._
 import lib.Helpers._
 
+import net.liftweb.common.Full
 import net.liftweb.util.Helpers._
 import net.liftweb.http.{S, Req, GetRequest}
 import net.liftweb.http.rest.RestHelper
+import net.liftweb.mapper.By
 
 import collection.mutable.HashSet
 import tools.nsc.doc.model._
@@ -59,8 +62,16 @@ object ExportService extends RestHelper {
 
     protected val visited = HashSet.empty[MemberEntity]
 
-    def construct(pack: Package, path: List[String]): NodeSeq =
-      construct(pathToMember(pack, path))
+    def construct(pack: Package, path: List[String]): NodeSeq = {
+      val mbr = pathToMember(pack, path)
+      Comment.find(By(Comment.qualifiedName, mbr.qualifiedIdentifier), By(Comment.dateTime, time(revision))) match {
+        case Full(c) =>
+          val cmt = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
+          construct(DynamicModelFactory.createMember(mbr, cmt, c))
+        case _ =>
+          construct(mbr)
+      }
+    }
 
     def construct(mbr: MemberEntity): NodeSeq =
       <xml:group>
