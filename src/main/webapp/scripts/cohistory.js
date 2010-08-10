@@ -133,6 +133,7 @@ function reload() {
     $("p.shortcomment").click(function(){
         commentToggle($(this));
     });
+    filter();
 }
 
 function filter() {
@@ -167,8 +168,8 @@ function filter() {
       order($("li", this), comparator);
     });
 
-    $(".members").each(function(){
-        if ($(" > ol > li:visible", this).length == 0) { $(this).hide(); }
+    $(".members").each(function() {
+        if ($(this).height() > 128) { $(this).hide(); }
     });
     return false
 };

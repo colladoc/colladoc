@@ -36,9 +36,9 @@
     padding-left: 2em;
 }
 
-.changeset > div.members {
+/*.changeset > div.members {
     display: none;
-}
+}*/
 
 .changeset > h4 span.kind {
     color: black;
