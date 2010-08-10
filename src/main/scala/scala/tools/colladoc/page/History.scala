@@ -39,11 +39,10 @@ import net.liftweb.util.Helpers._
 
 import collection.mutable.{HashMap, HashSet}
 import tools.nsc.doc.model._
-import xml.{NodeSeq, Node, Elem, Text}
-
 import java.util.{Calendar, Date}
 import java.text.SimpleDateFormat
 import model.{Comment, User, Model}
+import xml._
 
 class History extends Template(Model.model.rootPackage) {
 
@@ -119,9 +118,7 @@ class History extends Template(Model.model.rootPackage) {
     <div id="history">
       { User.find(Like(User.userName, user)) match {
           case Full(u) =>
-            commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from),
-              By_<(Comment.dateTime, to),
-              By(Comment.user, u.id.is),
+            commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from), By_<(Comment.dateTime, to), By(Comment.user, u.id.is),
               OrderBy(Comment.dateTime, Descending)))
           case _ =>
             commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from),
@@ -134,7 +131,7 @@ class History extends Template(Model.model.rootPackage) {
   protected def commentsToHtml(cmts: List[Comment]): NodeSeq = {
     val mbrs = cmts.groupBy(c => c.qualifiedName.is + c.user.is).values
             .flatMap(Comment.changeSets _).map(processComment _)
-    
+
     val tpls = HashSet.empty[DocTemplateEntity]
     val tplsMbrs = HashMap.empty[DocTemplateEntity, List[MemberEntity]]
     for (mbr <- mbrs) mbr match {
@@ -162,9 +159,11 @@ class History extends Template(Model.model.rootPackage) {
               <img src={ relativeLinkTo{List(kindToString(tpl) + ".png", "lib")} }/>
               <span>{ if (tpl.isRootPackage) "root package" else tpl.qualifiedName }</span>
             </h4>
-            { signature(tpl, isSelf = true) }
             { if (tpls.contains(tpl))
-                <div class="fullcomment">{ memberToCommentBodyHtml(tpl, isSelf = true) }</div>
+                <xml:group>
+                  { signature(tpl, isSelf = true) }
+                  <div class="fullcomment">{ memberToCommentBodyHtml(tpl, isSelf = false) }</div>
+                </xml:group>
             }
             { membersToHtml(mbrs) }
           </div>

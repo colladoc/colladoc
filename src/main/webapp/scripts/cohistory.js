@@ -85,7 +85,7 @@ function reload() {
     };
     docSetSigs.css("cursor", "pointer");
     docSetSigs.click(function(){
-        commentShow($("~ div.members", $(this)));
+        commentShow($("~ *", $(this)));
     });
     var docSigs = $(".changeset > .signature");
     docSigs.css("cursor", "pointer");
@@ -151,8 +151,8 @@ function filter() {
       order($("> li", this), comparator);
     });
 
-    $(".members").each(function() {
-        if ($(this).height() > 128) { $(this).hide(); }
+    $(".changeset").each(function() {
+        if ($(".fullcomment", this).length > 3) { $("> .definition ~ *", this).hide(); }
     });
     return false
 };
