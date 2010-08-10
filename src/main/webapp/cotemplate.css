@@ -2,8 +2,16 @@ body > .fullcomment div.controls {
     display: none;
 }
 
+#template div.fullcomment {
+    margin: 0 0 0 8.7em;
+}
+
+div.fullcomment .comment {
+    margin: 0px;
+}
+
 div.controls {
-    margin: 0.4em 0em 0em;
+    margin: 0.4em 0em 0.4em 0em;
 }
 
 div.controls > a.control {

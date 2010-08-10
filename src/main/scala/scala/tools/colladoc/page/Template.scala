@@ -45,8 +45,17 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def id(mbr: MemberEntity, pos: String) =
     "%s_%s".format(htmlAttributeEncode(mbr.identifier), pos)
 
+  override def memberToHtml(mbr: MemberEntity): NodeSeq =
+    super.memberToHtml(mbr) \\% Map("data-istype" -> (mbr.isAbstractType || mbr.isAliasType).toString)
+
   override def memberToShortCommentHtml(mbr: MemberEntity, isSelf: Boolean): NodeSeq =
     super.memberToShortCommentHtml(mbr, isSelf) \\% Map("id" -> id(mbr, "shortcomment"))
+
+  override def memberToInlineCommentHtml(mbr: MemberEntity, isSelf: Boolean) =
+    <xml:group>
+      { memberToShortCommentHtml(mbr, isSelf) }
+      <div class="fullcomment">{ memberToUseCaseCommentHtml(mbr, isSelf) }{ memberToCommentBodyHtml(mbr, isSelf) }</div>
+    </xml:group>
 
   override def memberToCommentBodyHtml(mbr: MemberEntity, isSelf: Boolean) =
     <div id={ id(mbr, "comment") }>

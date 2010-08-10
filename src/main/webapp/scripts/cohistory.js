@@ -91,39 +91,29 @@ function reload() {
         }
     });
 
-    var docSigs = $(".changeset > .signature");
-    function commentShow(controls){
-        var vis = $(":visible", controls);
+    var docSetSigs = $(".changeset > .signature");
+    function commentShow(element){
+        var vis = $(":visible", element);
         if (vis.length > 0) {
-            controls.slideUp(100);
+            element.slideUp(100);
         }
         else {
-            controls.slideDown(100);
+            element.slideDown(100);
         }
     };
-    docSigs.css("cursor", "pointer");
-    docSigs.click(function(){
+    docSetSigs.css("cursor", "pointer");
+    docSetSigs.click(function(){
         commentShow($("+ div.members", $(this)));
     });
-
     var docAllSigs = $("#template .signature");
-    function commentShowFct(fullComment){
-        var vis = $(":visible", fullComment);
-        if (vis.length > 0) {
-            fullComment.slideUp(100);
-        }
-        else {
-            fullComment.slideDown(100);
-        }
-    };
     var docShowSigs = docAllSigs.filter(function(){
         return $("+ div.fullcomment", $(this)).length > 0;
     });
     docShowSigs.css("cursor", "pointer");
     docShowSigs.click(function(){
-        commentShowFct($("+ div.fullcomment", $(this)));
+        commentShow($("+ div.fullcomment", $(this)));
     });
-    function commentToggleFct(shortComment){
+    function commentToggle(shortComment){
         var vis = $("~ div.fullcomment:visible", shortComment);
         if (vis.length > 0) {
             shortComment.slideDown(100);
@@ -140,10 +130,10 @@ function reload() {
     });
     docToggleSigs.css("cursor", "pointer");
     docToggleSigs.click(function(){
-        commentToggleFct($("+ p.shortcomment", $(this)));
+        commentToggle($("+ p.shortcomment", $(this)));
     });
     $("p.shortcomment").click(function(){
-        commentToggleFct($(this));
+        commentToggle($(this));
     });
 }
 

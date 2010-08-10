@@ -45,7 +45,7 @@ import xml.{NodeSeq, Node, Elem, Text}
 import java.util.{Calendar, Date}
 import java.text.SimpleDateFormat
 
-class History extends tools.nsc.doc.html.page.Template(Model.model.rootPackage) {
+class History extends Template(Model.model.rootPackage) {
 
   val dateFormat = new SimpleDateFormat("MM/dd/yyyy")
   var fromDate: Date = today
@@ -233,11 +233,6 @@ class History extends tools.nsc.doc.html.page.Template(Model.model.rootPackage) 
           </div>
       }
     </xml:group>
-  }
-
-  override def signature(mbr: MemberEntity, isSelf: Boolean, isReduced: Boolean = false) = mbr.tag match {
-    case cmt: Comment => super.signature(mbr, isSelf, isReduced) \\+ <span class="stamp">{ cmt.userNameDate }</span>
-    case _ => super.signature(mbr, isSelf, isReduced)
   }
 
   override def memberToHtml(mbr: MemberEntity) = mbr.tag match {
