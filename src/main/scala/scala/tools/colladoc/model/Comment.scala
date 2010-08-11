@@ -84,12 +84,6 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
       }.toList sortWith(_.dateTime.is.getTime > _.dateTime.is.getTime)
     else
       cmts
-//    if (cmts.nonEmpty)
-//      cmts.head :: ((cmts zip cmts.tail) collect {
-//        case (c1, c2) if c1.dateTime.is - c2.dateTime.is > minutes(30) => c2
-//      })
-//    else
-//      cmts
 
 }
 

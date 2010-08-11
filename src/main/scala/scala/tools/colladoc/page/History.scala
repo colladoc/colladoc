@@ -166,7 +166,7 @@ class History extends Template(Model.model.rootPackage) {
             case c: Comment if mbrs.contains(tpl) => c.dateTime.is.getTime
             case _ if (mbrs nonEmpty) => mbrs map{ _.tag } collect{ case c: Comment => c.dateTime.is.getTime } max
           }
-          <div class={ "changeset" + (if (tpl.isTrait || tpl.isClass) " type" else " value") } name={ tpl.qualifiedName } date={ timestamp(dte).toString }>
+          <div class={ "changeset" + (if (tpl.isTrait || tpl.isClass) " type" else " value") } name={ tpl.name } date={ timestamp(dte).toString }>
             <h4 class="definition">
               <img src={ relativeLinkTo{List(kindToString(tpl) + ".png", "lib")} }/>
               <span>{ if (tpl.isRootPackage) "root package" else tpl.qualifiedName }</span>

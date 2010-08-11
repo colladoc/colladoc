@@ -136,10 +136,6 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     Model.factory.update(mbr, text)
   }
 
-  private def remove(mbr: MemberEntity, isSelf: Boolean) = {
-    SHtml.a(doEdit(mbr, isSelf) _, Text("Remove"), ("class", "button"))
-  }
-
   private def export(mbr: MemberEntity, isSelf: Boolean) = mbr match {
     case tpl: DocTemplateEntity =>
       <xml:group>
