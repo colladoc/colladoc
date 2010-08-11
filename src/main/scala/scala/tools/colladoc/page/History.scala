@@ -168,7 +168,7 @@ class History extends Template(Model.model.rootPackage) {
           }
           <div class={ "changeset" + (if (tpl.isTrait || tpl.isClass) " type" else " value") } name={ tpl.name } date={ timestamp(dte).toString }>
             <h4 class="definition">
-              <img src={ relativeLinkTo{List(kindToString(tpl) + ".png", "lib")} }/>
+              <a href={ relativeLinkTo(tpl) }><img src={ relativeLinkTo{List(kindToString(tpl) + ".png", "lib")} }/></a>
               <span>{ if (tpl.isRootPackage) "root package" else tpl.qualifiedName }</span>
             </h4>
             { if (mbrs.contains(tpl))
