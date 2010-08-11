@@ -64,7 +64,7 @@ object ExportService extends RestHelper {
 
     def construct(pack: Package, path: List[String]): NodeSeq = {
       val mbr = pathToMember(pack, path)
-      Comment.find(By(Comment.qualifiedName, mbr.qualifiedIdentifier), By(Comment.dateTime, time(rev))) match {
+      Comment.find(By(Comment.qualifiedName, mbr.uniqueName), By(Comment.dateTime, time(rev))) match {
         case Full(c) =>
           val cmt = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
           construct(DynamicModelFactory.createMember(mbr, cmt, c))
@@ -96,7 +96,7 @@ object ExportService extends RestHelper {
                 case _ if tpl.isObject => "object"
               }}</type>
               <filename>{ entityToFileName(tpl) }</filename>
-              <identifier>{ tpl.qualifiedIdentifier }</identifier>
+              <identifier>{ tpl.uniqueName }</identifier>
               <newcomment>{ tpl.comment.get.source.get }</newcomment>
             </item>
           }
@@ -114,7 +114,7 @@ object ExportService extends RestHelper {
                 case _ if mbr.isAbstractType || mbr.isAliasType => "type"
               }}</type>
               <filename>{ entityToFileName(mbr) }</filename>
-              <identifier>{ mbr.qualifiedIdentifier }</identifier>
+              <identifier>{ mbr.uniqueName }</identifier>
               <newcomment>{ mbr.comment.get.source.get }</newcomment>
             </item>
           }

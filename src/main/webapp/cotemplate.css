@@ -20,6 +20,7 @@ div.controls > a.control {
     font-size: 10pt;
     font-weight: bold;
     margin: 0px 4px;
+    padding: 0px 4px;
     text-decoration: none;
 }
 

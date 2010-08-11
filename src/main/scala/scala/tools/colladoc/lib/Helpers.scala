@@ -24,7 +24,64 @@ package scala.tools.colladoc.lib
 
 import Helpers._
 
-object Helpers extends PathHelpers with StringHelpers with TimeHelpers with XmlHelpers
+object Helpers extends NameHelpers with PathHelpers with StringHelpers with TimeHelpers with XmlHelpers
+
+trait NameHelpers {
+  import tools.colladoc.model.Model.factory._
+  import tools.nsc.doc.model._
+
+  implicit def names(mbr: MemberEntity) = new NameExtensions(mbr)
+
+  private def idName(mbr: MemberEntity): String = mbr match {
+    case tpl: DocTemplateEntity => tpl.name + (if (tpl.isObject) "#" else "")
+    case mbr: MemberEntity => mbr.identifier
+  }
+
+  class NameExtensions(mbr: MemberEntity) {
+    def identifier(): String = mbr match {
+      case fnc: Def =>
+        def params(vlss: List[ValueParam]): String = vlss match {
+          case Nil => ""
+          case vl :: Nil => vl.resultType.name
+          case vl :: vls => vl.resultType.name + ", " + params(vls)
+        }
+        fnc.name + fnc.valueParams.map{ "(" + params(_) + ")" }.mkString
+      case _ => mbr.name
+    }
+
+    def uniqueName(): String = {
+      def innerName(nme: String, tpl: DocTemplateEntity): String = tpl.inTemplate match {
+        case inPkg: Package if inPkg.isRootPackage => nme
+        case inTpl: DocTemplateEntity => innerName(idName(inTpl) + "." + nme, inTpl)
+      }
+      mbr match {
+        case tpl: DocTemplateEntity => innerName(idName(tpl), tpl)
+        case mbr: MemberEntity => innerName(idName(mbr.inTemplate), mbr.inTemplate) + "#" + identifier
+      }
+    }
+  }
+
+  def nameToMember(rootPack: Package, name: String): Option[MemberEntity] = {
+    def downPacks(pack: Package, path: List[String]): (Package, List[String]) =
+      pack.packages.find{ _.name == path.head } match {
+        case Some(p) => downPacks(p, path.tail)
+        case None => (pack, path)
+      }
+    def downInner(tpl: DocTemplateEntity, path: List[String]): Option[MemberEntity] = path match {
+      case p :: r if p.isEmpty => downInner(tpl, r)
+      case p :: r => tpl.members.sortBy(t => -1 * idName(t).length).find(t => p.startsWith(idName(t))) match {
+          case Some(t: DocTemplateEntity) => downInner(t, p.stripPrefix(idName(t)).stripPrefix("#") :: r)
+          case Some(m: MemberEntity) => Some(m)
+          case None => None
+        }
+      case Nil => Some(tpl)
+    }
+    downPacks(rootPack, name split("""[.]""") toList) match {
+      case (pack, Nil) => Some(pack)
+      case (pack, path) => downInner(pack, path)
+    }
+  }
+}
 
 trait PathHelpers {
   import tools.colladoc.model.Model.factory._

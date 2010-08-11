@@ -42,8 +42,23 @@ $(document).ready(function() {
 
 function reinit(selector) {
     $('.button', $(selector)).button();
-    $('.select', $(selector)).selectmenu({ width: 250 });
+    $('.select', $(selector)).selectmenu({ width: 300 });
     $('.menu', $(selector)).each(function() {
-        $(this).menu({ content: $($(this).attr("data-menu")).html() });
+        $(this).next().menu({ input: $(this) }).hide();
+    }).click(function(event) {
+        var menu = $(this).next();
+        if (menu.is(":visible")) {
+            menu.hide();
+            return false;
+        }
+        menu.menu("deactivate").show().css({top: 0, left: 0}).position({
+            my: "left top",
+            at: "right top",
+            of: this
+        });
+        $(document).one("click", function() {
+            menu.hide();
+        });
+        return false;
     });
 };

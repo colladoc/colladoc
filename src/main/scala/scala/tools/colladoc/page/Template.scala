@@ -91,8 +91,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       }
     }
     mbr.tag match {
-      case cmt: Comment => Comment.select(mbr.qualifiedIdentifier, replace _, Full(cmt.id.is.toString))
-      case _ => Comment.select(mbr.qualifiedIdentifier, replace _)
+      case cmt: Comment => Comment.select(mbr.uniqueName, replace _, Full(cmt.id.is.toString))
+      case _ => Comment.select(mbr.uniqueName, replace _)
     }
   }
 
@@ -139,13 +139,11 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def export(mbr: MemberEntity, isSelf: Boolean) = mbr match {
     case tpl: DocTemplateEntity =>
       <xml:group>
-        <div id={ id(mbr, "export") } style="display: none;">
-          <ul>
-            <li>{ SHtml.a(doExport(mbr, isSelf, false) _, Text("Symbol Only")) }</li>
-            <li>{ SHtml.a(doExport(mbr, isSelf, true) _, Text("All Subsymbols")) }</li>
-          </ul>
-        </div>
-        <a class="control menu" data-menu={ "#" + id(mbr, "export") }>Export</a>
+        <a class="control menu">Export</a>
+        <ul style="display: none;">
+          <li>{ SHtml.a(doExport(mbr, isSelf, false) _, Text("Symbol Only")) }</li>
+          <li>{ SHtml.a(doExport(mbr, isSelf, true) _, Text("All Subsymbols")) }</li>
+        </ul>
       </xml:group>
     case _ =>
       SHtml.a(doExport(mbr, isSelf, false) _, Text("Export"), ("class", "control"))

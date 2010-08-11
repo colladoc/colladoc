@@ -155,7 +155,7 @@ class History extends Template(Model.model.rootPackage) {
       timeline
     }
 
-    val mbrs = Comment.changeSets(cmts).map(processComment _)
+    val mbrs = Comment.changeSets(cmts).map(commentToMember _).collect{ case Some(m) => m }
     <xml:group>
       { aggregateComments(mbrs) flatMap { case (grp, csets) => csets flatMap { mbrs =>
           val tpl = mbrs.filter(_ == grp) match {
@@ -219,10 +219,13 @@ class History extends Template(Model.model.rootPackage) {
     case _ => super.memberToHtml(mbr)
   }
 
-  def processComment(cmt: Comment) = {
-    val mbr = pathToMember(Model.model.rootPackage, cmt.qualifiedName.is.split("""[.#]""").toList)
-    val comment = Model.factory.parse(mbr.symbol.get, mbr.template.get, cmt.comment.is)
-    DynamicModelFactory.createMember(mbr, comment, cmt)
+  def commentToMember(cmt: Comment) = {
+    nameToMember(Model.model.rootPackage, cmt.qualifiedName.is) match {
+      case Some(m) =>
+        val comment = Model.factory.parse(m.symbol.get, m.template.get, cmt.comment.is)
+        Some(DynamicModelFactory.createMember(m, comment, cmt))
+      case None => None
+    }
   }
 
 }

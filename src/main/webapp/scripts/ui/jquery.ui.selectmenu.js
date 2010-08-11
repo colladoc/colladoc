@@ -11,7 +11,21 @@
 (function($) {
 
 $.widget("ui.selectmenu", {
-	_init: function() {
+	getter: "value",
+	version: "1.8",
+	eventPrefix: "selectmenu",
+	options: {
+		transferClasses: true,
+		style: 'popup',
+		width: null, 
+		menuWidth: null, 
+		handleWidth: 26, 
+		maxHeight: null,
+		icons: null, 
+		format: null
+	},	
+	
+	_create: function() {
 		var self = this, o = this.options;
 		
 		//quick array of button and menu id's
@@ -105,7 +119,8 @@ $.widget("ui.selectmenu", {
 		//change event on original selectmenu
 		this.element
 			.click(function(){ this._refreshValue(); })
-			.focus(function(){ this.newelement[0].focus(); });
+            // newelement can be null under unclear circumstances in IE8 
+			.focus(function () { if (this.newelement) { this.newelement[0].focus(); } });
 		
 		//create menu portion, append to body
 		var cornerClass = (o.style == "dropdown")? " ui-corner-bottom" : " ui-corner-all"
@@ -129,7 +144,7 @@ $.widget("ui.selectmenu", {
 		var activeClass = (self.options.style == "popup") ? " ui-state-active" : "";
 		
 		//write li's
-		for(var i in selectOptionData){
+		for (var i = 0; i < selectOptionData.length; i++) {
 			var thisLi = $('<li role="presentation"><a href="#" tabindex="-1" role="option" aria-selected="false">'+ selectOptionData[i].text +'</a></li>')
 				.data('index',i)
 				.addClass(selectOptionData[i].classes)
@@ -159,7 +174,8 @@ $.widget("ui.selectmenu", {
 				
 			//optgroup or not...
 			if(selectOptionData[i].parentOptGroup){
-				var optGroupName = self.widgetBaseClass + '-group-' + selectOptionData[i].parentOptGroup;
+				// whitespace in the optgroupname must be replaced, otherwise the li of existing optgroups are never found
+				var optGroupName = self.widgetBaseClass + '-group-' + selectOptionData[i].parentOptGroup.replace(/[^a-zA-Z0-9]/g, "");
 				if(this.list.find('li.' + optGroupName).size()){
 					this.list.find('li.' + optGroupName + ':last ul').append(thisLi);
 				}
@@ -298,6 +314,14 @@ $.widget("ui.selectmenu", {
 		
 		//update value
 		this.value(this._selectedIndex());
+		
+		// needed to make menu work when placed at the very bottom of a site
+		setTimeout( function() { self._refreshPosition();}, 200); 
+		
+		// needed when window is resized
+		$(window).resize(function(){
+			self._refreshPosition();
+		});		
 	},
 	destroy: function() {
 		this.element.removeData(this.widgetName)
@@ -338,8 +362,11 @@ $.widget("ui.selectmenu", {
 		this._prevChar[0] = C;
 	},
 	_uiHash: function(){
+		var index = this.value();
 		return {
-			value: this.value()
+			index: index,
+			option: $("option", this.element).get(index),
+			value: this.element[0].value
 		};
 	},
 	open: function(event){
@@ -504,21 +531,4 @@ $.widget("ui.selectmenu", {
 		}
 	}
 });
-
-$.extend($.ui.selectmenu, {
-	getter: "value",
-	version: "@VERSION",
-	eventPrefix: "selectmenu",
-	defaults: {
-		transferClasses: true,
-		style: 'popup', 
-		width: null, 
-		menuWidth: null, 
-		handleWidth: 26, 
-		maxHeight: null,
-		icons: null, 
-		format: null
-	}
-});
-
 })(jQuery);

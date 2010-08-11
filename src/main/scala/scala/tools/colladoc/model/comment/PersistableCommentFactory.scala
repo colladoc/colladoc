@@ -24,18 +24,19 @@ package scala.tools.colladoc {
 package model {
 package comment {
 
-import model.Comment
+import lib.Helpers
 import lib.Helpers._
+import model.Comment
 
-import net.liftweb.common.{Full, Empty}
+import net.liftweb.common._
 import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
 import tools.nsc.Global
-import tools.nsc.doc.model.comment.{Comment => ModelComment, CommentFactory}
-import tools.nsc.doc.model.{ValueParam, Def, MemberEntity, ModelFactory}
+import tools.nsc.doc.model.comment.CommentFactory
+import tools.nsc.doc.model._
 
-import java.util.{Calendar, Date}
+import java.util.Date
 
 trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: ModelFactory with CommentFactory =>
 
@@ -54,12 +55,12 @@ trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: M
     super.update(mbr, docStr)
     if (!reporter.hasWarnings && !reporter.hasErrors) {
       val comment: Comment = Comment.create
-        .qualifiedName(mbr.qualifiedIdentifier)
+        .qualifiedName(mbr.uniqueName)
         .comment(docStr)
         .dateTime(new Date)
         .user(User.currentUser.open_!)
 
-      Comment.findAll(By(Comment.qualifiedName, mbr.qualifiedIdentifier), By(Comment.user, User.currentUser.open_!),
+      Comment.findAll(By(Comment.qualifiedName, mbr.uniqueName), By(Comment.user, User.currentUser.open_!),
           OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
         case List(c: Comment, _*) if c.dateTime.is - comment.dateTime.is < minutes(30) =>
           comment.changeSet(c.changeSet.is)
@@ -71,28 +72,10 @@ trait PersistableCommentFactory extends UpdatableCommentFactory { thisFactory: M
     }
   }
 
-  implicit def identifiers(mbr: MemberEntity) = new {
-    def identifier() = mbr match {
-      case fnc: Def =>
-        def params(vlss: List[ValueParam]): String = vlss match {
-          case Nil => ""
-          case vl :: Nil => vl.resultType.name
-          case vl :: vls => vl.resultType.name + ", " + params(vls)
-        }
-        fnc.name + fnc.valueParams.map{ "(" + params(_) + ")" }.mkString
-      case _ => mbr.name
-    }
-
-    def qualifiedIdentifier() = mbr match {
-      case fnc: Def => fnc.inTemplate.qualifiedName + "#" + identifier
-      case _ => mbr.qualifiedName
-    }
-  }
-  
   private def updatedComment(sym: global.Symbol, inTpl: => DocTemplateImpl) = {
     makeMember(sym, inTpl) match {
-      case List(mbr, _*) =>
-        Comment.findAll(By(Comment.qualifiedName, mbr.qualifiedIdentifier),
+      case List(mbr: MemberEntity, _*) =>
+        Comment.findAll(By(Comment.qualifiedName, mbr.uniqueName),
           OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
           case List(c: Comment, _*) if c.dateTime.is.getTime > sym.sourceFile.lastModified => Some(c)
           case _ => None

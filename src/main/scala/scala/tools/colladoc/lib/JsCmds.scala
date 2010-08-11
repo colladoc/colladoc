@@ -45,8 +45,8 @@ object JsCmds {
     override def toJsCmd = "button()"
   }
 
-  case class SelectMenu() extends JsExp with JsMember {
-    override def toJsCmd = "selectmenu({ width: 250 })"
+  case class SelectMenu(width: Int = 300) extends JsExp with JsMember {
+    override def toJsCmd = "selectmenu({ width: " + width.toString + " })"
   }
 
   case class Editor() extends JsExp with JsMember {
