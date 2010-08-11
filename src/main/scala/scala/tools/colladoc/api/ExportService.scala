@@ -24,7 +24,6 @@ package scala.tools.colladoc {
 package api {
 
 import model.{Comment, Model}
-import model.comment.DynamicModelFactory
 import model.Model.factory._
 import lib.Helpers._
 
@@ -67,7 +66,7 @@ object ExportService extends RestHelper {
       Comment.find(By(Comment.qualifiedName, mbr.uniqueName), By(Comment.dateTime, time(rev))) match {
         case Full(c) =>
           val cmt = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
-          construct(DynamicModelFactory.createMember(mbr, cmt, c))
+          construct(Model.factory.copyMember(mbr, cmt)(c))
         case _ =>
           construct(mbr)
       }

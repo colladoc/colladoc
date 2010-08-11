@@ -25,8 +25,6 @@ package page {
 
 import model._
 import model.Model.factory._
-import model.comment.DynamicModelFactory
-import model.comment.DynamicModelFactory._
 import lib.Helpers._
 import lib.JsCmds._
 
@@ -80,19 +78,20 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   private def select(mbr: MemberEntity, isSelf: Boolean) = {
     def replace(cid: String) = {
-      Comment.find(cid) match {
-        case Full(c) =>
-          val cmt = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
-          val entity = DynamicModelFactory.createMember(mbr, cmt, c)
-          (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(cmt.short)) else JsCmds.Noop) &
-            Replace(id(entity, "comment"), memberToCommentBodyHtml(entity, isSelf)) &
-            Run("reinit('#" + id(mbr, "comment") + "')")
-        case _ => JsCmds.Noop
+      val (cmt, c) = Comment.find(cid) match {
+        case Full(c) => (Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is), c)
+        case _ => (mbr.originalComment.get, "source")
       }
+      val m = Model.factory.copyMember(mbr, cmt)(c)
+      (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(cmt.short)) else JsCmds.Noop) &
+        Replace(id(m, "comment"), memberToCommentBodyHtml(m, isSelf)) &
+        Run("reinit('#" + id(mbr, "comment") + "')")
     }
+    val revs = Comment.revisions(mbr.uniqueName) ::: ("source", "Source Comment") :: Nil
     mbr.tag match {
-      case cmt: Comment => Comment.select(mbr.uniqueName, replace _, Full(cmt.id.is.toString))
-      case _ => Comment.select(mbr.uniqueName, replace _)
+      case cmt: Comment => SHtml.ajaxSelect(revs, Full(cmt.id.is.toString), replace _, ("class", "select"))
+      case id: String => SHtml.ajaxSelect(revs, Full(id), replace _, ("class", "select"))
+      case _ => SHtml.ajaxSelect(revs, Empty, replace _, ("class", "select"))
     }
   }
 

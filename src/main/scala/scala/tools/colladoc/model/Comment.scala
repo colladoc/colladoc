@@ -32,6 +32,7 @@ import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js.JsCmd
 import net.liftweb.util.Helpers._
 
+import tools.nsc.doc.model.MemberEntity
 import xml.NodeSeq
 
 import java.text.SimpleDateFormat
@@ -67,12 +68,17 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
 object Comment extends Comment with LongKeyedMetaMapper[Comment] {
   override def dbTableName = "comments"
 
-  def select(qualName: String, func: (String) => JsCmd, deflt: Box[String] = Empty) = {
+  def latest(qualName: String) = {
+    Comment.findAll(By(Comment.qualifiedName, qualName),
+      OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
+      case List(c: Comment, _*) => Some(c)
+      case _ => None
+    }
+  }
+
+  def revisions(qualName: String) = {
     val cmts = changeSets(findAll(By(qualifiedName, qualName), OrderBy(Comment.dateTime, Descending)))
-    if (cmts.nonEmpty)
-      SHtml.ajaxSelect(cmts.map { c => (c.id.is.toString, c.userNameDate) }, deflt, func, ("class", "select"))
-    else
-      NodeSeq.Empty
+    cmts.map{ c => (c.id.is.toString, c.userNameDate) }
   }
 
   def changeSets(cmts: List[Comment]) =

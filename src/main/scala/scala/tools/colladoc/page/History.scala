@@ -23,8 +23,6 @@
 package scala.tools.colladoc {
 package page {
 
-import model.comment.DynamicModelFactory
-import model.comment.DynamicModelFactory._
 import model.Model.factory._
 import lib.Helpers._
 import lib.Widgets._
@@ -222,8 +220,8 @@ class History extends Template(Model.model.rootPackage) {
   def commentToMember(cmt: Comment) = {
     nameToMember(Model.model.rootPackage, cmt.qualifiedName.is) match {
       case Some(m) =>
-        val comment = Model.factory.parse(m.symbol.get, m.template.get, cmt.comment.is)
-        Some(DynamicModelFactory.createMember(m, comment, cmt))
+        val c = Model.factory.parse(m.symbol.get, m.template.get, cmt.comment.is)
+        Some(Model.factory.copyMember(m, c)(cmt))
       case None => None
     }
   }

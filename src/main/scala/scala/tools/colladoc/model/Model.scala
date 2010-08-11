@@ -23,7 +23,7 @@
 package scala.tools.colladoc {
 package model {
 
-import comment.{PersistableCommentFactory, UpdatableCommentFactory}
+import comment.{DynamicModelFactory, DynamicCommentFactory}
 import tools.nsc.doc.model.{MemberEntity, ModelFactory}
 import tools.nsc.reporters.AbstractReporter
 import tools.nsc.util.Position
@@ -81,7 +81,7 @@ object Model extends Logger {
     }
   }
 
-  object factory extends ModelFactory(compiler, settings) with PersistableCommentFactory {
+  object factory extends ModelFactory(compiler, settings) with DynamicModelFactory with DynamicCommentFactory {
     def construct(files: List[String]) = {
       (new compiler.Run()) compile files
       compiler.addSourceless

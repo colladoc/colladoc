@@ -30,14 +30,14 @@ import tools.nsc.doc.model._
 import tools.nsc.doc.model.comment.Comment
 import java.util.Date
 
-object DynamicModelFactory {
+trait DynamicModelFactory extends ModelFactory { thisFactory: ModelFactory with DynamicCommentFactory =>
 
   /**
    * Creates the new member entity based upon existing entity `mbr` with given comment.
    * @param mbr The member entity to copy
    * @param cmt The new entity comment
    */
-  def createMember(mbr: MemberEntity, cmt: Comment, tag: AnyRef = null): MemberEntity = mbr match {
+  def copyMember(mbr: MemberEntity, cmt: Comment)(tag: AnyRef = null): MemberEntity = mbr match {
     case tpe: AbstractType => new AbstractTypeProxy(tpe, cmt)(tag)
     case tpe: AliasType => new AliasTypeProxy(tpe, cmt)(tag)
     case _def: Def => new DefProxy(_def, cmt)(tag)
