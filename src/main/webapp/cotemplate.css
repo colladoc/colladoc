@@ -29,6 +29,7 @@ div.controls > a.control:hover {
 
 form.edit > div.editor {
     width: auto;
+    margin: 4px 8px 0px 0px;
 }
 
 form.edit > div.editor > textarea {
