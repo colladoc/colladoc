@@ -24,6 +24,7 @@ package scala.tools.colladoc {
 package page {
 
 import model.Model.factory._
+import model._
 import lib.Helpers._
 import lib.Widgets._
 import lib.DependencyFactory
@@ -37,22 +38,12 @@ import net.liftweb.util.Helpers._
 
 import collection.mutable.{HashMap, HashSet}
 import tools.nsc.doc.model._
-import java.util.{Calendar, Date}
-import java.text.SimpleDateFormat
-import model.{Comment, User, Model}
-import xml._
-import transform.{RewriteRule, RuleTransformer}
+import xml.{NodeSeq, Node, Elem, Text, UnprefixedAttribute}
+import xml.transform.{RewriteRule, RuleTransformer}
+
+import java.util.Date
 
 class History extends Template(Model.model.rootPackage) {
-
-  val dateFormat = new SimpleDateFormat("MM/dd/yyyy")
-  var fromDate: Date = today
-  var toDate: Date = today.rollDay(1)
-  var userName: String =
-    if (User.loggedIn_?)
-      User.currentUser.open_! userName
-    else
-      ""
 
   override val title = "History"
 
@@ -75,59 +66,26 @@ class History extends Template(Model.model.rootPackage) {
               <span class="filtertype">Date</span>
               <ol>
                 <li class="from">From</li>
-                <li>{ Datepicker(dateFormat.format(fromDate), dateFrom _, ("class", "date from"), ("readonly", "readonly")) }</li>
+                <li><history:from /></li>
               </ol>
               <ol>
                 <li class="to">To</li>
-                <li>{ Datepicker(dateFormat.format(toDate), dateTo _, ("class", "date to"), ("readonly", "readonly")) }</li>
+                <li><history:to /></li>
               </ol>
             </div>
           }
           { <div id="user">
               <span class="filtertype">User</span>
-              <ol><li class="filter">{ Autocomplete(userName, users _, user _) }</li></ol>
+              <ol><li class="filter"><history:user /></li></ol>
             </div>
           }
         </div>
         <h3>Changed Members</h3>
-        { historyToHtml(fromDate, toDate, userName) }
+        <history:history />
       </div>
     </body>
 
-  def users(term: String) = {
-    User.findAll(Like(User.userName, "%" + term + "%")) map { _.userName.is }
-  }
-
-  def user(user: String) = {
-    userName = user
-    Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()") & Run("reinit('#history')")
-  }
-
-  def dateFrom(dte: String) = {
-    fromDate = dateFormat.parse(dte)
-    Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()") & Run("reinit('#history')")
-  }
-
-  def dateTo(dte: String) = {
-    toDate = dateFormat.parse(dte)
-    Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()") & Run("reinit('#history')")
-  }
-
-  def historyToHtml(from: Date, to: Date, user: String): NodeSeq =
-    <div id="history">
-      { User.find(Like(User.userName, user)) match {
-          case Full(u) =>
-            commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from), By_<(Comment.dateTime, to), By(Comment.user, u.id.is),
-              OrderBy(Comment.dateTime, Descending)))
-          case _ =>
-            commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from),
-              By_<(Comment.dateTime, to),
-              OrderBy(Comment.dateTime, Descending)))
-        }
-      }
-    </div>
-
-  protected def commentsToHtml(cmts: List[Comment]): NodeSeq = {
+  def commentsToHtml(cmts: List[Comment]): NodeSeq = {
     def aggregateComments(mbrs: Iterable[MemberEntity]) = {
       val changeset = new HashMap[DocTemplateEntity, List[MemberEntity]] {
         override def default(key: DocTemplateEntity) = Nil
@@ -217,7 +175,7 @@ class History extends Template(Model.model.rootPackage) {
   }
 
   override def memberToHtml(mbr: MemberEntity) = mbr.tag match {
-    case cmt: Comment => super.memberToHtml(mbr) \\% Map("date" -> timestamp(cmt.dateTime.is).toString)
+    case cmt: Comment => super.memberToHtml(mbr) \% Map("date" -> timestamp(cmt.dateTime.is).toString)
     case _ => super.memberToHtml(mbr)
   }
 

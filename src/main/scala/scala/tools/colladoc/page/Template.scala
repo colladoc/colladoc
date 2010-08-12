@@ -43,14 +43,14 @@ import xml.{NodeSeq, Node, Elem, Text}
 class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
 
   private def id(mbr: MemberEntity, pos: String) =
-    attributeEncode(hash(mbr.identifier + System.identityHashCode(mbr) + pos))
-    //"%s_%s_%s".format(attributeEncode(mbr.identifier), System.identityHashCode(mbr), pos)
+    attrEncode(hash(mbr.identifier + System.identityHashCode(mbr) + pos))
+    //"%s_%s_%s".format(attrEncode(mbr.identifier), System.identityHashCode(mbr), pos)
 
   override def memberToHtml(mbr: MemberEntity): NodeSeq =
-    super.memberToHtml(mbr) \\% Map("data-istype" -> (mbr.isAbstractType || mbr.isAliasType).toString)
+    super.memberToHtml(mbr) \% Map("data-istype" -> (mbr.isAbstractType || mbr.isAliasType).toString)
 
   override def memberToShortCommentHtml(mbr: MemberEntity, isSelf: Boolean): NodeSeq =
-    super.memberToShortCommentHtml(mbr, isSelf) \\% Map("id" -> id(mbr, "shortcomment"))
+    super.memberToShortCommentHtml(mbr, isSelf) \% Map("id" -> id(mbr, "short"))
 
   override def memberToInlineCommentHtml(mbr: MemberEntity, isSelf: Boolean) =
     <xml:group>
@@ -59,7 +59,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     </xml:group>
 
   override def memberToCommentBodyHtml(mbr: MemberEntity, isSelf: Boolean) =
-    <div id={ id(mbr, "comment") }>
+    <div id={ id(mbr, "full") }>
       { content(mbr, isSelf) }
       { controls(mbr, isSelf) }
     </div>
@@ -85,17 +85,17 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         case _ => (mbr.originalComment.get, "source")
       }
       val m = Model.factory.copyMember(mbr, cmt)(c)
-      (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(cmt.short)) else JsCmds.Noop) &
-        JqId(Str(id(mbr, "shortcomment"))) ~> JqAttr("id", id(m, "shortcomment")) &
-        Replace(id(mbr, "comment"), memberToCommentBodyHtml(m, isSelf)) &
-        Run("reinit('#" + id(m, "comment") + "')")
+      
+      Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
+      (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
     }
     val revs = Comment.revisions(mbr.uniqueName) ::: ("source", "Source Comment") :: Nil
-    mbr.tag match {
-      case cmt: Comment => SHtml.ajaxSelect(revs, Full(cmt.id.is.toString), replace _, ("class", "select"))
-      case id: String => SHtml.ajaxSelect(revs, Full(id), replace _, ("class", "select"))
-      case _ => SHtml.ajaxSelect(revs, Empty, replace _, ("class", "select"))
+    val dflt = mbr.tag match {
+      case cmt: Comment => Full(cmt.id.is.toString)
+      case id: String => Full(id)
+      case _ => Empty
     }
+    SHtml.ajaxSelect(revs, dflt, replace _, ("class", "select"))
   }
 
   private def edit(mbr: MemberEntity, isSelf: Boolean) = {
@@ -107,7 +107,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         case Some(c) => c.source.getOrElse("")
         case None => ""
       }
-    Replace(id(mbr, "comment"),
+    Replace(id(mbr, "full"),
       <form id={ id(mbr, "form") } class="edit" method="GET">
         <div class="editor">
           { SHtml.textarea(getSource(mbr), text => update(mbr, text), ("id", id(mbr, "text"))) }
@@ -116,22 +116,18 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
             { SHtml.a(Text("Cancel"), cancel(mbr, isSelf)) }
           </div>
         </div>
-      </form>) &
-        JqId(Str(id(mbr, "text"))) ~> Editor() &
-        Jq(Str("button")) ~> Button()
+      </form>) & JqId(Str(id(mbr, "text"))) ~> Editor() & Jq(Str("button")) ~> Button()
   }
 
   private def save(mbr: MemberEntity, isSelf: Boolean): JsCmd =
     if (Model.reporter.hasWarnings || Model.reporter.hasErrors)
       JqId(Str(id(mbr, "text"))) ~> AddClass("ui-state-error")
     else
-      Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) &
-        (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(mbr.comment.get.short)) else JsCmds.Noop) &
-        Run("reinit('#" + id(mbr, "comment") + "')")
+      Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')") &
+      (if (!isSelf) SetHtml(id(mbr, "short"), inlineToHtml(mbr.comment.get.short)) else JsCmds.Noop)
 
   private def cancel(mbr: MemberEntity, isSelf: Boolean): JsCmd =
-    Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) &
-      Run("reinit('#" + id(mbr, "comment") + "')")
+    Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')")
 
   private def update(mbr: MemberEntity, text: String) = Model.synchronized {
     Model.reporter.reset
@@ -152,16 +148,11 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   }
 
   private def doExport(mbr: MemberEntity, isSelf: Boolean, rec: Boolean)(): JsCmd = {
-    var pars = List.empty[String]
-    rec match {
-      case true => pars ::= "rec=true"
-      case _ =>
-    }
+    var pars = if (rec) "rec=true" :: Nil else Nil
     mbr.tag match {
       case cmt: Comment => pars ::= "rev=%s" format(cmt.dateTime.is.getTime)
       case _ =>
     }
-    
     val path = memberToPath(mbr, isSelf) + ".xml" + pars.mkString("?", "&", "")
     JsRaw("window.open('%s', 'Export')" format (path))
   }

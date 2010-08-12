@@ -153,7 +153,7 @@ trait StringHelpers {
 
   val unsafeChars = new Regex("""[^A-Za-z0-9_]""")
 
-  def attributeEncode(in: String) =
+  def attrEncode(in: String) =
     unsafeChars.replaceAllIn(in.encJs, "")
   
 }
@@ -178,14 +178,12 @@ trait TimeHelpers {
 trait XmlHelpers {
   import xml._
 
-  implicit def addAttribute(elem: Elem) = new {
+  implicit def addNode(elem: Elem) = new {
     def %(attrs: Map[String, String]) = {
       val seq = for((n, v) <- attrs) yield new UnprefixedAttribute(n, v, Null)
       (elem /: seq) { _ % _ }
     }
-  }
-
-  implicit def addNode(elem: Elem) = new {
+    
     def \+(newChild: Node) = elem match {
       case Elem(prefix, labels, attrs, scope, child @ _*) =>
         Elem(prefix, labels, attrs, scope, child ++ newChild : _*)
@@ -193,7 +191,7 @@ trait XmlHelpers {
   }
 
   implicit def addNodeSeq(seq: NodeSeq) = new {
-    def \\%(attrs: Map[String, String]) = seq theSeq match {
+    def \%(attrs: Map[String, String]) = seq theSeq match {
       case Seq(elem: Elem, rest @ _*) =>
         elem % attrs ++ rest
       case elem => elem
