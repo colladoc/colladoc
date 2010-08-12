@@ -133,7 +133,7 @@ class History extends Template(Model.model.rootPackage) {
                   <xml:group>
                     { signature(tpl, isSelf = true) }
                     { memberToShortCommentHtml(tpl, false) }
-                    <div class="fullcomment">{ deblocker.transform(memberToCommentBodyHtml(tpl, false)) }</div>
+                    <div class="fullcomment">{ memberToCommentBodyHtml(tpl, true) }</div>
                   </xml:group>
               }
               { membersToHtml(mbrs filterNot (_ == tpl)) }
@@ -179,6 +179,12 @@ class History extends Template(Model.model.rootPackage) {
     case _ => super.memberToHtml(mbr)
   }
 
+  override def memberToCommentBodyHtml(mbr: MemberEntity, isSelf: Boolean, isReduced: Boolean = false) =
+    if (isSelf)
+      super.memberToCommentBodyHtml(mbr, isSelf, isReduced = true)
+    else
+      super.memberToCommentBodyHtml(mbr, isSelf, isReduced)
+
   def commentToMember(cmt: Comment) = {
     nameToMember(Model.model.rootPackage, cmt.qualifiedName.is) match {
       case Some(m) =>
@@ -187,13 +193,6 @@ class History extends Template(Model.model.rootPackage) {
       case None => None
     }
   }
-
-  object deblocker extends RuleTransformer(new RewriteRule {
-    override def transform(n: Node) = n match {
-      case Elem(_, "div", UnprefixedAttribute("class", Text("block"), _), _, _*) => NodeSeq.Empty
-      case other => other
-    }
-  })
 
 }
 

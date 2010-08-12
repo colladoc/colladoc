@@ -58,15 +58,15 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       <div class="fullcomment">{ memberToUseCaseCommentHtml(mbr, isSelf) }{ memberToCommentBodyHtml(mbr, isSelf) }</div>
     </xml:group>
 
-  override def memberToCommentBodyHtml(mbr: MemberEntity, isSelf: Boolean) =
+  override def memberToCommentBodyHtml(mbr: MemberEntity, isSelf: Boolean, isReduced: Boolean = false) =
     <div id={ id(mbr, "full") }>
-      { content(mbr, isSelf) }
+      { content(mbr, isSelf, isReduced) }
       { controls(mbr, isSelf) }
     </div>
 
-  private def content(mbr: MemberEntity, isSelf: Boolean) =
+  private def content(mbr: MemberEntity, isSelf: Boolean, isReduced: Boolean) =
     <div id={ id(mbr, "content") }>
-      { super.memberToCommentBodyHtml(mbr, isSelf) }
+      { super.memberToCommentBodyHtml(mbr, isSelf, isReduced) }
     </div>
 
   private def controls(mbr: MemberEntity, isSelf: Boolean) =
