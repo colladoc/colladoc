@@ -1,6 +1,6 @@
 /* Selectmenu
 ----------------------------------*/
-.ui-selectmenu { display: inline-block; position:relative; text-decoration: none; overflow:hidden;}
+.ui-selectmenu { display: inline-block; position:relative; text-decoration: none; overflow:visible;}
 .ui-selectmenu-icon { position:absolute; right:6px; margin-top:-8px; top: 50%; }
 .ui-selectmenu-menu { padding:0; margin:0; list-style:none; position:absolute; top: 0; visibility: hidden; overflow: auto; }
 .ui-selectmenu-open { visibility: visible; }

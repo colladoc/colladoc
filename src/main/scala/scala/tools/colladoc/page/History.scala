@@ -41,6 +41,7 @@ import java.util.{Calendar, Date}
 import java.text.SimpleDateFormat
 import model.{Comment, User, Model}
 import xml._
+import transform.{RewriteRule, RuleTransformer}
 
 class History extends Template(Model.model.rootPackage) {
 
@@ -64,7 +65,7 @@ class History extends Template(Model.model.rootPackage) {
       <div id="template">
 
         <div id="mbrsel">
-          <div id='textfilter'><span class='pre'/><input type='text' accesskey='/'/><span class='post'/></div>
+          <div id='textfilter'><span class='pre'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>
           { <div id="order">
               <span class="filtertype">Ordering</span>
               <ol><li class="date in">Date</li><li class="alpha out">Alphabetic</li></ol>
@@ -172,7 +173,7 @@ class History extends Template(Model.model.rootPackage) {
             { if (mbrs.contains(tpl))
                 <xml:group>
                   { signature(tpl, isSelf = true) }
-                  <div class="fullcomment">{ memberToCommentBodyHtml(tpl, isSelf = false) }</div>
+                  <div class="fullcomment">{ deblocker.transform(memberToCommentBodyHtml(tpl, isSelf = true)) }</div>
                 </xml:group>
             }
             { membersToHtml(mbrs filterNot (_ == tpl)) }
@@ -225,6 +226,13 @@ class History extends Template(Model.model.rootPackage) {
       case None => None
     }
   }
+
+  object deblocker extends RuleTransformer(new RewriteRule {
+    override def transform(n: Node) = n match {
+      case Elem(_, "div", UnprefixedAttribute("class", Text("block"), _), _, _*) => NodeSeq.Empty
+      case other => other
+    }
+  })
 
 }
 
