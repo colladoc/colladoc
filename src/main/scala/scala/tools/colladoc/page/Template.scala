@@ -29,12 +29,13 @@ import lib.Helpers._
 import lib.JsCmds._
 
 import net.liftweb.common._
-import net.liftweb.http.{RequestVar, SHtml, S}
+import net.liftweb.http.{SHtml, S}
 import net.liftweb.http.js._
 import net.liftweb.http.js.jquery.JqJE._
 import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
+import net.liftweb.util.Helpers._
 
 import tools.nsc.doc.model._
 import xml.{NodeSeq, Node, Elem, Text}
@@ -42,7 +43,8 @@ import xml.{NodeSeq, Node, Elem, Text}
 class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
 
   private def id(mbr: MemberEntity, pos: String) =
-    "%s_%s".format(htmlAttributeEncode(mbr.identifier), pos)
+    attributeEncode(hash(mbr.identifier + System.identityHashCode(mbr) + pos))
+    //"%s_%s_%s".format(attributeEncode(mbr.identifier), System.identityHashCode(mbr), pos)
 
   override def memberToHtml(mbr: MemberEntity): NodeSeq =
     super.memberToHtml(mbr) \\% Map("data-istype" -> (mbr.isAbstractType || mbr.isAliasType).toString)
@@ -84,8 +86,9 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       }
       val m = Model.factory.copyMember(mbr, cmt)(c)
       (if (!isSelf) SetHtml(id(mbr, "shortcomment"), inlineToHtml(cmt.short)) else JsCmds.Noop) &
-        Replace(id(m, "comment"), memberToCommentBodyHtml(m, isSelf)) &
-        Run("reinit('#" + id(mbr, "comment") + "')")
+        JqId(Str(id(mbr, "shortcomment"))) ~> JqAttr("id", id(m, "shortcomment")) &
+        Replace(id(mbr, "comment"), memberToCommentBodyHtml(m, isSelf)) &
+        Run("reinit('#" + id(m, "comment") + "')")
     }
     val revs = Comment.revisions(mbr.uniqueName) ::: ("source", "Source Comment") :: Nil
     mbr.tag match {

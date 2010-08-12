@@ -153,8 +153,8 @@ trait StringHelpers {
 
   val unsafeChars = new Regex("""[^A-Za-z0-9_]""")
 
-  def htmlAttributeEncode(in: String) =
-    unsafeChars.replaceAllIn(in.encJs, "_")
+  def attributeEncode(in: String) =
+    unsafeChars.replaceAllIn(in.encJs, "")
   
 }
 
