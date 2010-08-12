@@ -84,14 +84,9 @@ function reload() {
     };
     docSetSigs.css("cursor", "pointer");
     docSetSigs.click(function(){
-        commentShow($("~ *", $(this)));
+        commentShow($("+ div", $(this)));
     });
-    var docSigs = $(".changeset > .signature");
-    docSigs.css("cursor", "pointer");
-    docSigs.click(function(){
-        commentShow($("div.controls", $("+ div.fullcomment", $(this))));
-    });
-    var docAllSigs = $(".members .signature");
+    var docAllSigs = $(".changeset .signature");
     var docShowSigs = docAllSigs.filter(function(){
         return $("+ div.fullcomment", $(this)).length > 0;
     });
@@ -125,7 +120,7 @@ function reload() {
 }
 
 function filter() {
-    var query = $("#textfilter > input").attr("value").toLowerCase();
+    var query = $("#textfilter input").attr("value").toLowerCase();
     var queryRegExp = new RegExp(query, "i");
     $(".members > ol > li").each(function(){
         var qualName1 = $(this).attr("name");

@@ -32,10 +32,6 @@
     padding: 4px;
 }
 
-#history div.members > h3 {
-    padding-left: 2em;
-}
-
 .definition {
     color: white;
     font-weight: bold;
@@ -51,17 +47,20 @@
     background-color: #799F5A;
 }
 
-#template .changeset > .fullcomment {
+#template .changeset > div > .signature {
+    margin: 0 0 4px 0;
+}
+
+#template .changeset > div > .shortcomment {
     display: block;
     margin: 0 0 4px 0;
     padding-left: 8px;
     padding-right: 8px;
 }
 
-#template .changeset > .fullcomment div.controls {
+#template .changeset > div > .fullcomment  {
     display: none;
-}
-
-#template .changeset > .signature {
     margin: 0 0 4px 0;
+    padding-left: 8px;
+    padding-right: 8px;
 }

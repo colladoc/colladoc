@@ -170,13 +170,16 @@ class History extends Template(Model.model.rootPackage) {
               <a href={ relativeLinkTo(tpl) }><img src={ relativeLinkTo{List(kindToString(tpl) + ".png", "lib")} }/></a>
               <span>{ if (tpl.isRootPackage) "root package" else tpl.qualifiedName }</span>
             </h4>
-            { if (mbrs.contains(tpl))
-                <xml:group>
-                  { signature(tpl, isSelf = true) }
-                  <div class="fullcomment">{ deblocker.transform(memberToCommentBodyHtml(tpl, isSelf = true)) }</div>
-                </xml:group>
-            }
-            { membersToHtml(mbrs filterNot (_ == tpl)) }
+            <div>
+              { if (mbrs.contains(tpl))
+                  <xml:group>
+                    { signature(tpl, isSelf = true) }
+                    { memberToShortCommentHtml(tpl, false) }
+                    <div class="fullcomment">{ deblocker.transform(memberToCommentBodyHtml(tpl, false)) }</div>
+                  </xml:group>
+              }
+              { membersToHtml(mbrs filterNot (_ == tpl)) }
+            </div>
           </div>
           }
         }
