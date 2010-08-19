@@ -21,31 +21,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scala.tools.colladoc {
-package snippet {
-
-import lib.DependencyFactory._
-import lib.util.PathUtils._
-import page.Template
-
-import xml._
+package lib {
+package util {
 
 /**
- * Template snippet.
+ * Provides lot of utility functions for working with time and date, strings, xml, etc.
  * @author Petr Hosek
  */
-class TemplateOps {
-
-  val template = new Template(pathToTemplate(model.vend.rootPackage, path.vend.toList))
-
-  /** Return template title. */
-  def title(xhtml: NodeSeq): NodeSeq =
-    Text(template.title)
-
-  /** Return template body. */
-  def body(xhtml: NodeSeq): NodeSeq =
-    template.body
+object Helpers extends StringHelpers with TimeHelpers with XmlHelpers
 
 }
-
 }
 }

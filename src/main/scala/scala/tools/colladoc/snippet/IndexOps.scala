@@ -28,6 +28,10 @@ import page.Index
 
 import xml._
 
+/**
+ * Index snippet.
+ * @author Petr Hosek
+ */
 class IndexOps {
 
   val index = new Index(model.vend)

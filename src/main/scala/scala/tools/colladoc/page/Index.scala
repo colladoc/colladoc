@@ -23,9 +23,13 @@
 package scala.tools.colladoc {
 package page {
 
-import lib.Helpers._
-import lib.JsCmds._
-import model._
+import lib.util.Helpers._
+import lib.util.NameUtils._
+import lib.util.PathUtils._
+import lib.js.JqJsCmds._
+import lib.js.JqUI._
+import model.Model
+import model.mapper.{User, Comment}
 
 import net.liftweb.http.{S, SHtml}
 import net.liftweb.http.js.JsCmds._
@@ -38,6 +42,10 @@ import net.liftweb.widgets.gravatar.Gravatar
 import tools.nsc.doc.Universe
 import xml.{NodeSeq, Node, Elem, Text}
 
+/**
+ * Page containing index of all symbols and user panel.
+ * @author Petr Hosek 
+ */
 class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) {
 
   override def browser = super.browser \+
@@ -49,6 +57,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       }
     </div>
 
+  /** Render user panel for logged out user. */
   private def loggedOut =
     <xml:group>
       <ul class="usernav">
@@ -60,6 +69,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       { User.login }
     </xml:group>
 
+  /** Render user panel for logged in user. */
   private def loggedIn =
     <xml:group>
       <div class="avatar">

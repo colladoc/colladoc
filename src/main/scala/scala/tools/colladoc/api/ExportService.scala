@@ -23,9 +23,12 @@
 package scala.tools.colladoc {
 package api {
 
-import model.{Comment, Model}
+import model.Model
 import model.Model.factory._
-import lib.Helpers._
+import model.mapper.{Comment, User}
+import lib.util.Helpers._
+import lib.util.NameUtils._
+import lib.util.PathUtils._
 
 import net.liftweb.common.Full
 import net.liftweb.util.Helpers._
@@ -86,7 +89,7 @@ object ExportService extends RestHelper {
 
     protected def processTemplate(tpl: DocTemplateEntity): NodeSeq =
       <xml:group>
-        { if (tpl.isUpdated) {
+        { if (tpl.comment.get.isUpdated) {
             <item>
               <type>{ tpl match {
                 case _ if tpl.isPackage => "package"
@@ -106,7 +109,7 @@ object ExportService extends RestHelper {
 
     protected def processMember(mbr: MemberEntity): Node =
       <xml:group>
-        { if ((mbr.inheritedFrom.isEmpty || mbr.inheritedFrom.contains(mbr.inTemplate)) && mbr.isUpdated) {
+        { if ((mbr.inheritedFrom.isEmpty || mbr.inheritedFrom.contains(mbr.inTemplate)) && mbr.comment.get.isUpdated) {
             <item>
               <type>{ mbr match {
                 case _ if mbr.isDef || mbr.isVal || mbr.isVar => "value"

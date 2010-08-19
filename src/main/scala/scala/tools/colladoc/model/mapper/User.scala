@@ -22,8 +22,10 @@
  */
 package scala.tools.colladoc {
 package model {
+package mapper {
 
-import lib.JsCmds._
+import lib.js.JqJsCmds._
+import lib.js.JqUI._
 
 import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
@@ -33,9 +35,14 @@ import net.liftweb.http.js.JsCmd
 import net.liftweb.http.js.JsCmds._
 import xml.Text
 
+/**
+ * Mapper for user table storing registered users.
+ * @author Petr Hosek
+ */
 class User extends ProtoUser[User] with OneToMany[Long, User]  {
   def getSingleton = User
 
+  /** Username. */
   object userName extends MappedString(this, 32) {
     override def dbIndexed_? = true
     override def validations = valUnique(S.??("unique.user.name")) _ :: super.validations
@@ -45,39 +52,55 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
 
   def userNameDisplayName = S.??("user.name")
 
+  /** User comment changes. */
   object comments extends MappedOneToMany(Comment, Comment.user)
 }
 
+/**
+ * Mapper for user table storing registered users.
+ * @author Petr Hosek
+ */
 object User extends User with KeyedMetaMapper[Long, User] {
   override def dbTableName = "users"
 
+  /** Current logged in user identifier */
   private object curUserId extends SessionVar[Box[String]](Empty)
 
+  /** Get current logged in user identifier */
   def currentUserId: Box[String] = curUserId.is
 
+  /** Current logged in user */
   private object curUser extends RequestVar[Box[User]](currentUserId.flatMap(id => find(id))) with CleanRequestVarOnSessionTransition
 
+  /** Get current logged in user */
   def currentUser: Box[User] = curUser.is
 
+  /** Whether currently logged in user is superuser */
   def superUser_? : Boolean = currentUser.map(_.superUser.is) openOr false
 
+  /** Whether any user is logged in. */
   def loggedIn_? = currentUserId.isDefined
+  /** Log in user with given identifier. */
   def logUserIdIn(id: String) {
     curUser.remove()
     curUserId(Full(id))
   }
+  /** Log in user. */
   def logUserIn(who: User) {
     curUser.remove()
     curUserId(Full(who.id.toString))
   }
 
+  /** Log out current user. */
   def logoutCurrentUser = logUserOut()
+  /** Log out user. */
   def logUserOut() {
     curUserId.remove()
     curUser.remove()
     S.request.foreach(_.request.session.terminate)
   }
 
+  /** Edit user form. */
   def userHtml =
     <lift:form class="user form">
       <fieldset>
@@ -101,6 +124,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       </fieldset>
     </lift:form>
 
+  /** Edit user dialog. */
   def edit = {
     val user = currentUser.open_!
 
@@ -129,6 +153,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "submit" -> SHtml.hidden(doSave _))
   }
 
+  /** Signup user dialog. */
   def signup = {
     val user = create
 
@@ -159,6 +184,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "submit" -> SHtml.hidden(doSignup _))
   }
 
+  /** Login user form. */
   def loginHtml =
     <lift:form class="login form">
       <fieldset>
@@ -174,6 +200,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       </fieldset>
     </lift:form>
 
+  /** Login user dialog. */
   def login = {
     var username: String = ""
     var password: String = "*"
@@ -195,11 +222,13 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "submit" -> SHtml.hidden(doLogin _))
   }
 
+  /** Logout user. */
   def logout = {
     logoutCurrentUser
   }
 
 }
 
+}
 }
 }

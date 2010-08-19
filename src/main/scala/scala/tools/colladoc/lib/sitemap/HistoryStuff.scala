@@ -21,31 +21,46 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scala.tools.colladoc {
-package snippet {
+package lib {
+package sitemap {
 
-import lib.DependencyFactory._
-import lib.util.PathUtils._
-import page.Template
+import net.liftweb.sitemap.Loc
+import net.liftweb.http.{RewriteResponse, ParsePath, RewriteRequest}
+import net.liftweb.util.NamedPF
+import xml.Text
+import net.liftweb.common.Full
 
-import xml._
+/** History location parameter. */
+case class HistoryLoc()
 
 /**
- * Template snippet.
- * @author Petr Hosek
+ * History sitemap location.
  */
-class TemplateOps {
+object HistoryStuff extends Loc[HistoryLoc] {
 
-  val template = new Template(pathToTemplate(model.vend.rootPackage, path.vend.toList))
+  /** The name of the page. */
+  def name = "history"
 
-  /** Return template title. */
-  def title(xhtml: NodeSeq): NodeSeq =
-    Text(template.title)
+  /** The default parameters (used for generating the menu listing). */
+  def defaultValue = Full(HistoryLoc())
 
-  /** Return template body. */
-  def body(xhtml: NodeSeq): NodeSeq =
-    template.body
+  /** Parameters. */
+  def params = List.empty
+
+  /** Text of the link. */
+  val text = new Loc.LinkText((loc: HistoryLoc) => Text("History"))
+
+  /** Generate a link based on the current page. */
+  val link = new Loc.Link[HistoryLoc](List("history"))
+
+  /** Rewrite location. */
+  override val rewrite: LocRewrite = Full(NamedPF("History Rewrite") {
+    case RewriteRequest(ParsePath("history" :: Nil, "html", _, _), _, _) =>
+      (RewriteResponse("history" :: Nil), HistoryLoc())
+  })
 
 }
 
+}
 }
 }

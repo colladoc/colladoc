@@ -23,25 +23,28 @@
 package bootstrap.liftweb
 
 import _root_.net.liftweb.util._
+import _root_.net.liftweb.util.Helpers._
 import _root_.net.liftweb.common._
 import _root_.net.liftweb.http._
 import _root_.net.liftweb.http.provider._
 import _root_.net.liftweb.http.js.JsCmds._
+import _root_.net.liftweb.http.js.JE.JsRaw
 import _root_.net.liftweb.http.js.jquery.JQuery14Artifacts
 import _root_.net.liftweb.sitemap._
 import _root_.net.liftweb.sitemap.Loc._
-import Helpers._
 import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import _root_.java.sql.{Connection, DriverManager}
-import _root_.scala.tools.colladoc.model._
 
-import js.JE.JsRaw
 import tools.colladoc.api.ExportService
-import tools.colladoc.lib.{HistoryStuff, IndexStuff, TemplateStuff}
-import tools.colladoc.lib.JsCmds._
+import tools.colladoc.lib.sitemap.{HistoryStuff, IndexStuff, TemplateStuff}
+import tools.colladoc.model.Model
+import tools.colladoc.model.mapper.{User, Comment}
+import tools.colladoc.lib.js.JqJsCmds._
+import tools.colladoc.lib.js.JqUI._
+
 import xml.{Elem, Text, NodeSeq}
-import java.io.{InputStream, InputStreamReader, BufferedReader}
 import tools.nsc.io.Streamable
+import java.io.{InputStream, InputStreamReader, BufferedReader}
 
 /**
  * A class that's instantiated early and run.  It allows the application to modify lift's environment
@@ -135,7 +138,9 @@ class Boot {
   }
 
   private def notices() = {
-    def cmds(msgs: List[(NodeSeq, Box[String])], _type: Type.Type) =
+    import NotificationType._
+    
+    def cmds(msgs: List[(NodeSeq, Box[String])], _type: Type) =
       msgs.foldLeft(Noop) { (c, m) => c & (m match {
         case (Text(t), Full(h)) => Notify(_type, h)
         case (Text(t), _) => Notify(_type, t)
@@ -143,6 +148,6 @@ class Boot {
         case (n, _) => Notify(_type, n.toString, hide = false)
       })}
 
-    cmds(S.notices, Type.notice) & cmds(S.warnings, Type.error) & cmds(S.errors, Type.error)
+    cmds(S.notices, notice) & cmds(S.warnings, error) & cmds(S.errors, error)
   }
 }

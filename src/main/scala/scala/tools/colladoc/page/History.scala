@@ -23,10 +23,14 @@
 package scala.tools.colladoc {
 package page {
 
+import lib.util.Helpers._
+import lib.util.NameUtils._
+import lib.util.PathUtils._
+import lib.js.JqJsCmds._
+import lib.js.JqUI._
+import model.Model
 import model.Model.factory._
-import model._
-import lib.Helpers._
-import lib.Widgets._
+import model.mapper.{Comment, User}
 import lib.DependencyFactory
 
 import net.liftweb.common._
@@ -43,10 +47,16 @@ import xml.transform.{RewriteRule, RuleTransformer}
 
 import java.util.Date
 
+/**
+ * Page with history of all comment changes displayed in the form of timeline.
+ * @author Petr Hosek
+ */
 class History extends Template(Model.model.rootPackage) {
 
+  /** Page title. */
   override val title = "History"
 
+  /** Page body. */
   override val body =
     <body class="history">
       <div id="definition">
@@ -85,6 +95,11 @@ class History extends Template(Model.model.rootPackage) {
       </div>
     </body>
 
+  /**
+   * Renders list of comments to its xhtml representation.
+   * @param cmts list of comments
+   * @return xhtml comments representation
+   */
   def commentsToHtml(cmts: List[Comment]): NodeSeq = {
     def aggregateComments(mbrs: Iterable[MemberEntity]) = {
       val changeset = new HashMap[DocTemplateEntity, List[MemberEntity]] {
@@ -145,6 +160,25 @@ class History extends Template(Model.model.rootPackage) {
     </xml:group>
   }
 
+  /**
+   * Transform comment into corresponding member entity.
+   * @param cmt comment to transform
+   * @return member entity if found, none otherwise
+   */
+  def commentToMember(cmt: Comment) = {
+    nameToMember(Model.model.rootPackage, cmt.qualifiedName.is) match {
+      case Some(m) =>
+        val c = Model.factory.parse(m.symbol.get, m.template.get, cmt.comment.is)
+        Some(Model.factory.copyMember(m, c)(cmt))
+      case None => None
+    }
+  }
+
+  /**
+   *  Renders sequence of member entities to its xhtml representation.
+   * @param mbrs sequence of member entities
+   * @return xhtml comments representation
+   */
   protected def membersToHtml(mbrs: Iterable[MemberEntity]): NodeSeq = {
     val valueMembers = mbrs collect {
       case (tpl: TemplateEntity) if tpl.isObject || tpl.isPackage => tpl
@@ -184,15 +218,6 @@ class History extends Template(Model.model.rootPackage) {
       super.memberToCommentBodyHtml(mbr, isSelf, isReduced = true)
     else
       super.memberToCommentBodyHtml(mbr, isSelf, isReduced)
-
-  def commentToMember(cmt: Comment) = {
-    nameToMember(Model.model.rootPackage, cmt.qualifiedName.is) match {
-      case Some(m) =>
-        val c = Model.factory.parse(m.symbol.get, m.template.get, cmt.comment.is)
-        Some(Model.factory.copyMember(m, c)(cmt))
-      case None => None
-    }
-  }
 
 }
 

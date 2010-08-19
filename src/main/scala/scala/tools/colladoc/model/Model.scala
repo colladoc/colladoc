@@ -24,7 +24,6 @@ package scala.tools.colladoc {
 package model {
 
 import comment.{DynamicModelFactory, DynamicCommentFactory}
-import tools.nsc.doc.model.{MemberEntity, ModelFactory}
 import tools.nsc.reporters.AbstractReporter
 import tools.nsc.util.Position
 
@@ -38,9 +37,16 @@ import tools.nsc.reporters.{ConsoleReporter, Reporter}
 import tools.nsc.io.Directory
 
 import java.io.File
+import tools.nsc.doc.model.{TreeFactory, MemberEntity, ModelFactory}
+import tools.nsc.interactive.RangePositions
 
+/**
+ * Documentation model.
+ * @author Petr Hosek
+ */
 object Model extends Logger {
 
+  /** Compiler settings. */
   object settings extends Settings(msg => error(msg)) {
     processArguments((Props.props.flatMap {
       case (k, v) if k.startsWith("-") => if (!v.isEmpty) List(k, v) else List(k)
@@ -48,6 +54,7 @@ object Model extends Logger {
     }) toList, false)
   }
 
+  /** Compiler warnings and errors reporter. */
   object reporter extends AbstractReporter {
     val settings = Model.settings
 
@@ -61,10 +68,12 @@ object Model extends Logger {
     }
 
     def displayPrompt = S.error("There was an error while processing comment")
+
+    override def hasErrors = false // need to do this so that the Global instance doesn't trash all the symbols just because there was an error
   }
 
   /** The unique compiler instance used by this processor and constructed from its `settings`. */
-  object compiler extends Global(settings, reporter) {
+  object compiler extends Global(settings, reporter) with RangePositions {
     override protected def computeInternalPhases() {
       phasesSet += syntaxAnalyzer
       phasesSet += analyzer.namerFactory
@@ -81,7 +90,8 @@ object Model extends Logger {
     }
   }
 
-  object factory extends ModelFactory(compiler, settings) with DynamicModelFactory with DynamicCommentFactory {
+  /** Model factory used to construct the model. */
+  object factory extends ModelFactory(compiler, settings) with DynamicModelFactory with DynamicCommentFactory with TreeFactory {
     def construct(files: List[String]) = {
       (new compiler.Run()) compile files
       compiler.addSourceless
@@ -90,14 +100,24 @@ object Model extends Logger {
     }
   }
 
-  lazy val model = factory construct (getSources(settings))
+  lazy val model = factory construct (getSources)
 
-  private def getSources(settings: Settings): List[String] =
-    getSources(new File(settings.sourcepath.value))
-  
+  /**
+   * Get list of sources located in sourcepath.
+   * @return list of source files
+   */
+  private def getSources: List[String] =
+    settings.sourcepath.value.split(File.pathSeparatorChar).flatMap{ p => getSources(new File(p)) }.toList
+
+  /**
+   * Get list of sources located in directory `file`..
+   * @param file directory to look source files for
+   * @return list of source files
+   */
   private def getSources(file: File): List[String] =
     (new Directory(file)).deepFiles.filter{ _.extension == "scala" }.map{ _.path }.toList
 
+  /** Initialize model. */
   def init() {
     List(model)
   }

@@ -1,4 +1,5 @@
 markItUpSettings = {
+    previewParserPath: '',
 	onShiftEnter: { keepDefault:false, replaceWith:'\n\n' },
 	markupSet: [
         { name:'Heading', className:"headingButton", dropMenu: [
@@ -22,6 +23,8 @@ markItUpSettings = {
 		{ name:'Link', key:"L", openWith:"[[![Link]!]", closeWith:"]", className:"linkButton" },
 		{ name:'Url', openWith:"[[![Url:!:http://]!] ", closeWith:"]", placeHolder:'Link name', className:"urlButton" },
 		{ separator:'---------------' },
-		{ name:'Code', openWith:"{{{", closeWith:"}}}", className:"codeButton" }
+		{ name:'Code', openWith:"{{{", closeWith:"}}}", className:"codeButton" },
+        { separator:'---------------' },
+        { name:'Preview', className:'previewButton', call:'preview' }
 	]
 }

@@ -23,10 +23,10 @@
 package scala.tools.colladoc {
 package snippet {
 
-import model.{User, Comment}
+import model.mapper.{User, Comment}
 import lib.DependencyFactory._
-import lib.Helpers._
-import lib.Widgets._
+import lib.util.Helpers._
+import lib.widgets._
 import page.History
 
 import net.liftweb.common._
@@ -41,6 +41,10 @@ import xml._
 import java.util.{Calendar, Date}
 import java.text.SimpleDateFormat
 
+/**
+ * History snippet.
+ * @author Petr Hosek
+ */
 class HistoryOps {
 
   val dateFormat = new SimpleDateFormat("MM/dd/yyyy")
@@ -67,27 +71,37 @@ class HistoryOps {
       "user" -> Autocomplete(userName, users _, user _),
       "history" -> historyToHtml(fromDate, toDate, userName))
 
+  /**
+   * Return list of usernames containg given `term`.
+   * @param term filtering term
+   * @return list of filtered users
+   */
   def users(term: String) =
     User.findAll(Like(User.userName, "%" + term + "%")) map { _.userName.is }
 
+  /** Filter history by user. */
   def user(user: String) = {
     userName = user
-    updateHistory
+    updateTimeline
   }
 
+  /** Filter history by date from. */
   def dateFrom(dte: String) = {
     fromDate = dateFormat.parse(dte)
-    updateHistory
+    updateTimeline
   }
 
+  /** Filter history by date to. */
   def dateTo(dte: String) = {
     toDate = dateFormat.parse(dte)
-    updateHistory
+    updateTimeline
   }
 
-  def updateHistory =
+  /** Update history timeline. */
+  def updateTimeline =
     Replace("history", historyToHtml(fromDate, toDate, userName)) & Run("reload()") & Run("reinit('#history')")
 
+  /** Render history timeline. */
   def historyToHtml(from: Date, to: Date, user: String): NodeSeq =
     <div id="history">
       { User.find(Like(User.userName, user)) match {

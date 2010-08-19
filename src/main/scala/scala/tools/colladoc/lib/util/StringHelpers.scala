@@ -21,31 +21,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scala.tools.colladoc {
-package snippet {
+package lib {
+package util {
 
-import lib.DependencyFactory._
-import lib.util.PathUtils._
-import page.Template
-
-import xml._
+import scala.util.matching.Regex
+import net.liftweb.util.Helpers._
 
 /**
- * Template snippet.
+ * Provides utility functions for working with strings.
  * @author Petr Hosek
  */
-class TemplateOps {
+trait StringHelpers {
 
-  val template = new Template(pathToTemplate(model.vend.rootPackage, path.vend.toList))
+  /** Characters unsafe for xhtml id attribute */
+  val unsafeChars = new Regex("""[^A-Za-z0-9_]""")
 
-  /** Return template title. */
-  def title(xhtml: NodeSeq): NodeSeq =
-    Text(template.title)
-
-  /** Return template body. */
-  def body(xhtml: NodeSeq): NodeSeq =
-    template.body
+  /**
+   * Encode string so it can be used as a valid xhtml id attribute.
+   * @return encoded string
+   */
+  def idAttrEncode(in: String) =
+    unsafeChars.replaceAllIn(in.encJs, "")
 
 }
 
+}
 }
 }

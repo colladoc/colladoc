@@ -21,31 +21,43 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scala.tools.colladoc {
-package snippet {
+package lib {
+package util {
 
-import lib.DependencyFactory._
-import lib.util.PathUtils._
-import page.Template
-
-import xml._
+import java.util.{Date, Calendar}
 
 /**
- * Template snippet.
+ * Provides utility functions for working with date and time.
  * @author Petr Hosek
  */
-class TemplateOps {
+trait TimeHelpers {
 
-  val template = new Template(pathToTemplate(model.vend.rootPackage, path.vend.toList))
+  /** Transforms a calendar to a date. */
+  implicit def toDate(c: Calendar) = c.getTime
 
-  /** Return template title. */
-  def title(xhtml: NodeSeq): NodeSeq =
-    Text(template.title)
+  /** Transforms a date to a time (in milliseconds). */
+  implicit def toTime(d: Date) = d.getTime
 
-  /** Return template body. */
-  def body(xhtml: NodeSeq): NodeSeq =
-    template.body
+  /** Transforms a calendar to extended calendar providing fluent interface. */
+  implicit def toCalendar(c: Calendar) = new CalendarExtensions(c)
+
+  /**
+   * Extends Calendar class to provide more fluent interface.
+   */
+  class CalendarExtensions(c: Calendar) {
+    def rollDay(a: Int) = { c.roll(Calendar.DAY_OF_MONTH, a); c }
+    def rollMonth(a: Int) = { c.roll(Calendar.MONTH, a); c }
+    def rollYear(a: Int) = { c.roll(Calendar.YEAR, a); c }
+  }
+
+  /**
+   * Returns timestamp corresponding to time in milliseconds.
+   * @return timestamp in milliseconds
+   */
+  def timestamp(time: Long) = new java.sql.Timestamp(time)
 
 }
 
+}
 }
 }

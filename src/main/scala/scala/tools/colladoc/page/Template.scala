@@ -23,10 +23,14 @@
 package scala.tools.colladoc {
 package page {
 
-import model._
+import lib.util.Helpers._
+import lib.util.NameUtils._
+import lib.util.PathUtils._
+import lib.js.JqJsCmds._
+import lib.js.JqUI._
+import model.Model
 import model.Model.factory._
-import lib.Helpers._
-import lib.JsCmds._
+import model.mapper.{Comment, User}
 
 import net.liftweb.common._
 import net.liftweb.http.{SHtml, S}
@@ -35,16 +39,26 @@ import net.liftweb.http.js.jquery.JqJE._
 import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
+import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
 import tools.nsc.doc.model._
 import xml.{NodeSeq, Node, Elem, Text}
 
+/**
+ * Page containing template entity documentation and user controls.
+ * @author Petr Hosek
+ */
 class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
 
+  /**
+   * Create unique identifier for given entity and position.
+   * @param mbr member entity
+   * @param pos identifier position
+   * @return unique positional identifier
+   */
   private def id(mbr: MemberEntity, pos: String) =
-    attrEncode(hash(mbr.identifier + System.identityHashCode(mbr) + pos))
-    //"%s_%s_%s".format(attrEncode(mbr.identifier), System.identityHashCode(mbr), pos)
+    idAttrEncode(hash(mbr.identifier + System.identityHashCode(mbr) + pos))
 
   override def memberToHtml(mbr: MemberEntity): NodeSeq =
     super.memberToHtml(mbr) \% Map("data-istype" -> (mbr.isAbstractType || mbr.isAliasType).toString)
@@ -64,11 +78,13 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       { controls(mbr, isSelf) }
     </div>
 
+  /** Render member entity content with controls. */
   private def content(mbr: MemberEntity, isSelf: Boolean, isReduced: Boolean) =
     <div id={ id(mbr, "content") }>
       { super.memberToCommentBodyHtml(mbr, isSelf, isReduced) }
     </div>
 
+  /** Render member entity control. */
   private def controls(mbr: MemberEntity, isSelf: Boolean) =
     <div class="controls">
       { select(mbr, isSelf) }
@@ -78,11 +94,12 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       { export(mbr, isSelf) }
     </div>
 
+  /** Render revision selection for member entity. */
   private def select(mbr: MemberEntity, isSelf: Boolean) = {
     def replace(cid: String) = {
       val (cmt, c) = Comment.find(cid) match {
         case Full(c) => (Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is), c)
-        case _ => (mbr.originalComment.get, "source")
+        case _ => (mbr.comment.get.original.get, "source")
       }
       val m = Model.factory.copyMember(mbr, cmt)(c)
       
@@ -98,10 +115,12 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     SHtml.ajaxSelect(revs, dflt, replace _, ("class", "select"))
   }
 
+  /** Render edit button for member entity. */
   private def edit(mbr: MemberEntity, isSelf: Boolean) = {
     SHtml.a(doEdit(mbr, isSelf) _, Text("Edit"), ("class", "button"))
   }
 
+  /** Provide edit button logic replacing part of the page with comment editor. */
   private def doEdit(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
     def getSource(mbr: MemberEntity) = mbr.comment match {
         case Some(c) => c.source.getOrElse("")
@@ -119,21 +138,38 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       </form>) & JqId(Str(id(mbr, "text"))) ~> Editor() & Jq(Str("button")) ~> Button()
   }
 
+  /** Save modified member entity comment. */
   private def save(mbr: MemberEntity, isSelf: Boolean): JsCmd =
-    if (Model.reporter.hasWarnings || Model.reporter.hasErrors)
+    if (Model.reporter.hasWarnings)
       JqId(Str(id(mbr, "text"))) ~> AddClass("ui-state-error")
     else
       Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')") &
       (if (!isSelf) SetHtml(id(mbr, "short"), inlineToHtml(mbr.comment.get.short)) else JsCmds.Noop)
 
+  /** Cancel member entity comment modifications. */
   private def cancel(mbr: MemberEntity, isSelf: Boolean): JsCmd =
     Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')")
 
-  private def update(mbr: MemberEntity, text: String) = Model.synchronized {
+  /** Update member entity after comment has been changed. */
+  private def update(mbr: MemberEntity, docStr: String) = Model.synchronized {
     Model.reporter.reset
-    Model.factory.update(mbr, text)
+    def doSave() = {
+      val usr = User.currentUser.open_!
+      val cmt = Comment.create.qualifiedName(mbr.uniqueName).comment(docStr).dateTime(now).user(usr)
+      Comment.findAll(By(Comment.qualifiedName, mbr.uniqueName), By(Comment.user, usr),
+          OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
+        case List(c: Comment, _*) if c.dateTime.is - cmt.dateTime.is < minutes(30) =>
+          cmt.changeSet(c.changeSet.is)
+        case _ =>
+          cmt.changeSet(now)
+      }
+      cmt.save
+    }
+    mbr.comment.get.update(docStr)
+    if (!Model.reporter.hasWarnings) doSave
   }
 
+  /** Render export link for member entity. */
   private def export(mbr: MemberEntity, isSelf: Boolean) = mbr match {
     case tpl: DocTemplateEntity =>
       <xml:group>
@@ -147,6 +183,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       SHtml.a(doExport(mbr, isSelf, false) _, Text("Export"), ("class", "control"))
   }
 
+  /** Provide export link logic. */
   private def doExport(mbr: MemberEntity, isSelf: Boolean, rec: Boolean)(): JsCmd = {
     var pars = if (rec) "rec=true" :: Nil else Nil
     mbr.tag match {

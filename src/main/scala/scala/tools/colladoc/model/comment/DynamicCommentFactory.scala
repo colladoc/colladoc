@@ -24,7 +24,8 @@ package scala.tools.colladoc {
 package model {
 package comment {
 
-import lib.Helpers._
+import lib.util.Helpers._
+import lib.util.NameUtils._
 
 import net.liftweb.common._
 import net.liftweb.mapper._
@@ -35,12 +36,17 @@ import tools.nsc.doc.model._
 import tools.nsc.doc.model.comment._
 import tools.nsc.util._
 
-import java.util.Date
-
+/**
+ * Dynamic comment factory extending [CommentFactory] with dynamic behavior.
+ * @author Petr Hosek
+ */
 trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFactory with CommentFactory =>
 
   val global: Global
   import global.reporter
+
+  /** Empty comment. */
+  private val empty = createComment()
 
   override def comment(sym: global.Symbol, inTpl: => DocTemplateImpl) = {
     val cmt = super.comment(sym, inTpl)
@@ -50,68 +56,27 @@ trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFa
     }
   }
 
-  def parse(sym: global.Symbol, inTpl: => DocTemplateImpl, comment: String): Comment = {
-    val str = global.expandedDocComment(sym, inTpl.sym, comment).trim
-    new CommentProxy(parse(sym, str, comment, NoPosition))(sym, inTpl)
-  }
-
-  def update(mbr: MemberEntity, docStr: String) = {
-    def saveUpdated() = {
-      val usr = model.User.currentUser.open_!
-      val cmt = model.Comment.create.qualifiedName(mbr.uniqueName).comment(docStr).dateTime(now).user(usr)
-      model.Comment.findAll(By(model.Comment.qualifiedName, mbr.uniqueName), By(model.Comment.user, usr),
-          OrderBy(model.Comment.dateTime, Descending), MaxRows(1)) match {
-        case List(c: Comment, _*) if c.dateTime.is - cmt.dateTime.is < minutes(30) =>
-          cmt.changeSet(c.changeSet.is)
-        case _ =>
-          cmt.changeSet(now)
-      }
-      cmt.save
-    }
-    
-    if (mbr.comment.isDefined) {
-      val prx = mbr.comment.get.asInstanceOf[CommentProxy]
-      val str = global.expandedDocComment(prx.sym, prx.inTpl.sym, docStr).trim
-      val cmt = parse(prx.sym, str, docStr, NoPosition)
-      if (!reporter.hasWarnings && !reporter.hasErrors) {
-        prx.cmt = cmt
-        saveUpdated
-      }
-    }
+  /**
+   * Parse documentation string and return comment.
+   * @param sym documented symbol
+   * @param inTpl parent template
+   * @param docStr documentation string
+   * @return parsed comment
+   */
+  def parse(sym: global.Symbol, inTpl: => DocTemplateImpl, docStr: String): Comment = {
+    val str = global.expandedDocComment(sym, inTpl.sym, docStr).trim
+    new CommentProxy(parse(str, docStr, NoPosition))(sym, inTpl)
   }
 
   private def latest(sym: global.Symbol, inTpl: => DocTemplateImpl) = makeMember(sym, inTpl) match {
-    case List(mbr: MemberEntity, _*) => model.Comment.latest(mbr.uniqueName)
+    case List(mbr: MemberEntity, _*) => model.mapper.Comment.latest(mbr.uniqueName)
     case Nil => None
   }
 
-  implicit def symbols(mbr: MemberEntity) = new {
-    def symbol(): Option[global.Symbol] = mbr.comment match {
-      case Some(prx: CommentProxy) => Some(prx.sym)
-      case _ => None
-    }
-
-    def template(): Option[DocTemplateImpl] = mbr.comment match {
-      case Some(prx: CommentProxy) => Some(prx.inTpl)
-      case _ => None
-    }
-
-    def isUpdated(): Boolean = mbr.comment match {
-      case Some(prx: CommentProxy) => latest(prx.sym, prx.inTpl) match {
-          case Some(c) => true
-          case None => false
-      }
-      case _ => false
-    }
-
-    def originalComment(): Option[Comment] = mbr.comment match {
-      case Some(prx: CommentProxy) =>
-        val cmt = DynamicCommentFactory.super.comment(prx.sym, prx.inTpl)
-        Some(new CommentProxy(cmt.getOrElse(empty))(prx.sym, prx.inTpl))
-      case _ => None
-    }
-  }
-
+  /**
+   * Updatable coment proxy.
+   * @param cmt proxied comment
+   */
   private class CommentProxy(var cmt: Comment)(val sym: global.Symbol, val inTpl: DocTemplateImpl) extends Comment {
     def body = cmt.body
     def authors = cmt.authors
@@ -126,9 +91,8 @@ trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFa
     def deprecated = cmt.deprecated
     def note = cmt.note
     def example = cmt.example
-    def short = cmt.short
     def source = cmt.source
-
+    def constructor = cmt.constructor
     override def equals(other: Any) = other match {
       case that: CommentProxy => cmt.equals(that.cmt)
       case _ => cmt.equals(other)
@@ -136,22 +100,60 @@ trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFa
     override def hashCode = cmt.hashCode
   }
 
-  private object empty extends Comment {
-    def body = new Body(Nil)
-    def authors = List()
-    def see = List()
-    def result = None
-    def throws = Map.empty[String, Body]
-    def valueParams = Map.empty[String, Body]
-    def typeParams = Map.empty[String, Body]
-    def version = None
-    def since = None
-    def todo = List()
-    def deprecated = None
-    def note = List()
-    def example = List()
-    def short = Text("")
-    def source = None
+  /** Transforms comment into extended comment providing dynamic behavior. */
+  implicit def comments(cmt: Comment) = new CommentExtensions(cmt)
+
+  /**
+   * Extended comment class providing dynamic behavior.
+   * @param cmt extended comment
+   */
+  class CommentExtensions(cmt: Comment) {
+
+    /**
+     * Update member entity comment with given documentation string.
+     * @param mbr member entity
+     * @param docStr documentation string
+     */
+    def update(docStr: String) = cmt match {
+      case prx: CommentProxy =>
+        val str = global.expandedDocComment(prx.sym, prx.inTpl.sym, docStr).trim
+        val cmt = parse(str, docStr, NoPosition)
+        if (!reporter.hasWarnings) prx.cmt = cmt
+      case _ =>
+    }
+
+    /**
+     * Whether the comment has been updated.
+     * @return true if comment has been already update
+     */
+    def isUpdated(): Boolean = cmt match {
+      case prx: CommentProxy => latest(prx.sym, prx.inTpl).isDefined
+      case _ => false
+    }
+
+    /**
+     * Retrieve original comment as defined in source code.
+     * @return original comment if defined
+     */
+    def original(): Option[Comment] = cmt match {
+      case prx: CommentProxy =>
+        val c = DynamicCommentFactory.super.comment(prx.sym, prx.inTpl)
+        Some(new CommentProxy(c.getOrElse(empty))(prx.sym, prx.inTpl))
+      case _ => None
+    }
+
+  }
+
+  implicit def symbols(mbr: MemberEntity) = new {
+    def symbol(): Option[global.Symbol] = mbr.comment match {
+      case Some(prx: CommentProxy) => Some(prx.sym)
+      case _ => None
+    }
+
+    def template(): Option[DocTemplateImpl] = mbr.comment match {
+      case Some(prx: CommentProxy) => Some(prx.inTpl)
+      case _ => None
+    }
   }
 
 }

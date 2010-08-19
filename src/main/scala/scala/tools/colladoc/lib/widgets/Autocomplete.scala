@@ -22,6 +22,7 @@
  */
 package scala.tools.colladoc {
 package lib {
+package widgets {
 
 import net.liftweb.http._
 import net.liftweb.http.S._
@@ -32,60 +33,57 @@ import net.liftweb.http.js.JE._
 
 import xml.{NodeSeq, Node, Elem, Text, Unparsed}
 
-object Widgets {
+/**
+ * Provides support and integration for jQuery UI autocomplete widget.
+ * @author Petr Hosek
+ */
+object Autocomplete {
 
-  object Autocomplete {
+  def apply(value: String, options: (String) => Seq[String], func: String => JsCmd, attrs: (String, String)*) =
+    new Autocomplete().render(value, options, func, attrs:_*)
 
-    def apply(value: String, options: (String) => Seq[String], func: String => JsCmd, attrs: (String, String)*) = {
-      val f = (ignore: String) => {
-        val q = S.param("term").openOr("")
-        JsonResponse(JsArray(options(q).map(s => Str(s)) : _*))
-      }
-      fmapFunc(SFuncHolder(f)) { fName =>
-        val what = encodeURL(S.contextPath + "/" + LiftRules.ajaxPath + "?" + fName + "=foo")
-        val input = nextFuncName
-        fmapFunc(SFuncHolder(func)) { funcName =>
-          val onLoad = JsRaw("""jQuery(document).ready(function(){
-              jQuery("#""" + input + """").autocomplete({ source: """ + what.encJs + """});
-            });""")
+}
 
-          <span>
-            <head>
-              <script type="text/javascript">{ Unparsed(onLoad.toJsCmd) }</script>
-            </head>
-            { (attrs.foldLeft(<input type="text" id={ input } value={ value } />)(_ % _)) %
-                ("onblur" -> SHtml.makeAjaxCall(JsRaw("'" + funcName + "=' + encodeURIComponent(this.value)")))
-            }
-          </span>
-        }
-      }
+/**
+ * Provides support and integration for jQuery UI autocomplete widget.
+ * @author Petr Hosek
+ */
+class Autocomplete {
+
+  /**
+   * Render a text field with autocomplete support.
+   * @param value initial input string
+   * @param options the function to be called when user is typing text
+   * @param func the function to be called when input string is changed
+   * @param attrs the attributes that can be added to input text field
+   */
+  def render(value: String, options: (String) => Seq[String], func: String => JsCmd, attrs: (String, String)*) = {
+    val f = (ignore: String) => {
+      val q = S.param("term").openOr("")
+      JsonResponse(JsArray(options(q).map(s => Str(s)) : _*))
     }
-
-  }
-
-  object Datepicker {
-
-    def apply(value: String, func: String => JsCmd, attrs: (String, String)*) = {
+    fmapFunc(SFuncHolder(f)) { fName =>
+      val what = encodeURL(S.contextPath + "/" + LiftRules.ajaxPath + "?" + fName + "=foo")
+      val input = nextFuncName
       fmapFunc(SFuncHolder(func)) { funcName =>
-        val input = nextFuncName
         val onLoad = JsRaw("""jQuery(document).ready(function(){
-            jQuery("#""" + input + """").datepicker();
+            jQuery("#""" + input + """").autocomplete({ source: """ + what.encJs + """});
           });""")
 
         <span>
           <head>
             <script type="text/javascript">{ Unparsed(onLoad.toJsCmd) }</script>
           </head>
-          { (attrs.foldLeft(<input type="text" id={ input } value={ value }/>)(_ % _)) %
-                ("onchange" -> SHtml.makeAjaxCall(JsRaw("'" + funcName + "=' + encodeURIComponent(this.value)")))
+          { (attrs.foldLeft(<input type="text" id={ input } value={ value } />)(_ % _)) %
+              ("onblur" -> SHtml.makeAjaxCall(JsRaw("'" + funcName + "=' + encodeURIComponent(this.value)")))
           }
         </span>
       }
     }
-
   }
 
 }
 
+}
 }
 }

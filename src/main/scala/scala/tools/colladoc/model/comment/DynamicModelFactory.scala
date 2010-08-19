@@ -30,12 +30,17 @@ import tools.nsc.doc.model._
 import tools.nsc.doc.model.comment.Comment
 import java.util.Date
 
-trait DynamicModelFactory extends ModelFactory { thisFactory: ModelFactory with DynamicCommentFactory =>
+/**
+ * Dynamic model factory extending [ModelFactory] with dynamic behavior.
+ * @author Petr Hosek
+ */
+trait DynamicModelFactory extends ModelFactory { thisFactory: ModelFactory with DynamicCommentFactory with TreeFactory =>
 
   /**
    * Creates the new member entity based upon existing entity `mbr` with given comment.
    * @param mbr The member entity to copy
    * @param cmt The new entity comment
+   * @return copied entity
    */
   def copyMember(mbr: MemberEntity, cmt: Comment)(tag: AnyRef = null): MemberEntity = mbr match {
     case tpe: AbstractType => new AbstractTypeProxy(tpe, cmt)(tag)
@@ -50,6 +55,9 @@ trait DynamicModelFactory extends ModelFactory { thisFactory: ModelFactory with 
     case mbr: MemberEntity => new MemberEntityProxy(mbr, cmt)(tag)
   }
 
+  /**
+   * Updated member entity proxy.
+   */
   private class MemberEntityProxy(val mbr: MemberEntity, val cmt: Comment)(val tag: AnyRef = null) extends MemberEntity {
     def name = mbr.name
     def qualifiedName = mbr.qualifiedName
@@ -81,6 +89,9 @@ trait DynamicModelFactory extends ModelFactory { thisFactory: ModelFactory with 
     override def hashCode = mbr.hashCode
   }
 
+  /**
+   * Updated documentable template entity proxy.
+   */
   private class DocTemplateEntityProxy(tpl: DocTemplateEntity, cmt: Comment)(tag: AnyRef) extends MemberEntityProxy(tpl, cmt)(tag) with DocTemplateEntity {
     override def toRoot = tpl.toRoot
     def inSource = tpl.inSource
@@ -103,56 +114,92 @@ trait DynamicModelFactory extends ModelFactory { thisFactory: ModelFactory with 
     def isClass = tpl.isClass
     def isObject = tpl.isObject
     def isDocTemplate = tpl.isDocTemplate
+    def isCaseClass = tpl.isCaseClass
     def selfType = tpl.selfType
   }
 
+  /**
+   * Updated trait entity proxy.
+   */
   private class TraitProxy(trt: Trait, cmt: Comment)(tag: AnyRef) extends DocTemplateEntityProxy(trt, cmt)(tag) with Trait {
-    def valueParams = trt.valueParams
     def typeParams = trt.typeParams
   }
 
+  /**
+   * Updated class entity proxy.
+   */
   private class ClassProxy(cls: Class, cmt: Comment)(tag: AnyRef) extends TraitProxy(cls, cmt)(tag) with Class {
     def primaryConstructor = cls.primaryConstructor
     def constructors = cls.constructors
-    def isCaseClass = cls.isCaseClass
+    def valueParams = cls.valueParams
   }
 
+  /**
+   * Updated package entity proxy.
+   */
   private class PackageProxy(pkg: Package, cmt: Comment)(tag: AnyRef) extends DocTemplateEntityProxy(pkg, cmt)(tag) with Package {
     override def inTemplate = pkg.inTemplate
     override def toRoot = pkg.toRoot
     def packages = pkg.packages
   }
 
+  /**
+   * Updated non template member entity proxy.
+   */
   private class NonTemplateMemberEntityProxy(mbr: NonTemplateMemberEntity, cmt: Comment)(tag: AnyRef) extends MemberEntityProxy(mbr, cmt)(tag) with NonTemplateMemberEntity {
     def isUseCase = mbr.isUseCase
   }
 
+  /**
+   * Updated function entity proxy.
+   */
   private class DefProxy(_def: Def, cmt: Comment)(tag: AnyRef) extends NonTemplateMemberEntityProxy(_def, cmt)(tag) with Def {
     def valueParams = _def.valueParams
     def typeParams = _def.typeParams
   }
 
+  /**
+   * Updated constructor entity proxy.
+   */
   private class ConstructorProxy(ctr: Constructor, cmt: Comment)(tag: AnyRef) extends NonTemplateMemberEntityProxy(ctr, cmt)(tag) with Constructor {
     def isPrimary = ctr.isPrimary
     def valueParams = ctr.valueParams
   }
 
+  /**
+   * Updated abstract type entity proxy.
+   */
   private class AbstractTypeProxy(tpe: AbstractType, cmt: Comment)(tag: AnyRef) extends NonTemplateMemberEntityProxy(tpe, cmt)(tag) with AbstractType {
     def lo = tpe.lo
     def hi = tpe.hi
     def typeParams = tpe.typeParams
   }
 
+  /**
+   * Updated alias type entity proxy.
+   */
   private class AliasTypeProxy(tpe: AliasType, cmt: Comment)(tag: AnyRef) extends NonTemplateMemberEntityProxy(tpe, cmt)(tag) with AliasType {
     def alias = tpe.alias
     def typeParams = tpe.typeParams
   }
 
-  implicit def modifications(mbr: MemberEntity) = new {
+  /** Transforms member entity into extended entity providing dynamic behavior. */
+  implicit def modifications(mbr: MemberEntity) = new MemberEntityExtensions(mbr)
+
+  /**
+   * Extended member entity class providing dynamic behavior.
+   */
+  class MemberEntityExtensions(mbr: MemberEntity) {
+
+    /**
+     * Get tag associated with member entity.
+     * @return associated tag if there is any
+     */
     def tag(): AnyRef = mbr match {
       case prx: MemberEntityProxy => prx.tag
       case _ => null
     }
+
   }
 
 }

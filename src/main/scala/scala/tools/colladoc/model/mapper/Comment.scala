@@ -22,8 +22,10 @@
  */
 package scala.tools.colladoc {
 package model {
+package mapper {
 
-import lib.Helpers._
+import lib.util.Helpers._
+import lib.util.NameUtils._
 
 import net.liftweb.common._
 import net.liftweb.mapper._
@@ -37,23 +39,34 @@ import xml.NodeSeq
 
 import java.text.SimpleDateFormat
 
+/**
+ * Mapper for comment table storing documentation changes.
+ * @author Petr Hosek
+ */
 class Comment extends LongKeyedMapper[Comment] with IdPK {
   def getSingleton = Comment
 
+  /** Qualified name of symbol this comment belongs to. */
   object qualifiedName extends MappedString(this, 255) {
     override def dbIndexed_? = true
   }
+  /** Changed comment content. */
   object comment extends MappedString(this, 4000)
 
+  /** Changeset this comment belongs to. */
   object changeSet extends MappedDateTime(this)
 
+  /** Changed comment author. */
   object user extends LongMappedMapper(this, User)
+  /** Change date and time. */
   object dateTime extends MappedDateTime(this)
 
+  /** Whether this change is still valid. */
   object valid extends MappedBoolean(this) {
     override def defaultValue = true
   }
 
+  /** Get change author's username. */
   def userName: String = User.find(user.is) match {
     case Full(u) => u.userName
     case _ => ""
@@ -61,13 +74,23 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
 
   def dateFormat = new SimpleDateFormat("HH:mm:ss dd MMM yyyy")
 
+  /** Get change author's username and date. */
   def userNameDate: String =
     "%s by %s".format(dateFormat.format(dateTime.is), userName)
 }
 
+/**
+ * Mapper for comment table storing documentation changes.
+ * @author Petr Hosek
+ */
 object Comment extends Comment with LongKeyedMetaMapper[Comment] {
   override def dbTableName = "comments"
 
+  /**
+   * Find latest change for given symbol qualified name.
+   * @param qualName symbol qualified name
+   * @return latest change if exists, none otherwise
+   */
   def latest(qualName: String) = {
     Comment.findAll(By(Comment.qualifiedName, qualName),
       OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
@@ -76,11 +99,21 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
     }
   }
 
+  /**
+   * Get all revisions for given symbol qualified name.
+   * @param qualName symbol qualified name
+   * @return tuples of revisions' identifiers and date
+   */
   def revisions(qualName: String) = {
     val cmts = changeSets(findAll(By(qualifiedName, qualName), OrderBy(Comment.dateTime, Descending)))
     cmts.map{ c => (c.id.is.toString, c.userNameDate) }
   }
 
+  /**
+   * Group changes to changesets.
+   * @param cmts list of comment changes
+   * @return grouped comment changes
+   */
   def changeSets(cmts: List[Comment]) =
     if (cmts.nonEmpty)
       cmts.groupBy(c => c.qualifiedName.is + c.user.is).values.flatMap { cs =>
@@ -93,5 +126,6 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
 
 }
 
+}
 }
 }

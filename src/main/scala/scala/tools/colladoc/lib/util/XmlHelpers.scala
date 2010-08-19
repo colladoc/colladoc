@@ -20,43 +20,48 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package lib
+package scala.tools.colladoc {
+package lib {
+package util {
 
-import net.liftweb.sitemap.Loc
-import net.liftweb.util.NamedPF
-import net.liftweb.common.Full
-import net.liftweb.http.{S, RewriteResponse, ParsePath, RewriteRequest}
+import xml._
 
-import xml.Text
+/**
+ * Provides utility functions for working with xml.
+ * @author Petr Hosek
+ */
+trait XmlHelpers {
 
-case class TemplateLoc(path: List[String])
+  /** Extends element with additional operators for adding attributes and child nodes. */
+  implicit def addNode(elem: Elem) = new {
+    def %(attrs: Map[String, String]) = {
+      val seq = for((n, v) <- attrs) yield new UnprefixedAttribute(n, v, Null)
+      (elem /: seq) { _ % _ }
+    }
 
-object TemplateStuff extends Loc[TemplateLoc] {
-
-  /** The name of the page */
-  def name = "template"
-
-  /** The default parameters (used for generating the menu listing) */
-  def defaultValue = Full(TemplateLoc(List("template")))
-
-  /** Parameters */
-  def params = List.empty
-
-  /** Text of the link */
-  val text = new Loc.LinkText((loc: TemplateLoc) => Text("Template"))
-
-  /** Generate a link based on the current page */
-  val link = new Loc.Link[TemplateLoc](List("template"))
-
-  override val rewrite: LocRewrite = Full(NamedPF("Template Rewrite") {
-    case RewriteRequest(ParsePath(path, "html", _, _), _, _) =>
-      (RewriteResponse("template" :: Nil, Map("path" -> path.mkString("/"))), TemplateLoc(path))
-  })
-
-  override val snippets: SnippetTest = {
-    case ("template", Full(TemplateLoc(path))) =>
-      DependencyFactory.path.doWith(path.toArray) { S.locateSnippet("template").open_! }
+    def \+(newChild: Node) = elem match {
+      case Elem(prefix, labels, attrs, scope, child @ _*) =>
+        Elem(prefix, labels, attrs, scope, child ++ newChild : _*)
+    }
   }
 
+  /** Extends node sequence with additional operators for adding attributes and child nodes. */
+  implicit def addNodeSeq(seq: NodeSeq) = new {
+    def \%(attrs: Map[String, String]) = seq theSeq match {
+      case Seq(elem: Elem, rest @ _*) =>
+        elem % attrs ++ rest
+      case elem => elem
+    }
+
+    def \\+(newChild: Node) = seq theSeq match {
+      case Seq(elem: Elem, rest @ _*) =>
+        elem \+ newChild ++ rest
+      case elem => elem
+    }
+  }
+
+}
+
+}
+}
 }

@@ -22,62 +22,35 @@
  */
 package scala.tools.colladoc {
 package lib {
+package js {
 
 import net.liftweb.util.Helpers._
 import net.liftweb.http.js.{JsMember, JsExp, JsCmd}
 import net.liftweb.http.js.jquery.{JQueryLeft, JQueryRight}
 
-object JsCmds {
+/**
+ * Various jQuery commands.
+ * @author Petr Hosek
+ */
+object JqJsCmds {
 
+  /** Reload selected frame/iframe. */
   case class Reload() extends JsExp with JsMember {
     override def toJsCmd = "each(function() {this.contentWindow.location.reload(true);})"
   }
 
+  /** Add class to selected element. */
   case class AddClass(_class: String) extends JsExp with JsMember {
     override def toJsCmd = "addClass(" + _class.encJs + ")"
   }
 
+  /** Remove class from selected element. */
   case class RemoveClass(_class: String) extends JsExp with JsMember {
     override def toJsCmd = "removeClass(" + _class.encJs + ")"
   }
 
-  case class Button() extends JsExp with JsMember {
-    override def toJsCmd = "button()"
-  }
-
-  case class SelectMenu(width: Int = 300) extends JsExp with JsMember {
-    override def toJsCmd = "selectmenu({ width: " + width.toString + " })"
-  }
-
-  case class Editor() extends JsExp with JsMember {
-    override def toJsCmd = "markItUp(markItUpSettings)"
-  }
-
-  case class OpenDialog() extends JsExp with JsMember {
-    override def toJsCmd = "dialog('open')"
-  }
-
-  case class CloseDialog() extends JsExp with JsMember {
-    override def toJsCmd = "dialog('close')"
-  }
-
-  case class DestroyDialog() extends JsExp with JsMember {
-    override def toJsCmd = "dialog('destroy')"
-  }
-
-  object Type extends Enumeration("notice", "error") {
-    type Type = Value
-    val notice, error = Value
-  }
-
-  import Type._
-
-  case class Notify(_type: Type, text: String, title: String = "", hide: Boolean = true) extends JsCmd {
-    override def toJsCmd = "jQuery.notify({ text: " + text.encJs + ", type: " + _type.toString.encJs +
-            (if (title.nonEmpty) ", title: " + title.encJs else "") + ", hide: " + hide.toString + " });"
-  }
-
 }
 
+}
 }
 }

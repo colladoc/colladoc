@@ -22,34 +22,59 @@
  */
 package scala.tools.colladoc {
 package lib {
+package widgets {
 
-import model.Model
+import net.liftweb.http._
+import net.liftweb.http.S._
+import net.liftweb.util.Helpers._
+import net.liftweb.http.js._
+import net.liftweb.http.js.JE._
 
-import net.liftweb._
-import http._
-import util._
-import common._
-import _root_.java.util.Date
+import xml.{NodeSeq, Node, Elem, Text, Unparsed}
 
 /**
- * Factory providing various dependencies.
+ * Provides support and integration for jQuery UI datepicker widget.
  * @author Petr Hosek
  */
-object DependencyFactory extends Factory {
-  implicit object model extends FactoryMaker(getModel _)
-  implicit object path extends FactoryMaker(getPath _)
+object Datepicker {
 
-  private def getModel =
-    Model.model
+  def apply(value: String, func: String => JsCmd, attrs: (String, String)*) =
+    new Datepicker().render(value, func, attrs:_*)
 
-  private def getPath =
-    S.param("path") openOr "" split('/')
-
-  private def init() {
-    List(model, path)
-  }
-  init()
 }
 
+/**
+ * Provides support and integration for jQuery UI datepicker widget.
+ * @author Petr Hosek
+ */
+class Datepicker {
+
+  /**
+   * Render a text field with datepicker support.
+   * @param value initial date string
+   * @param func the function to be called when date string is changed
+   * @param attrs the attributes that can be added to input text field
+   */
+  def render(value: String, func: String => JsCmd, attrs: (String, String)*) = {
+    fmapFunc(SFuncHolder(func)) { funcName =>
+      val input = nextFuncName
+      val onLoad = JsRaw("""jQuery(document).ready(function(){
+          jQuery("#""" + input + """").datepicker();
+        });""")
+
+      <span>
+        <head>
+          <script type="text/javascript">{ Unparsed(onLoad.toJsCmd) }</script>
+        </head>
+        { (attrs.foldLeft(<input type="text" id={ input } value={ value }/>)(_ % _)) %
+              ("onchange" -> SHtml.makeAjaxCall(JsRaw("'" + funcName + "=' + encodeURIComponent(this.value)")))
+        }
+      </span>
+    }
+  }
+
+}
+
+}
 }
 }
