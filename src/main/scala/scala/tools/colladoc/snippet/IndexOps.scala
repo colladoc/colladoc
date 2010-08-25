@@ -34,7 +34,7 @@ import xml._
  */
 class IndexOps {
 
-  val index = new Index(model.vend)
+  lazy val index = new Index(model.vend)
 
   /** Return index title. */
   def title(xhtml: NodeSeq): NodeSeq =

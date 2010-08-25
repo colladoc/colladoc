@@ -56,7 +56,7 @@ class HistoryOps {
     else
       ""
 
-  val history = new History
+  lazy val history = new History(model.vend.rootPackage)
   import history._
 
   /** Return history title. */

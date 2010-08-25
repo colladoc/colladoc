@@ -28,6 +28,7 @@ import lib.util.NameUtils._
 import lib.util.PathUtils._
 import lib.js.JqJsCmds._
 import lib.js.JqUI._
+import lib.widgets.Editor
 import model.Model
 import model.Model.factory._
 import model.mapper.{Comment, User}
@@ -126,16 +127,33 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         case Some(c) => c.source.getOrElse("")
         case None => ""
       }
-    Replace(id(mbr, "full"),
-      <form id={ id(mbr, "form") } class="edit" method="GET">
-        <div class="editor">
-          { SHtml.textarea(getSource(mbr), text => update(mbr, text), ("id", id(mbr, "text"))) }
-          <div class="buttons">
-            { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm(id(mbr, "form"), () => save(mbr, isSelf))) }
-            { SHtml.a(Text("Cancel"), cancel(mbr, isSelf)) }
-          </div>
+    Editor.editorObj(getSource(mbr), parse(mbr, isSelf) _, text => update(mbr, text)) match {
+      case (n, j) =>
+        Replace(id(mbr, "full"),
+          <form id={ id(mbr, "form") } class="edit" method="GET">
+            <div class="editor">
+              { n }
+              <div class="buttons">
+                { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm(id(mbr, "form"), () => save(mbr, isSelf))) }
+                { SHtml.a(Text("Cancel"), cancel(mbr, isSelf)) }
+              </div>
+            </div>
+          </form>) & j & Jq(Str("button")) ~> Button()
+      case _ => JsCmds.Noop
+    }
+  }
+
+  /** Parse documentation string input to show comment preview. */
+  private def parse(mbr: MemberEntity, isSelf: Boolean)(docStr: String) = {
+    val cmt = Model.factory.parse(mbr.symbol.get, mbr.template.get, docStr)
+    <html>
+      <head><link href="/lib/template.css" media="screen" type="text/css" rel="stylesheet" /></head>
+      <body>
+        <div id="comment" class="fullcomment">
+          { super.memberToCommentBodyHtml(Model.factory.copyMember(mbr, cmt)(), isSelf) }
         </div>
-      </form>) & JqId(Str(id(mbr, "text"))) ~> Editor() & Jq(Str("button")) ~> Button()
+      </body>
+    </html>
   }
 
   /** Save modified member entity comment. */

@@ -36,3 +36,7 @@
 .markItUp .codeButton > a	{
 	background-image:url(images/code.png);
 }
+
+.markItUp .previewButton > a	{
+	background-image:url(images/preview.png);
+}

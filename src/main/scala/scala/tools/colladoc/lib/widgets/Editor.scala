@@ -39,8 +39,11 @@ import xml.{NodeSeq, Node, Elem, Text, Unparsed}
  */
 object Editor {
 
-  def apply(value: String, func: String => String, attrs: (String, String)*) =
-    new Editor().render(value, func, attrs:_*)
+  def apply(value: String, parse: String => NodeSeq, func: String => Any, attrs: (String, String)*) =
+    new Editor().render(value, parse, func, attrs:_*)
+
+  def editorObj(value: String, parse: String => NodeSeq, func: String => Any, attrs: (String, String)*) =
+    new Editor().editorObj(value, parse, func, attrs:_*)
 
 }
 
@@ -53,25 +56,57 @@ class Editor {
   /**
    * Render a text area with editor support.
    * @param value initial content
+   * @param parse the function to call to parse the content
    * @param func the function to be called when content is changed
    * @param attrs the attributes that can be added to text area
    */
-  def render(value: String, func: String => String, attrs: (String, String)*) = {
+  def render(value: String, parse: String => NodeSeq, func: String => Any, attrs: (String, String)*) = {
     fmapFunc(SFuncHolder(func)) { funcName =>
       val what = encodeURL(S.contextPath + "/" + LiftRules.ajaxPath + "?" + funcName + "=foo")
       val input = nextFuncName
-      val onLoad = JsRaw("""jQuery(document).ready(function(){
-          jQuery.markItUp({ target:"#""" + input + """", previewParserPath: """ + what.encJs + """ } );
-        });""")
+      fmapFunc(SFuncHolder(func)) { funcName =>
+        val onLoad = JsRaw("""jQuery(document).ready(function(){
+            jQuery("#""" + input + """").markItUp(markItUpSettings);
+            jQuery.markItUp({ target:"#""" + input + """", previewParserPath: """ + what.encJs + """ } );
+          });""")
 
-      <span>
-        <head>
-          <script type="text/javascript">{ Unparsed(onLoad.toJsCmd) }</script>
-        </head>
-        { (attrs.foldLeft(<textarea id={ input }>{ value }</textarea>)(_ % _)) %
-              ("onchange" -> SHtml.makeAjaxCall(JsRaw("'" + funcName + "=' + encodeURIComponent(this.value)")))
-        }
-      </span>
+        <span>
+          <head>
+            <script type="text/javascript">{ Unparsed(onLoad.toJsCmd) }</script>
+          </head>
+          { (attrs.foldLeft(<textarea id={ input }>{ value }</textarea>)(_ % _)) %
+                ("onchange" -> SHtml.makeAjaxCall(JsRaw("'" + funcName + "=' + encodeURIComponent(this.value)")))
+          }
+        </span>
+      }
+    }
+  }
+
+  /**
+   * Render a text area with editor support.
+   * @param value initial content
+   * @param parse the function to call to parse the content
+   * @param func the function to be called when content is changed
+   * @param attrs the attributes that can be added to text area
+   */
+  def editorObj(value: String, parse: String => NodeSeq, func: String => Any, attrs: (String, String)*) = {
+    val f = (ignore: String) => {
+      val dta = S.param("data").openOr("")
+      PlainTextResponse(parse(dta).toString)
+    }
+    fmapFunc(SFuncHolder(f)) { fName =>
+      val what = encodeURL(S.contextPath + "/" + LiftRules.ajaxPath + "?" + fName + "=foo")
+      val input = nextFuncName
+      fmapFunc(SFuncHolder(func)) { funcName =>
+        val onLoad = JsRaw("""jQuery("#""" + input + """").markItUp(
+            jQuery.extend({previewParserPath: """ + what.encJs + """ }, markItUpSettings)
+          );""")
+
+        val element = (attrs.foldLeft(<textarea id={ input } name={ funcName }>{ value }</textarea>)(_ % _)) %
+                ("onchange" -> SHtml.makeAjaxCall(JsRaw("'" + fName + "=' + encodeURIComponent(this.value)")))
+
+        (element, onLoad)
+      }
     }
   }
   

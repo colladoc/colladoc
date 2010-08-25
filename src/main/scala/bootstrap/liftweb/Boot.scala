@@ -98,11 +98,28 @@ class Boot {
       }
     }
 
+    LiftRules.SnippetFailures
     LiftRules.determineContentType = {
       case _ => "text/html"
     }
 
-    Model.init()
+    LiftRules.exceptionHandler.prepend {
+      case (_, r, e) => Error.render(r, e)
+    }
+  }
+
+  object Error {
+    private val fakeSession = new LiftSession("/", "fakeSession", Empty)
+    
+    def render(req: Req, ex: Throwable): LiftResponse = {
+      val xml: NodeSeq = S.init(req, fakeSession) {
+        S.runTemplate(List("error")) openOr NodeSeq.Empty
+      }
+      val out = bind("error", xml,
+        "message" -> Text(ex.getMessage),
+        "trace" -> Text(ex.getStackTraceString))
+      XhtmlResponse(out(0), LiftRules.docType.vend(req), List("Content-Type" -> "text/html; charset=utf-8"), Nil, 500, false)
+    }
   }
 
   /**

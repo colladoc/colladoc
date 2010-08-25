@@ -44,11 +44,6 @@ object JqUI {
     override def toJsCmd = "selectmenu({ width: " + width.toString + " })"
   }
 
-  /** Convert selected element to editor. */
-  case class Editor() extends JsExp with JsMember {
-    override def toJsCmd = "markItUp(markItUpSettings)"
-  }
-
   /** Dialog command. */
   object DialogOperation extends Enumeration("open", "close", "destroy") {
     type Operation = Value

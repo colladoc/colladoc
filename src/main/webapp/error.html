@@ -1,0 +1,28 @@
+<lift:surround with="default" at="content">
+  <head>
+    <title>Application Error</title>
+    <lift:with-resource-id>
+        <link href="/lib/index.css" media="screen" type="text/css" rel="stylesheet" />
+    </lift:with-resource-id>
+    <style type="text/css">
+        div.content { margin: 1em auto; width: 800px; }
+    </style>
+    <script type="text/javascript">
+        $(function() {
+            $('#accordion').accordion({ active: false, autoHeight: false, collapsible: true });
+        });
+	</script>
+  </head>
+  <body>
+    <div class="content">
+        <h2>Application Error</h2>
+        <p>The application failed to start, please check the configuration.</p>
+        <div id="accordion">
+            <h3><a href="#">Details</a></h3>
+            <div><p><error:message /></p></div>
+            <h3><a href="#">Trace</a></h3>
+            <div><pre><error:trace /></pre></div>
+        </div>
+    </div>
+  </body>
+</lift:surround>

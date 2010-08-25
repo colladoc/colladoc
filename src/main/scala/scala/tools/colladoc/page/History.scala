@@ -51,7 +51,7 @@ import java.util.Date
  * Page with history of all comment changes displayed in the form of timeline.
  * @author Petr Hosek
  */
-class History extends Template(Model.model.rootPackage) {
+class History(rootPack: Package) extends Template(rootPack) {
 
   /** Page title. */
   override val title = "History"

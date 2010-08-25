@@ -35,7 +35,7 @@ import xml._
  */
 class TemplateOps {
 
-  val template = new Template(pathToTemplate(model.vend.rootPackage, path.vend.toList))
+  lazy val template = new Template(pathToTemplate(model.vend.rootPackage, path.vend.toList))
 
   /** Return template title. */
   def title(xhtml: NodeSeq): NodeSeq =
