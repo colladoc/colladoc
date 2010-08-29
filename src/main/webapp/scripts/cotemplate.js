@@ -23,21 +23,6 @@
 
 $(document).ready(function() {
     reinit('body');
-
-    function commentShow(element){
-        var vis = $(":visible", element);
-        if (vis.length > 0) {
-            element.slideUp(100);
-        }
-        else {
-            element.slideDown(100);
-        }
-    };
-    var docSig = $("body > .signature");
-    docSig.css("cursor", "pointer");
-    docSig.click(function(){
-        commentShow($("div.controls", $("+ div.fullcomment", $(this))));
-    });
 })
 
 function reinit(selector) {
