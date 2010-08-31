@@ -45,7 +45,7 @@ trait TimeHelpers {
    * Extends Calendar class to provide more fluent interface.
    */
   class CalendarExtensions(c: Calendar) {
-    def rollDay(a: Int) = { c.roll(Calendar.DAY_OF_MONTH, a); c }
+    def rollDay(a: Int) = { c.roll(Calendar.DAY_OF_YEAR, a); c }
     def rollMonth(a: Int) = { c.roll(Calendar.MONTH, a); c }
     def rollYear(a: Int) = { c.roll(Calendar.YEAR, a); c }
   }
