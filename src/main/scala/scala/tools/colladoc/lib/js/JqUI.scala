@@ -55,16 +55,14 @@ object JqUI {
     override def toJsCmd = "dialog(" + cmd.toString.encJs + ")"
   }
 
+  /** Open modal dialog. */
   case class OpenDialog() extends JsExp with JsMember {
     override def toJsCmd = "dialog('open')"
   }
 
+  /** Close modal dialog. */
   case class CloseDialog() extends JsExp with JsMember {
     override def toJsCmd = "dialog('close')"
-  }
-
-  case class DestroyDialog() extends JsExp with JsMember {
-    override def toJsCmd = "dialog('destroy')"
   }
 
   /** Notification type. */
