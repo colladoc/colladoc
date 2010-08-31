@@ -68,7 +68,7 @@ object ExportService extends RestHelper {
       val mbr = pathToMember(pack, path)
       Comment.find(By(Comment.qualifiedName, mbr.uniqueName), By(Comment.dateTime, time(rev))) match {
         case Full(c) =>
-          val cmt = Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is)
+          val cmt = Model.factory.parse(mbr, c.comment.is)
           construct(Model.factory.copyMember(mbr, cmt)(c))
         case _ =>
           construct(mbr)
@@ -115,7 +115,7 @@ object ExportService extends RestHelper {
                 case _ if mbr.isDef || mbr.isVal || mbr.isVar => "value"
                 case _ if mbr.isAbstractType || mbr.isAliasType => "type"
               }}</type>
-              <filename>{ entityToFileName(mbr) }</filename>
+              <filename>{ entityToFileName(mbr.inTemplate) }</filename>
               <identifier>{ mbr.uniqueName }</identifier>
               <newcomment>{ mbr.comment.get.source.get }</newcomment>
             </item>
@@ -123,15 +123,13 @@ object ExportService extends RestHelper {
         }
       </xml:group>
 
-    protected def entityToFileName(mbr: MemberEntity) = {
-      mbr.symbol match {
-        case Some(sym) if sym.sourceFile != null =>
-          val path = sym.sourceFile.path.stripPrefix(Model.settings.sourcepath.value)
-          if (path.startsWith("/")) path.stripPrefix("/")
-          else path
-        case _ => ""
-      }
-    }
+    protected def entityToFileName(tpl: DocTemplateEntity) = tpl.sourceUrl.getOrElse(tpl.inSource match {
+      case Some((file, _)) if file != null =>
+        val path = file.path.stripPrefix(Model.settings.sourcepath.value)
+        if (path.startsWith("/")) path.stripPrefix("/")
+        else path
+      case _ => ""
+    })
 
   }
 }

@@ -28,6 +28,7 @@ import tools.nsc.doc.model.MemberEntity
 import tools.nsc.doc.model._
 
 import tools.nsc.doc.model.comment.Comment
+import tools.nsc.util.NoPosition
 import java.util.Date
 
 /**
@@ -35,6 +36,26 @@ import java.util.Date
  * @author Petr Hosek
  */
 trait DynamicModelFactory extends ModelFactory { thisFactory: ModelFactory with DynamicCommentFactory with TreeFactory =>
+
+  /**
+   * Parse documentation string and return comment.
+   * @param sym documented symbol
+   * @param inTpl parent template
+   * @param docStr documentation string
+   * @return parsed comment
+   */
+  def parse(mbr: MemberEntity, docStr: String): Comment = {
+    def unproxify(mbr: MemberEntity): MemberEntity = mbr match {
+      case prx: MemberEntityProxy => unproxify(prx.mbr)
+      case _ => mbr
+    }
+    unproxify(mbr) match {
+      case impl: MemberImpl =>
+        val str = global.expandedDocComment(impl.sym, impl.inTemplate.sym, docStr).trim
+        new CommentProxy(parse(str, docStr, NoPosition))(impl.sym, impl.inTemplate)
+      case _ => empty
+    }
+  }
 
   /**
    * Creates the new member entity based upon existing entity `mbr` with given comment.

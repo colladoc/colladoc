@@ -72,7 +72,7 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
     case _ => ""
   }
 
-  def dateFormat = new SimpleDateFormat("HH:mm:ss dd MMM yyyy")
+  def dateFormat = new SimpleDateFormat("HH:mm:ss dd MMMM yyyy")
 
   /** Get change author's username and date. */
   def userNameDate: String =

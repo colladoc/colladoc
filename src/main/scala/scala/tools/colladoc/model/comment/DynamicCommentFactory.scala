@@ -46,7 +46,7 @@ trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFa
   import global.reporter
 
   /** Empty comment. */
-  private val empty = createComment()
+  protected[comment] val empty = createComment()
 
   override def comment(sym: global.Symbol, inTpl: => DocTemplateImpl) = {
     val cmt = super.comment(sym, inTpl)
@@ -63,11 +63,17 @@ trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFa
    * @param docStr documentation string
    * @return parsed comment
    */
-  def parse(sym: global.Symbol, inTpl: => DocTemplateImpl, docStr: String): Comment = {
+  private def parse(sym: global.Symbol, inTpl: => DocTemplateImpl, docStr: String): Comment = {
     val str = global.expandedDocComment(sym, inTpl.sym, docStr).trim
     new CommentProxy(parse(str, docStr, NoPosition))(sym, inTpl)
   }
 
+  /**
+   * Obtain latest comment for given symbol.
+   * @param sym documented symbol
+   * @param inTpl parent template
+   * @return latest comment if any exists
+   */
   private def latest(sym: global.Symbol, inTpl: => DocTemplateImpl) = makeMember(sym, inTpl) match {
     case List(mbr: MemberEntity, _*) => model.mapper.Comment.latest(mbr.uniqueName)
     case Nil => None
@@ -77,7 +83,7 @@ trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFa
    * Updatable coment proxy.
    * @param cmt proxied comment
    */
-  private class CommentProxy(var cmt: Comment)(val sym: global.Symbol, val inTpl: DocTemplateImpl) extends Comment {
+  protected[comment] class CommentProxy(var cmt: Comment)(val sym: global.Symbol, val inTpl: DocTemplateImpl) extends Comment {
     def body = cmt.body
     def authors = cmt.authors
     def see = cmt.see
@@ -142,18 +148,6 @@ trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFa
       case _ => None
     }
 
-  }
-
-  implicit def symbols(mbr: MemberEntity) = new {
-    def symbol(): Option[global.Symbol] = mbr.comment match {
-      case Some(prx: CommentProxy) => Some(prx.sym)
-      case _ => None
-    }
-
-    def template(): Option[DocTemplateImpl] = mbr.comment match {
-      case Some(prx: CommentProxy) => Some(prx.inTpl)
-      case _ => None
-    }
   }
 
 }

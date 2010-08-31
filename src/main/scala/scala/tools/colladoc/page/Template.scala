@@ -99,7 +99,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def select(mbr: MemberEntity, isSelf: Boolean) = {
     def replace(cid: String) = {
       val (cmt, c) = Comment.find(cid) match {
-        case Full(c) => (Model.factory.parse(mbr.symbol.get, mbr.template.get, c.comment.is), c)
+        case Full(c) => (Model.factory.parse(mbr, c.comment.is), c)
         case _ => (mbr.comment.get.original.get, "source")
       }
       val m = Model.factory.copyMember(mbr, cmt)(c)
@@ -145,7 +145,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Parse documentation string input to show comment preview. */
   private def parse(mbr: MemberEntity, isSelf: Boolean)(docStr: String) = {
-    val cmt = Model.factory.parse(mbr.symbol.get, mbr.template.get, docStr)
+    val cmt = Model.factory.parse(mbr, docStr)
     <html>
       <head><link href="/lib/template.css" media="screen" type="text/css" rel="stylesheet" /></head>
       <body>

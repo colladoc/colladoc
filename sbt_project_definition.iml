@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
   <component name="FacetManager">
-    <facet type="Scala" name="Scala">
+    <facet type="scala" name="Scala">
       <configuration>
-        <option name="takeFromSettings" value="true" />
-        <option name="myScalaCompilerJarPaths">
-          <array>
-            <option value="$MODULE_DIR$/project/boot/scala-2.7.7/lib/scala-compiler.jar" />
-          </array>
-        </option>
-        <option name="myScalaSdkJarPaths">
-          <array>
-            <option value="$MODULE_DIR$/project/boot/scala-2.7.7/lib/scala-library.jar" />
-          </array>
-        </option>
+        <option name="compilerLibraryLevel" value="Project" />
+        <option name="compilerLibraryName" value="defScala" />
       </configuration>
     </facet>
   </component>

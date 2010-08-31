@@ -168,7 +168,7 @@ class History(rootPack: Package) extends Template(rootPack) {
   def commentToMember(cmt: Comment) = {
     nameToMember(Model.model.rootPackage, cmt.qualifiedName.is) match {
       case Some(m) =>
-        val c = Model.factory.parse(m.symbol.get, m.template.get, cmt.comment.is)
+        val c = Model.factory.parse(m, cmt.comment.is)
         Some(Model.factory.copyMember(m, c)(cmt))
       case None => None
     }
