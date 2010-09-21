@@ -147,7 +147,10 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def parse(mbr: MemberEntity, isSelf: Boolean)(docStr: String) = {
     val cmt = Model.factory.parse(mbr, docStr)
     <html>
-      <head><link href="/lib/template.css" media="screen" type="text/css" rel="stylesheet" /></head>
+      <head>
+        <link href="/lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+        <link href="/copreview.css" media="screen" type="text/css" rel="stylesheet" />
+      </head>
       <body>
         <div id="comment" class="fullcomment">
           { super.memberToCommentBodyHtml(Model.factory.copyMember(mbr, cmt)(), isSelf) }

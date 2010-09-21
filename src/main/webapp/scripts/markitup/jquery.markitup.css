@@ -28,9 +28,9 @@
 .markItUpPreviewFrame {
 	overflow:auto;
 	background-color:#FFF;
-	width:99.9%;
+	width:100%;
 	height:100px;
-	margin:0;
+	margin:.5em 0px 0px;
 }
 .markItUpFooter {
 	width:100%;
