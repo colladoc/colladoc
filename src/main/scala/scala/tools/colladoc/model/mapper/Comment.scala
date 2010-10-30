@@ -25,17 +25,10 @@ package model {
 package mapper {
 
 import lib.util.Helpers._
-import lib.util.NameUtils._
 
 import net.liftweb.common._
 import net.liftweb.mapper._
-import net.liftweb.http.SHtml
-import net.liftweb.http.js.JsCmds._
-import net.liftweb.http.js.JsCmd
 import net.liftweb.util.Helpers._
-
-import tools.nsc.doc.model.MemberEntity
-import xml.NodeSeq
 
 import java.text.SimpleDateFormat
 
