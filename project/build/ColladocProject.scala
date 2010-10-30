@@ -9,7 +9,7 @@ class ColladocProject(info: ProjectInfo) extends DefaultWebProject(info) with Wi
   val h2 = "com.h2database" % "h2" % "1.2.138" % "runtime"
   val postgresql = "postgresql" % "postgresql" % "8.4-701.jdbc4"
   val junit = "junit" % "junit" % "4.7" % "test->default"
-  val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5-SNAPSHOT" % "test->default"
+  val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test->default"
 
   override def localScala = defineScala("2.8.0-local", ("scala" / "build" / "pack").asFile) :: Nil
 
