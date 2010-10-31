@@ -31,20 +31,15 @@ import _root_.net.liftweb.http.js.JsCmds._
 import _root_.net.liftweb.http.js.JE.JsRaw
 import _root_.net.liftweb.http.js.jquery.JQuery14Artifacts
 import _root_.net.liftweb.sitemap._
-import _root_.net.liftweb.sitemap.Loc._
-import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
-import _root_.java.sql.{Connection, DriverManager}
+import _root_.net.liftweb.mapper.{DB, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 
 import tools.colladoc.api.ExportService
 import tools.colladoc.lib.sitemap.{HistoryStuff, IndexStuff, TemplateStuff}
-import tools.colladoc.model.Model
 import tools.colladoc.model.mapper.{User, Comment}
-import tools.colladoc.lib.js.JqJsCmds._
 import tools.colladoc.lib.js.JqUI._
 
-import xml.{Elem, Text, NodeSeq}
+import xml.{Text, NodeSeq}
 import tools.nsc.io.Streamable
-import java.io.{InputStream, InputStreamReader, BufferedReader}
 
 /**
  * A class that's instantiated early and run.  It allows the application to modify lift's environment
