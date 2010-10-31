@@ -26,7 +26,6 @@ package js {
 
 import net.liftweb.util.Helpers._
 import net.liftweb.http.js.{JsMember, JsExp, JsCmd}
-import net.liftweb.http.js.jquery.{JQueryLeft, JQueryRight}
 
 /**
  * Various jQuery UI commands.
