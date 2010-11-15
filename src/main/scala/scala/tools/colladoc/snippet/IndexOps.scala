@@ -27,6 +27,7 @@ import lib.DependencyFactory._
 import page.Index
 
 import xml._
+import tools.nsc.doc.model._
 
 /**
  * Index snippet.
@@ -34,7 +35,7 @@ import xml._
  */
 class IndexOps {
 
-  lazy val index = new Index(model.vend)
+  lazy val index = new Index(model.vend, new IndexModelFactory makeModel(model.vend))
 
   /** Return index title. */
   def title(xhtml: NodeSeq): NodeSeq =
