@@ -24,23 +24,18 @@ package scala.tools.colladoc {
 package page {
 
 import lib.util.Helpers._
-import lib.util.NameUtils._
-import lib.util.PathUtils._
-import lib.js.JqJsCmds._
 import lib.js.JqUI._
-import model.Model
-import model.mapper.{User, Comment}
+import model.mapper.User
 
-import net.liftweb.http.{S, SHtml}
+import net.liftweb.http.SHtml
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js._
-import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.http.js.jquery.JqJE._
 import net.liftweb.http.js.JE._
 import net.liftweb.widgets.gravatar.Gravatar
 
 import tools.nsc.doc.Universe
-import xml.{NodeSeq, Node, Elem, Text}
+import xml.Text
 
 /**
  * Page containing index of all symbols and user panel.

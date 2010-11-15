@@ -25,27 +25,15 @@ package page {
 
 import lib.util.Helpers._
 import lib.util.NameUtils._
-import lib.util.PathUtils._
-import lib.js.JqJsCmds._
-import lib.js.JqUI._
 import model.Model
 import model.Model.factory._
-import model.mapper.{Comment, User}
-import lib.DependencyFactory
+import model.mapper.Comment
 
-import net.liftweb.common._
-import net.liftweb.http._
-import net.liftweb.http.js.JE._
-import net.liftweb.http.js.JsCmds._
-import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
-import collection.mutable.{HashMap, HashSet}
+import collection.mutable.HashMap
 import tools.nsc.doc.model._
-import xml.{NodeSeq, Node, Elem, Text, UnprefixedAttribute}
-import xml.transform.{RewriteRule, RuleTransformer}
-
-import java.util.Date
+import xml.NodeSeq
 
 /**
  * Page with history of all comment changes displayed in the form of timeline.

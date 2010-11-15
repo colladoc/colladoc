@@ -24,14 +24,10 @@ package scala.tools.colladoc {
 package model {
 package mapper {
 
-import lib.js.JqJsCmds._
-import lib.js.JqUI._
-
 import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
 import net.liftweb.util.Helpers._
-import net.liftweb.http.js.JsCmd
 import net.liftweb.http.js.JsCmds._
 import xml.Text
 

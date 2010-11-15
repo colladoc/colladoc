@@ -25,20 +25,19 @@ package api {
 
 import model.Model
 import model.Model.factory._
-import model.mapper.{Comment, User}
-import lib.util.Helpers._
+import model.mapper.Comment
 import lib.util.NameUtils._
 import lib.util.PathUtils._
 
 import net.liftweb.common.Full
 import net.liftweb.util.Helpers._
-import net.liftweb.http.{S, Req, GetRequest}
+import net.liftweb.http.{Req, GetRequest}
 import net.liftweb.http.rest.RestHelper
 import net.liftweb.mapper.By
 
 import collection.mutable.HashSet
 import tools.nsc.doc.model._
-import xml.{Node, NodeSeq, Null}
+import xml.{Node, NodeSeq}
 
 object ExportService extends RestHelper {
 

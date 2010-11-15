@@ -34,17 +34,16 @@ import model.Model.factory._
 import model.mapper.{Comment, User}
 
 import net.liftweb.common._
-import net.liftweb.http.{SHtml, S}
+import net.liftweb.http.SHtml
 import net.liftweb.http.js._
 import net.liftweb.http.js.jquery.JqJE._
-import net.liftweb.http.js.jquery.JqJsCmds._
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
 import tools.nsc.doc.model._
-import xml.{NodeSeq, Node, Elem, Text}
+import xml.{NodeSeq, Text}
 
 /**
  * Page containing template entity documentation and user controls.

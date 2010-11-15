@@ -31,7 +31,7 @@ import net.liftweb.http.{LiftRules, JsonResponse, S}
 import net.liftweb.http.js._
 import net.liftweb.http.js.JE._
 
-import xml.{NodeSeq, Node, Elem, Text, Unparsed}
+import xml.Unparsed
 
 /**
  * Provides support and integration for jQuery UI autocomplete widget.

@@ -33,11 +33,10 @@ import net.liftweb.http.S
 
 import tools.nsc.Global
 import tools.nsc.doc.{SourcelessComments, Settings}
-import tools.nsc.reporters.{ConsoleReporter, Reporter}
 import tools.nsc.io.Directory
 
 import java.io.File
-import tools.nsc.doc.model.{TreeFactory, MemberEntity, ModelFactory}
+import tools.nsc.doc.model.{TreeFactory, ModelFactory}
 import tools.nsc.interactive.RangePositions
 
 /**

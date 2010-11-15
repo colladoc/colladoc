@@ -24,7 +24,6 @@ package scala.tools.colladoc {
 package lib {
 package util {
 
-import tools.colladoc.model.Model.factory._
 import tools.nsc.doc.model._
 
 /**

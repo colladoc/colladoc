@@ -27,11 +27,10 @@ package widgets {
 import net.liftweb.http._
 import net.liftweb.http.S._
 import net.liftweb.util.Helpers._
-import net.liftweb.http.{LiftRules, JsonResponse, S}
-import net.liftweb.http.js._
+import net.liftweb.http.{LiftRules, S}
 import net.liftweb.http.js.JE._
 
-import xml.{NodeSeq, Node, Elem, Text, Unparsed}
+import xml.{NodeSeq, Unparsed}
 
 /**
  * Provides support and integration for jQuery editor widget.
