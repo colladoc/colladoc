@@ -24,12 +24,7 @@ package scala.tools.colladoc {
 package model {
 package comment {
 
-import lib.util.Helpers._
 import lib.util.NameUtils._
-
-import net.liftweb.common._
-import net.liftweb.mapper._
-import net.liftweb.util.Helpers._
 
 import tools.nsc.Global
 import tools.nsc.doc.model._

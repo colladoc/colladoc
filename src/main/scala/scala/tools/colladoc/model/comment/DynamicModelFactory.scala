@@ -29,7 +29,6 @@ import tools.nsc.doc.model._
 
 import tools.nsc.doc.model.comment.Comment
 import tools.nsc.util.NoPosition
-import java.util.Date
 
 /**
  * Dynamic model factory extending [ModelFactory] with dynamic behavior.
