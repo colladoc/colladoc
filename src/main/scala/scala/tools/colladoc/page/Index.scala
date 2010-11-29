@@ -42,19 +42,16 @@ import xml.Text
  * Page containing index of all symbols and user panel.
  * @author Petr Hosek 
  */
-class Index(universe: Universe, indexModel: IndexModelFactory#IndexModel) extends tools.nsc.doc.html.page.Index(universe, indexModel) {
+class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) {
 
-  override def browser =
-    <xml:group>
-      { super.browser }
-      <div id="user">
-        { if (User.loggedIn_?)
-            loggedIn
-          else
-            loggedOut
-        }
-      </div>
-    </xml:group>
+  override def browser = super.browser \+
+    <div id="user">
+      { if (User.loggedIn_?)
+          loggedIn
+        else
+          loggedOut
+      }
+    </div>
 
   /** Render user panel for logged out user. */
   private def loggedOut =

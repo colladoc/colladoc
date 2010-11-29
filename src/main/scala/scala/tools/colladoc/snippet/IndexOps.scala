@@ -35,7 +35,7 @@ import tools.nsc.doc.model._
  */
 class IndexOps {
 
-  lazy val index = new Index(model.vend, new IndexModelFactory makeModel(model.vend))
+  lazy val index = new Index(model.vend)
 
   /** Return index title. */
   def title(xhtml: NodeSeq): NodeSeq =
