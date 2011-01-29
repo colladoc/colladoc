@@ -5,6 +5,7 @@ class ColladocProject(info: ProjectInfo) extends DefaultWebProject(info) with Wi
 
   val liftMapper = "net.liftweb" % "lift-mapper_2.8.1" % "2.2" % "compile"
   val liftWidgets = "net.liftweb" % "lift-widgets_2.8.1" % "2.2" % "compile"
+  val jodaTime = "joda-time" % "joda-time" % "1.6.2" % "compile"
   val jetty6 = "org.mortbay.jetty" % "jetty" % "6.1.24" % "test->default"
   val h2 = "com.h2database" % "h2" % "1.2.144" % "runtime"
   val postgresql = "postgresql" % "postgresql" % "8.4-701.jdbc4"
