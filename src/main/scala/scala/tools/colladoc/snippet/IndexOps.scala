@@ -27,7 +27,6 @@ import lib.DependencyFactory._
 import page.Index
 
 import xml._
-import tools.nsc.doc.model._
 
 /**
  * Index snippet.

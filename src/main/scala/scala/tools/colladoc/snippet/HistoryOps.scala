@@ -30,16 +30,14 @@ import lib.widgets._
 import page.History
 
 import net.liftweb.common._
-import net.liftweb.http._
-import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
 import xml._
 
-import java.util.{Calendar, Date}
+import java.util.Date
 import java.text.SimpleDateFormat
+import net.liftweb.mapper._
 
 /**
  * History snippet.
