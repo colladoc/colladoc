@@ -37,6 +37,7 @@ import tools.colladoc.api.ExportService
 import tools.colladoc.lib.sitemap.{HistoryStuff, IndexStuff, TemplateStuff}
 import tools.colladoc.model.mapper.{User, Comment}
 import tools.colladoc.lib.js.JqUI._
+import tools.colladoc.api.RestAPI
 
 import xml.{Text, NodeSeq}
 import tools.nsc.io.Streamable
@@ -61,6 +62,8 @@ class Boot {
     Schemifier.schemify(true, Schemifier.infoF _, User, Comment)
 
     LiftRules.dispatch.prepend(scaladocResources)
+
+    LiftRules.dispatch.prepend(RestAPI.dispatch)
 
     // Build SiteMap
     def sitemap() = SiteMap(
