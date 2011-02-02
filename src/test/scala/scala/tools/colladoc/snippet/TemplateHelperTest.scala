@@ -23,24 +23,21 @@
 package scala.tools.colladoc.snippet
 
 import org.specs.runner.{JUnit3, ConsoleRunner}
-import org.specs.Specification
-import tools.colladoc.lib.DependencyFactory
 import net.liftweb.http.{S, LiftSession}
 import org.specs.specification.Examples
 import net.liftweb.common.Empty
+import net.liftweb.util.{TimeHelpers, StringHelpers}
+import org.specs.SpecificationWithJUnit
 
-class TemplateHelperTestSpecsAsTest extends JUnit3(TemplateHelperTestSpecs)
-object TemplateHelperTestSpecsRunner extends ConsoleRunner(TemplateHelperTestSpecs)
-
-class TemplateHelperTestSpecs extends Specification {
-  val session = new LiftSession("", randomString(20), Empty)
-  val stableTime = now
+object TemplateHelperTestSpecs extends SpecificationWithJUnit {
+  val session = new LiftSession("", StringHelpers.randomString(20), Empty)
+  val stableTime = TimeHelpers.now
 
   override def executeExpectations(ex: Examples, t: =>Any): Any = {
     S.initIfUninitted(session) {
-      DependencyFactory.time.doWith(stableTime) {
+      //DependencyFactory.time.doWith(stableTime) {
         super.executeExpectations(ex, t)
-      }
+      //}
     }
   }
 }
