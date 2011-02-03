@@ -23,10 +23,9 @@
 package scala.tools.colladoc {
 package lib {
 
-import model.Model
-
 import net.liftweb._
 import http._
+import model.{SearchIndex, Model}
 
 /**
  * Factory providing various dependencies.
@@ -43,6 +42,7 @@ object DependencyFactory extends Factory {
     S.param("path") openOr "" split('/')
 
   private def init() {
+    SearchIndex.construct(getModel)
     List(model, path)
   }
   init()
