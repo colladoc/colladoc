@@ -15,25 +15,25 @@ import org.junit.{After, Before, Test}
 
 class IntegrationTests extends TestCase {
 
-  var s:DefaultSelenium = null
+  var s: DefaultSelenium = null
 
-	@Before
-	override def setUp() {
-		s = new DefaultSelenium("localhost", 4444, """*firefox""", "http://localhost:8080/");
-		s.start();
-	}
+  @Before
+  override def setUp() {
+    s = new DefaultSelenium("localhost", 4444, """*firefox""", "http://localhost:8080/");
+    s.start();
+  }
 
   @Test
   def testSearchForExactObject() = {
     s.open("/")
-		s.`type`("//input[@type='text']", "object Foopa")
-		s.selectFrame("template")
+    s.`type`("//input[@type='text']", "object Foopa")
+    s.selectFrame("template")
 
-		assertTrue(s.isTextPresent("class Barpa extends AnyRef"));
-	}
+    assertTrue(s.isTextPresent("class Barpa extends AnyRef"));
+  }
 
   @After
-	override def tearDown() {
-		s.stop();
-	}
+  override def tearDown() {
+    s.stop();
+  }
 }

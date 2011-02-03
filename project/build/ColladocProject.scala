@@ -2,8 +2,8 @@ import bryanjswift.selenium.SeleniumPlugin
 import sbt._
 
 class ColladocProject(info: ProjectInfo) extends DefaultWebProject(info)
-      with WinstoneProject
-      with SeleniumPlugin {
+with WinstoneProject
+with SeleniumPlugin {
   val snapshots = ScalaToolsSnapshots
 
   val liftMapper = "net.liftweb" % "lift-mapper_2.8.1" % "2.2" % "compile"
@@ -19,6 +19,8 @@ class ColladocProject(info: ProjectInfo) extends DefaultWebProject(info)
   override def localScala = defineScala("2.8.1-local", ("scala" / "build" / "pack").asFile) :: Nil
 
   override def managedStyle = ManagedStyle.Maven
+
   override def jettyWebappPath = webappPath
-  override def scanDirectories = Nil 
+
+  override def scanDirectories = Nil
 }
