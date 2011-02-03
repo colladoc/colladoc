@@ -5,3 +5,6 @@ project/boot/
 
 # IDEA workspace files
 *.iws
+
+# H2 database files.
+*.h2.db
