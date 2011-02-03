@@ -7,7 +7,7 @@ import org.junit.{After, Before, Test}
 
 ///**
 // * Created by IntelliJ IDEA.
-// * User: Miro Paskov
+// * User: Miro Change
 // * Date: 2/2/11
 // * Time: 2:11 PM
 // * To change this template use File | Settings | File Templates.
