@@ -8,11 +8,14 @@ import org.apache.lucene.util.Version
 import org.apache.lucene.document.{Field, Document}
 import tools.nsc.doc.Universe
 import tools.nsc.doc.model._
+import java.util.HashMap
 
 object SearchIndex {
   // TODO: Will we use a RAMDirectory once the vertical slice is hooked up?
   // I guess not since there is no guarantee on the size of the index (could be huge).
   lazy val luceneDirectory = FSDirectory.open(new File("lucene-index"))
+
+  val entityLookup = new HashMap[Int, MemberEntity]()
 
   val packageFieldKey = "package"
   val classFieldKey = "class"
@@ -26,6 +29,7 @@ object SearchIndex {
   val typeParamsCountFieldKey = "typeparamscount"
   val visibilityFieldKey = "visibility"
   val nameFieldKey = "name"
+  val entityLookupKey = "entityLookup"
 
   def construct(universe : Universe) : Unit = {
     var writer : IndexWriter = null
@@ -72,6 +76,16 @@ object SearchIndex {
                       member.name,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
+
+
+    // Add the entity to our lookup and store the lookup key as a field so that
+    // we can recover the entity later.
+    val lookupKey = member.hashCode()
+    entityLookup.put(lookupKey, member)
+    doc.add(new Field(entityLookupKey,
+                      lookupKey.toString(),
+                      Field.Store.YES,
+                      Field.Index.NO))
 
     // Index the document for this entity.
     writer.addDocument(doc)
