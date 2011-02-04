@@ -58,6 +58,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
     <xml:group>
       <ul class="usernav">
         <li><a href="/history.html" target="template">History</a></li>
+        <li><a href="/search.html" target="template">Search</a></li>
         <li>{ SHtml.a(Text("Signup"), Jq(Str(".user")) ~> OpenDialog()) }</li>
         <li>{ SHtml.a(Text("Login"), Jq(Str(".login")) ~> OpenDialog()) }</li>
       </ul>
