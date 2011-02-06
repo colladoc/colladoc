@@ -1,6 +1,7 @@
 package scala.tools.colladoc.model
 
 import java.io.File
+import java.util.HashMap
 import org.apache.lucene.store.FSDirectory
 import org.apache.lucene.index.IndexWriter
 import org.apache.lucene.analysis.standard.StandardAnalyzer
@@ -8,37 +9,42 @@ import org.apache.lucene.util.Version
 import org.apache.lucene.document.{Field, Document}
 import tools.nsc.doc.Universe
 import tools.nsc.doc.model._
-import java.util.HashMap
 
 object SearchIndex {
-  // TODO: Will we use a RAMDirectory once the vertical slice is hooked up?
-  // I guess not since there is no guarantee on the size of the index (could be huge).
-  lazy val luceneDirectory = FSDirectory.open(new File("lucene-index"))
+  val packageField = "package"
+  val classField = "class"
+  val traitField = "trait"
+  val objectField = "object"
+  val defField = "def"
+  val valField = "val"
+  val varField = "var"
+  val isLazyValField = "isLazyVal"
+  val returnsField = "returns"
+  val typeParamsCountField = "typeparamscount"
+  val visibilityField = "visibility"
+  val nameField = "name"
+  val entityLookupField = "entityLookup"
+}
+
+class SearchIndex(universe : Universe, directory : FSDirectory) {
+  import SearchIndex._
+
+  def this(universe : Universe) = this(universe,
+                                       FSDirectory.open(new File("lucene-index")))
 
   val entityLookup = new HashMap[Int, MemberEntity]()
 
-  val packageFieldKey = "package"
-  val classFieldKey = "class"
-  val traitFieldKey = "trait"
-  val objectFieldKey = "object"
-  val defFieldKey = "def"
-  val valFieldKey = "val"
-  val varFieldKey = "var"
-  val isLazyValFieldKey = "isLazyVal"
-  val returnsFieldKey = "returns"
-  val typeParamsCountFieldKey = "typeparamscount"
-  val visibilityFieldKey = "visibility"
-  val nameFieldKey = "name"
-  val entityLookupKey = "entityLookup"
+  val luceneDirectory = construct(universe, directory)
 
-  def construct(universe : Universe) : Unit = {
+  private def construct(universe : Universe,
+                        directory : FSDirectory) = {
     var writer : IndexWriter = null
     try {
-      writer = new IndexWriter(luceneDirectory,
+      writer = new IndexWriter(directory,
                                new StandardAnalyzer(Version.LUCENE_30),
                                IndexWriter.MaxFieldLength.UNLIMITED)
 
-      // Clear the previous index.
+      // Clear any previously indexed data.
        writer.deleteAll()
 
       indexMember(universe.rootPackage, writer)
@@ -50,6 +56,8 @@ object SearchIndex {
         writer.close()
       }
     }
+
+    directory
   }
 
   private def indexMember(member : MemberEntity, writer : IndexWriter) : Unit = {
@@ -72,7 +80,7 @@ object SearchIndex {
 
     // Make sure that every entity at least has a field for their name to enable
     // general searches ([q1])
-    doc.add(new Field(nameFieldKey,
+    doc.add(new Field(nameField,
                       member.name,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
@@ -82,7 +90,7 @@ object SearchIndex {
     // we can recover the entity later.
     val lookupKey = member.hashCode()
     entityLookup.put(lookupKey, member)
-    doc.add(new Field(entityLookupKey,
+    doc.add(new Field(entityLookupField,
                       lookupKey.toString(),
                       Field.Store.YES,
                       Field.Index.NO))
@@ -103,7 +111,7 @@ object SearchIndex {
 
   private def createPackageDocument(pkg : Package) = {
     val doc = new Document
-    doc.add(new Field(packageFieldKey,
+    doc.add(new Field(packageField,
                       pkg.name,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
@@ -112,17 +120,17 @@ object SearchIndex {
   }
 
   private def createClassDocument(cls : Class) = {
-    createClassOrTraitDocument(classFieldKey, cls)
+    createClassOrTraitDocument(classField, cls)
   }
 
   private def createTraitDocument(trt : Trait) = {
-    createClassOrTraitDocument(traitFieldKey, trt)
+    createClassOrTraitDocument(traitField, trt)
   }
 
-  private def createClassOrTraitDocument(primaryFieldKey : String,
+  private def createClassOrTraitDocument(primaryField : String,
                                          classOrTrait : Trait) = {
     val doc = new Document
-    doc.add(new Field(primaryFieldKey,
+    doc.add(new Field(primaryField,
                       classOrTrait.name,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
@@ -134,7 +142,7 @@ object SearchIndex {
 
   private def createObjectDocument(obj : Object) = {
     val doc = new Document
-    doc.add(new Field(objectFieldKey,
+    doc.add(new Field(objectField,
                       obj.name,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
@@ -145,7 +153,7 @@ object SearchIndex {
 
   private def createDefDocument(df : Def) = {
     val doc = new Document
-    doc.add(new Field(defFieldKey,
+    doc.add(new Field(defField,
                       df.name,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
@@ -157,14 +165,14 @@ object SearchIndex {
   }
 
   private def createValDocument(valOrVar : Val) = {
-    val valOrVarFieldKey = if (valOrVar.isVar) varFieldKey else valFieldKey
+    val valOrVarFieldKey = if (valOrVar.isVar) varField else valField
     val doc = new Document
 
     doc.add(new Field(valOrVarFieldKey,
                       valOrVar.name,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
-    doc.add(new Field(isLazyValFieldKey,
+    doc.add(new Field(isLazyValField,
                       valOrVar.isLazyVal.toString(),
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
@@ -175,7 +183,7 @@ object SearchIndex {
 
   private def addTypeParamsCountField(typeParams : List[TypeParam],
                                       doc : Document) = {
-    doc.add(new Field(typeParamsCountFieldKey,
+    doc.add(new Field(typeParamsCountField,
                       typeParams.length.toString(),
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
@@ -186,14 +194,14 @@ object SearchIndex {
               else if (visibility.isProtected) "protected"
               else "private"
 
-    doc.add(new Field(visibilityFieldKey,
+    doc.add(new Field(visibilityField,
                       vis,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
   }
 
   private def addReturnsField(returnType : TypeEntity, doc : Document) = {
-    doc.add(new Field(returnsFieldKey,
+    doc.add(new Field(returnsField,
                       returnType.name,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))

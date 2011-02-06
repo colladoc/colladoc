@@ -34,6 +34,7 @@ import model.{SearchIndex, Model}
 object DependencyFactory extends Factory {
   implicit object model extends FactoryMaker(getModel _)
   implicit object path extends FactoryMaker(getPath _)
+  implicit object index extends FactoryMaker(getIndex _)
 
   private def getModel =
     Model.model
@@ -41,8 +42,12 @@ object DependencyFactory extends Factory {
   private def getPath =
     S.param("path") openOr "" split('/')
 
+  private val getIndex = new SearchIndex(getModel)
+
   private def init() {
-    SearchIndex.construct(getModel)
+    // TODO: Is this the best place to start indexing?
+    getIndex
+
     List(model, path)
   }
   init()
