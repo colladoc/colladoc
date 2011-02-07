@@ -2,13 +2,12 @@ package scala.tools.colladoc.model
 
 import java.io.File
 import java.util.HashMap
-import org.apache.lucene.store.FSDirectory
 import org.apache.lucene.index.IndexWriter
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.util.Version
 import org.apache.lucene.document.{Field, Document}
-import tools.nsc.doc.Universe
 import tools.nsc.doc.model._
+import org.apache.lucene.store.{Directory, FSDirectory}
 
 object SearchIndex {
   val packageField = "package"
@@ -26,18 +25,18 @@ object SearchIndex {
   val entityLookupField = "entityLookup"
 }
 
-class SearchIndex(universe : Universe, directory : FSDirectory) {
+class SearchIndex(rootPackage : Package, directory : Directory) {
   import SearchIndex._
 
-  def this(universe : Universe) = this(universe,
-                                       FSDirectory.open(new File("lucene-index")))
+  def this(rootPackage : Package) = this(rootPackage,
+                                         FSDirectory.open(new File("lucene-index")))
 
   val entityLookup = new HashMap[Int, MemberEntity]()
 
-  val luceneDirectory = construct(universe, directory)
+  val luceneDirectory = construct(rootPackage, directory)
 
-  private def construct(universe : Universe,
-                        directory : FSDirectory) = {
+  private def construct(rootPackage : Package,
+                        directory : Directory) = {
     var writer : IndexWriter = null
     try {
       writer = new IndexWriter(directory,
@@ -47,7 +46,7 @@ class SearchIndex(universe : Universe, directory : FSDirectory) {
       // Clear any previously indexed data.
        writer.deleteAll()
 
-      indexMember(universe.rootPackage, writer)
+      indexMember(rootPackage, writer)
 
       writer.optimize()
     }

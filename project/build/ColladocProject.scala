@@ -13,6 +13,7 @@ with SeleniumPlugin {
   val h2 = "com.h2database" % "h2" % "1.2.144" % "runtime"
   val postgresql = "postgresql" % "postgresql" % "8.4-701.jdbc4"
   val junit = "junit" % "junit" % "4.8.2" % "test->default"
+  val jmock_junit4 = "org.jmock" % "jmock-junit4" % "2.5.1" % "test->default"
   val specs = "org.scala-tools.testing" % "specs_2.8.1" % "1.6.6" % "test->default"
   val selenium = "org.seleniumhq.selenium" % "selenium" % "2.0b1" % "test->default"
   val seleniumRemote = "org.seleniumhq.selenium" % "selenium-remote-control" % "1.0.1" % "test->default"
