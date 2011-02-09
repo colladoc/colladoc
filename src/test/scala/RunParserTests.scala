@@ -1,5 +1,6 @@
 import junit.framework.{TestSuite, TestCase}
 import org.junit.Assert
+import tools.colladoc.search._
 
 /**
  * User: Miroslav Paskov
@@ -81,7 +82,7 @@ class ScoogleParserTests extends TestCase
   def testSimpleDef()
   {
       new ScoogleParser().parse("def Now") match {
-        case Def(Word("Now"), None) => ()
+        case Def(Word("Now"), List(), None) => ()
         case e => Assert.fail(e.toString)
     }
   }
@@ -207,7 +208,7 @@ class ScoogleParserTests extends TestCase
   def testDefReturn()
   {
       new ScoogleParser().parse("def test:Int") match {
-        case Def(Word("test"), Some(Word("Int"))) => ()
+        case Def(Word("test"), List(), Some(Word("Int"))) => ()
         case e => Assert.fail(e.toString)
     }
   }
@@ -215,7 +216,7 @@ class ScoogleParserTests extends TestCase
   def testSimpleNot()
   {
       new ScoogleParser().parse("not def test:Int") match {
-        case Not(Def(Word("test"), Some(Word("Int")))) => ()
+        case Not(Def(Word("test"), List(), Some(Word("Int")))) => ()
         case e => Assert.fail(e.toString)
     }
   }
@@ -223,7 +224,7 @@ class ScoogleParserTests extends TestCase
   def testDoubleNot()
   {
       new ScoogleParser().parse("not not def test:Int") match {
-        case Not(Not(Def(Word("test"), Some(Word("Int"))))) => ()
+        case Not(Not(Def(Word("test"), List(), Some(Word("Int"))))) => ()
         case e => Assert.fail(e.toString)
     }
   }
@@ -231,7 +232,7 @@ class ScoogleParserTests extends TestCase
   def testNotWithExclamation()
   {
       new ScoogleParser().parse("! def test:Int") match {
-        case Not(Def(Word("test"), Some(Word("Int")))) => ()
+        case Not(Def(Word("test"), List(), Some(Word("Int")))) => ()
         case e => Assert.fail(e.toString)
     }
   }
@@ -239,8 +240,124 @@ class ScoogleParserTests extends TestCase
   def testDefWithAnyName()
   {
       new ScoogleParser().parse("def _ : Int") match {
-        case Def(Word("_"), Some(Word("Int"))) => ()
+        case Def(Word("_"), List(), Some(Word("Int"))) => ()
         case e => Assert.fail(e.toString)
     }
   }
+
+  def testDefWithEmptyParams()
+  {
+      new ScoogleParser().parse("def _() : Int") match {
+        case Def(Word("_"), List(List()), Some(Word("Int"))) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testDefWithCurriedEmptyParams()
+  {
+      new ScoogleParser().parse("def _()() : Int") match {
+        case Def(Word("_"), List(List(),List()), Some(Word("Int"))) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testDefWithConcreteParam()
+  {
+      new ScoogleParser().parse("def _(Int) : Int") match {
+        case Def(Word("_"), List(List(Word("Int"))), Some(Word("Int"))) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testDefWithMultipleConcreteParam()
+  {
+      new ScoogleParser().parse("def _(Int, String) : Int") match {
+        case Def(Word("_"), List(List(Word("Int"), Word("String"))), Some(Word("Int"))) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testDefWithMultipleConcreteAndAnyParam()
+  {
+      new ScoogleParser().parse("def _(Int, String, *) : Int") match {
+        case Def(Word("_"), List(List(Word("Int"), Word("String"), AnyParams())), Some(Word("Int"))) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testDefWithMultipleConcreteAndAnyParamCurried()
+  {
+      new ScoogleParser().parse("def _(Int, String, *)(_, *) : Int") match {
+        case Def(Word("_"), List(
+                              List(Word("Int"), Word("String"), AnyParams()),
+                              List(Word("_"), AnyParams())
+                           ), Some(Word("Int"))) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testDefWithMultipleConcreteAndAnyParamCurriedNoSeparators()
+  {
+      new ScoogleParser().parse("def _(Int String *)(_ *) : Int") match {
+        case Def(Word("_"), List(
+                              List(Word("Int"), Word("String"), AnyParams()),
+                              List(Word("_"), AnyParams())
+                           ), Some(Word("Int"))) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testSimpleVal()
+  {
+      new ScoogleParser().parse("val test") match {
+        case Val(Word("test"), None) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testValWithReturnType()
+  {
+      new ScoogleParser().parse("val test:Int") match {
+        case Val(Word("test"), Some(Word("Int"))) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testSimpleVar()
+  {
+      new ScoogleParser().parse("var test") match {
+        case Var(Word("test"), None) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testVarWithReturnType()
+  {
+      new ScoogleParser().parse("var test:Int") match {
+        case Var(Word("test"), Some(Word("Int"))) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+   def contrivedQuery2()
+  {
+      new ScoogleParser().parse("""//can "be copied" or (trait Robot and def replicate(_ Model *)(_, Blueprint): Robot) or (extends Cloneable && val archetype""") match {
+        case Or(List(
+          Comment(List(Word("Can"), ExactWord("be copied"))),
+          Group(And(List(
+            Trait(Word("Robot"), None),
+            Def(
+              Word("replicate"),
+              List(List(Word("_"), Word("Model"), AnyParams()), List(Word("_"), Word("Blueprint"))),
+              Some(Word("Robot")))))),
+          Group(And(List(
+            Extends(Word("Cloneable")),
+            Val(Word("archetype"), None))))
+        )) => ()
+        case e => Assert.fail(e.toString)
+    }
+  }
+
+  // TODO: Test strange identifiers
+  // TODO: Test invalid syntax
 }

@@ -1,35 +1,34 @@
+package scala.tools.colladoc.search
+
 /**
- * Created by IntelliJ IDEA.
- * User: paskov
+ * User: Miroslav Paskov
  * Date: 2/6/11
- * Time: 5:47 AM
- * To change this template use File | Settings | File Templates.
+ * Time: 5:54 AM
  */
 
 import scala.util.parsing.combinator._
-import lexical.{Scanners, StdLexical}
-import syntactical.{StdTokenParsers, StandardTokenParsers}
 import util.parsing.input.CharSequenceReader
-import util.parsing.syntax.StdTokens
 
+// NOTE: There is no class hierarchy because extending case classes may be deprecated in future versions of Scala.
 abstract sealed trait Query
+abstract sealed trait Identifier extends Query
 
-case class Word(word:String) extends Query
-case class ExactWord(exact:String) extends Word(exact)
-//case class Params extends Word
+case class Word(word:String) extends Identifier
+case class ExactWord(exact:String) extends Identifier
+case class AnyParams() extends Identifier
 
-case class Comment(words:List[Word]) extends Query
+case class Comment(words:List[Identifier]) extends Query
 
-case class Entity(name:Word) extends Query
-case class Class(className:Word, base:Option[Word]) extends Entity(className)
-case class Object(objectName:Word, base:Option[Word]) extends Entity(objectName)
-case class Trait(traitName:Word, base:Option[Word]) extends Entity(traitName)
-case class Package(packageName:Word) extends  Entity(packageName)
-case class Extends(name:Word) extends Query
+case class Entity(name:Identifier) extends Query
+case class Class(className:Identifier, base:Option[Identifier]) extends Query
+case class Object(objectName:Identifier, base:Option[Identifier]) extends Query
+case class Trait(traitName:Identifier, base:Option[Identifier]) extends Query
+case class Package(packageName:Identifier) extends  Query
+case class Extends(name:Identifier) extends Query
 
-case class Def(methodName:Word, ret:Option[Word]) extends Entity(methodName)
-case class Val(valName:Word) extends Entity(valName)
-case class Var(varName:Word) extends  Entity(varName)
+case class Def(methodName:Identifier, params:List[List[Identifier]], defReturn:Option[Identifier]) extends Query
+case class Val(valName:Identifier, valReturn:Option[Identifier]) extends Query
+case class Var(varName:Identifier, varReturn:Option[Identifier]) extends Query
 
 
 case class And(q:List[Query]) extends Query
@@ -37,6 +36,8 @@ case class Or(q:List[Query]) extends Query
 case class Not(q:Query) extends Query
 
 case class Group(q:Query) extends Query
+
+case class SyntaxError(msg:String) extends Query
 
 class ScoogleParser extends RegexParsers{
 
@@ -61,7 +62,13 @@ class ScoogleParser extends RegexParsers{
   def word = (identifier ^^ {Word(_)}
               | stringLit ^^ {ExactWord(_)})
 
-  def words:Parser[List[Word]] = rep1(word)
+  def words:Parser[List[Identifier]] = rep1(word)
+
+  def anyParam:Parser[Identifier] = "*" ^^ {a => AnyParams()}
+
+  def wordOrStar:Parser[Identifier] = (anyParam | word)
+
+  def wordsOrStar:Parser[List[Identifier]] = repsep(wordOrStar, opt(","))
 
   def manyWords:Parser[Comment] = phrase(rep1(word)) ^^ {Comment(_)}
 
@@ -73,6 +80,10 @@ class ScoogleParser extends RegexParsers{
 
   def `class` = "class" ~> word ~ `extends` ^^ {case c~e => Class(c, e)}
 
+  def `val` = "val" ~> word ~ returnType ^^ {case v~r => Val(v, r)}
+
+  def `var` = "var" ~> word ~ returnType ^^ {case v~r => Var(v, r)}
+
   def `object` = "object" ~> word ~ `extends` ^^ {case o~e => Object(o, e)}
 
   def justExtends = "extends" ~> word ^^ {Extends(_)}
@@ -83,13 +94,15 @@ class ScoogleParser extends RegexParsers{
 
   def returnType = opt(":" ~> word)
 
-  def params = "(" ~> words <~ ")"
+  def params = "(" ~> wordsOrStar <~ ")"
 
-  def `def` = "def" ~> word ~ returnType ^^ {case i~r => Def(i, r)}
+  def curriedParams:Parser[List[List[Identifier]]] = params*
+
+  def `def` = "def" ~> word ~ curriedParams ~ returnType ^^ {case i~p~r => Def(i, p, r)}
 
   def group:Parser[Group] = "(" ~> expr <~ ")" ^^ {Group(_)}
 
-  def term:Parser[Query] = not | group |  comment | `class` | `trait` | `package` |`object` | justExtends | `def` | word
+  def term:Parser[Query] = not | group |  comment | `class` | `val` | `var` | `trait` | `package` |`object` | justExtends | `def` | word
 
   def or:Parser[Or] = (term ~ (((("or"|"||") ~> term)+) ^^ {a:List[Query] => a})) ^^ {case h ~ t => Or(h::t)}
 
@@ -104,8 +117,8 @@ class ScoogleParser extends RegexParsers{
   def parse(q:String) = {
       (phrase(query)(new CharSequenceReader(q))) match {
       case Success(ord, _) => ord
-      case Failure(msg, _) => println("Fail: " + msg); msg
-      case Error(msg, _) => println("Error:" + msg); msg
+      case Failure(msg, _) => SyntaxError(msg)
+      case Error(msg, _) => SyntaxError(msg)
     }
   }
 }
