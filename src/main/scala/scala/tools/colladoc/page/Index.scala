@@ -35,7 +35,6 @@ import net.liftweb.http.js.JE._
 import net.liftweb.widgets.gravatar.Gravatar
 
 import tools.nsc.doc.Universe
-import tools.nsc.doc.model._
 import xml.Text
 
 /**
@@ -43,6 +42,18 @@ import xml.Text
  * @author Petr Hosek 
  */
 class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) {
+
+//    override val headers =
+//      <xml:group>
+//        <link href={ relativeLinkTo{List("coindex.css", "")} }  media="screen" type="text/css" rel="stylesheet"/>
+//        <link href={ relativeLinkTo{List("index.css", "lib")} }  media="screen" type="text/css" rel="stylesheet"/>
+//        <script type="text/javascript" src={ relativeLinkTo{List("jquery.js", "lib")} }></script>
+//        <script type="text/javascript" src={ relativeLinkTo{List("jquery-ui.js", "lib")} }></script>
+//        <script type="text/javascript" src={ relativeLinkTo{List("jquery.layout.js", "lib")} }></script>
+//        <script type="text/javascript" src={ relativeLinkTo{List("scheduler.js", "lib")} }></script>
+//        <script type="text/javascript" src={ relativeLinkTo{List("coindex.js", "scripts")} }></script>
+//        <script type="text/javascript" src={ relativeLinkTo{List("index.js", "lib")} }></script>
+//      </xml:group>
 
   override def browser = super.browser \+
     <div id="user">
@@ -58,7 +69,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
     <xml:group>
       <ul class="usernav">
         <li><a href="/history.html" target="template">History</a></li>
-        <li><a href="/search.html" target="template">Search</a></li>
+        <li><a href="/search.html" target="template" id="searchpage">Search</a></li>
         <li>{ SHtml.a(Text("Signup"), Jq(Str(".user")) ~> OpenDialog()) }</li>
         <li>{ SHtml.a(Text("Login"), Jq(Str(".login")) ~> OpenDialog()) }</li>
       </ul>

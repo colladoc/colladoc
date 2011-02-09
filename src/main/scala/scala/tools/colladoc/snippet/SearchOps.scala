@@ -9,23 +9,42 @@ import tools.colladoc.page.Search
 import tools.nsc.doc.model.MemberEntity
 import xml._
 import net.liftweb.util.Helpers._
+import net.liftweb.http.StatefulSnippet
+import net.liftweb.http.SHtml._
+import net.liftweb.http.js.{JE, JsCmds}
 
 /**
  * Search snippet.
  */
-class SearchOps {
+class SearchOps extends StatefulSnippet{
   import tools.colladoc.lib.DependencyFactory._
 
+  val dispatch: DispatchIt ={ case "show" => show _
+                              case "body" => body _}
+
+  var searchValue = "b*"
+
   lazy val searchPage = new Search(model.vend.rootPackage)
+
+
 
   /** Return history title. */
   def title(xhtml: NodeSeq): NodeSeq =
     Text(searchPage.title)
 
+  def show(xhtml:NodeSeq):NodeSeq = {
+      <xml:group>
+      <label for="searchText">Search :</label>
+      { text(searchValue, v => searchValue = v) % ("size" -> "10") % ("id" -> "searchText") }
+      { submit("Go", () => body _) }
+    </xml:group>
+
+  }
+
   /** Return history body. */
   def body(xhtml: NodeSeq): NodeSeq =
     bind("search", searchPage.body,
-         "results" -> search("foo"))
+         "results" -> search(searchValue))
 
   def search(query : String) = {
     // TODO: Add custom QueryParser that will handle our proposed query syntax

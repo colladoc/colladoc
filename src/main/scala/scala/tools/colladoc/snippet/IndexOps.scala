@@ -41,6 +41,9 @@ class IndexOps {
   def title(xhtml: NodeSeq): NodeSeq =
     Text(index.title)
 
+  def headers =
+    index.headers
+
   /** Return index body. */
   def body(xhtml: NodeSeq): NodeSeq =
     index.body

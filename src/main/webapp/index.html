@@ -1,14 +1,14 @@
 <lift:surround with="default" at="content">
   <head>
     <title><lift:indexOps.title /></title>
-    <lift:with-resource-id>
-      <script src="/lib/jquery.layout.js" type="text/javascript" />
-      <script src="/lib/index.js" type="text/javascript" />
-      <script src="/lib/scheduler.js" type="text/javascript"/>
-      <script src="/scripts/coindex.js" type="text/javascript"/>
-      <link href="/lib/index.css" media="screen" type="text/css" rel="stylesheet" />
-      <link href="/coindex.css"  media="screen" type="text/css" rel="stylesheet"/>
-    </lift:with-resource-id>
+     <lift:with-resource-id>
+       <script src="/lib/jquery.layout.js" type="text/javascript" />
+       <script src="/scripts/index.js" type="text/javascript" />
+       <script src="/lib/scheduler.js" type="text/javascript"/>
+       <script src="/scripts/coindex.js" type="text/javascript"/>
+       <link href="/lib/index.css" media="screen" type="text/css" rel="stylesheet" />
+       <link href="/coindex.css"  media="screen" type="text/css" rel="stylesheet"/>
+     </lift:with-resource-id>
   </head>
   <lift:indexOps.body />
 </lift:surround>
