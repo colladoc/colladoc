@@ -12,77 +12,100 @@ import syntactical.{StdTokenParsers, StandardTokenParsers}
 import util.parsing.input.CharSequenceReader
 import util.parsing.syntax.StdTokens
 
-abstract sealed class Query
+abstract sealed trait Query
 
 case class Word(word:String) extends Query
 case class ExactWord(exact:String) extends Word(exact)
+//case class Params extends Word
 
 case class Comment(words:List[Word]) extends Query
 
 case class Entity(name:Word) extends Query
-case class Class(className:Word) extends Entity(className)
-case class Def(methodName:Word) extends Entity(methodName)
+case class Class(className:Word, base:Option[Word]) extends Entity(className)
+case class Object(objectName:Word, base:Option[Word]) extends Entity(objectName)
+case class Trait(traitName:Word, base:Option[Word]) extends Entity(traitName)
+case class Package(packageName:Word) extends  Entity(packageName)
+case class Extends(name:Word) extends Query
+
+case class Def(methodName:Word, ret:Option[Word]) extends Entity(methodName)
 case class Val(valName:Word) extends Entity(valName)
 case class Var(varName:Word) extends  Entity(varName)
-case class Package(packageName:Word) extends  Entity(packageName)
 
-case class And(left:Query, right:Query) extends Query
-case class Or(left:Query, right:Query) extends Query
+
+case class And(q:List[Query]) extends Query
+case class Or(q:List[Query]) extends Query
 case class Not(q:Query) extends Query
 
-//case class Comment(words:List[Word]) extends Query
-//case class General(List) extends Query
+case class Group(q:Query) extends Query
 
 class ScoogleParser extends RegexParsers{
 
-  //lexical.delimiters ++= List("(", ")", "//")
-  //lexical.reserved += ("class", "or", "def")
-
   final val EofCh = '\032'
 
-  def chrExcept(cs: Char*) = elem("", ch => (cs forall (ch !=)))
+  val keywords = List("class", "def", "trait", "package", "object", "or", "||", "&&", "and", "not", "!", "val", "var", "extends")
 
-  def ident = "[a-zA-Z]\\w*".r
+  def notkeyword[T](p: => Parser[T]) = Parser { in =>
+    p(in) match {
+      case Success(res, in) if keywords contains res => Failure("Should not be keyword.", in)
+      case e => e
+    }
+  }
 
-  def stringLit = '\"' ~ rep( chrExcept('\"', '\n', EofCh) ) ~ '\"' ^^ { case '\"' ~ chars ~ '\"' => (chars mkString "") }
+  def charExcept(cs: Char*) = elem("", ch => (cs forall (ch !=)))
 
-  def word = (log(ident)("Word") ^^ {Word(_)}
-              | log(stringLit)("Exact Word") ^^ {ExactWord(_)}
-            )
+  // WARNING: Words containing dots (.) are allowed!
+  def identifier = notkeyword("""[a-zA-Z_][\w\._]*""".r)
 
-  def words:Parser[List[Word]] = log(rep1(word))("Words")
+  def stringLit = '\"' ~ rep( charExcept('\"', '\n', EofCh) ) ~ '\"' ^^ { case '\"' ~ chars ~ '\"' => (chars mkString "") }
 
-  def generalWord = word ^^ {w => println("General Word: " + w); Or(Comment(List(w)), Entity(w))}
+  def word = (identifier ^^ {Word(_)}
+              | stringLit ^^ {ExactWord(_)})
 
-  def generalWords:Parser[Comment] = words ^^ {ws => Comment(ws)}
+  def words:Parser[List[Word]] = rep1(word)
 
-  def comment:Parser[Comment] = log("//" ~ words )("Comment") ^^ {case _ ~ w => Comment(w)}
+  def manyWords:Parser[Comment] = phrase(rep1(word)) ^^ {Comment(_)}
 
-  def or:Parser[Or] = query ~ "or" ~ query ^^ {case (left ~ p ~ right) => Or(left, right) }
+  def singleWord = phrase(word) ^^ {w => Or(List(Comment(List(w)), Entity(w)))}
 
-  def classQ = "class" ~> word ^^ {Class(_)}
+  def comment():Parser[Comment] = "//" ~ words ^^ {case _ ~ w => Comment(w)}
 
-  //def defawdawQ:Parser[Def] = "def" ~> word ^^ {Def(_)}
+  def `extends` = opt(("extends" ~> word))
 
-  def ors = query ~ ("or" ~ query)+
+  def `class` = "class" ~> word ~ `extends` ^^ {case c~e => Class(c, e)}
 
-  def query = log(comment)("Query.Comment") | log(word)("Query.Word") | log(or)("Query.Or")
+  def `object` = "object" ~> word ~ `extends` ^^ {case o~e => Object(o, e)}
 
-  def rootQuery:Parser[Query] =  log(query)("Root.Query") | log(phrase(generalWord))("Root.GeneralWord") | log(generalWords)("Root.GeneralWords")
+  def justExtends = "extends" ~> word ^^ {Extends(_)}
 
-  //def group = "(" ~> query <~ ")"
+  def `trait` = "trait" ~> word ~ `extends` ^^ {case t~e => Trait(t, e)}
+
+  def `package` = "package" ~> word ^^ {Package(_)}
+
+  def returnType = opt(":" ~> word)
+
+  def params = "(" ~> words <~ ")"
+
+  def `def` = "def" ~> word ~ returnType ^^ {case i~r => Def(i, r)}
+
+  def group:Parser[Group] = "(" ~> expr <~ ")" ^^ {Group(_)}
+
+  def term:Parser[Query] = not | group |  comment | `class` | `trait` | `package` |`object` | justExtends | `def` | word
+
+  def or:Parser[Or] = (term ~ (((("or"|"||") ~> term)+) ^^ {a:List[Query] => a})) ^^ {case h ~ t => Or(h::t)}
+
+  def not:Parser[Not] = ("not" | "!") ~> term ^^ {Not(_)}
+
+  def and:Parser[And] = (term ~ (((("and"|"&&") ~> term)+) ^^ {a:List[Query] => a})) ^^ {case h ~ t => And(h::t)}
+
+  def expr:Parser[Query] = or | and  | term
+
+  def query = singleWord | manyWords | expr
 
   def parse(q:String) = {
-      println("-----------------------------------------------: " + q)
-      (phrase(rootQuery)(new CharSequenceReader(q))) match {
+      (phrase(query)(new CharSequenceReader(q))) match {
       case Success(ord, _) => ord
       case Failure(msg, _) => println("Fail: " + msg); msg
       case Error(msg, _) => println("Error:" + msg); msg
     }
   }
-
-
-//  def expr: Parser[Any] = term~rep("+"~term | "-"~term)
-//  def term: Parser[Any] = factor~rep("*"~factor | "/"~factor)
-//  def factor: Parser[Any] = floatingPointNumber | "("~expr~")"
 }
