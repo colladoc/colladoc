@@ -8,4 +8,4 @@ lucene-index/
 *.iws
 
 # H2 database files.
-*.h2.db
+*.db
