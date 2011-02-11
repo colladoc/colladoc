@@ -11,7 +11,8 @@ import xml._
 import net.liftweb.util.Helpers._
 import net.liftweb.http.StatefulSnippet
 import net.liftweb.http.SHtml._
-import net.liftweb.http.js.{JE, JsCmds}
+import net.liftweb.http.js.{JE, JsCmds, JsExp}
+import net.liftweb.http.js.JE._
 
 /**
  * Search snippet.
@@ -22,11 +23,11 @@ class SearchOps extends StatefulSnippet{
   val dispatch: DispatchIt ={ case "show" => show _
                               case "body" => body _}
 
+
+
   var searchValue = "b*"
 
   lazy val searchPage = new Search(model.vend.rootPackage)
-
-
 
   /** Return history title. */
   def title(xhtml: NodeSeq): NodeSeq =
@@ -36,8 +37,8 @@ class SearchOps extends StatefulSnippet{
       <xml:group>
       <label for="searchText">Search :</label>
       { text(searchValue, v => searchValue = v) % ("size" -> "10") % ("id" -> "searchText") }
-      { submit("Go", () => body _) }
-    </xml:group>
+      { submit("Go", () => body _) % ("id" -> "searchcmd")}
+      </xml:group>
 
   }
 
