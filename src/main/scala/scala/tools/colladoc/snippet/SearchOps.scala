@@ -1,6 +1,5 @@
 package scala.tools.colladoc.snippet
 
-import org.apache.lucene.queryParser.QueryParser
 import org.apache.lucene.util.Version
 import tools.colladoc.model.SearchIndex
 import org.apache.lucene.analysis.standard.StandardAnalyzer
@@ -12,6 +11,8 @@ import net.liftweb.util.Helpers._
 import net.liftweb.http.StatefulSnippet
 import net.liftweb.http.SHtml._
 import net.liftweb.http.js.{JE, JsCmds}
+import scala.tools.colladoc.search._
+import org.apache.lucene.search.{Query}
 
 /**
  * Search snippet.
@@ -46,19 +47,27 @@ class SearchOps extends StatefulSnippet{
     bind("search", searchPage.body,
          "results" -> search(searchValue))
 
-  def search(query : String) = {
-    // TODO: Add custom QueryParser that will handle our proposed query syntax
-    val parser = new QueryParser(Version.LUCENE_30,
-                                 SearchIndex.nameField,
-                                 new StandardAnalyzer(Version.LUCENE_30))
-    val q = parser.parse(query)
+  def search(query : String) :NodeSeq = {
 
+    println("Searching for: " + query)
+    ScoogleParser.parse(query) match
+    {
+      case SyntaxError(msg) => errorToHtml(msg)
+      case searchQuery:SearchQuery => displayResults(LuceneQuery.toLuceneQuery(searchQuery))
+    }
+  }
+
+  def displayResults(query:Query):NodeSeq =
+  {
     var searcher : IndexSearcher = null
     try {
       val hitsPerPage = 10
       val collector = TopScoreDocCollector.create(hitsPerPage, true)
       searcher = new IndexSearcher(index.vend.luceneDirectory, true)
-      searcher.search(q, collector)
+
+      println("Lucene Query: " + query.toString)
+
+      searcher.search(query, collector)
 
       // Collect the entities that were returned
       val entityResults = collector.topDocs().scoreDocs.map((hit) => {
@@ -68,6 +77,7 @@ class SearchOps extends StatefulSnippet{
         entityResult
       })
 
+      println("Results: " + entityResults.toString)
       resultsToHtml(entityResults)
     }
     finally {
@@ -82,6 +92,14 @@ class SearchOps extends StatefulSnippet{
     <div id="searchResults">
       {
         searchPage.membersToHtml(members)
+      }
+    </div>
+  }
+
+  def errorToHtml(msg : String) = {
+    <div id="searchResults">
+      {
+        msg
       }
     </div>
   }

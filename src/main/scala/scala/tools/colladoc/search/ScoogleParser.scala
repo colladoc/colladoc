@@ -7,12 +7,9 @@ package scala.tools.colladoc.search
  */
 
 import scala.util.parsing.combinator._
-import lexical.{Scanners, StdLexical}
-import syntactical.{StdTokenParsers, StandardTokenParsers}
 import util.parsing.input.CharSequenceReader
-import util.parsing.syntax.StdTokens
 
-class ScoogleParser extends RegexParsers{
+object  ScoogleParser extends RegexParsers{
 
   final val EofCh = '\032'
 
