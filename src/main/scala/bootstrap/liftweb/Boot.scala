@@ -70,6 +70,13 @@ class Boot {
       Menu(TemplateStuff)
       )
 
+    // Set up URL Rewrites
+    LiftRules.rewrite.append {
+      case RewriteRequest(
+        ParsePath(List("search", query), _,_, _), _, _) =>
+        RewriteResponse("search" :: Nil, Map("q" -> query))
+    }
+
     LiftRules.setSiteMapFunc(sitemap)
     LiftRules.statelessDispatchTable.append(ExportService)
 

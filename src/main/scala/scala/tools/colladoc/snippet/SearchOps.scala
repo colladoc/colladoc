@@ -8,9 +8,11 @@ import tools.colladoc.page.Search
 import tools.nsc.doc.model.MemberEntity
 import xml._
 import net.liftweb.util.Helpers._
-import net.liftweb.http.StatefulSnippet
 import net.liftweb.http.SHtml._
-import net.liftweb.http.js.{JE, JsCmds}
+import net.liftweb.http.js.{JE, JsCmds, JsExp}
+import net.liftweb.http.js.JE._
+import scala.{ xml}
+import net.liftweb.http.{S, SHtml, RequestVar, StatefulSnippet}
 import scala.tools.colladoc.search._
 import org.apache.lucene.search.{Query}
 
@@ -19,15 +21,16 @@ import org.apache.lucene.search.{Query}
  */
 class SearchOps extends StatefulSnippet{
   import tools.colladoc.lib.DependencyFactory._
+  object queryRequestVar extends RequestVar[String](S.param("q") openOr "")
 
   val dispatch: DispatchIt ={ case "show" => show _
                               case "body" => body _}
 
-  var searchValue = "b*"
+
+
+  var searchValue = queryRequestVar.is
 
   lazy val searchPage = new Search(model.vend.rootPackage)
-
-
 
   /** Return history title. */
   def title(xhtml: NodeSeq): NodeSeq =
@@ -37,8 +40,8 @@ class SearchOps extends StatefulSnippet{
       <xml:group>
       <label for="searchText">Search :</label>
       { text(searchValue, v => searchValue = v) % ("size" -> "10") % ("id" -> "searchText") }
-      { submit("Go", () => body _) }
-    </xml:group>
+      { submit("Go", () => S.redirectTo("search", () => queryRequestVar(searchValue))) }
+      </xml:group>
 
   }
 
@@ -47,13 +50,20 @@ class SearchOps extends StatefulSnippet{
     bind("search", searchPage.body,
          "results" -> search(searchValue))
 
-  def search(query : String) :NodeSeq = {
-
+  def search(query : String) :NodeSeq =
+  {
     println("Searching for: " + query)
-    ScoogleParser.parse(query) match
+    if(query.trim ne "")
     {
-      case SyntaxError(msg) => errorToHtml(msg)
-      case searchQuery:SearchQuery => displayResults(LuceneQuery.toLuceneQuery(searchQuery))
+      ScoogleParser.parse(query) match
+      {
+        case SyntaxError(msg) => errorToHtml(msg)
+        case searchQuery:SearchQuery => displayResults(LuceneQuery.toLuceneQuery(searchQuery))
+      }
+    }
+    else
+    {
+	    errorToHtml("We dont like empty queries")
     }
   }
 

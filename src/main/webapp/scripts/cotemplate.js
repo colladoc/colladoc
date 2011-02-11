@@ -23,6 +23,13 @@
 
 $(document).ready(function() {
     reinit('body');
+            var str= $(location).attr("href");
+            var strq=str.split("q=")
+            var i=0;
+            //alert(strq[1]);
+            //$("#searchText").attr("value",strq[1]);
+
+
 })
 
 function reinit(selector) {

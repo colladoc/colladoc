@@ -99,7 +99,7 @@ function prepareEntityList() {
 /* Configures the text filter  */
 function configureTextFilter() {
     scheduler.add("init", function() {
-        $("#filter").append("<div id='textfilter'><span class='pre' id='searchbtn' style='cursor:pointer;'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>");
+        $("#filter").append("<div id='textfilter'><span class='pre' id='searchbtn' style='cursor:pointer;'/><span class='input'><input id='svalue' type='text' accesskey='/'/></span><span class='post'/></div>");
  /*       var input = $("#textfilter input");
         resizeFilterBlock();
         input.bind("keyup", function(event) {
@@ -116,12 +116,29 @@ function configureTextFilter() {
             textFilter();
         });
     });
+
+    scheduler.add("init", function() {$("#textfilter input").keypress(function (e) {
+		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+		$("#textfilter > .pre").click();
+		}
+       });
+    });
         scheduler.add("init", function() {
         $("#textfilter > .pre").click(function(){
-             $("#searchpage").click();
-            textFilter();
+             //$("#searchpage").click();
+            doStuff();
+            //$("#searchText").attr("value",str);
         });
     });
+}
+
+
+function doStuff() {
+
+            var str= $("#textfilter input").attr("value");
+            //alert(str);
+            $("iframe").eq(0).attr("src","search.html?q="+str);
+            textFilter();
 }
 
 // Filters all focused templates and packages. This function should be made less-blocking.
@@ -292,7 +309,8 @@ function resizeFilterBlock() {
     $("#tpl").css("top", $("#filter").outerHeight(true));
 }
 
-function getText(str) {
-  var stext = $(str).attr("value");
+function getText(val) {
+  var stext = $(val).attr("value");
     return stext;
 }
+
