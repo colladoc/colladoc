@@ -116,16 +116,29 @@ function configureTextFilter() {
             textFilter();
         });
     });
+
+    scheduler.add("init", function() {$("#textfilter input").keypress(function (e) {
+		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+		$("#textfilter > .pre").click();
+		}
+       });
+    });
         scheduler.add("init", function() {
         $("#textfilter > .pre").click(function(){
              //$("#searchpage").click();
-            var str= $("#textfilter input").attr("value");
-            //alert(str);
-            $("iframe").eq(0).attr("src","search.html?q="+str);
-            //textFilter();
+            doStuff();
             //$("#searchText").attr("value",str);
         });
     });
+}
+
+
+function doStuff() {
+
+            var str= $("#textfilter input").attr("value");
+            //alert(str);
+            $("iframe").eq(0).attr("src","search.html?q="+str);
+            textFilter();
 }
 
 // Filters all focused templates and packages. This function should be made less-blocking.
