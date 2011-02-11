@@ -5,5 +5,6 @@ class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
   val winstone = "com.github.petrh" % "sbt-winstone-plugin" % "1.0-SNAPSHOT"
 
   val bryanSwift = "Bryan Swift" at "http://repos.bryanjswift.com/maven2"
-  val seleniumServer = "bryanjswift" % "selenium-sbt" % "0.0.4"
+ // TODO: Uncomment this line after the jetty-run error caused by selenium is fixed: ExceptionInInitializerError
+ // val seleniumServer = "bryanjswift" % "selenium-sbt" % "0.0.4"
 }
