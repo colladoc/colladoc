@@ -1,6 +1,5 @@
 package scala.tools.colladoc.snippet
 
-import org.apache.lucene.queryParser.QueryParser
 import org.apache.lucene.util.Version
 import tools.colladoc.model.SearchIndex
 import org.apache.lucene.analysis.standard.StandardAnalyzer
@@ -14,6 +13,8 @@ import net.liftweb.http.js.{JE, JsCmds, JsExp}
 import net.liftweb.http.js.JE._
 import scala.{ xml}
 import net.liftweb.http.{S, SHtml, RequestVar, StatefulSnippet}
+import scala.tools.colladoc.search._
+import org.apache.lucene.search.{Query}
 
 /**
  * Search snippet.
@@ -52,43 +53,51 @@ class SearchOps extends StatefulSnippet{
     bind("search", searchPage.body,
          "results" -> search(searchValue))
 
-  def search(userQuery : String) = {
-    val query = userQuery.trim()
-    var entityResults = Array[MemberEntity]()
-
-    if (query != "") {
-      // TODO: Add custom QueryParser that will handle our proposed query syntax
-      val parser = new QueryParser(Version.LUCENE_30,
-                                   SearchIndex.nameField,
-                                   new StandardAnalyzer(Version.LUCENE_30))
-
-      val q = parser.parse(query)
-
-      var searcher : IndexSearcher = null
-      try {
-        val hitsPerPage = 10
-        val collector = TopScoreDocCollector.create(hitsPerPage, true)
-        searcher = new IndexSearcher(index.vend.luceneDirectory, true)
-        searcher.search(q, collector)
-
-        // Collect the entities that were returned
-        entityResults = collector.topDocs().scoreDocs.map((hit) => {
-          val doc = searcher.doc(hit.doc)
-          val entitylookupKey = Integer.parseInt(doc.get(SearchIndex.entityLookupField))
-          val entityResult = index.vend.entityLookup.get(entitylookupKey)
-          entityResult
-        })
-
-
-      }
-      finally {
-        if (searcher != null) {
-          searcher.close()
-        }
+  def search(query : String) :NodeSeq =
+  {
+    println("Searching for: " + query)
+    if(query.trim ne "")
+    {
+      ScoogleParser.parse(query) match
+      {
+        case SyntaxError(msg) => errorToHtml(msg)
+        case searchQuery:SearchQuery => displayResults(LuceneQuery.toLuceneQuery(searchQuery))
       }
     }
+    else
+    {
+	    errorToHtml("We dont like empty queries")
+    }
+  }
 
-    resultsToHtml(entityResults)
+  def displayResults(query:Query):NodeSeq =
+  {
+    var searcher : IndexSearcher = null
+    try {
+      val hitsPerPage = 10
+      val collector = TopScoreDocCollector.create(hitsPerPage, true)
+      searcher = new IndexSearcher(index.vend.luceneDirectory, true)
+
+      println("Lucene Query: " + query.toString)
+
+      searcher.search(query, collector)
+
+      // Collect the entities that were returned
+      val entityResults = collector.topDocs().scoreDocs.map((hit) => {
+        val doc = searcher.doc(hit.doc)
+        val entitylookupKey = Integer.parseInt(doc.get(SearchIndex.entityLookupField))
+        val entityResult = index.vend.entityLookup.get(entitylookupKey)
+        entityResult
+      })
+
+      println("Results: " + entityResults.toString)
+      resultsToHtml(entityResults)
+    }
+    finally {
+      if (searcher != null) {
+        searcher.close()
+      }
+    }
   }
 
   /** Render search results **/
@@ -97,5 +106,13 @@ class SearchOps extends StatefulSnippet{
       {
         searchPage.membersToHtml(members)
       }
+  }
+
+  def errorToHtml(msg : String) = {
+    <div id="searchResults">
+      {
+        msg
+      }
+    </div>
   }
 }

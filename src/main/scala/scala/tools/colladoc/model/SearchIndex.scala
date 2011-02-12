@@ -22,7 +22,10 @@ object SearchIndex {
   val typeParamsCountField = "typeparamscount"
   val visibilityField = "visibility"
   val nameField = "name"
+  val typeField = "type"
+  val commentField = "comment"
   val entityLookupField = "entityLookup"
+  val extendsField = "extends"
 }
 
 class SearchIndex(rootPackage : Package, directory : Directory) {
@@ -94,6 +97,10 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
                       Field.Store.YES,
                       Field.Index.NO))
 
+    // Each entity will have a comment:
+    val comment = member.comment match { case Some(str) => str.body.toString; case None => ""}
+    doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
+
     // Index the document for this entity.
     writer.addDocument(doc)
 
@@ -115,6 +122,11 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
 
+    doc.add(new Field(typeField,
+                          packageField,
+                          Field.Store.YES,
+                          Field.Index.NOT_ANALYZED))
+
     doc
   }
 
@@ -127,27 +139,21 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
   }
 
   private def createClassOrTraitDocument(primaryField : String,
-                                         classOrTrait : Trait) = {
+                                         classOrTrait : DocTemplateEntity) = {
     val doc = new Document
-    doc.add(new Field(primaryField,
-                      classOrTrait.name,
+    doc.add(new Field(typeField,
+                      primaryField,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
-    addTypeParamsCountField(classOrTrait.typeParams, doc)
+
+    classOrTrait.parentType match {case Some(parent) => doc.add(new Field(extendsField, parent.name, Field.Store.YES, Field.Index.NOT_ANALYZED))}
     addVisibilityField(classOrTrait.visibility, doc)
 
     doc
   }
 
   private def createObjectDocument(obj : Object) = {
-    val doc = new Document
-    doc.add(new Field(objectField,
-                      obj.name,
-                      Field.Store.YES,
-                      Field.Index.NOT_ANALYZED))
-    addVisibilityField(obj.visibility, doc)
-
-    doc
+    createClassOrTraitDocument(objectField, obj)
   }
 
   private def createDefDocument(df : Def) = {

@@ -57,6 +57,11 @@ object LuceneQuery
     transform(syntaxQuery).toString()
   }
 
+  def toLuceneQuery(syntaxQuery:SearchQuery):Query =
+  {
+    transform(syntaxQuery)
+  }
+
   def transform(syntaxQuery:SearchQuery):Query =
   {
     // TODO: Categorize the queries!
