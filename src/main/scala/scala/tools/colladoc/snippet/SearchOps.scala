@@ -23,10 +23,13 @@ class SearchOps extends StatefulSnippet{
   object queryRequestVar extends RequestVar[String](S.param("q") openOr "")
 
   val dispatch: DispatchIt ={ case "show" => show _
-                              case "body" => body _}
+                              case "body" => body _
+                              case "sText" => sText}
 
 
-
+  def sText (xhtml:NodeSeq): NodeSeq = {
+    {searchValue}
+  }
   var searchValue = queryRequestVar.is
 
   lazy val searchPage = new Search(model.vend.rootPackage)
@@ -90,10 +93,9 @@ class SearchOps extends StatefulSnippet{
 
   /** Render search results **/
   def resultsToHtml(members : Array[MemberEntity]) = {
-    <div id="searchResults">
+
       {
         searchPage.membersToHtml(members)
       }
-    </div>
   }
 }

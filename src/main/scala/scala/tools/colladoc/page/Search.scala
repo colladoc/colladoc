@@ -2,6 +2,7 @@ package scala.tools.colladoc.page
 
 import tools.nsc.doc.model.{TemplateEntity, MemberEntity, Package, DocTemplateEntity}
 import xml.NodeSeq
+import scala.tools.colladoc.snippet._
 
 class Search(rootPack: Package) extends Template(rootPack) {
   /** Page title. */
@@ -9,13 +10,28 @@ class Search(rootPack: Package) extends Template(rootPack) {
 
   /** Page body. */
   override val body =
-  <body class = "search">
-    <div id = "results">
-        <h3>Results</h3>
-        <search:results />
-    </div>
-  </body>
+<body class="value" onload="windowTitle();">
 
+      <div id="definition">
+        <img src={ relativeLinkTo(List(docEntityKindToBigImage(rootPack), "lib")) }/>
+        <h1>Search for: <lift:SearchOps.sText/></h1>
+      </div>
+
+      { signature(rootPack, true) }
+      { memberToCommentHtml(rootPack, true) }
+
+      <div id="template">
+
+        <div id="mbrsel">
+          <div id='textfilter'><span class='pre'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>
+        </div>
+         <search:results />
+
+      </div>
+
+      <div id="tooltip" ></div>
+
+    </body>
   /**
    *  Renders sequence of member entities to its xhtml representation.
    * @param mbrs sequence of member entities
