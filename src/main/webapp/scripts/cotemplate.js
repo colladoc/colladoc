@@ -27,8 +27,6 @@ $(document).ready(function() {
             var strq=str.split("q=")
             var i=0;
             //alert(strq[1]);
-            //$("#searchText").attr("value",strq[1]);
-
 
 })
 
