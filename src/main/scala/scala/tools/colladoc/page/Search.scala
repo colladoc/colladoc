@@ -24,6 +24,18 @@ class Search(rootPack: Package) extends Template(rootPack) {
 
         <div id="mbrsel">
           <div id='textfilter'><span class='pre'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>
+          {
+            <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in">Public</li><li class="all out">All</li></ol>
+            </div>
+          }
+          {
+            <div id="impl">
+              <span class="filtertype">Impl.</span>
+              <ol><li class="concrete in">Concrete</li><li class="abstract in">Abstract</li></ol>
+            </div>
+          }
         </div>
          <search:results />
 
