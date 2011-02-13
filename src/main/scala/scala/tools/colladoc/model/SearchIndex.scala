@@ -26,6 +26,7 @@ object SearchIndex {
   val commentField = "comment"
   val entityLookupField = "entityLookup"
   val extendsField = "extends"
+  val valvarField = "valvar"
 }
 
 class SearchIndex(rootPackage : Package, directory : Directory) {
@@ -49,7 +50,7 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
       // Clear any previously indexed data.
        writer.deleteAll()
 
-      indexMember(rootPackage, writer)
+      indexRootPackege(rootPackage, writer)
 
       writer.optimize()
     }
@@ -62,7 +63,11 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     directory
   }
 
-  private def indexMember(member : MemberEntity, writer : IndexWriter) : Unit = {
+  private def indexRootPackege( rootPackege : Package, writer : IndexWriter) = {
+          indexMember(rootPackage, writer, null)
+  }
+
+  private def indexMember(member : MemberEntity, writer : IndexWriter, parentDoc : Document) : Unit = {
     val doc : Document = member match {
       case pkg : Package =>
         createPackageDocument(pkg)
@@ -75,6 +80,7 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
       case df : Def =>
         createDefDocument(df)
       case value : Val =>
+        addValueToValVarField(value, parentDoc)
         createValDocument(value)
       case _ =>
         new Document
@@ -101,18 +107,20 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     val comment = member.comment match { case Some(str) => str.body.toString; case None => ""}
     doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
 
-    // Index the document for this entity.
-    writer.addDocument(doc)
+
 
     // Finally, index any members of this entity.
     member match {
       case mbr : DocTemplateEntity =>
         mbr.members.foreach((m) => {
-          indexMember(m, writer)
+          indexMember(m, writer, doc)
         })
       case _ => {
       }
     }
+
+    // Index the document for this entity.
+    writer.addDocument(doc)
   }
 
   private def createPackageDocument(pkg : Package) = {
@@ -148,6 +156,7 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
 
     classOrTrait.parentType match {case Some(parent) => doc.add(new Field(extendsField, parent.name, Field.Store.YES, Field.Index.NOT_ANALYZED))}
     addVisibilityField(classOrTrait.visibility, doc)
+    addValVarField("", doc)
 
     doc
   }
@@ -211,4 +220,28 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
   }
+
+  private def addValVarField(value : String, doc : Document) = {
+    doc.add( new Field(valvarField,
+                        value, Field.Store.YES, Field.Index.NOT_ANALYZED));
+  }
+
+  private def addValueToValVarField( value : Val, doc : Document) = {
+
+    var curValue : String = doc.getField(valvarField).stringValue()
+
+    if (doc.getField(valvarField) != null){
+      doc.removeField(valvarField)
+    }
+
+    curValue = curValue + value.name + ":" + value.resultType.name + ";"
+
+    println(curValue)
+
+    addValVarField(curValue, doc)
+
+  }
+
+
+
 }
