@@ -23,12 +23,16 @@
 
 $(document).ready(function() {
     reinit('body');
-            var str= $(location).attr("href");
-            var strq=str.split("q=")
-            var i=0;
-            //alert(strq[1]);
+    //generateLink();
 
+    $("#linkURL").click(function (){
+    //alert("aliko");
+    $.copy($(location).attr("href"));
+    });
 })
+
+function generateLink() {
+   }
 
 function reinit(selector) {
     $('.button', $(selector)).button();

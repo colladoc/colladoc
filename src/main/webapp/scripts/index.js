@@ -120,15 +120,23 @@ function configureTextFilter() {
     scheduler.add("init", function() {$("#textfilter input").keypress(function (e) {
 		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
 		$("#textfilter > .pre").click();
+         textFilter();
 		}
        });
     });
         scheduler.add("init", function() {
         $("#textfilter > .pre").click(function(){
-             //$("#searchpage").click();
+
             doStuff();
-            //$("#searchText").attr("value",str);
+
         });
+        scheduler.add("init", function() {
+
+            retrieveUrl();
+
+        });
+
+
     });
 }
 
@@ -141,6 +149,15 @@ function doStuff() {
             textFilter();
 }
 
+function retrieveUrl(){
+            var url= $(location).attr("href");
+            var urlpart=url.split("q=")
+
+            if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {
+            $("#textfilter input").attr("value",urlpart[1]);
+            $("iframe").eq(0).attr("src","search.html?q="+urlpart[1]);
+            }
+}
 // Filters all focused templates and packages. This function should be made less-blocking.
 //   @param query The string of the query
 function textFilter() {
