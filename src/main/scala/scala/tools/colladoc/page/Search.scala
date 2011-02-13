@@ -25,6 +25,34 @@ class Search(rootPack: Package) extends Template(rootPack) {
 
         <div id="mbrsel">
           <div id='textfilter'><span class='pre'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>
+          {
+            <div id="symboltype">
+              <span class="filtertype">Symbol</span>
+              <ol>
+                <li class="package in">Package</li>
+                <li class="type in">Type</li>
+                <li class="object in">Object</li>
+                <li class="class in">Class</li>
+                <li class="trait in">Trait</li>
+                <li class="constructor in">Constructor</li>
+                <li class="def in">Def</li>
+                <li class="val in">Val</li>
+                <li class="var in">Var</li>
+              </ol>
+            </div>
+          }
+          {
+            <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in">Public</li><li class="all out">All</li></ol>
+            </div>
+          }
+          {
+            <div id="impl">
+              <span class="filtertype">Impl.</span>
+              <ol><li class="concrete in">Concrete</li><li class="abstract in">Abstract</li></ol>
+            </div>
+          }
         </div>
          <search:results />
 
