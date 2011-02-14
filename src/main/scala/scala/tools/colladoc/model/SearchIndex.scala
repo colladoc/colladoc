@@ -274,7 +274,8 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
 
           curListValueParamsSize = value.valueParams(j).size
 
-          println( curListValueParamsSize)
+          //println( curListValueParamsSize)
+
           var delimeter = ""
           curListValueParamsSize match {
             case size if (size == 0) => {}
@@ -301,7 +302,7 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
 
       curValue += "):" + value.resultType.name + ";"
 
-      println(curValue)
+      //println(curValue)
 
       addDefsField(curValue, doc)
     }
