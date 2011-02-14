@@ -27,6 +27,7 @@ object SearchIndex {
   val entityLookupField = "entityLookup"
   val extendsField = "extends"
   val valvarField = "valvar"
+  val defsField = "defs"
 }
 
 class SearchIndex(rootPackage : Package, directory : Directory) {
@@ -78,6 +79,7 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
       case obj : Object =>
         createObjectDocument(obj)
       case df : Def =>
+        addValueToDefsField(df, parentDoc)
         createDefDocument(df)
       case value : Val =>
         addValueToValVarField(value, parentDoc)
@@ -157,6 +159,7 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     classOrTrait.parentType match {case Some(parent) => doc.add(new Field(extendsField, parent.name, Field.Store.YES, Field.Index.NOT_ANALYZED))}
     addVisibilityField(classOrTrait.visibility, doc)
     addValVarField("", doc)
+    addDefsField("", doc)
 
     doc
   }
@@ -222,6 +225,11 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
   }
 
   private def addValVarField(value : String, doc : Document) = {
+
+    if (doc.getField(valvarField) != null){
+      doc.removeField(valvarField)
+    }
+
     doc.add( new Field(valvarField,
                         value, Field.Store.YES, Field.Index.NOT_ANALYZED));
   }
@@ -229,10 +237,6 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
   private def addValueToValVarField( value : Val, doc : Document) = {
 
     var curValue : String = doc.getField(valvarField).stringValue()
-
-    if (doc.getField(valvarField) != null){
-      doc.removeField(valvarField)
-    }
 
     curValue = curValue + value.name + ":" + value.resultType.name + ";"
 
@@ -242,6 +246,65 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
 
   }
 
+  private def addDefsField(value : String, doc : Document) = {
 
+    if (doc.getField(defsField) != null){
+      doc.removeField(defsField)
+    }
 
+    doc.add( new Field(defsField,
+                        value, Field.Store.YES, Field.Index.NOT_ANALYZED));
+  }
+
+  private def addValueToDefsField( value : Def, doc : Document) = {
+
+    var curValue : String = doc.getField(defsField).stringValue()
+
+    var valueParams : String = ""
+    val valueParamsListSize : Int =  value.valueParams.size;
+    var curListValueParamsSize : Int = 0;
+
+    //println("valueParamsListSize = " + valueParamsListSize)
+    if (valueParamsListSize>0){
+
+      curValue += value.name + "("
+
+      if (valueParamsListSize>0){
+        for (j <- 0 until valueParamsListSize){
+
+          curListValueParamsSize = value.valueParams(j).size
+
+          println( curListValueParamsSize)
+          var delimeter = ""
+          curListValueParamsSize match {
+            case size if (size == 0) => {}
+            case size if (size == 1) => {
+
+              if (j>0)
+                delimeter = ", "
+              curValue +=  delimeter + value.valueParams(j)(0).resultType.name
+            }
+            case size if (size > 1) => {
+
+              if (j>0)
+                delimeter = ","
+
+              curValue += delimeter + value.valueParams(j)(0).resultType.name
+
+              for ( i <- 1 until curListValueParamsSize) {
+                curValue += "," + value.valueParams(0)(i).resultType.name
+              }
+            }
+          }
+        }
+      }
+
+      curValue += "):" + value.resultType.name + ";"
+
+      println(curValue)
+
+      addDefsField(curValue, doc)
+    }
+
+  }
 }
