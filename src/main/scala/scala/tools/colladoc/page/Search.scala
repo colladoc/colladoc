@@ -3,6 +3,7 @@ package scala.tools.colladoc.page
 import tools.nsc.doc.model.{TemplateEntity, MemberEntity, Package, DocTemplateEntity}
 import xml.NodeSeq
 import scala.tools.colladoc.snippet._
+import collection.mutable.HashMap
 
 class Search(rootPack: Package) extends Template(rootPack) {
   /** Page title. */
@@ -61,6 +62,66 @@ class Search(rootPack: Package) extends Template(rootPack) {
       <div id="tooltip" ></div>
 
     </body>
+
+
+  /**
+   * Renders list of comments to its xhtml representation.
+   * @param cmts list of comments
+   * @return xhtml comments representation
+   */
+  def resultsToHtml(results: Iterable[MemberEntity]): NodeSeq = {
+    // Groups members by containing type.
+    def aggregateMembers(mbrs: Iterable[MemberEntity]) = {
+      val containingTypeMap = new HashMap[DocTemplateEntity, List[MemberEntity]] {
+        override def default(key: DocTemplateEntity) = Nil
+      }
+
+      for (mbr <- mbrs) {
+        val tpl = mbr match {
+          case tpl: DocTemplateEntity => tpl
+          case _ => mbr.inTemplate
+        }
+
+        if (!containingTypeMap.contains(tpl)) {
+          // Add this member to the current list of members for this type.
+          containingTypeMap += tpl -> (mbr :: containingTypeMap(tpl))
+        }
+      }
+
+      containingTypeMap
+    }
+
+    <xml:group>
+      {
+        aggregateMembers(results) flatMap { case (containingType, mbrs) =>
+          <div class="searchResult">
+            <h4 class="definition">
+              <a href={ relativeLinkTo(containingType) }>
+                  <img src={ relativeLinkTo{List(kindToString(containingType) + ".png", "lib")} }/>
+              </a>
+              <span>
+                {
+                  if (containingType.isRootPackage) "root package"
+                  else containingType.qualifiedName }
+              </span>
+            </h4>
+
+            <div>
+              { if (mbrs.contains(containingType))
+                  <xml:group>
+                    { signature(containingType, isSelf = true) }
+                    { memberToShortCommentHtml(containingType, false) }
+                    <div class="fullcomment">{ memberToCommentBodyHtml(containingType, true) }</div>
+                  </xml:group>
+              }
+              { membersToHtml(mbrs filterNot (_ == containingType)) }
+            </div>
+          </div>
+        }
+      }
+    </xml:group>
+  }
+
   /**
    *  Renders sequence of member entities to its xhtml representation.
    * @param mbrs sequence of member entities

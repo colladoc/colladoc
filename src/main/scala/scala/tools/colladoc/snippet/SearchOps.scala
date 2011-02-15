@@ -102,10 +102,12 @@ class SearchOps extends StatefulSnippet{
 
   /** Render search results **/
   def resultsToHtml(members : Array[MemberEntity]) = {
-
+    <div id="searchResults">
       {
-        searchPage.membersToHtml(members)
+        // TODO: Handle the no members found case.
+        searchPage.resultsToHtml(members)
       }
+    </div>
   }
 
   def errorToHtml(msg : String) = {
