@@ -110,14 +110,7 @@ class Search(rootPack: Package) extends Template(rootPack) {
             </h4>
 
             <div>
-              { if (mbrs.contains(containingType))
-                  <xml:group>
-                    { signature(containingType, isSelf = true) }
-                    { memberToShortCommentHtml(containingType, false) }
-                    <div class="fullcomment">{ memberToCommentBodyHtml(containingType, true) }</div>
-                  </xml:group>
-              }
-              { membersToHtml(mbrs filterNot (_ == containingType)) }
+              { membersToHtml(mbrs) }
             </div>
           </div>
         }
