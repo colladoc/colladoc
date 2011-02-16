@@ -26,6 +26,8 @@ object SearchIndex {
   val commentField = "comment"
   val entityLookupField = "entityLookup"
   val extendsField = "extends"
+  val valvarField = "valvar"
+  val defsField = "defs"
 }
 
 class SearchIndex(rootPackage : Package, directory : Directory) {
@@ -49,7 +51,7 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
       // Clear any previously indexed data.
        writer.deleteAll()
 
-      indexMember(rootPackage, writer)
+      indexRootPackege(rootPackage, writer)
 
       writer.optimize()
     }
@@ -62,7 +64,11 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     directory
   }
 
-  private def indexMember(member : MemberEntity, writer : IndexWriter) : Unit = {
+  private def indexRootPackege( rootPackege : Package, writer : IndexWriter) = {
+          indexMember(rootPackage, writer, null)
+  }
+
+  private def indexMember(member : MemberEntity, writer : IndexWriter, parentDoc : Document) : Unit = {
     val doc : Document = member match {
       case pkg : Package =>
         createPackageDocument(pkg)
@@ -73,8 +79,10 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
       case obj : Object =>
         createObjectDocument(obj)
       case df : Def =>
+        addValueToDefsField(df, parentDoc)
         createDefDocument(df)
       case value : Val =>
+        addValueToValVarField(value, parentDoc)
         createValDocument(value)
       case _ =>
         new Document
@@ -101,18 +109,20 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     val comment = member.comment match { case Some(str) => str.body.toString; case None => ""}
     doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
 
-    // Index the document for this entity.
-    writer.addDocument(doc)
+
 
     // Finally, index any members of this entity.
     member match {
       case mbr : DocTemplateEntity =>
         mbr.members.foreach((m) => {
-          indexMember(m, writer)
+          indexMember(m, writer, doc)
         })
       case _ => {
       }
     }
+
+    // Index the document for this entity.
+    writer.addDocument(doc)
   }
 
   private def createPackageDocument(pkg : Package) = {
@@ -148,6 +158,8 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
 
     classOrTrait.parentType match {case Some(parent) => doc.add(new Field(extendsField, parent.name, Field.Store.YES, Field.Index.NOT_ANALYZED))}
     addVisibilityField(classOrTrait.visibility, doc)
+    addValVarField("", doc)
+    addDefsField("", doc)
 
     doc
   }
@@ -210,5 +222,90 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
                       returnType.name,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
+  }
+
+  private def addValVarField(value : String, doc : Document) = {
+
+    if (doc.getField(valvarField) != null){
+      doc.removeField(valvarField)
+    }
+
+    doc.add( new Field(valvarField,
+                        value, Field.Store.YES, Field.Index.NOT_ANALYZED));
+  }
+
+  private def addValueToValVarField( value : Val, doc : Document) = {
+
+    var curValue : String = doc.getField(valvarField).stringValue()
+
+    curValue = curValue + value.name + ":" + value.resultType.name + ";"
+
+    println(curValue)
+
+    addValVarField(curValue, doc)
+
+  }
+
+  private def addDefsField(value : String, doc : Document) = {
+
+    if (doc.getField(defsField) != null){
+      doc.removeField(defsField)
+    }
+
+    doc.add( new Field(defsField,
+                        value, Field.Store.YES, Field.Index.NOT_ANALYZED));
+  }
+
+  private def addValueToDefsField( value : Def, doc : Document) = {
+
+    var curValue : String = doc.getField(defsField).stringValue()
+
+    var valueParams : String = ""
+    val valueParamsListSize : Int =  value.valueParams.size;
+    var curListValueParamsSize : Int = 0;
+
+    //println("valueParamsListSize = " + valueParamsListSize)
+    if (valueParamsListSize>0){
+
+      curValue += value.name + "("
+
+      if (valueParamsListSize>0){
+        for (j <- 0 until valueParamsListSize){
+
+          curListValueParamsSize = value.valueParams(j).size
+
+          //println( curListValueParamsSize)
+
+          var delimeter = ""
+          curListValueParamsSize match {
+            case size if (size == 0) => {}
+            case size if (size == 1) => {
+
+              if (j>0)
+                delimeter = ", "
+              curValue +=  delimeter + value.valueParams(j)(0).resultType.name
+            }
+            case size if (size > 1) => {
+
+              if (j>0)
+                delimeter = ","
+
+              curValue += delimeter + value.valueParams(j)(0).resultType.name
+
+              for ( i <- 1 until curListValueParamsSize) {
+                curValue += "," + value.valueParams(0)(i).resultType.name
+              }
+            }
+          }
+        }
+      }
+
+      curValue += "):" + value.resultType.name + ";"
+
+      //println(curValue)
+
+      addDefsField(curValue, doc)
+    }
+
   }
 }
