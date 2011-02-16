@@ -4,12 +4,19 @@
     <lift:with-resource-id>
       <script src="/lib/tools.tooltip.js" type="text/javascript" />
       <script src="/scripts/cohistory.js" type="text/javascript"/>
+      <script src="/scripts/searchhi_slim.js" type="text/javascript"/>
+      <script src="/scripts/ZeroClipboard.js" type="text/javascript"/>
       <script src="/scripts/template.js" type="text/javascript" />
       <script src="/lib/tools.tooltip.js" type="text/javascript" />
       <script src="/scripts/cotemplate.js" type="text/javascript"/>
       <link href="/lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="/cotemplate.css"  media="screen" type="text/css" rel="stylesheet"/>
     </lift:with-resource-id>
+   <style><!--
+    SPAN.searchword { background-color: #99cc00; }
+    // -->
+</style>
   </head>
+
   <div><lift:searchOps.body /></div>
 </lift:surround>
