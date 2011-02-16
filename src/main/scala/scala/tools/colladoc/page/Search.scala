@@ -94,7 +94,10 @@ class Search(rootPack: Package) extends Template(rootPack) {
     <xml:group>
       {
         aggregateMembers(results) flatMap { case (containingType, mbrs) =>
-          <div class="searchResult">
+          <div class={"searchResult" +
+                    (if (containingType.isTrait || containingType.isClass) " type"
+                    else " value")
+                }>
             <h4 class="definition">
               <a href={ relativeLinkTo(containingType) }>
                   <img src={ relativeLinkTo{List(kindToString(containingType) + ".png", "lib")} }/>
