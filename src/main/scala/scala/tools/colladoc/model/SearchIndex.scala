@@ -106,10 +106,8 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
                       Field.Index.NO))
 
     // Each entity will have a comment:
-    val comment = member.comment match { case Some(str) => str.body.toString; case None => ""}
+    val comment = member.comment match { case Some(str) => str.body.toString; case _ => ""}
     doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
-
-
 
     // Finally, index any members of this entity.
     member match {
@@ -121,7 +119,7 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
       }
     }
 
-    // Index the document for this entity.
+     // Index the document for this entity.
     writer.addDocument(doc)
   }
 
@@ -156,7 +154,8 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
 
-    classOrTrait.parentType match {case Some(parent) => doc.add(new Field(extendsField, parent.name, Field.Store.YES, Field.Index.NOT_ANALYZED))}
+    classOrTrait.parentType match {case Some(parent) => doc.add(new Field(extendsField, parent.name, Field.Store.YES, Field.Index.NOT_ANALYZED))
+                                   case _ => {}}
     addVisibilityField(classOrTrait.visibility, doc)
     addValVarField("", doc)
     addDefsField("", doc)
