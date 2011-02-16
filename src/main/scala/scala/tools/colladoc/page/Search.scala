@@ -14,7 +14,7 @@ class Search(rootPack: Package) extends Template(rootPack) {
 <body class="value" onload="windowTitle();">
 
       <div id="definition">
-        <img src={ relativeLinkTo(List(docEntityKindToBigImage(rootPack), "lib")) }/>
+        <img src="/images/search_big.png"/>
         <h1>Search for: <lift:SearchOps.sText/></h1>
         <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;">Copy Search URL</a></p>
       </div>
