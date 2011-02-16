@@ -9,3 +9,9 @@ lucene-index/
 
 # H2 database files.
 *.db
+
+# The default.props file. We cannot commit this props file with useful values
+# (e.g. classpath and sourcepath with relative paths) so it would just add extra
+# set up work (running the script to set paths) everytime our repository
+# changes.
+default.props
