@@ -131,9 +131,14 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
                       Field.Index.NOT_ANALYZED))
 
     doc.add(new Field(typeField,
-                          packageField,
-                          Field.Store.YES,
-                          Field.Index.NOT_ANALYZED))
+                      packageField,
+                      Field.Store.YES,
+                      Field.Index.NOT_ANALYZED))
+
+    // Scala allows package objects (http://www.scala-lang.org/docu/files/packageobjects/packageobjects.html)
+    // so packages can have vals and fields.
+    addValVarField("", doc)
+    addDefsField("", doc)
 
     doc
   }

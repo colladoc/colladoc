@@ -38,6 +38,38 @@ object SearchIndexTests extends SpecificationWithJUnit with JMocker {
       docs.length must beEqualTo(1)
       docs(0).get(SearchIndex.nameField) mustEqual packageName
     }
+
+    "Add valsOrVars field to package documents" in {
+      val directory = new RAMDirectory
+      val packageName = "foo"
+      val mockRootPackage = mock[Package]
+      expect {
+        exactly(2).of(mockRootPackage).name willReturn(packageName)
+        allowingMatch(mockRootPackage, "comment")
+        one(mockRootPackage).members willReturn(List[MemberEntity]())
+      }
+
+      val index = new SearchIndex(mockRootPackage, directory)
+
+      val docs = getAllDocs(directory)
+      docs(0).get(SearchIndex.valvarField) must notBeNull
+    }
+
+    "Add defs field to package documents" in {
+      val directory = new RAMDirectory
+      val packageName = "foo"
+      val mockRootPackage = mock[Package]
+      expect {
+        exactly(2).of(mockRootPackage).name willReturn(packageName)
+        allowingMatch(mockRootPackage, "comment")
+        one(mockRootPackage).members willReturn(List[MemberEntity]())
+      }
+
+      val index = new SearchIndex(mockRootPackage, directory)
+
+      val docs = getAllDocs(directory)
+      docs(0).get(SearchIndex.defsField) must notBeNull
+    }
   }
   private def getAllDocs(dir : Directory) = {
     var docs = List[Document]()
