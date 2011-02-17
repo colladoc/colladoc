@@ -119,8 +119,14 @@ class Boot {
         S.runTemplate(List("error")) openOr NodeSeq.Empty
       }
       val out = bind("error", xml,
-        "message" -> Text(ex.getMessage),
-        "trace" -> Text(ex.getStackTraceString))
+        "message" -> {
+          if (ex.getMessage != null) Text(ex.getMessage)
+          else Text(ex.toString)
+        },
+        "trace" -> {
+          if (ex.getStackTraceString != null) Text(ex.getStackTraceString)
+          else Text("No trace available.")
+        })
       XhtmlResponse(out(0), LiftRules.docType.vend(req), List("Content-Type" -> "text/html; charset=utf-8"), Nil, 500, false)
     }
   }
