@@ -75,7 +75,7 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
       // Clear any previously indexed data.
       writer.deleteAll()
 
-      indexRootPackage(rootPackage, writer)
+      indexMembers(rootPackage :: Nil, writer)
 
       writer.optimize()
     }
@@ -88,8 +88,30 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     directory
   }
 
-  private def indexRootPackage( rootPackage : Package, writer : IndexWriter) = {
-    indexMember(rootPackage, writer)
+  private def indexMembers(members : List[MemberEntity], writer : IndexWriter) : Unit = {
+    if (members.isEmpty) {
+      throw new IllegalArgumentException()
+    }
+
+    // Index another member
+    val member = members.head
+    indexMember(member, writer)
+
+    // Add this entity's members to the list of members to index.
+    val additionalMembers = member match {
+      case doc : DocTemplateEntity =>
+        doc.members
+      case _ => Nil
+    }
+
+    val remainingMembers = members.tail ::: additionalMembers
+
+    // Finally, the recursive step, index the remainig members...
+    // NOTE: Tail call recursion is REQUIRED here because of the depth of
+    // scaladoc models for large code bases
+    if (!remainingMembers.isEmpty) {
+      indexMembers(remainingMembers, writer)
+    } 
   }
 
   private def indexMember(member : MemberEntity, writer : IndexWriter) : Unit = {
@@ -132,31 +154,23 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
 
     // Write the appropriate member information to the current document.
-    member match {
-      case mbr : DocTemplateEntity =>
-        mbr.members.foreach((m) => {
-          m match {
-            case df: Def =>
-              addValueToDefsField(df, doc)
-            case value : Val =>
-              addValueToValVarField(value, doc)
-            case _ => { }
-          }
-        })
-      case _ => { }
-    }
+    // TODO (asb10): Miro - please remove this after implementing member specific search.
+//    member match {
+//      case mbr : DocTemplateEntity =>
+//        mbr.members.foreach((m) => {
+//          m match {
+//            case df: Def =>
+//              addValueToDefsField(df, doc)
+//            case value : Val =>
+//              addValueToValVarField(value, doc)
+//            case _ => { }
+//          }
+//        })
+//      case _ => { }
+//    }
 
-    // Index the document for this entity.
+    // Fianlly, index the document for this entity.
     writer.addDocument(doc)
-
-    // Finally, index any members of this entity.
-    member match {
-      case mbr : DocTemplateEntity =>
-        mbr.members.foreach((m) => {
-          indexMember(m, writer)
-        })
-      case _ => { }
-    }
   }
 
   private def createPackageDocument(pkg : Package) = {
