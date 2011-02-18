@@ -14,7 +14,7 @@ class Search(rootPack: Package) extends Template(rootPack) {
 <body class="value" onload="windowTitle();">
 
       <div id="definition">
-        <img src={ relativeLinkTo(List(docEntityKindToBigImage(rootPack), "lib")) }/>
+        <img src="/images/search_big.png"/>
         <h1>Search for: <lift:SearchOps.sText/></h1>
         <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;">Copy Search URL</a></p>
       </div>
@@ -94,7 +94,10 @@ class Search(rootPack: Package) extends Template(rootPack) {
     <xml:group>
       {
         aggregateMembers(results) flatMap { case (containingType, mbrs) =>
-          <div class="searchResult">
+          <div class={"searchResult" +
+                    (if (containingType.isTrait || containingType.isClass) " type"
+                    else " value")
+                }>
             <h4 class="definition">
               <a href={ relativeLinkTo(containingType) }>
                   <img src={ relativeLinkTo{List(kindToString(containingType) + ".png", "lib")} }/>
@@ -107,14 +110,7 @@ class Search(rootPack: Package) extends Template(rootPack) {
             </h4>
 
             <div>
-              { if (mbrs.contains(containingType))
-                  <xml:group>
-                    { signature(containingType, isSelf = true) }
-                    { memberToShortCommentHtml(containingType, false) }
-                    <div class="fullcomment">{ memberToCommentBodyHtml(containingType, true) }</div>
-                  </xml:group>
-              }
-              { membersToHtml(mbrs filterNot (_ == containingType)) }
+              { membersToHtml(mbrs) }
             </div>
           </div>
         }

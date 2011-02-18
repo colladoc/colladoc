@@ -154,7 +154,7 @@ function retrieveUrl(){
             var urlpart=url.split("q=")
 
             if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {
-            $("#textfilter input").attr("value",urlpart[1]);
+            $("#textfilter input").attr("value",unescape(urlpart[1].replace(/\+/g, " ")));
             $("iframe").eq(0).attr("src","search.html?q="+urlpart[1]);
             }
 }

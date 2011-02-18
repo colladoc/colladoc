@@ -23,16 +23,15 @@
 
 $(document).ready(function() {
     reinit('body');
-    //generateLink();
 
-    $("#linkURL").click(function (){
-    //alert("aliko");
-    $.copy($(location).attr("href"));
-    });
+    var url= $(location).attr("href");
+    var urlpart=url.split("q=");
+    var src=(parent.location.href + '#q='+ urlpart[1]).replace(" ","+");
+
+    if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight(urlpart[1]); copy(src);}
+
 })
 
-function generateLink() {
-   }
 
 function reinit(selector) {
     $('.button', $(selector)).button();
@@ -56,3 +55,19 @@ function reinit(selector) {
         return false;
     });
 };
+
+function copy(txt) {
+
+                var clip = new ZeroClipboard.Client();
+                //Glue the clipboard client to the link
+                clip.glue('linkURL');
+
+                //Grab the text from the url
+
+                clip.addEventListener('mouseup',function() {
+                    alert("Copied to clipboard text:\n\n" + txt);
+                    clip.setText(txt);
+
+                });
+            };
+

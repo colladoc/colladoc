@@ -1,5 +1,0 @@
-# Default properties
--doc-title=Colladoc
--doc-version=1.0-SNAPSHOT
--sourcepath=D:/collab/demoproject/src
--classpath=D:/collab/colladoc/scripts/../scala/build/pack/lib/scala-compiler.jar;D:/collab/colladoc/scripts/../scala/build/pack/lib/scala-dbc.jar;D:/collab/colladoc/scripts/../scala/build/pack/lib/scala-library.jar;D:/collab/colladoc/scripts/../scala/build/pack/lib/scala-partest.jar;D:/collab/colladoc/scripts/../scala/build/pack/lib/scalap.jar;D:/collab/colladoc/scripts/../scala/build/pack/lib/scala-swing.jar
