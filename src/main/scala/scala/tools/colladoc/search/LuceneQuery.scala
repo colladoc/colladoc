@@ -4,6 +4,7 @@ import java.util.{ArrayList}
 import org.apache.lucene.index.Term
 import org.apache.lucene.search._
 import org.apache.lucene.search.BooleanClause.Occur
+import tools.colladoc.model.SearchIndex
 
 /**
  * User: Miroslav Paskov
@@ -13,37 +14,7 @@ import org.apache.lucene.search.BooleanClause.Occur
 
 object LuceneQuery
 {
-  /** All documents contain a comments field */
-  val COMMENTS = "comment"
-
-  /** All documents have a name */
-  val NAME = "name"
-
-  /** Every entity has a type */
-  val TYPE = "type"
-
-  /** The type is a class */
-  val CLASS = "class"
-
-  /** The type is an object */
-  val OBJECT = "object"
-
-  /** The type is a trait */
-  val TRAIT = "trait"
-
-  /** The type is a package */
-  val PACKAGE = "package"
-
-  /** Entities that extend something has this field */
-  val EXTENDS = "extends"
-
-  /** Members have a return type */
-  val RETURN = "return"
-
-  val DEF = "def"
-  val VAL = "val"
-  val VAR = "var"
-
+  import SearchIndex._
 
   implicit def convertToArrayList[T](l:List[T]):ArrayList[T] =
   {
@@ -73,68 +44,74 @@ object LuceneQuery
       case Not(query) => transformNot(transform(query))
       case Group(query) => transformGroup(transform(query))
 
-      case Comment(words) => transformComment(words map transformWord(COMMENTS))
+      case Comment(words) => transformComment(words map transformWord(commentField))
 
-      case Class(id, ext) => transformType(CLASS)(id, ext)
-      case Object(id, ext) => transformType(OBJECT)(id, ext)
-      case Trait(id, ext) => transformType(TRAIT)(id, ext)
+      case Class(id, ext) => transformType(classField)(id, ext)
+      case Object(id, ext) => transformType(objectField)(id, ext)
+      case Trait(id, ext) => transformType(traitField)(id, ext)
 
       case Extends(id) => transformExtends(id)
       case Package(id) => transformPackage(id)
 
       case Def(id, params, ret) => transformDef(id, ret)
 
-      case word:Word => transformRootWord(word)
+      case Val(id, ret) => transformVal(id, ret)
+      case word:Identifier => transformRootWord(word)
     }
   }
 
-  def transformVar(id:Identifier, ret:Option[Identifier]):Query =
+  def maybeTransformReturn(ret:Option[Identifier]) : Query =
   {
-    ret match {
-      case None => transformAnd(List(typeTermQuery(VAL), transformWord(NAME)(id)))
-      case Some(retId) => transformAnd(List(typeTermQuery(DEF), transformWord(NAME)(id), transformWord(RETURN)(retId)))
+    ret match
+    {
+      case None => null
+      case Some(retId) => transformWord(returnsField)(retId)
     }
+  }
+
+  def transformVal(id:Identifier, ret:Option[Identifier]):Query =
+  {
+    transformAnd(List(typeTermQuery(varField), transformWord(nameField)(id), maybeTransformReturn(ret)))
   }
 
   def transformDef(id:Identifier, ret:Option[Identifier]):Query =
   {
-    ret match {
-      case None => transformAnd(List(typeTermQuery(DEF), transformWord(NAME)(id)))
-      case Some(retId) => transformAnd(List(typeTermQuery(DEF), transformWord(NAME)(id), transformWord(RETURN)(retId)))
-    }
+
+      transformAnd(List(typeTermQuery(defField), transformWord(nameField)(id), maybeTransformReturn(ret)))
+
   }
 
   def transformPackage(id:Identifier):Query =
   {
     transformAnd(List(
-      typeTermQuery(PACKAGE),
-      transformWord(NAME)(id)
+      typeTermQuery(packageField),
+      transformWord(nameField)(id)
     ))
   }
 
   def transformExtends(id:Identifier):Query =
   {
-    transformWord(EXTENDS)(id)
+    transformWord(extendsField)(id)
   }
 
   def transformType(typeName:String)(id:Identifier, ext:Option[Identifier]):Query =
   {
     ext match {
-      case None => transformAnd(List(typeTermQuery(typeName), transformWord(NAME)(id)))
-      case Some(base) => transformAnd(List(typeTermQuery(typeName), transformWord(NAME)(id), transformWord(EXTENDS)(base)))
+      case None => transformAnd(List(typeTermQuery(typeName), transformWord(nameField)(id)))
+      case Some(base) => transformAnd(List(typeTermQuery(typeName), transformWord(nameField)(id), transformWord(extendsField)(base)))
     }
   }
 
   def typeTermQuery(str:String):Query =
   {
-    new TermQuery(new Term(TYPE, str))
+    new TermQuery(new Term(typeField, str))
   }
 
-  def transformRootWord(word:Word) : Query =
+  def transformRootWord(word:Identifier) : Query =
   {
     transformOr(List(
-      transformWord(NAME)(word),
-      transformWord(COMMENTS)(word)
+      transformWord(nameField)(word),
+      transformWord(commentField)(word)
     ))
   }
 
@@ -148,7 +125,9 @@ object LuceneQuery
         result
       }
       case EndWith(str) => new WildcardQuery(new Term(columnName, "*" + str))
-      case StartWith(str) => new PrefixQuery(new Term(columnName, str))
+      case StartWith(str) => new WildcardQuery(new Term(columnName, str + "*"))
+      case Contains(str) => new WildcardQuery(new Term(columnName, "*" + str + "*"))
+      case AnyWord() => null
       case AnyParams() => new PhraseQuery()
     }
   }
@@ -156,7 +135,7 @@ object LuceneQuery
   def transformComment(words:List[Query]) : Query =
   {
     val result = new BooleanQuery();
-    words foreach {result.add(_, Occur.SHOULD)}
+    words.filter(_ != null) foreach {result.add(_, Occur.SHOULD)}
     result
   }
 
@@ -172,14 +151,14 @@ object LuceneQuery
   def transformOr(queries:List[Query]):Query =
   {
     val result = new BooleanQuery();
-    queries foreach {result.add(_, Occur.SHOULD)}
+    queries.filter(_ != null) foreach {result.add(_, Occur.SHOULD)}
     result
   }
 
   def transformAnd(queries:List[Query]):Query =
   {
     val result = new BooleanQuery();
-    queries foreach {result.add(_, Occur.MUST)}
+    queries.filter(_ != null) foreach {result.add(_, Occur.MUST)}
     result
   }
 

@@ -13,7 +13,7 @@ object  ScoogleParser extends RegexParsers{
 
   final val EofCh = '\032'
 
-  val keywords = List("class", "def", "trait", "package", "object", "or", "||", "&&", "and", "not", "!", "val", "var", "extends")
+  val keywords = List("class", "def", "trait", "package", "object", "or", "||", "&&", "and", "not", "!", "val", "var", "extends", "_")
 
   def notkeyword[T](p: => Parser[T]) = Parser { in =>
     p(in) match {
@@ -25,16 +25,28 @@ object  ScoogleParser extends RegexParsers{
   def charExcept(cs: Char*) = elem("", ch => (cs forall (ch !=)))
 
   // WARNING: Words containing dots (.) are allowed!
-  def identifier = notkeyword("""[a-zA-Z_][\w\._]*""".r)
+  def identifierOrKeyword = """[a-zA-Z_][\w\._]*""".r
 
-  def startsWithIdentifier = """[a-zA-Z_][\w\._]*_""".r
+  def identifier = notkeyword(identifierOrKeyword)
+
+  def startsWithIdentifier = """[a-zA-Z][\w\._]*_""".r
+
 
   def stringLit = '\"' ~ rep( charExcept('\"', '\n', EofCh) ) ~ '\"' ^^ { case '\"' ~ chars ~ '\"' => (chars mkString "") }
 
-  def word = ( "_" ~> identifier ^^ {EndWith(_)}
+  def word =  ("_\\b".r ^^ {s => AnyWord()}
+              | "_" ~> startsWithIdentifier ^^ {s => Contains(s.substring(0, s.length-1))}
+              | "_" ~> identifier ^^ {EndWith(_)}
               | startsWithIdentifier ^^ {s => StartWith(s.substring(0, s.length-1))}
               | identifier ^^ {Word(_)}
               | stringLit ^^ {ExactWord(_)})
+
+  def wordOrKeyword =   ( "_\\b".r ^^ {s => AnyWord()}
+                        | "_" ~> startsWithIdentifier ^^ {s => Contains(s.substring(0, s.length-1))}
+                        | "_" ~> identifierOrKeyword ^^ {EndWith(_)}
+                        | startsWithIdentifier ^^ {s => StartWith(s.substring(0, s.length-1))}
+                        | identifierOrKeyword ^^ {Word(_)}
+                        | stringLit ^^ {ExactWord(_)})
 
   def words:Parser[List[Identifier]] = rep1(word)
 
@@ -46,10 +58,7 @@ object  ScoogleParser extends RegexParsers{
 
   def manyWords:Parser[Comment] = phrase(rep1(word)) ^^ {Comment(_)}
 
-
-  //def singleWord = phrase(word) ^^ {w => Or(List(Comment(List(w)), Entity(w)))}
-
-  def comment():Parser[Comment] = "//" ~ words ^^ {case _ ~ w => Comment(w)}
+  def comment():Parser[Comment] = "//" ~ (wordOrKeyword*) ^^ {case _ ~ w => Comment(w)}
 
   def `extends` = opt(("extends" ~> word))
 

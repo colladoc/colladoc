@@ -10,21 +10,45 @@ import tools.nsc.doc.model._
 import org.apache.lucene.store.{Directory, FSDirectory}
 
 object SearchIndex {
+
+  /** The type is a package */
   val packageField = "package"
+
+  /** The type is a class */
   val classField = "class"
+
+  /** The type is a trait */
   val traitField = "trait"
+
+  /** The type is an object */
   val objectField = "object"
+
+  /** The document is a def */
   val defField = "def"
+
+  /** The document is a val */
   val valField = "val"
+
+  /** The document is a var */
   val varField = "var"
   val isLazyValField = "isLazyVal"
-  val returnsField = "returns"
+
+  /** Members have a return type */
+  val returnsField = "return"
   val typeParamsCountField = "typeparamscount"
   val visibilityField = "visibility"
+
+  /** All documents have a name */
   val nameField = "name"
+
+  /** Every entity has a type */
   val typeField = "type"
+
+  /** All documents contain a comments field */
   val commentField = "comment"
   val entityLookupField = "entityLookup"
+
+  /** Entities that extend something has this field */
   val extendsField = "extends"
   val valvarField = "valvar"
   val defsField = "defs"
