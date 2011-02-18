@@ -73,9 +73,9 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
                                IndexWriter.MaxFieldLength.UNLIMITED)
 
       // Clear any previously indexed data.
-       writer.deleteAll()
+      writer.deleteAll()
 
-      indexRootPackege(rootPackage, writer)
+      indexRootPackage(rootPackage, writer)
 
       writer.optimize()
     }
@@ -88,11 +88,11 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     directory
   }
 
-  private def indexRootPackege( rootPackege : Package, writer : IndexWriter) = {
-          indexMember(rootPackage, writer, null)
+  private def indexRootPackage( rootPackage : Package, writer : IndexWriter) = {
+    indexMember(rootPackage, writer)
   }
 
-  private def indexMember(member : MemberEntity, writer : IndexWriter, parentDoc : Document) : Unit = {
+  private def indexMember(member : MemberEntity, writer : IndexWriter) : Unit = {
     val doc : Document = member match {
       case pkg : Package =>
         createPackageDocument(pkg)
@@ -103,10 +103,8 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
       case obj : Object =>
         createObjectDocument(obj)
       case df : Def =>
-        addValueToDefsField(df, parentDoc)
         createDefDocument(df)
       case value : Val =>
-        addValueToValVarField(value, parentDoc)
         createValDocument(value)
       case _ =>
         new Document
@@ -133,18 +131,32 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     val comment = member.comment match { case Some(str) => str.body.toString; case _ => ""}
     doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
 
+    // Write the appropriate member information to the current document.
+    member match {
+      case mbr : DocTemplateEntity =>
+        mbr.members.foreach((m) => {
+          m match {
+            case df: Def =>
+              addValueToDefsField(df, doc)
+            case value : Val =>
+              addValueToValVarField(value, doc)
+            case _ => { }
+          }
+        })
+      case _ => { }
+    }
+
+    // Index the document for this entity.
+    writer.addDocument(doc)
+
     // Finally, index any members of this entity.
     member match {
       case mbr : DocTemplateEntity =>
         mbr.members.foreach((m) => {
-          indexMember(m, writer, doc)
+          indexMember(m, writer)
         })
-      case _ => {
-      }
+      case _ => { }
     }
-
-     // Index the document for this entity.
-    writer.addDocument(doc)
   }
 
   private def createPackageDocument(pkg : Package) = {
