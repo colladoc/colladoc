@@ -34,7 +34,7 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
     }
 
     // TODO: Test comments and entityLookUp
-    "Index Any Entity and stores its name, entityId and comment" in {
+    "Add Any Entity and stores its name, entityId and comment" in {
       val mockEntity = mock[MemberEntity]
       expect {
         expectationsForPackageWithEntity(mockEntity)
@@ -48,7 +48,7 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
       docs(0).get(SearchIndex.nameField) mustEqual entityName
     }
 
-    "Index the classes and store their visibility, parentClass  " in {
+    "Index class and store their visibility, parentClass  " in {
       val mockClass = mock[Class]
       val parentClass = mock[TypeEntity]
       val classVisibility = "public"
@@ -64,14 +64,38 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
         one(mockVisibility).isPublic willReturn true
         expectationsForAnyMemberEntity(mockClass)
       }
-
-
       val index = new SearchIndex(mockPackage, directory)
       val docs = getAllDocs(directory)
 
       docs.length must beEqual(2)
       docs(0).get(SearchIndex.visibilityField) mustEqual classVisibility
       docs(0).get(SearchIndex.extendsField) mustEqual parentClassName
+    }
+
+    "Index Def and stores its number of parameters, visibility, return value" in {
+      /*val mockDef = mock[Def]
+      val mockVisibility = mock[Visibility]
+      val mockReturnParam = mock[TypeParam]
+      val mockParam = mock[TypeParam]
+      val returnParamName = "Return Param Name"
+      val defVisibility = "public"
+      expect {
+        expectationsForPackageWithEntity(mockDef)
+
+        one(mockDef).typeParams willReturn(List[TypeParam](mockParam))
+        one(mockDef).visibility willReturn mockVisibility
+        one(mockDef).resultType willReturn mockReturnParam
+        one(mockReturnParam).name willReturn returnParamName
+
+        expectationsForAnyMemberEntity(mockEntity)
+      }
+
+      val index = new SearchIndex(mockPackage, directory)
+      val docs = getAllDocs(directory)
+
+      docs(0).get(SearchIndex.returnsField) mustEqual returnParamName
+      docs(0).get(SearchIndex.typeParamsCountField) mustEqual(1)
+      docs(0).get(SearchIndex.visibilityField) mustEqual defVisibility*/
     }
 
     "Add valsOrVars field to package documents" in {

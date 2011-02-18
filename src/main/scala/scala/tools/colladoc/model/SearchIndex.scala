@@ -1,5 +1,4 @@
 package scala.tools.colladoc.model
-
 import java.io.File
 import java.util.HashMap
 import org.apache.lucene.index.IndexWriter
