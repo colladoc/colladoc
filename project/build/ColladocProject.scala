@@ -17,6 +17,10 @@ with WinstoneProject
   val postgresql = "postgresql" % "postgresql" % "8.4-701.jdbc4"
   val junit = "junit" % "junit" % "4.8.2" % "test->default"
   val jmock_junit4 = "org.jmock" % "jmock-junit4" % "2.5.1" % "test->default"
+  // We need all mock_classes_ext libraries inorder to use ClassMocker class for mocking classes
+  val mock_classes_ext1 = "cglib" % "cglib" %"2.1_3" % "test->default"
+  val mock_classes_ext2 = "org.objenesis" % "objenesis" %"1.0" % "test->default"
+  val mock_classes_ext3 = "org.jmock" % "jmock-legacy" %"2.5.1" % "test->default"
   val specs = "org.scala-tools.testing" % "specs_2.8.1" % "1.6.6" % "test->default"
  // TODO: Uncomment this line after the jetty-run error caused by selenium is fixed: ExceptionInInitializerError
  /*val selenium = "org.seleniumhq.selenium" % "selenium" % "2.0b1" % "test->default"
