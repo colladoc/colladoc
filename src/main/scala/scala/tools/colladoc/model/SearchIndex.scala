@@ -8,6 +8,7 @@ import org.apache.lucene.util.Version
 import org.apache.lucene.document.{Field, Document}
 import tools.nsc.doc.model._
 import org.apache.lucene.store.{Directory, FSDirectory}
+import tools.colladoc.search.AnyParams
 
 object SearchIndex {
 
@@ -37,6 +38,9 @@ object SearchIndex {
   val returnsField = "return"
   val typeParamsCountField = "typeparamscount"
   val visibilityField = "visibility"
+
+  val methodParamsCount = "methodParamsCount"
+  val methodParams = "methodParams"
 
   /** All documents have a name */
   val nameField = "name"
@@ -224,13 +228,27 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
 
   private def createDefDocument(df : Def) = {
     val doc = new Document
-    doc.add(new Field(defField,
-                      df.name,
+
+    doc.add(new Field(typeField,
+                      defField,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
+
+
+
     addTypeParamsCountField(df.typeParams, doc)
     addVisibilityField(df.visibility, doc)
     addReturnsField(df.resultType, doc)
+
+    val params:List[ValueParam] = df.valueParams.flatten(l => l)
+
+    val paramNames = params.map(_.name);
+
+    val fieldValue = paramNames.mkString(" ")
+
+    doc.add(new Field(methodParams, fieldValue, Field.Store.YES, Field.Index.ANALYZED))
+
+    doc.add(new Field(methodParamsCount, params.size.toString, Field.Store.YES, Field.Index.NOT_ANALYZED))
 
     doc
   }
@@ -239,14 +257,16 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     val valOrVarFieldKey = if (valOrVar.isVar) varField else valField
     val doc = new Document
 
-    doc.add(new Field(valOrVarFieldKey,
-                      valOrVar.name,
+    doc.add(new Field(typeField,
+                      valOrVarFieldKey,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
+
     doc.add(new Field(isLazyValField,
                       valOrVar.isLazyVal.toString(),
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
+
     addReturnsField(valOrVar.resultType, doc)
 
     doc

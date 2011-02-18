@@ -82,10 +82,8 @@ class Search(rootPack: Package) extends Template(rootPack) {
           case _ => mbr.inTemplate
         }
 
-        if (!containingTypeMap.contains(tpl)) {
-          // Add this member to the current list of members for this type.
-          containingTypeMap += tpl -> (mbr :: containingTypeMap(tpl))
-        }
+        // Add this member to the current list of members for this type.
+        containingTypeMap(tpl) = (mbr :: containingTypeMap(tpl))
       }
 
       containingTypeMap

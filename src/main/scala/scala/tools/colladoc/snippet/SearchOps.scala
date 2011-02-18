@@ -74,7 +74,7 @@ class SearchOps extends StatefulSnippet{
   {
     var searcher : IndexSearcher = null
     try {
-      val hitsPerPage = 10
+      val hitsPerPage = 10000
       val collector = TopScoreDocCollector.create(hitsPerPage, true)
       searcher = new IndexSearcher(index.vend.luceneDirectory, true)
 
@@ -83,14 +83,14 @@ class SearchOps extends StatefulSnippet{
       searcher.search(query, collector)
 
       // Collect the entities that were returned
-      val entityResults = collector.topDocs().scoreDocs.map((hit) => {
+      val entityResults = collector.topDocs(0, 20).scoreDocs.map((hit) => {
         val doc = searcher.doc(hit.doc)
         val entitylookupKey = Integer.parseInt(doc.get(SearchIndex.entityLookupField))
         val entityResult = index.vend.entityLookup.get(entitylookupKey)
         entityResult
       })
 
-      println("Results: " + entityResults.toString)
+      println("Results: " + entityResults.size)
       resultsToHtml(entityResults)
     }
     finally {

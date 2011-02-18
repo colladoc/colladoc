@@ -44,7 +44,7 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
       val index = new SearchIndex(mockPackage, directory)
       val docs = getAllDocs(directory)
 
-      docs.length must beEqual(1)
+      docs.length must beEqual(2)
       docs(0).get(SearchIndex.nameField) mustEqual entityName
     }
 

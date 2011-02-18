@@ -17,12 +17,7 @@ function stripVowelAccent(str)
 	return str;
 }
 
-/* Modification of */
-/* http://www.kryogenix.org/code/browser/searchhi/ */
-/* See: */
-/*   http://www.tedpavlic.com/post_highlighting_search_results_with_ted_searchhi_javascript.php */    
-/*   http://www.tedpavlic.com/post_inpage_highlighting_example.php */
-/* for additional modifications of this base code. */
+
 function highlightWord(node,word,doc) {
      doc = typeof(doc) != 'undefined' ? doc : document;
 	// Iterate into this nodes childNodes
@@ -33,8 +28,7 @@ function highlightWord(node,word,doc) {
 		}
 	}
 
-	// And do this node itself
-	if (node.nodeType == 3) { // text node
+    if (node.nodeType == 3)  { // text node
 		tempNodeVal = stripVowelAccent(node.nodeValue.toLowerCase());
 		tempWordVal = stripVowelAccent(word.toLowerCase());
 		if (tempNodeVal.indexOf(tempWordVal) != -1) {
@@ -88,8 +82,9 @@ function localSearchHighlight(searchStr,doc) {
         if (searchStr == '') return;
 	// Trim leading and trailing spaces after unescaping
 	searchstr = unescape(searchStr).replace(/^\s+|\s+$/g, "");
-	if( searchStr == '' ) return;
-	phrases = searchStr.replace(/\+/g,' ').split(/\"/);
+    if( searchStr == '' ) return;
+	phrases = (searchStr.replace('_',' ')).replace(/\+/g,' ').split(/\"/);
+
 	// Use this next line if you would like to force the script to always
 	// search for phrases. See below as well!!!
 	//phrases = new Array(); phrases[0] = ''; phrases[1] = searchStr.replace(/\+/g,' ');
@@ -100,7 +95,7 @@ function localSearchHighlight(searchStr,doc) {
 		else { words=Array(1); words[0] = phrases[p]; }
                	for (w=0;w<words.length;w++) {
 			if( words[w] == '' ) continue;
-			highlightWord(doc.getElementsByTagName("body")[0],words[w],doc);
+			highlightWord(doc.getElementById("searchResults"),words[w],doc);
         	}
 	}
 }
