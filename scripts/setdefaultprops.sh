@@ -35,18 +35,6 @@ fi
 cd $sourcepath
 sourcepath=$(pwd)
 
-# The list of compiler jars that need to be in the classpath. If the demo project
-# needs other libs then you need to add them yourself.
-jars="scala-compiler.jar
-      scala-dbc.jar
-      scala-library.jar
-      scala-partest.jar
-      scalap.jar
-      scala-swing.jar"
-
-# Here is the folder that contains these jars.
-classpath=$colladocfolder/scala/build/pack/lib/
-
 # and the props file we are writing to.
 propsfile=$colladocfolder/src/main/resources/props/default.props
 
@@ -58,9 +46,12 @@ echo -doc-version=1.0-SNAPSHOT>> $propsfile
 echo -sourcepath=$sourcepath>> $propsfile
 echo -n -classpath=>> $propsfile
 
-for jar in $jars
-do
-    echo -n $classpath$jar';'>>$propsfile
-done
+# Here is the folder that contains the jars we need to put in the classpath.
+classpath=$colladocfolder/scala/build/pack/lib/
+
+# Puts the base classpath requirement jars in the props file. The classpath may
+# need to be edited manually if the project being modeled in colladoc requires
+# additional libs.
+echo -n $classpath$'scala-compiler.jar:'$classpath$'scala-library.jar:'>>$propsfile
 
 echo Done.
