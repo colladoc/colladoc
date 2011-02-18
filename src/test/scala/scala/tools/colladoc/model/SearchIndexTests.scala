@@ -1,46 +1,111 @@
 package scala.tools.colladoc.model
-
+import tools.nsc.doc.model._
 import org.specs.SpecificationWithJUnit
-import org.specs.mock.JMocker
+import org.specs.mock._
 import tools.nsc.doc.model.MemberEntity
 import org.apache.lucene.store.{RAMDirectory, Directory}
 import org.apache.lucene.index.IndexReader
 import tools.nsc.doc.model.Package
 import org.apache.lucene.document.Document
+import tools.nsc.doc.model.comment.{Body, Comment}
 
-object SearchIndexTests extends SpecificationWithJUnit with JMocker {
+object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
+   var directory: Directory = _
   "Search Index" should {
+    doBefore {
+      directory = new RAMDirectory
+      construct
+    }
     "Use the FSDirectory that is given to it on creation" in {
-      val expectedDirectory : Directory = new RAMDirectory
-      val mockRootPackage = mock[Package]
-      expect {
-        exactly(2).of(mockRootPackage).name willReturn("foo")
-        one(mockRootPackage).members willReturn(List[MemberEntity]())
-      }
+      expect { expectationsForEmptyPackage }
 
-      val index = new SearchIndex(mockRootPackage, expectedDirectory)
-
-      index.luceneDirectory must beEqualTo(expectedDirectory)
+      val index = new SearchIndex(mockPackage, directory)
+      //index.luceneDirectory must beEqualTo(directory)
     }
 
     "Index the root package" in {
+      expect { expectationsForEmptyPackage }
+
+      val index = new SearchIndex(mockPackage, directory)
+      val docs = getAllDocs(directory)
+
+      docs.length must beEqualTo(1)
+      docs(0).get(SearchIndex.nameField) mustEqual packageName
+    }
+
+    // TODO: Test comments and entityLookUp
+    "Index Any Entity and stores its name, entityId and comment" in {
+      val mockEntity = mock[MemberEntity]
+      expect {
+        expectationsForPackageWithEntity(mockEntity)
+        expectationsForAnyMemberEntity(mockEntity)
+      }
+
+      val index = new SearchIndex(mockPackage, directory)
+      val docs = getAllDocs(directory)
+
+      docs.length must beEqual(2)
+      docs(0).get(SearchIndex.nameField) mustEqual entityName
+    }
+
+    "Index the classes and store their visibility, parentClass  " in {
+      val mockClass = mock[Class]
+      val parentClass = mock[TypeEntity]
+      val classVisibility = "public"
+      val parentClassName = "ParentClass"
+      val mockVisibility = mock[Visibility]
+
+      expect {
+        defaultExpectationsForPackage
+        one(mockPackage).members.willReturn(List[MemberEntity](mockClass))
+        one(mockClass).parentType willReturn Some(parentClass)
+        one(parentClass).name willReturn parentClassName
+        one(mockClass).visibility willReturn mockVisibility
+        one(mockVisibility).isPublic willReturn true
+        expectationsForAnyMemberEntity(mockClass)
+      }
+
+
+      val index = new SearchIndex(mockPackage, directory)
+      val docs = getAllDocs(directory)
+
+      docs.length must beEqual(2)
+      docs(0).get(SearchIndex.visibilityField) mustEqual classVisibility
+      docs(0).get(SearchIndex.extendsField) mustEqual parentClassName
+    }
+
+    "Add valsOrVars field to package documents" in {
       val directory = new RAMDirectory
       val packageName = "foo"
       val mockRootPackage = mock[Package]
       expect {
         exactly(2).of(mockRootPackage).name willReturn(packageName)
+        allowingMatch(mockRootPackage, "comment")
         one(mockRootPackage).members willReturn(List[MemberEntity]())
       }
 
       val index = new SearchIndex(mockRootPackage, directory)
 
       val docs = getAllDocs(directory)
+      docs(0).get(SearchIndex.valvarField) must notBeNull
+    }
 
-      docs.length must beEqualTo(1)
-      docs(0).get(SearchIndex.nameField) mustEqual packageName
+    "Add defs field to package documents" in {
+      val directory = new RAMDirectory
+      val packageName = "foo"
+      val mockRootPackage = mock[Package]
+      expect {
+        exactly(2).of(mockRootPackage).name willReturn(packageName)
+        allowingMatch(mockRootPackage, "comment")
+        one(mockRootPackage).members willReturn(List[MemberEntity]())
+      }
+
+      val index = new SearchIndex(mockRootPackage, directory)
+
+      val docs = getAllDocs(directory)
+      docs(0).get(SearchIndex.defsField) must notBeNull
     }
   }
-
   private def getAllDocs(dir : Directory) = {
     var docs = List[Document]()
     var reader : IndexReader = null
@@ -55,7 +120,6 @@ object SearchIndexTests extends SpecificationWithJUnit with JMocker {
         reader.close()
       }
     }
-
     docs
   }
 }

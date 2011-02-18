@@ -6,14 +6,24 @@ package scala.tools.colladoc.search
  * Time: 3:22 PM
  */
 
-// NOTE: There is no class hierarchy because extending case classes may be deprecated.
+/**
+ * The base class for all queries that will be parsed for searching.
+ *
+ * NOTE: TThere is no class hierarchy because extending case classes may be deprecated.
+ */
 abstract sealed trait SearchQuery
+
+/**
+ * Base class for all identifiers - for type, package or member names as well as comment content.
+ */
 abstract sealed trait Identifier extends SearchQuery
 
 case class Word(identifier:String) extends Identifier
 case class ExactWord(exact:String) extends Identifier
 case class EndWith(exact:String) extends Identifier
 case class StartWith(exact:String) extends Identifier
+case class Contains(exact:String) extends Identifier
+case class AnyWord() extends Identifier
 case class AnyParams() extends Identifier
 
 case class Comment(words:List[Identifier]) extends SearchQuery
