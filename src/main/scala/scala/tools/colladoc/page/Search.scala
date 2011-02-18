@@ -45,7 +45,7 @@ class Search(rootPack: Package) extends Template(rootPack) {
           {
             <div id="visbl">
               <span class="filtertype">Visibility</span>
-              <ol><li class="public in">Public</li><li class="all out">All</li></ol>
+              <ol><li class="public out">Public</li><li class="all in">All</li></ol>
             </div>
           }
           {
