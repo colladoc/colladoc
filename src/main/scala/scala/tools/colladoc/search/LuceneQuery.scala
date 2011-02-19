@@ -83,10 +83,10 @@ object LuceneQuery
 
   def transformDef(id:Identifier, params:List[List[Identifier]], ret:Option[Identifier]):Query =
   {
-
-    var paramsCount = params.flatten(l => l).count(_.isInstanceOf[AnyParams]) match
+    val flattened = params.flatten(l => l);
+    var paramsCount = flattened.count(_.isInstanceOf[AnyParams]) match
     {
-      case 0 => new TermQuery(new Term(methodParamsCount, params.size.toString))
+      case 0 => new TermQuery(new Term(methodParamsCount, flattened.size.toString))
       case _ => null
     }
 
