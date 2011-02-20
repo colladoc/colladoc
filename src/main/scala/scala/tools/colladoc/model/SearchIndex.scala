@@ -108,14 +108,19 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
       case _ => Nil
     }
 
-    val remainingMembers = members.tail ::: additionalMembers
+    // We could be dealing with a huge list here so it's important that we cons
+    // as efficiently as possible.
+    var remainingMembers = members.tail
+    additionalMembers.foreach((m)=> {
+      remainingMembers = m :: remainingMembers
+    })
 
-    // Finally, the recursive step, index the remainig members...
+    // Finally, the recursive step, index the remaining members...
     // NOTE: Tail call recursion is REQUIRED here because of the depth of
     // scaladoc models for large code bases
     if (!remainingMembers.isEmpty) {
       indexMembers(remainingMembers, writer)
-    } 
+    }
   }
 
   private def indexMember(member : MemberEntity, writer : IndexWriter) : Unit = {
