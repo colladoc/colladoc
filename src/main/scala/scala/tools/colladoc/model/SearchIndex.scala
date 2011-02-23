@@ -112,7 +112,11 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     // as efficiently as possible.
     var remainingMembers = members.tail
     additionalMembers.foreach((m)=> {
-      remainingMembers = m :: remainingMembers
+      // Make sure that we do not try to index a member that we have indexed
+      // already!
+      if (!entityLookup.containsValue(m)) {
+        remainingMembers = m :: remainingMembers
+      }
     })
 
     // Finally, the recursive step, index the remaining members...

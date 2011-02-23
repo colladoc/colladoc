@@ -105,6 +105,25 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
       val docs = getAllDocs(directory)
       docs(0).get(SearchIndex.defsField) must notBeNull
     }
+
+    "Only index each entity once" in {
+      val directory = new RAMDirectory
+      val packageName = "foo"
+      val mockRootPackage = mock[Package]
+      expect {
+        exactly(2).of(mockRootPackage).name willReturn(packageName)
+        allowingMatch(mockRootPackage, "comment")
+
+        // This entity returns itself as a member, putting us in a situation where
+        // we could index it twice (or infinitely) if we are not careful.
+        one(mockRootPackage).members willReturn(List[MemberEntity](mockRootPackage))
+      }
+
+      val index = new SearchIndex(mockRootPackage, directory)
+      val docs = getAllDocs(directory)
+
+      docs.length must beEqual(1)
+    }
   }
   private def getAllDocs(dir : Directory) = {
     var docs = List[Document]()
