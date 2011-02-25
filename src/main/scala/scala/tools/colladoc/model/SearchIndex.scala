@@ -65,39 +65,6 @@ class SearchIndex(indexDirectory : Directory) {
   var directory = indexDirectory
   def this() = this(FSDirectory.open(new File("lucene-index")))
 
-  private def getDocumentsByMember(member:MemberEntity,reader : IndexReader) : TermDocs = {
-    val number = reader.docFreq(new Term(entityLookupField, member.hashCode.toString))
-    println("number:" + number)
-    println(member.hashCode.toString)
-    val docsToBeModified = reader.termDocs(new Term(entityLookupField,  member.hashCode.toString))
-    docsToBeModified
-  }
-
-  private def updateDocumentComments(docs : List[Document],
-                                     member : MemberEntity,
-                                     writer : IndexWriter){
-        docs.foreach(doc =>{
-        doc.removeField(commentField)
-        val newDoc = addCommentToDocument(member, doc)
-        writer.addDocument(newDoc)
-    })
-  }
-
-  private def removeDocuments(member : MemberEntity, directory : Directory) : List[Document] = {
-    val reader = IndexReader.open(directory, false)
-    val docs = getDocumentsByMember(member, reader)
-    var removeDocs = List[Document]()
-    while(docs.next()){
-
-    val doc = reader.document(docs.doc())
-    reader.deleteDocument(docs.doc())
-    removeDocs = doc :: removeDocs
-    }
-    reader.close
-    removeDocs
-  }
-
-
   def reindexEntityComment(member : MemberEntity){
     Timer.go
     var reader : IndexReader = null
@@ -138,6 +105,38 @@ class SearchIndex(indexDirectory : Directory) {
       }
     }
   }
+
+  private def getDocumentsByMember(member:MemberEntity,reader : IndexReader) : TermDocs = {
+      val number = reader.docFreq(new Term(entityLookupField, member.hashCode.toString))
+      println("number:" + number)
+      println(member.hashCode.toString)
+      val docsToBeModified = reader.termDocs(new Term(entityLookupField,  member.hashCode.toString))
+      docsToBeModified
+    }
+
+  private def updateDocumentComments(docs : List[Document],
+                                       member : MemberEntity,
+                                       writer : IndexWriter){
+          docs.foreach(doc =>{
+          doc.removeField(commentField)
+          val newDoc = addCommentToDocument(member, doc)
+          writer.addDocument(newDoc)
+      })
+    }
+
+  private def removeDocuments(member : MemberEntity, directory : Directory) : List[Document] = {
+      val reader = IndexReader.open(directory, false)
+      val docs = getDocumentsByMember(member, reader)
+      var removeDocs = List[Document]()
+      while(docs.next()){
+
+      val doc = reader.document(docs.doc())
+      reader.deleteDocument(docs.doc())
+      removeDocs = doc :: removeDocs
+      }
+      reader.close
+      removeDocs
+    }
 
   private def indexMembers(members : List[MemberEntity], writer : IndexWriter) : Unit = {
     if (members.isEmpty) {
