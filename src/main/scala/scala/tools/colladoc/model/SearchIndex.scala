@@ -265,6 +265,9 @@ class SearchIndex(indexDirectory : Directory) {
     classOrTrait.parentType match {case Some(parent) => doc.add(new Field(extendsField, parent.name.toLowerCase, Field.Store.YES, Field.Index.NOT_ANALYZED))
                                    case _ => {}}
 
+    val withs = classOrTrait.linearizationTemplates.filter(_.isTrait).map(_.name).mkString(" ").toLowerCase
+    doc.add(new Field(withsField, withs, Field.Store.YES, Field.Index.NOT_ANALYZED))
+
 
     addVisibilityField(classOrTrait.visibility, doc)
 
@@ -296,17 +299,11 @@ class SearchIndex(indexDirectory : Directory) {
 
     val fieldValue = paramTypes.mkString(" ")
 
-    println("methodParams: " + fieldValue )
-
     val pField = new Field(methodParams, fieldValue.toLowerCase, Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.WITH_POSITIONS)
 
     pField.setOmitTermFreqAndPositions(false)
 
     doc.add(pField)
-
-    println(pField.isStorePositionWithTermVector)
-    println(pField.isTermVectorStored)
-    println(pField.isIndexed)
 
     doc.add(new NumericField(methodParamsCount).setIntValue(params.size))
 

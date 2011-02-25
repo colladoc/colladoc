@@ -7,7 +7,7 @@ import org.apache.lucene.store.{RAMDirectory, Directory}
 import tools.nsc.doc.model.Package
 import org.apache.lucene.document.Document
 import tools.nsc.doc.model.comment.{Body, Comment}
-import org.apache.lucene.index.{TermDocs, IndexWriter, IndexReader}
+import org.apache.lucene.index.{IndexReader}
 
 object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
    var directory: Directory = _
