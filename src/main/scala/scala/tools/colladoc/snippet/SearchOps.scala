@@ -11,16 +11,7 @@ import net.liftweb.http.js.JE._
 import scala.{ xml}
 import net.liftweb.http.{S, SHtml, RequestVar, StatefulSnippet}
 import scala.tools.colladoc.search._
-import org.apache.lucene.search.IterablePaging.TotalHitsRef
-import org.apache.lucene.search.IterablePaging.TotalHitsRef
-import org.apache.lucene.search.IterablePaging.ProgressRef
-import org.apache.lucene.search.IterablePaging.ProgressRef
-import org.apache.lucene.search.IterablePaging.TotalHitsRef
-import org.apache.lucene.search.IterablePaging
 import org.apache.lucene.search._
-import org.apache.lucene.search.IterablePaging.TotalHitsRef
-import org.apache.lucene.search.IterablePaging.TotalHitsRef
-import org.apache.lucene.search.IterablePaging.TotalHitsRef
 import scala.collection.JavaConversions._
 
 /**
@@ -75,7 +66,7 @@ class SearchOps extends StatefulSnippet{
 	    errorToHtml("We dont like empty queries")
     }
   }
-
+  /*
   def displayResults(query:Query):NodeSeq =
   {
     var searcher : IndexSearcher = null
@@ -92,6 +83,38 @@ class SearchOps extends StatefulSnippet{
     }
   }
 
+  */
+   def displayResults(query:Query):NodeSeq =
+  {
+    var searcher : IndexSearcher = null
+    try {
+      val hitsPerPage = 10
+      val collector = TopScoreDocCollector.create(hitsPerPage, true)
+      searcher = new IndexSearcher(index.vend.directory, true)
+
+      println("Lucene Query: " + query.toString)
+
+      searcher.search(query, collector)
+
+      // Collect the entities that were returned
+      val entityResults = collector.topDocs().scoreDocs.map((hit) => {
+        val doc = searcher.doc(hit.doc)
+        val entitylookupKey = Integer.parseInt(doc.get(SearchIndex.entityLookupField))
+        val entityResult = index.vend.entityLookup.get(entitylookupKey)
+        entityResult
+      })
+
+      println("Results: " + entityResults.toString)
+      resultsToHtml(entityResults)
+    }
+    finally {
+      if (searcher != null) {
+        searcher.close()
+      }
+    }
+  }
+
+  /*
   def searchResults(searcher : IndexSearcher, query : Query, pageNumber : Int)={
     val totalHitsRef = new TotalHitsRef();
 		val paging = new IterablePaging(searcher, query, 1000);
@@ -111,7 +134,7 @@ class SearchOps extends StatefulSnippet{
       println("Results: " + totalHitsRef.totalHits())
       resultsToHtml(entityResults)
   }
-
+  */
   /** Render search results **/
   def resultsToHtml(members : Iterable[MemberEntity]) = {
     <div id="searchResults">
