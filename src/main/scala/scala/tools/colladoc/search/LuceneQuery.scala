@@ -4,7 +4,9 @@ import java.util.{ArrayList}
 import org.apache.lucene.index.Term
 import org.apache.lucene.search._
 import org.apache.lucene.search.BooleanClause.Occur
+import spans._
 import tools.colladoc.model.SearchIndex
+import collection.mutable.{ListBuffer, ArrayBuffer}
 
 /**
  * User: Miroslav Paskov
@@ -46,11 +48,12 @@ object LuceneQuery
 
       case Comment(words) => transformComment(words map transformWord(commentField))
 
-      case Class(id, ext) => transformType(classField)(id, ext)
-      case Object(id, ext) => transformType(objectField)(id, ext)
-      case Trait(id, ext) => transformType(traitField)(id, ext)
+      case Class(id, ext, withs) => transformTypeEntity(classField)(id, ext, withs)
+      case Object(id, ext, withs) => transformTypeEntity(objectField)(id, ext, withs)
+      case Trait(id, ext, withs) => transformTypeEntity(traitField)(id, ext, withs)
 
       case Extends(id) => transformExtends(id)
+      case Withs(withs) => transformAnd((withs map transformWith).toList)
       case Package(id) => transformPackage(id)
 
       case Def(id, params, ret) => transformDef(id, params, ret)
@@ -62,40 +65,101 @@ object LuceneQuery
     }
   }
 
-  def maybeTransformReturn(ret:Option[Identifier]) : Query =
+  def maybeTransformReturn(ret:Option[Type]) : Query =
   {
     ret match
     {
       case None => null
-      case Some(retId) => transformWord(returnsField)(retId)
+      case Some(retId) => transformType(returnsField)(retId)
     }
   }
 
-  def transformVal(id:Identifier, ret:Option[Identifier]):Query =
+  def transformVal(id:Identifier, ret:Option[Type]):Query =
   {
     transformAnd(List(transformOr(List(typeTermQuery(valField), typeTermQuery(varField))), transformWord(nameField)(id), maybeTransformReturn(ret)))
   }
 
-  def transformVar(id:Identifier, ret:Option[Identifier]):Query =
+  def transformVar(id:Identifier, ret:Option[Type]):Query =
   {
     transformAnd(List(transformOr(List(typeTermQuery(varField), typeTermQuery(valField))), transformWord(nameField)(id), maybeTransformReturn(ret)))
   }
 
-  def transformDef(id:Identifier, params:List[List[Identifier]], ret:Option[Identifier]):Query =
+  /**
+   * Returns a tuple - (Parameters Count Query, Parameters Query)
+   *
+   * The case with no restrictions is by the caller.
+   */
+  def transformMethodParams(params:List[TypeIdentifier]):(Query, Query) =
+  {
+    val allBlocks = new ListBuffer[Query]
+
+    var blockStart = 0
+    var blockEnd = 0
+    var block:ArrayBuffer[SpanQuery] = null;
+
+    var minCount = 0;
+    var maxCount = 0;
+
+    def endSpan()
+    {
+      if(block != null)
+      {
+        val near = new SpanNearQuery(block.toArray, 0, true)
+        val position = new SpanPositionRangeQuery(near, blockStart, maxCount)
+        allBlocks += position;
+
+        block = null;
+      }
+    }
+
+    def addToSpan(sq:SpanQuery)
+    {
+      if(block == null)
+      {
+        blockStart = minCount
+        blockEnd = maxCount
+        block = new ArrayBuffer[SpanQuery]
+      }
+
+      block += sq
+    }
+
+    for(p <- params)
+    {
+      p match {
+        case AnyParams() => endSpan(); maxCount += 10
+        case Type(AnyWord(), List()) => endSpan();  minCount += 1; maxCount +=1;
+        case Type(Word(str), List()) => addToSpan(new SpanTermQuery(new Term(methodParams, str))); minCount += 1; maxCount += 1;
+        case id:Type => addToSpan(new SpanMultiTermQueryWrapper((transformType(methodParams)(id)).asInstanceOf[WildcardQuery])); minCount += 1; maxCount += 1;
+      }
+    }
+
+    endSpan()
+
+    val countQuery = NumericRangeQuery.newIntRange(methodParamsCount, minCount, maxCount, true, true)
+
+    val paramsQuery = allBlocks.size match
+    {
+      case 0 => null
+      case 1 => allBlocks(0)
+      case _ => transformAnd(allBlocks.toList)
+    }
+
+    (countQuery, paramsQuery)
+  }
+
+  def transformDef(id:Identifier, params:List[List[TypeIdentifier]], ret:Option[Type]):Query =
   {
     val flattened = params.flatten(l => l);
-    var paramsCount = flattened.count(_.isInstanceOf[AnyParams]) match
-    {
-      case 0 => new TermQuery(new Term(methodParamsCount, flattened.size.toString))
-      case _ => null
-    }
+
+    var paramQueries = transformMethodParams(flattened)
 
     if(params.size == 0)
     {
-      paramsCount = null;
+      paramQueries = (null, null)
     }
 
-    transformAnd(List(typeTermQuery(defField), transformWord(nameField)(id), paramsCount, maybeTransformReturn(ret)))
+    transformAnd(List(typeTermQuery(defField), transformWord(nameField)(id), paramQueries._1, paramQueries._2, maybeTransformReturn(ret)))
   }
 
   def transformPackage(id:Identifier):Query =
@@ -106,16 +170,21 @@ object LuceneQuery
     ))
   }
 
-  def transformExtends(id:Identifier):Query =
+  def transformWith(id:Type):Query =
   {
-    transformWord(extendsField)(id)
+    transformType(withsField)(id)
   }
 
-  def transformType(typeName:String)(id:Identifier, ext:Option[Identifier]):Query =
+  def transformExtends(id:Type):Query =
+  {
+    transformType(extendsField)(id)
+  }
+
+  def transformTypeEntity(typeName:String)(id:Identifier, ext:Option[Type], withs:List[Type]):Query =
   {
     ext match {
-      case None => transformAnd(List(typeTermQuery(typeName), transformWord(nameField)(id)))
-      case Some(base) => transformAnd(List(typeTermQuery(typeName), transformWord(nameField)(id), transformWord(extendsField)(base)))
+      case None => transformAnd(List(typeTermQuery(typeName), transformWord(nameField)(id), transformAnd((withs map transformWith).toList)))
+      case Some(base) => transformAnd(List(typeTermQuery(typeName), transformWord(nameField)(id), transformType(extendsField)(base), transformAnd((withs map transformWith).toList)))
     }
   }
 
@@ -132,20 +201,46 @@ object LuceneQuery
     ))
   }
 
+  def transformType(columnName:String)(id:Type) : Query =
+  {
+    id match {
+      case Type(word, List()) => transformWord(columnName)(word)
+      case withGenerics => new WildcardQuery(new Term(columnName, typeToString(withGenerics)))
+    }
+  }
+
+  def typeToString(id:Type) : String =
+  {
+    id.generics match
+    {
+      case Nil => idToString(id.id)
+      case anyGenerics => idToString(id.id) + anyGenerics.map(typeToString).mkString("[", ",", "]")
+    }
+  }
+
+  def idToString(id:Identifier) : String =
+  {
+    id match {
+      case Word(id) =>  id
+      case ExactWord(str) => '"' + str + '"'
+      case EndWith(str) => "*" + str
+      case StartWith(str) => str + "*"
+      case Contains(str) => "*" + str + "*"
+      case AnyWord() => "*"
+    }
+  }
+
   def transformWord(columnName:String)(id:Identifier) : Query =
   {
     id match {
-      case Word(id) =>  new TermQuery(new Term(columnName, id))
       case ExactWord(str) => {
         val result = new PhraseQuery()
         result.add(new Term(columnName, str))
         result
       }
-      case EndWith(str) => new WildcardQuery(new Term(columnName, "*" + str))
-      case StartWith(str) => new WildcardQuery(new Term(columnName, str + "*"))
-      case Contains(str) => new WildcardQuery(new Term(columnName, "*" + str + "*"))
       case AnyWord() => null
-      case AnyParams() => new PhraseQuery()
+      case Word(str) => new TermQuery(new Term(columnName, str))
+      case id => new WildcardQuery(new Term(columnName, idToString(id)))
     }
   }
 
@@ -176,7 +271,10 @@ object LuceneQuery
   {
     val result = new BooleanQuery();
     queries.filter(_ != null) foreach {result.add(_, Occur.MUST)}
-    result
+    result.getClauses().size match {
+      case 0 => null
+      case _ => result
+    }
   }
 
   // NOTE: All entities should contain their package:! Dotted packages (wow.test) are not separated)

@@ -1,8 +1,6 @@
 package scala.tools.colladoc.snippet
 
-import org.apache.lucene.util.Version
 import tools.colladoc.model.SearchIndex
-import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.search.{TopScoreDocCollector, IndexSearcher}
 import tools.colladoc.page.Search
 import tools.nsc.doc.model.MemberEntity

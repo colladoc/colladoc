@@ -25,6 +25,7 @@ package lib {
 
 import net.liftweb._
 import http._
+//import model.{Model}
 import model.{SearchIndex, Model}
 
 /**
@@ -43,11 +44,23 @@ object DependencyFactory extends Factory {
     S.param("path") openOr "" split('/')
 
   private val getIndex = new SearchIndex(getModel.rootPackage)
+//  {
+//    var wow:SearchIndex = null;
+//    try
+//    {
+//      wow =
+//    }
+//    catch
+//    {
+//      case e:Exception => println("EEERRRROOORRR!"); println(e.toString)
+//    }
+//    wow
+//  }
 
   private def init() {
     // TODO: Is this the best place to start indexing?
     getIndex
-
+    //
     List(model, path)
   }
   init()
