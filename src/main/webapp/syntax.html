@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head><title>Syntax Reference</title>
+<style type="text/css">
+table, td, th
+{
+border-collapse:collapse;
+border:1px solid black;
+}
+td
+{
+padding:5px;
+}
+th
+{
+padding:15px;
+background-color: #6666ff;
+color: #ffffff;
+}
+</style>
+</head>
+
+<body>
+  <table cellspacing="3">
+	<caption style="padding:15px;">Sample Query Syntax</caption>
+	<thead>
+		<tr>
+			<th width="30%">User Query</th>
+			<th width="30%">Syntax</th>
+			<th width="40%">Results Produced</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>[q1] Any text &quot;Foo&quot;.</td>
+			<td>Foo</td>
+			<td>- Comments that contain text &quot;Foo&quot;
+
+- All entities (types/packages/methods) with names containing the text Foo
+e.g. class FooBar, trait MyFooTrait</td>
+		</tr>
+		<tr>
+			<td>[q2] Text &quot;Foo&quot; exactly.</td>
+			<td>&quot;Foo&quot;</td>
+			<td>- Comments that contain &quot;Foo&quot; exactly
+
+- Entities named exactly &quot;Foo&quot;</td>
+		</tr>
+		<tr>
+			<td>[q3] Text &quot;Foo&quot; in comments.
+</td>
+			<td>// Foo</td>
+			<td>Comments that contain text &quot;Foo&quot;.</td>
+		</tr>
+		<tr>
+			<td>[q4] Classes\objects\traits\packages named &quot;Foo&quot;.</td>
+			<td>class Foo; object Foo; trait Foo; package Foo</td>
+			<td>Entities named &quot;Foo&quot; exactly.</td>
+		</tr>
+		<tr>
+			<td>[q5] Classes\objects\traits\packages whose names end with &quot;Foo&quot;</td>
+			<td>class _Foo; object _Foo
+trait _Foo; package _Foo</td>
+			<td>Entities with names ending with &quot;Foo&quot;.
+
+e.g. Foo, MyFoo
+</td>
+		</tr>
+		<tr>
+			<td>[q6] Classes that extend class &quot;BaseFoo&quot;</td>
+			<td>extends BaseFoo</td>
+			<td>All classes that derive from &quot;BaseFoo&quot;.
+
+e.g. DerivedFoo</td>
+		</tr>
+		<tr>
+			<td>[q7] Classes that implement trait &quot;FooTrait&quot;</td>
+			<td>with FooTrait</td>
+			<td>All classes that implement the trait &quot;FooTrait&quot;.</td>
+		</tr>
+		<tr>
+			<td>[q8] Methods named &quot;bar&quot;
+
+
+def b</td>
+			<td>
+
+def _ : Int</td>
+			<td>All methods that return Int</td>
+		</tr>
+		<tr>
+			<td>[q10] Methods that have two parameters, an Int and a String, and return Int</td>
+			<td>def _(Int, String): Int</td>
+			<td>All methods that take an Int and a String and return Int. e.g. bar(i: Int, s: String) : Int
+
+
+
+This will also return equivalent curried functions e.g. bar(Int)(String)</td>
+		</tr>
+		<tr>
+			<td>[q11] Method that takes an Int parameter, followed by zero or more parameters</td>
+			<td>def _(Int, *)</td>
+			<td>All methods that take an Int and zero or more parameters</td>
+		</tr>
+		<tr>
+			<td>[q12]  Values or variables called &quot;name&quot;
+
+ </td>
+			<td>val name:String
+
+var name:String</td>
+			<td>All member values or variables that are named &quot;name&quot; and are of type String. The results are ordered by val / var depending on the query. </td>
+		</tr>
+		<tr>
+			<td> [q13] Search using logical AND. e.g. search for classes named &quot;Foo&quot; and classes that contain a method &quot;bar&quot;.</td>
+			<td>class Foo AND def bar
+class Foo &amp;&amp; def bar</td>
+			<td>All classes named Foo that contain a method bar</td>
+		</tr>
+		<tr>
+			<td>[q14] Search using logical OR.
+
+e.g. search for methods named &quot;add&quot; or methods named &quot;sub&quot;</td>
+			<td>def add OR def sub
+
+def add || def sub</td>
+			<td>All methods named &quot;add&quot; or methods named &quot;sub&quot;.</td>
+		</tr>
+		<tr>
+			<td>[q15] Search using the NOT operator. e.g. search for classes that end with text &quot;Foo&quot;, but exclude classes named &quot;BaseFoo&quot; from the results</td>
+			<td>class _Foo not class BaseFoo
+
+class _Foo !class BaseFoo</td>
+			<td>All classes that end with &quot;Foo&quot; but not class &quot;BaseFoo&quot;</td>
+		</tr>
+		<tr>
+			<td>[q16] Search using query grouping. e.g. search for classes named &quot;Bar&quot; or for classes with names ending in &quot;Foo&quot; but not &quot;BaseFoo&quot;</td>
+			<td>class Bar OR (class _Foo NOT class BaseFoo)</td>
+			<td>All classes named Bar in addition to classes that end with &quot;Foo&quot; but not class &quot;BaseFoo&quot;</td>
+		</tr>
+		<tr>
+			<td>[q17] Search for method that takes a function as a parameter.</td>
+			<td>def _(Int =&gt; String)</td>
+			<td>All methods that take one parameter which is a function with signature Int =&gt; String</td>
+		</tr>
+		<tr>
+			<td>[q18] Search for all methods with two parameters, an Int and a String, and return Int</td>
+			<td>Int =&gt; String =&gt; Int</td>
+			<td>All methods that take an Int and a String and return Int.
+
+e.g. bar(i: Int, s: String) : Int</td>
+		</tr>
+		<tr>
+			<td>[q19] Search for a generic class with one parameter</td>
+			<td>class _[A]</td>
+			<td>All classes with one generic parameter</td>
+		</tr>
+		<tr>
+			<td>[q20] Search for a generic method called &quot;foo&quot; with two generic parameters.</td>
+			<td>def foo[A,B](A, B, Int)</td>
+			<td>Returns all methods called foo with two generic parameters and the respective argument types.</td>
+		</tr>
+	</tbody>
+</table>
+</body>
+
+</html>

@@ -28,7 +28,7 @@ $(document).ready(function() {
     var urlpart=url.split("q=");
     var src=(parent.location.href + '#q='+ urlpart[1]).replace(" ","+");
 
-    if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight(urlpart[1]); copy(src);}
+    if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight((urlpart[1]).replace("_"," ")); copy(src);}
 
 })
 

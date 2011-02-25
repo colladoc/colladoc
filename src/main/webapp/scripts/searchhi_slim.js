@@ -40,7 +40,7 @@ function highlightWord(node,word,doc) {
 				// Create a load of replacement nodes
 				before = doc.createTextNode(nv.substr(0,ni));
 				docWordVal = nv.substr(ni,word.length);
-				after = doc.createTextNode(nv.substr(ni+word.length));
+               	after = doc.createTextNode(nv.substr(ni+word.length));
 				hiwordtext = doc.createTextNode(docWordVal);
 				hiword = doc.createElement("span");
 				hiword.className = "searchword";

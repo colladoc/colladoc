@@ -23,10 +23,13 @@ import org.apache.lucene.search.IterablePaging
 class SearchOps extends StatefulSnippet{
   import tools.colladoc.lib.DependencyFactory._
   object queryRequestVar extends RequestVar[String](S.param("q") openOr "")
+  var hasMember:Boolean = false
+
   val dispatch: DispatchIt ={ case "show" => show _
                               case "body" => body _
-                              case "sText" => sText}
+                              case "sText" => sText
 
+                             }
 
   def sText (xhtml:NodeSeq): NodeSeq = {
     {searchValue}
@@ -49,10 +52,15 @@ class SearchOps extends StatefulSnippet{
   }
 
   /** Return history body. */
-  def body(xhtml: NodeSeq): NodeSeq =
-    bind("search", searchPage.body,
-         "results" -> search(searchValue))
+  def body(xhtml: NodeSeq): NodeSeq = {
 
+    bind("search", searchPage.body,
+         "results" -> search(searchValue),
+         if (hasMember) {"header" -> searchPage.bodyHeader _ } else {"header" -> <div/>}
+         )
+
+
+  }
   def search(query : String) :NodeSeq =
   {
     println("Searching for: " + query)
@@ -142,17 +150,36 @@ class SearchOps extends StatefulSnippet{
   def resultsToHtml(members : Iterable[MemberEntity]) = {
     <div id="searchResults">
       {
-        // TODO: Handle the no members found case.
-        searchPage.resultsToHtml(members)
+        if (members.nonEmpty) {
+        hasMember=true
+          searchPage.resultsToHtml(members)
+
+        } else {
+         hasMember=false
+         <div style="margin:25px 50px;"> Sorry, but the search couldn't find anything to fetch...
+           <br/><br/>
+           <p>Please try the following: </p>
+             <ul style="margin:25px 50px;">
+               <li>blah 1</li>
+               <li>blah 2</li>
+               <li>blah 3</li>
+             </ul>
+         </div>
+
+        }
       }
     </div>
   }
 
   def errorToHtml(msg : String) = {
+
     <div id="searchResults">
-      {
-        msg
-      }
+         <div style="margin:25px 50px;"> Error with the syntax: {msg}
+           <br/>
+		       <br/>
+             For supported query syntax samples, please refer to the <a href="/syntax.html" onclick="window.open(this.href, 'newWindow', 'height=600, width=500, left=50, top=50, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,'); return false">Syntax reference</a>
+         </div>
     </div>
   }
 }
+
