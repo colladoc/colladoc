@@ -221,9 +221,9 @@ class SearchIndex(indexDirectory : Directory) {
   }
 
   private def addCommentToDocument(member : MemberEntity, doc:Document): Document = {
- // Each entity will have a comment, only the last comment is indexed:
-    //val comment = mapper.Comment.latest(member.uniqueName) match { case Some(str) =>str.comment.is; case _ => ""}
-    //doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
+    // Each entity will have a comment, only the last comment is indexed:
+    val comment = mapper.Comment.latest(member.uniqueName) match { case Some(str) =>str.comment.is; case _ => ""}
+    doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
     doc
   }
 
