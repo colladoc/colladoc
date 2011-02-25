@@ -12,7 +12,9 @@ import scala.{ xml}
 import net.liftweb.http.{S, SHtml, RequestVar, StatefulSnippet}
 import scala.tools.colladoc.search._
 import org.apache.lucene.search._
+import org.apache.lucene.search.IterablePaging
 import scala.collection.JavaConversions._
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
 
 /**
  * Search snippet.
@@ -66,7 +68,7 @@ class SearchOps extends StatefulSnippet{
 	    errorToHtml("We dont like empty queries")
     }
   }
-  /*
+
   def displayResults(query:Query):NodeSeq =
   {
     var searcher : IndexSearcher = null
@@ -83,7 +85,7 @@ class SearchOps extends StatefulSnippet{
     }
   }
 
-  */
+  /*   Display results without paging
    def displayResults(query:Query):NodeSeq =
   {
     var searcher : IndexSearcher = null
@@ -112,9 +114,8 @@ class SearchOps extends StatefulSnippet{
         searcher.close()
       }
     }
-  }
+  }   */
 
-  /*
   def searchResults(searcher : IndexSearcher, query : Query, pageNumber : Int)={
     val totalHitsRef = new TotalHitsRef();
 		val paging = new IterablePaging(searcher, query, 1000);
@@ -134,7 +135,8 @@ class SearchOps extends StatefulSnippet{
       println("Results: " + totalHitsRef.totalHits())
       resultsToHtml(entityResults)
   }
-  */
+
+
   /** Render search results **/
   def resultsToHtml(members : Iterable[MemberEntity]) = {
     <div id="searchResults">
