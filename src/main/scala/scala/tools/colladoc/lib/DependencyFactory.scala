@@ -42,11 +42,11 @@ object DependencyFactory extends Factory {
   private def getPath =
     S.param("path") openOr "" split('/')
 
-  private val getIndex = new SearchIndex(getModel.rootPackage)
+  private val getIndex = new SearchIndex()
 
   private def init() {
     // TODO: Is this the best place to start indexing?
-    getIndex
+    getIndex.index(getModel.rootPackage)
 
     List(model, path)
   }

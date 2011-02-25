@@ -3,6 +3,7 @@ import org.specs.mock._
 import tools.nsc.doc.model.MemberEntity
 import tools.nsc.doc.model.Package
 import org.apache.lucene.store.RAMDirectory
+import scala.tools.colladoc.lib.util.NameUtils._
 
 /**
  * Created by IntelliJ IDEA.
@@ -34,7 +35,7 @@ trait EntityMemberMock extends Object with JMocker with ClassMocker{
         one(mockPackage).members willReturn(List[MemberEntity]())
       }
   }
-  def expectationsForPackageWithEntity(memberEntity:MemberEntity) = {
+  def expectationsForPackageWithEntity(memberEntity : MemberEntity) = {
      expect {
         defaultExpectationsForPackage
         one(mockPackage).members willReturn(List[MemberEntity](memberEntity))
@@ -43,7 +44,6 @@ trait EntityMemberMock extends Object with JMocker with ClassMocker{
   def expectationsForAnyMemberEntity(mockEntity: MemberEntity) = {
      expect {
         one(mockEntity).name willReturn entityName
-        allowingMatch("comment")
         allowingMatch("members")
       }
   }

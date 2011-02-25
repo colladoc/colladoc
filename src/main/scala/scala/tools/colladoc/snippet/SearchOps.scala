@@ -1,9 +1,6 @@
 package scala.tools.colladoc.snippet
 
-import org.apache.lucene.util.Version
 import tools.colladoc.model.SearchIndex
-import org.apache.lucene.analysis.standard.StandardAnalyzer
-import org.apache.lucene.search.{TopScoreDocCollector, IndexSearcher}
 import tools.colladoc.page.Search
 import tools.nsc.doc.model.MemberEntity
 import xml._
@@ -14,7 +11,17 @@ import net.liftweb.http.js.JE._
 import scala.{ xml}
 import net.liftweb.http.{S, SHtml, RequestVar, StatefulSnippet}
 import scala.tools.colladoc.search._
-import org.apache.lucene.search.{Query}
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import org.apache.lucene.search.IterablePaging.ProgressRef
+import org.apache.lucene.search.IterablePaging.ProgressRef
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import org.apache.lucene.search.IterablePaging
+import org.apache.lucene.search._
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import scala.collection.JavaConversions._
 
 /**
  * Search snippet.
@@ -22,7 +29,6 @@ import org.apache.lucene.search.{Query}
 class SearchOps extends StatefulSnippet{
   import tools.colladoc.lib.DependencyFactory._
   object queryRequestVar extends RequestVar[String](S.param("q") openOr "")
-
   var hasMember:Boolean = false
 
   val dispatch: DispatchIt ={ case "show" => show _
@@ -82,34 +88,40 @@ class SearchOps extends StatefulSnippet{
   {
     var searcher : IndexSearcher = null
     try {
-      val hitsPerPage = 10000
+      val hitsPerPage = 5
       val collector = TopScoreDocCollector.create(hitsPerPage, true)
-      searcher = new IndexSearcher(index.vend.luceneDirectory, true)
+      searcher = new IndexSearcher(index.vend.directory, true)
 
       println("Lucene Query: " + query.toString)
+      searchResults(searcher, query, 1)
+    }
+    finally {
+      if (searcher != null) { searcher.close() }
+    }
+  }
 
-      searcher.search(query, collector)
+  def searchResults(searcher : IndexSearcher, query : Query, pageNumber : Int)={
+    val totalHitsRef = new TotalHitsRef();
+		val paging = new IterablePaging(searcher, query, 1000);
+    val itemsPerPage = 5;
+    val skipPages = (pageNumber - 1)* itemsPerPage
 
-      // Collect the entities that were returned
-      val entityResults = collector.topDocs(0, 20).scoreDocs.map((hit) => {
+		val entityResults = paging.skipTo(skipPages).gather(itemsPerPage).
+                        totalHits(totalHitsRef).
+                        map((hit) => {
         val doc = searcher.doc(hit.doc)
-        val entitylookupKey = Integer.parseInt(doc.get(SearchIndex.entityLookupField))
+        val entitylookupKey = Integer.parseInt(searcher.doc(hit.doc).
+                                      get(SearchIndex.entityLookupField))
         val entityResult = index.vend.entityLookup.get(entitylookupKey)
         entityResult
       })
 
-      println("Results: " + entityResults.size)
+      println("Results: " + totalHitsRef.totalHits())
       resultsToHtml(entityResults)
-    }
-    finally {
-      if (searcher != null) {
-        searcher.close()
-      }
-    }
   }
 
   /** Render search results **/
-  def resultsToHtml(members : Array[MemberEntity]) = {
+  def resultsToHtml(members : Iterable[MemberEntity]) = {
     <div id="searchResults">
       {
         if (members.nonEmpty) {
@@ -139,12 +151,9 @@ class SearchOps extends StatefulSnippet{
          <div style="margin:25px 50px;"> Error with the syntax: {msg}
            <br/>
 		       <br/>
-             For supported query syntax samples, please refer to the <a href="/syntax.html" onclick="window.open(this.href, 'newWindow', 'height=400, width=600, left=50, top=50, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,'); return false">Syntax reference</a>
+             For supported query syntax samples, please refer to the <a href="/syntax.html" onclick="window.open(this.href, 'newWindow', 'height=600, width=500, left=50, top=50, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,'); return false">Syntax reference</a>
          </div>
     </div>
   }
-
-
-
 }
 
