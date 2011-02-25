@@ -2,7 +2,7 @@
 # Shell script to setup Colladoc's default.prop file with the sourcepath and
 # and classpath values needed to run.
 #
-echo Running setdefaultprops [sourcepath]...
+echo Running setdefaultprops [sourcepath] [libpath]...
 echo 
 
 origpath=$(pwd)
@@ -34,6 +34,7 @@ fi
 
 cd $sourcepath
 sourcepath=$(pwd)
+cd $origpath
 
 # and the props file we are writing to.
 propsfile=$colladocfolder/src/main/resources/props/default.props
@@ -53,5 +54,28 @@ classpath=$colladocfolder/scala/build/pack/lib/
 # need to be edited manually if the project being modeled in colladoc requires
 # additional libs.
 echo -n $classpath$'scala-compiler.jar:'$classpath$'scala-library.jar:'>>$propsfile
+
+if [ $# == 2 ]
+    then
+        # We also need to write the jars from libPath.
+        libpath=$2
+        if [ ! -d $libpath ]
+            then
+                # Lib Path does not exist.
+                echo libpath does not exist or is not a directory.
+                echo $libpath
+                echo 
+                exit 101    # 101
+        fi
+        
+        cd $libpath
+        libpath=$(pwd)
+        
+        # Add the jars from the libpath to the classpath in default.props
+        for jar in $libpath/*
+            do
+                echo -n $jar':'>>$propsfile
+        done
+fi
 
 echo Done.

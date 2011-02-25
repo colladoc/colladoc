@@ -464,7 +464,7 @@ class ScoogleParserTests extends TestCase
   def testDefWithEmptyParams_Query()
   {
     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("def _() : Int"))
-    Assert.assertEquals("+type:def +params:() +returns:Int", result)
+    Assert.assertEquals("+type:def +methodParamsCount:0 +return:Int", result)
   }
 
   def testDefWithCurriedEmptyParams()
@@ -478,7 +478,7 @@ class ScoogleParserTests extends TestCase
   def testDefWithCurriedEmptyParams_Query()
   {
     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("def _() : Int"))
-    Assert.assertEquals("+type:def +params:() +returns:Int", result)
+    Assert.assertEquals("+type:def +methodParamsCount:0 +return:Int", result)
   }
 
   def testDefWithConcreteParam()
@@ -487,6 +487,12 @@ class ScoogleParserTests extends TestCase
         case Def(AnyWord(), List(List(Word("Int"))), Some(Word("Int"))) => ()
         case e => Assert.fail(e.toString)
     }
+  }
+
+  def testDefWithConcreteParam_Query()
+  {
+    val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("def _(Int) : Int"))
+    Assert.assertEquals("+type:def +methodParamsCount:0 +return:Int", result)
   }
 
   def testDefWithMultipleConcreteParam()
