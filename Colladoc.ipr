@@ -3752,20 +3752,6 @@
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="lucene-paging">
-      <CLASSES>
-        <root url="file://C:/lucene-extension/out/production/lucene-extension/org/apache/lucene" />
-      </CLASSES>
-      <JAVADOC />
-      <SOURCES />
-    </library>
-    <library name="lucene-pagingclasses">
-      <CLASSES>
-        <root url="file://$USER_HOME$/Documents/Patch" />
-      </CLASSES>
-      <JAVADOC />
-      <SOURCES />
-    </library>
   </component>
 </project>
 

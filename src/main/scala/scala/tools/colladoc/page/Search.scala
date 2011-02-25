@@ -5,7 +5,7 @@ import xml.NodeSeq
 import scala.tools.colladoc.snippet._
 import collection.mutable.HashMap
 
-class Search(rootPack: Package) extends Template(rootPack) {
+class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootPack) {
   /** Page title. */
   override val title = "Search"
 
@@ -16,15 +16,23 @@ class Search(rootPack: Package) extends Template(rootPack) {
       <div id="definition">
         <img src="/images/search_big.png"/>
         <h1>Search for: <lift:SearchOps.sText/></h1>
-        <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;">Copy Search URL</a></p>
+        <p><a href="#" id="linkURL" style={"font-size:10px;color:#ffffff;visibility:visible;" }>Copy Search URL</a></p>
       </div>
-
-      { signature(rootPack, true) }
-      { memberToCommentHtml(rootPack, true) }
 
       <div id="template">
 
-        <div id="mbrsel">
+       <search:header />
+       <search:results />
+
+      </div>
+
+      <div id="tooltip" ></div>
+
+
+    </body>
+
+ def bodyHeader(xhtml:NodeSeq):NodeSeq = {
+      <div id="mbrsel">
           <div id='textfilter'><span class='pre'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>
           {
             <div id="symboltype">
@@ -55,15 +63,7 @@ class Search(rootPack: Package) extends Template(rootPack) {
             </div>
           }
         </div>
-         <search:results />
-
-      </div>
-
-      <div id="tooltip" ></div>
-
-    </body>
-
-
+}
   /**
    * Renders list of comments to its xhtml representation.
    * @param cmts list of comments
@@ -134,7 +134,7 @@ class Search(rootPack: Package) extends Template(rootPack) {
     <xml:group>
       { if (constructors.isEmpty) NodeSeq.Empty else
           <div id="constructors" class="members">
-            <ol>{ constructors map { memberToHtml(_) } }</ol>
+            <ol>{ constructors map {memberToHtml(_) } }</ol>
           </div>
       }
       { if (typeMembers.isEmpty) NodeSeq.Empty else

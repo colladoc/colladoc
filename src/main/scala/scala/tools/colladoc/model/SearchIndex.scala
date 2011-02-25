@@ -79,12 +79,10 @@ class SearchIndex(indexDirectory : Directory) {
     var writer : IndexWriter = null
 
     try{
-      println("Start")
       var docsToBeModified =  removeDocuments(member, directory)
 
       val config = new IndexWriterConfig(Version.LUCENE_40, new WhitespaceAnalyzer(Version.LUCENE_40))
       var writer = new IndexWriter(directory, config)
-
       updateDocumentComments(docsToBeModified, member, writer)
 
     }
