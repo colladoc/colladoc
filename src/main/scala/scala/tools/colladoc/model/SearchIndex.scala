@@ -2,17 +2,17 @@ package scala.tools.colladoc.model
 import scala.tools.colladoc.lib.util.NameUtils._
 import java.io.File
 import java.util.HashMap
-import org.apache.lucene.util.Version
 import tools.nsc.doc.model._
 import org.apache.lucene.store.{Directory, FSDirectory}
 import tools.colladoc.search.AnyParams
 import org.apache.lucene.index.{IndexWriterConfig, IndexWriter}
-import org.apache.lucene.index.{TermDocs, Term, IndexReader, IndexWriter}
+import org.apache.lucene.index.{Term, IndexReader, IndexWriter}
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import tools.colladoc.utils.Timer
 import org.apache.lucene.analysis.core.{WhitespaceAnalyzer, KeywordAnalyzer}
 import org.apache.lucene.document.{NumericField, Field, Document}
-
+import org.apache.lucene.util.{BytesRef, Bits, Version}
+import org.apache.lucene.search.DocIdSetIterator
 
 //import org.apache.lucene.index.{IndexWriter}
 //import org.apache.lucene.analysis.standard.StandardAnalyzer
@@ -81,9 +81,10 @@ class SearchIndex(indexDirectory : Directory) {
     try{
       println("Start")
       var docsToBeModified =  removeDocuments(member, directory)
-      writer = new IndexWriter(directory,
-                               new StandardAnalyzer(Version.LUCENE_30),
-                               IndexWriter.MaxFieldLength.UNLIMITED)
+
+      val config = new IndexWriterConfig(Version.LUCENE_40, new WhitespaceAnalyzer(Version.LUCENE_40))
+      var writer = new IndexWriter(directory, config)
+
       updateDocumentComments(docsToBeModified, member, writer)
 
     }
@@ -116,11 +117,13 @@ class SearchIndex(indexDirectory : Directory) {
     }
   }
 
-  private def getDocumentsByMember(member:MemberEntity,reader : IndexReader) : TermDocs = {
+  private def getDocumentsByMember(member:MemberEntity,reader : IndexReader) = {
       val number = reader.docFreq(new Term(entityLookupField, member.hashCode.toString))
       println("number:" + number)
       println(member.hashCode.toString)
-      val docsToBeModified = reader.termDocs(new Term(entityLookupField,  member.hashCode.toString))
+      val docsToBeModified = reader.termDocsEnum(new Bits.MatchAllBits(1),
+                                                 entityLookupField,
+                                                 new BytesRef(member.hashCode.toString))
       docsToBeModified
     }
 
@@ -138,10 +141,9 @@ class SearchIndex(indexDirectory : Directory) {
       val reader = IndexReader.open(directory, false)
       val docs = getDocumentsByMember(member, reader)
       var removeDocs = List[Document]()
-      while(docs.next()){
-
-      val doc = reader.document(docs.doc())
-      reader.deleteDocument(docs.doc())
+      while(docs.nextDoc()!= DocIdSetIterator.NO_MORE_DOCS){
+      val doc = reader.document(docs.docID())
+      reader.deleteDocument(docs.docID())
       removeDocs = doc :: removeDocs
       }
       reader.close
