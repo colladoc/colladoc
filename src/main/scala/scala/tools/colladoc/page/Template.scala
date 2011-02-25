@@ -31,6 +31,7 @@ import lib.js.JqUI._
 import lib.widgets.Editor
 import model.Model
 import model.Model.factory._
+import model.SearchIndex._
 import model.mapper.{Comment, User}
 
 import net.liftweb.common._
@@ -44,13 +45,13 @@ import net.liftweb.util.Helpers._
 
 import tools.nsc.doc.model._
 import xml.{NodeSeq, Text}
+import lib.DependencyFactory._
 
 /**
  * Page containing template entity documentation and user controls.
  * @author Petr Hosek
  */
 class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(tpl) {
-
   /**
    * Create unique identifier for given entity and position.
    * @param mbr member entity
@@ -184,6 +185,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           cmt.changeSet(now)
       }
       cmt.save
+      index.vend.reindexEntityComment(mbr)
     }
     mbr.comment.get.update(docStr)
     if (!Model.reporter.hasWarnings) doSave
@@ -213,8 +215,6 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     val path = memberToPath(mbr, isSelf) + ".xml" + pars.mkString("?", "&", "")
     JsRaw("window.open('%s', 'Export')" format (path))
   }
-
 }
-
 }
 }

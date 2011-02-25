@@ -1,5 +1,5 @@
 package scala.tools.colladoc.model
-
+import scala.tools.colladoc.lib.util.NameUtils._
 import java.io.File
 import java.util.HashMap
 import org.apache.lucene.util.Version
@@ -7,7 +7,9 @@ import tools.nsc.doc.model._
 import org.apache.lucene.store.{Directory, FSDirectory}
 import tools.colladoc.search.AnyParams
 import org.apache.lucene.index.{IndexWriterConfig, IndexWriter}
+import org.apache.lucene.index.{TermDocs, Term, IndexReader, IndexWriter}
 import org.apache.lucene.analysis.standard.StandardAnalyzer
+import tools.colladoc.utils.Timer
 import org.apache.lucene.analysis.core.{WhitespaceAnalyzer, KeywordAnalyzer}
 import org.apache.lucene.document.{NumericField, Field, Document}
 
@@ -65,18 +67,33 @@ object SearchIndex {
   val defsField = "defs"
 }
 
-class SearchIndex(rootPackage : Package, directory : Directory) {
+class SearchIndex(indexDirectory : Directory) {
   import SearchIndex._
-
-  def this(rootPackage : Package) = this(rootPackage,
-                                         FSDirectory.open(new File("lucene-index")))
-
   val entityLookup = new HashMap[Int, MemberEntity]()
+  var directory = indexDirectory
+  def this() = this(FSDirectory.open(new File("lucene-index")))
 
-  val luceneDirectory = construct(rootPackage, directory)
+  def reindexEntityComment(member : MemberEntity){
+    Timer.go
+    var reader : IndexReader = null
+    var writer : IndexWriter = null
 
-  private def construct(rootPackage : Package,
-                        directory : Directory) = {
+    try{
+      println("Start")
+      var docsToBeModified =  removeDocuments(member, directory)
+      writer = new IndexWriter(directory,
+                               new StandardAnalyzer(Version.LUCENE_30),
+                               IndexWriter.MaxFieldLength.UNLIMITED)
+      updateDocumentComments(docsToBeModified, member, writer)
+
+    }
+    finally {
+      if (writer != null) { writer.optimize(); writer.close() }
+      Timer.stop
+    }
+  }
+
+  def index(rootPackage : Package){
     var writer : IndexWriter = null
     try {
 
@@ -97,9 +114,39 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
         writer.close()
       }
     }
-
-    directory
   }
+
+  private def getDocumentsByMember(member:MemberEntity,reader : IndexReader) : TermDocs = {
+      val number = reader.docFreq(new Term(entityLookupField, member.hashCode.toString))
+      println("number:" + number)
+      println(member.hashCode.toString)
+      val docsToBeModified = reader.termDocs(new Term(entityLookupField,  member.hashCode.toString))
+      docsToBeModified
+    }
+
+  private def updateDocumentComments(docs : List[Document],
+                                       member : MemberEntity,
+                                       writer : IndexWriter){
+          docs.foreach(doc =>{
+          doc.removeField(commentField)
+          val newDoc = addCommentToDocument(member, doc)
+          writer.addDocument(newDoc)
+      })
+    }
+
+  private def removeDocuments(member : MemberEntity, directory : Directory) : List[Document] = {
+      val reader = IndexReader.open(directory, false)
+      val docs = getDocumentsByMember(member, reader)
+      var removeDocs = List[Document]()
+      while(docs.next()){
+
+      val doc = reader.document(docs.doc())
+      reader.deleteDocument(docs.doc())
+      removeDocs = doc :: removeDocs
+      }
+      reader.close
+      removeDocs
+    }
 
   private def indexMembers(members : List[MemberEntity], writer : IndexWriter) : Unit = {
     if (members.isEmpty) {
@@ -117,9 +164,18 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
       case _ => Nil
     }
 
-    val remainingMembers = members.tail ::: additionalMembers
+    // We could be dealing with a huge list here so it's important that we cons
+    // as efficiently as possible.
+    var remainingMembers = members.tail
+    additionalMembers.foreach((m)=> {
+      // Make sure that we do not try to index a member that we have indexed
+      // already!
+      if (!entityLookup.containsValue(m)) {
+        remainingMembers = m :: remainingMembers
+      }
+    })
 
-    // Finally, the recursive step, index the remainig members...
+    // Finally, the recursive step, index the remaining members...
     // NOTE: Tail call recursion is REQUIRED here because of the depth of
     // scaladoc models for large code bases
     if (!remainingMembers.isEmpty) {
@@ -160,14 +216,17 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     doc.add(new Field(entityLookupField,
                       lookupKey.toString(),
                       Field.Store.YES,
-                      Field.Index.NO))
-
-    // Each entity will have a comment:
-    val comment = member.comment match { case Some(str) => str.body.toString; case _ => ""}
-    doc.add(new Field(commentField, comment.toLowerCase, Field.Store.YES, Field.Index.ANALYZED))
-
+                      Field.Index.NOT_ANALYZED))
+    addCommentToDocument(member, doc)
     // Fianlly, index the document for this entity.
     writer.addDocument(doc)
+  }
+
+  private def addCommentToDocument(member : MemberEntity, doc:Document): Document = {
+    // Each entity will have a comment, only the last comment is indexed:
+    val comment = mapper.Comment.latest(member.uniqueName) match { case Some(str) =>str.comment.is; case _ => ""}
+    doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
+    doc
   }
 
   private def createPackageDocument(pkg : Package) = {
