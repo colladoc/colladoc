@@ -3,7 +3,6 @@ package scala.tools.colladoc.snippet
 import org.apache.lucene.util.Version
 import tools.colladoc.model.SearchIndex
 import org.apache.lucene.analysis.standard.StandardAnalyzer
-import org.apache.lucene.search.{TopScoreDocCollector, IndexSearcher}
 import tools.colladoc.page.Search
 import tools.nsc.doc.model.MemberEntity
 import xml._
@@ -14,7 +13,17 @@ import net.liftweb.http.js.JE._
 import scala.{ xml}
 import net.liftweb.http.{S, SHtml, RequestVar, StatefulSnippet}
 import scala.tools.colladoc.search._
-import org.apache.lucene.search.{Query}
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import org.apache.lucene.search.IterablePaging.ProgressRef
+import org.apache.lucene.search.IterablePaging.ProgressRef
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import org.apache.lucene.search.IterablePaging
+import org.apache.lucene.search._
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import scala.collection.JavaConversions._
 
 /**
  * Search snippet.
@@ -22,7 +31,6 @@ import org.apache.lucene.search.{Query}
 class SearchOps extends StatefulSnippet{
   import tools.colladoc.lib.DependencyFactory._
   object queryRequestVar extends RequestVar[String](S.param("q") openOr "")
-
   val dispatch: DispatchIt ={ case "show" => show _
                               case "body" => body _
                               case "sText" => sText}
@@ -74,34 +82,40 @@ class SearchOps extends StatefulSnippet{
   {
     var searcher : IndexSearcher = null
     try {
-      val hitsPerPage = 10
+      val hitsPerPage = 5
       val collector = TopScoreDocCollector.create(hitsPerPage, true)
-      searcher = new IndexSearcher(index.vend.luceneDirectory, true)
+      searcher = new IndexSearcher(index.vend.directory, true)
 
       println("Lucene Query: " + query.toString)
+      searchResults(searcher, query, 1)
+    }
+    finally {
+      if (searcher != null) { searcher.close() }
+    }
+  }
 
-      searcher.search(query, collector)
+  def searchResults(searcher : IndexSearcher, query : Query, pageNumber : Int)={
+    val totalHitsRef = new TotalHitsRef();
+		val paging = new IterablePaging(searcher, query, 1000);
+    val itemsPerPage = 5;
+    val skipPages = (pageNumber - 1)* itemsPerPage
 
-      // Collect the entities that were returned
-      val entityResults = collector.topDocs().scoreDocs.map((hit) => {
+		val entityResults = paging.skipTo(skipPages).gather(itemsPerPage).
+                        totalHits(totalHitsRef).
+                        map((hit) => {
         val doc = searcher.doc(hit.doc)
-        val entitylookupKey = Integer.parseInt(doc.get(SearchIndex.entityLookupField))
+        val entitylookupKey = Integer.parseInt(searcher.doc(hit.doc).
+                                      get(SearchIndex.entityLookupField))
         val entityResult = index.vend.entityLookup.get(entitylookupKey)
         entityResult
       })
 
-      println("Results: " + entityResults.toString)
+      println("Results: " + totalHitsRef.totalHits())
       resultsToHtml(entityResults)
-    }
-    finally {
-      if (searcher != null) {
-        searcher.close()
-      }
-    }
   }
 
   /** Render search results **/
-  def resultsToHtml(members : Array[MemberEntity]) = {
+  def resultsToHtml(members : Iterable[MemberEntity]) = {
     <div id="searchResults">
       {
         // TODO: Handle the no members found case.

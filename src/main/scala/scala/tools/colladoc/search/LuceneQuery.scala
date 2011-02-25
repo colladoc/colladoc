@@ -53,9 +53,11 @@ object LuceneQuery
       case Extends(id) => transformExtends(id)
       case Package(id) => transformPackage(id)
 
-      case Def(id, params, ret) => transformDef(id, ret)
+      case Def(id, params, ret) => transformDef(id, params, ret)
 
       case Val(id, ret) => transformVal(id, ret)
+      case Var(id, ret) => transformVar(id, ret)
+
       case word:Identifier => transformRootWord(word)
     }
   }
@@ -71,14 +73,29 @@ object LuceneQuery
 
   def transformVal(id:Identifier, ret:Option[Identifier]):Query =
   {
-    transformAnd(List(typeTermQuery(varField), transformWord(nameField)(id), maybeTransformReturn(ret)))
+    transformAnd(List(transformOr(List(typeTermQuery(valField), typeTermQuery(varField))), transformWord(nameField)(id), maybeTransformReturn(ret)))
   }
 
-  def transformDef(id:Identifier, ret:Option[Identifier]):Query =
+  def transformVar(id:Identifier, ret:Option[Identifier]):Query =
+  {
+    transformAnd(List(transformOr(List(typeTermQuery(varField), typeTermQuery(valField))), transformWord(nameField)(id), maybeTransformReturn(ret)))
+  }
+
+  def transformDef(id:Identifier, params:List[List[Identifier]], ret:Option[Identifier]):Query =
   {
 
-      transformAnd(List(typeTermQuery(defField), transformWord(nameField)(id), maybeTransformReturn(ret)))
+    var paramsCount = params.flatten(l => l).count(_.isInstanceOf[AnyParams]) match
+    {
+      case 0 => new TermQuery(new Term(methodParamsCount, params.size.toString))
+      case _ => null
+    }
 
+    if(params.size == 0)
+    {
+      paramsCount = null;
+    }
+
+    transformAnd(List(typeTermQuery(defField), transformWord(nameField)(id), paramsCount, maybeTransformReturn(ret)))
   }
 
   def transformPackage(id:Identifier):Query =

@@ -1,12 +1,15 @@
 package scala.tools.colladoc.model
+import scala.tools.colladoc.lib.util.NameUtils._
 import java.io.File
 import java.util.HashMap
-import org.apache.lucene.index.IndexWriter
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.util.Version
 import org.apache.lucene.document.{Field, Document}
 import tools.nsc.doc.model._
 import org.apache.lucene.store.{Directory, FSDirectory}
+import tools.colladoc.search.AnyParams
+import org.apache.lucene.index.{TermDocs, Term, IndexReader, IndexWriter}
+import tools.colladoc.utils.Timer
 
 object SearchIndex {
 
@@ -37,6 +40,9 @@ object SearchIndex {
   val typeParamsCountField = "typeparamscount"
   val visibilityField = "visibility"
 
+  val methodParamsCount = "methodParamsCount"
+  val methodParams = "methodParams"
+
   /** All documents have a name */
   val nameField = "name"
 
@@ -53,18 +59,66 @@ object SearchIndex {
   val defsField = "defs"
 }
 
-class SearchIndex(rootPackage : Package, directory : Directory) {
+class SearchIndex(indexDirectory : Directory) {
   import SearchIndex._
-
-  def this(rootPackage : Package) = this(rootPackage,
-                                         FSDirectory.open(new File("lucene-index")))
-
   val entityLookup = new HashMap[Int, MemberEntity]()
+  var directory = indexDirectory
+  def this() = this(FSDirectory.open(new File("lucene-index")))
 
-  val luceneDirectory = construct(rootPackage, directory)
+  private def getDocumentsByMember(member:MemberEntity,reader : IndexReader) : TermDocs = {
+    val number = reader.docFreq(new Term(entityLookupField, member.hashCode.toString))
+    println("number:" + number)
+    println(member.hashCode.toString)
+    val docsToBeModified = reader.termDocs(new Term(entityLookupField,  member.hashCode.toString))
+    docsToBeModified
+  }
 
-  private def construct(rootPackage : Package,
-                        directory : Directory) = {
+  private def updateDocumentComments(docs : List[Document],
+                                     member : MemberEntity,
+                                     writer : IndexWriter){
+        docs.foreach(doc =>{
+        doc.removeField(commentField)
+        val newDoc = addCommentToDocument(member, doc)
+        writer.addDocument(newDoc)
+    })
+  }
+
+  private def removeDocuments(member : MemberEntity, directory : Directory) : List[Document] = {
+    val reader = IndexReader.open(directory, false)
+    val docs = getDocumentsByMember(member, reader)
+    var removeDocs = List[Document]()
+    while(docs.next()){
+
+    val doc = reader.document(docs.doc())
+    reader.deleteDocument(docs.doc())
+    removeDocs = doc :: removeDocs
+    }
+    reader.close
+    removeDocs
+  }
+
+
+  def reindexEntityComment(member : MemberEntity){
+    Timer.go
+    var reader : IndexReader = null
+    var writer : IndexWriter = null
+
+    try{
+      println("Start")
+      var docsToBeModified =  removeDocuments(member, directory)
+      writer = new IndexWriter(directory,
+                               new StandardAnalyzer(Version.LUCENE_30),
+                               IndexWriter.MaxFieldLength.UNLIMITED)
+      updateDocumentComments(docsToBeModified, member, writer)
+
+    }
+    finally {
+      if (writer != null) { writer.optimize(); writer.close() }
+      Timer.stop
+    }
+  }
+
+  def index(rootPackage : Package){
     var writer : IndexWriter = null
     try {
       writer = new IndexWriter(directory,
@@ -72,9 +126,9 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
                                IndexWriter.MaxFieldLength.UNLIMITED)
 
       // Clear any previously indexed data.
-       writer.deleteAll()
+      writer.deleteAll()
 
-      indexRootPackege(rootPackage, writer)
+      indexMembers(rootPackage :: Nil, writer)
 
       writer.optimize()
     }
@@ -83,15 +137,35 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
         writer.close()
       }
     }
-
-    directory
   }
 
-  private def indexRootPackege( rootPackege : Package, writer : IndexWriter) = {
-          indexMember(rootPackage, writer, null)
+  private def indexMembers(members : List[MemberEntity], writer : IndexWriter) : Unit = {
+    if (members.isEmpty) {
+      throw new IllegalArgumentException()
+    }
+
+    // Index another member
+    val member = members.head
+    indexMember(member, writer)
+
+    // Add this entity's members to the list of members to index.
+    val additionalMembers = member match {
+      case doc : DocTemplateEntity =>
+        doc.members
+      case _ => Nil
+    }
+
+    val remainingMembers = members.tail ::: additionalMembers
+
+    // Finally, the recursive step, index the remainig members...
+    // NOTE: Tail call recursion is REQUIRED here because of the depth of
+    // scaladoc models for large code bases
+    if (!remainingMembers.isEmpty) {
+      indexMembers(remainingMembers, writer)
+    } 
   }
 
-  private def indexMember(member : MemberEntity, writer : IndexWriter, parentDoc : Document) : Unit = {
+  private def indexMember(member : MemberEntity, writer : IndexWriter) : Unit = {
     val doc : Document = member match {
       case pkg : Package =>
         createPackageDocument(pkg)
@@ -102,10 +176,8 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
       case obj : Object =>
         createObjectDocument(obj)
       case df : Def =>
-        addValueToDefsField(df, parentDoc)
         createDefDocument(df)
       case value : Val =>
-        addValueToValVarField(value, parentDoc)
         createValDocument(value)
       case _ =>
         new Document
@@ -126,24 +198,33 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     doc.add(new Field(entityLookupField,
                       lookupKey.toString(),
                       Field.Store.YES,
-                      Field.Index.NO))
+                      Field.Index.NOT_ANALYZED))
+    addCommentToDocument(member, doc)
+    // Write the appropriate member information to the current document.
+    // TODO (asb10): Miro - please remove this after implementing member specific search.
+//    member match {
+//      case mbr : DocTemplateEntity =>
+//        mbr.members.foreach((m) => {
+//          m match {
+//            case df: Def =>
+//              addValueToDefsField(df, doc)
+//            case value : Val =>
+//              addValueToValVarField(value, doc)
+//            case _ => { }
+//          }
+//        })
+//      case _ => { }
+//    }
 
-    // Each entity will have a comment:
-    val comment = member.comment match { case Some(str) => str.body.toString; case _ => ""}
-    doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
-
-    // Finally, index any members of this entity.
-    member match {
-      case mbr : DocTemplateEntity =>
-        mbr.members.foreach((m) => {
-          indexMember(m, writer, doc)
-        })
-      case _ => {
-      }
-    }
-
-     // Index the document for this entity.
+    // Fianlly, index the document for this entity.
     writer.addDocument(doc)
+  }
+
+  private def addCommentToDocument(member : MemberEntity, doc:Document): Document = {
+ // Each entity will have a comment, only the last comment is indexed:
+    //val comment = mapper.Comment.latest(member.uniqueName) match { case Some(str) =>str.comment.is; case _ => ""}
+    //doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
+    doc
   }
 
   private def createPackageDocument(pkg : Package) = {
@@ -197,13 +278,27 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
 
   private def createDefDocument(df : Def) = {
     val doc = new Document
-    doc.add(new Field(defField,
-                      df.name,
+
+    doc.add(new Field(typeField,
+                      defField,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
+
+
+
     addTypeParamsCountField(df.typeParams, doc)
     addVisibilityField(df.visibility, doc)
     addReturnsField(df.resultType, doc)
+
+    val params:List[ValueParam] = df.valueParams.flatten(l => l)
+
+    val paramNames = params.map(_.name);
+
+    val fieldValue = paramNames.mkString(" ")
+
+    doc.add(new Field(methodParams, fieldValue, Field.Store.YES, Field.Index.ANALYZED))
+
+    doc.add(new Field(methodParamsCount, params.size.toString, Field.Store.YES, Field.Index.NOT_ANALYZED))
 
     doc
   }
@@ -212,14 +307,16 @@ class SearchIndex(rootPackage : Package, directory : Directory) {
     val valOrVarFieldKey = if (valOrVar.isVar) varField else valField
     val doc = new Document
 
-    doc.add(new Field(valOrVarFieldKey,
-                      valOrVar.name,
+    doc.add(new Field(typeField,
+                      valOrVarFieldKey,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
+
     doc.add(new Field(isLazyValField,
                       valOrVar.isLazyVal.toString(),
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
+
     addReturnsField(valOrVar.resultType, doc)
 
     doc

@@ -4,10 +4,10 @@ import org.specs.SpecificationWithJUnit
 import org.specs.mock._
 import tools.nsc.doc.model.MemberEntity
 import org.apache.lucene.store.{RAMDirectory, Directory}
-import org.apache.lucene.index.IndexReader
 import tools.nsc.doc.model.Package
 import org.apache.lucene.document.Document
 import tools.nsc.doc.model.comment.{Body, Comment}
+import org.apache.lucene.index.{TermDocs, IndexWriter, IndexReader}
 
 object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
    var directory: Directory = _
@@ -17,16 +17,15 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
       construct
     }
     "Use the FSDirectory that is given to it on creation" in {
-      expect { expectationsForEmptyPackage }
-
-      val index = new SearchIndex(mockPackage, directory)
-      //index.luceneDirectory must beEqualTo(directory)
+      val index = new SearchIndex(directory)
+      index.directory must beEqualTo(directory)
     }
 
     "Index the root package" in {
       expect { expectationsForEmptyPackage }
 
-      val index = new SearchIndex(mockPackage, directory)
+      val index = new SearchIndex(directory)
+      index.index(mockPackage)
       val docs = getAllDocs(directory)
 
       docs.length must beEqualTo(1)
@@ -41,7 +40,8 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
         expectationsForAnyMemberEntity(mockEntity)
       }
 
-      val index = new SearchIndex(mockPackage, directory)
+      val index = new SearchIndex(directory)
+      index.index(mockPackage)
       val docs = getAllDocs(directory)
 
       docs.length must beEqual(2)
@@ -64,7 +64,8 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
         one(mockVisibility).isPublic willReturn true
         expectationsForAnyMemberEntity(mockClass)
       }
-      val index = new SearchIndex(mockPackage, directory)
+      val index = new SearchIndex(directory)
+      index.index(mockPackage)
       val docs = getAllDocs(directory)
 
       docs.length must beEqual(2)
@@ -108,8 +109,8 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
         one(mockRootPackage).members willReturn(List[MemberEntity]())
       }
 
-      val index = new SearchIndex(mockRootPackage, directory)
-
+      val index = new SearchIndex(directory)
+      index.index(mockRootPackage)
       val docs = getAllDocs(directory)
       docs(0).get(SearchIndex.valvarField) must notBeNull
     }
@@ -124,11 +125,27 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
         one(mockRootPackage).members willReturn(List[MemberEntity]())
       }
 
-      val index = new SearchIndex(mockRootPackage, directory)
+      val index = new SearchIndex(directory)
+      index.index(mockRootPackage)
 
       val docs = getAllDocs(directory)
       docs(0).get(SearchIndex.defsField) must notBeNull
     }
+  }
+
+  "Reindex document when the comment are updated" in {
+    /*var directory = new RAMDirectory
+    var readerMock = mock[IndexReader]
+    var writerMock = mock[IndexWriter]
+    var docs = mock[TermDocs]
+    var doc = new Document()
+    doc.add(SerachIndex.commentField, "TestComment")
+    expect{
+      exactly(1).of(readerMock).document willReturn(termDocs)
+      exactly(1).(termDocs).next willReturn 1
+      exactly
+    }
+      */
   }
   private def getAllDocs(dir : Directory) = {
     var docs = List[Document]()
@@ -145,5 +162,5 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
       }
     }
     docs
-  }
+    }
 }

@@ -436,7 +436,7 @@ class ScoogleParserTests extends TestCase
   def testSimpleVar_Query()
   {
     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("var test"))
-    Assert.assertEquals("+(type:val type:var) +name:test", result)
+    Assert.assertEquals("+(type:var type:val) +name:test", result)
   }
 
   def testVarWithReturnType()
@@ -449,8 +449,8 @@ class ScoogleParserTests extends TestCase
 
   def testVarWithReturnType_Query()
   {
-    val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("var test"))
-    Assert.assertEquals("+(type:val type:var) +name:test, return:Int", result)
+    val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("var test:Int"))
+    Assert.assertEquals("+(type:var type:val) +name:test +return:Int", result)
   }
 
   def testDefWithEmptyParams()
