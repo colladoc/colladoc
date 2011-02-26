@@ -7,9 +7,9 @@ import _root_.scala.xml.XML
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 
-object AppTest {
+object ProjectFilesTest {
   def suite: Test = {
-    val suite = new TestSuite(classOf[AppTest])
+    val suite = new TestSuite(classOf[ProjectFilesTest])
     suite
   }
 
@@ -21,21 +21,14 @@ object AppTest {
 /**
  * Unit test for simple App.
  */
-class AppTest extends TestCase("app") {
-
-  /**
-   * Rigourous Tests :-)
-   */
-  def testOK() = assertTrue(true)
-  // def testKO() = assertTrue(false);
-
+class ProjectFilesTest extends TestCase("app") {
   /**
    * Tests to make sure the project's XML files are well-formed.
    *
    * Finds every *.html and *.xml file in src/main/webapp (and its
    * subdirectories) and tests to make sure they are well-formed.
    */
-  def testXml() = {
+  def testThatProjectXmlFilesAreWellFormed() = {
     var failed: List[File] = Nil
 
     def handledXml(file: String) =
