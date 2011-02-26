@@ -32,7 +32,7 @@ import org.specs.mock.JMocker
 import tools.nsc.doc.model.{DocTemplateEntity, Package}
 
 
-object IndexHelperTestSpecs extends SpecificationWithJUnit with JMocker {
+object IndexOpsTests extends SpecificationWithJUnit with JMocker {
   val session = new LiftSession("", StringHelpers.randomString(20), Empty)
   val stableTime = TimeHelpers.now
 
