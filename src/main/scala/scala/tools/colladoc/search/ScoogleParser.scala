@@ -13,7 +13,7 @@ object  ScoogleParser extends RegexParsers{
 
   final val EofCh = '\032'
 
-  val keywords = List("class", "def", "trait", "package", "object", "or", "||", "&&", "and", "not", "!", "val", "var", "extends", "_")
+  val keywords = List("class", "def", "trait", "package", "object", "or", "||", "&&", "and", "not", "!", "val", "var", "extends", "with", "_")
 
   def notkeyword[T](p: => Parser[T]) = Parser { in =>
     p(in) match {
@@ -50,43 +50,52 @@ object  ScoogleParser extends RegexParsers{
 
   def words:Parser[List[Identifier]] = rep1(word)
 
-  def anyParam:Parser[Identifier] = "*" ^^ {a => AnyParams()}
+  def anyParam:Parser[TypeIdentifier] = "*" ^^ {a => AnyParams()}
 
-  def wordOrStar:Parser[Identifier] = (anyParam | word)
+  def typeOrStar:Parser[TypeIdentifier] = (anyParam | `type`)
 
-  def wordsOrStar:Parser[List[Identifier]] = repsep(wordOrStar, opt(","))
+  def typesOrStar:Parser[List[TypeIdentifier]] = repsep(typeOrStar, opt(","))
 
   def manyWords:Parser[Comment] = phrase(rep1(word)) ^^ {Comment(_)}
 
   def comment():Parser[Comment] = "//" ~ (wordOrKeyword*) ^^ {case _ ~ w => Comment(w)}
 
-  def `extends` = opt(("extends" ~> word))
+  def generics:Parser[List[Type]] = "[" ~> repsep(`type`, opt(",")) <~ "]"
 
-  def `class` = "class" ~> word ~ `extends` ^^ {case c~e => Class(c, e)}
+  def `type`:Parser[Type] = ( word ~ generics ^^ {case i~g => Type(i, g)}
+               | word ^^ {Type(_, List())} )
+
+  def `extends` = opt(("extends" ~> `type`))
+
+  def withs = ("with" ~> `type`)*
+
+  def `class` = "class" ~> word ~ `extends` ~ withs ^^ {case c~e~w => Class(c, e, w)}
 
   def `val` = "val" ~> word ~ returnType ^^ {case v~r => Val(v, r)}
 
   def `var` = "var" ~> word ~ returnType ^^ {case v~r => Var(v, r)}
 
-  def `object` = "object" ~> word ~ `extends` ^^ {case o~e => Object(o, e)}
+  def `object` = "object" ~> word ~ `extends` ~ withs ^^ {case o~e~w => Object(o, e, w)}
 
-  def justExtends = "extends" ~> word ^^ {Extends(_)}
+  def justExtends = "extends" ~> `type` ^^ {Extends(_)}
 
-  def `trait` = "trait" ~> word ~ `extends` ^^ {case t~e => Trait(t, e)}
+  def justWiths = rep1("with" ~> `type`) ^^ {Withs(_)}
+
+  def `trait` = "trait" ~> word ~ `extends` ~ withs ^^ {case t~e~w => Trait(t, e, w)}
 
   def `package` = "package" ~> word ^^ {Package(_)}
 
-  def returnType = opt(":" ~> word)
+  def returnType = opt(":" ~> `type`)
 
-  def params = "(" ~> wordsOrStar <~ ")"
+  def params = "(" ~> typesOrStar <~ ")"
 
-  def curriedParams:Parser[List[List[Identifier]]] = params*
+  def curriedParams:Parser[List[List[TypeIdentifier]]] = params*
 
   def `def` = "def" ~> word ~ curriedParams ~ returnType ^^ {case i~p~r => Def(i, p, r)}
 
   def group:Parser[Group] = "(" ~> expr <~ ")" ^^ {Group(_)}
 
-  def term:Parser[SearchQuery] = not | group |  comment | `class` | `val` | `var` | `trait` | `package` |`object` | justExtends | `def` | word
+  def term:Parser[SearchQuery] = not | group |  comment | `class` | `val` | `var` | `trait` | `package` |`object` | justWiths | justExtends | `def` | word
 
   def or:Parser[Or] = (term ~ (((("or"|"||") ~> term)+) ^^ {a:List[SearchQuery] => a})) ^^ {case h ~ t => Or(h::t)}
 
@@ -99,7 +108,7 @@ object  ScoogleParser extends RegexParsers{
   def query = phrase(expr) | manyWords
 
   def parse(q:String) : SearchQuery = {
-      (phrase(query)(new CharSequenceReader(q))) match {
+      (phrase(query)(new CharSequenceReader(q.toLowerCase))) match {
       case Success(ord, _) => ord
       case Failure(msg, _) => SyntaxError(msg)
       case Error(msg, _) => SyntaxError(msg)

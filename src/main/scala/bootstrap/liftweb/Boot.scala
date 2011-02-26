@@ -34,7 +34,7 @@ import _root_.net.liftweb.sitemap._
 import _root_.net.liftweb.mapper.{DB, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 
 import tools.colladoc.api.ExportService
-import tools.colladoc.lib.sitemap.{HistoryStuff, SearchStuff, IndexStuff, TemplateStuff}
+import tools.colladoc.lib.sitemap.{HistoryStuff, SearchStuff, IndexStuff, TemplateStuff, SyntaxStuff}
 import tools.colladoc.model.mapper.{User, Comment}
 import tools.colladoc.lib.js.JqUI._
 
@@ -67,15 +67,19 @@ class Boot {
       Menu(IndexStuff),
       Menu(HistoryStuff),
       Menu(SearchStuff),
-      Menu(TemplateStuff)
+
+      Menu(TemplateStuff),
+      Menu(SyntaxStuff)
       )
 
-    // Set up URL Rewrites
-    LiftRules.rewrite.append {
-      case RewriteRequest(
-        ParsePath(List("search", query), _,_, _), _, _) =>
-        RewriteResponse("search" :: Nil, Map("q" -> query))
-    }
+   // Not Needed
+
+   // Set up URL Rewrites
+   // LiftRules.rewrite.append {
+   //   case RewriteRequest(
+   //     ParsePath(List("search", query), _,_, _), _, _) =>
+   //     RewriteResponse("search" :: Nil, Map("q" -> query))
+   // }
 
     LiftRules.setSiteMapFunc(sitemap)
     LiftRules.statelessDispatchTable.append(ExportService)

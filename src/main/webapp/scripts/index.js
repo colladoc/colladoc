@@ -118,7 +118,7 @@ function configureTextFilter() {
     });
 
     scheduler.add("init", function() {$("#textfilter input").keypress(function (e) {
-		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+		if (((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) && ($("#textfilter input").attr("value")!="")) {
 		$("#textfilter > .pre").click();
          textFilter();
 		}
@@ -145,7 +145,7 @@ function doStuff() {
 
             var str= $("#textfilter input").attr("value");
             //alert(str);
-            $("iframe").eq(0).attr("src","search.html?q="+str);
+            $("iframe").eq(0).attr("src","search?q="+str);
             textFilter();
 }
 
