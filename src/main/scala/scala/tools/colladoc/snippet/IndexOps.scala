@@ -28,14 +28,16 @@ import page.Index
 
 import xml._
 import tools.nsc.doc.model._
+import tools.nsc.doc.Universe
 
 /**
  * Index snippet.
  * @author Petr Hosek
  */
-class IndexOps {
+class IndexOps(universe: Universe) {
+  def this() = this(model.vend)
 
-  lazy val index = new Index(model.vend)
+  lazy val index = new Index(universe)
 
   /** Return index title. */
   def title(xhtml: NodeSeq): NodeSeq =
