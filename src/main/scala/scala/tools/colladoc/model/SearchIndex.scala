@@ -3,12 +3,10 @@ import scala.tools.colladoc.lib.util.NameUtils._
 import java.io.File
 import java.util.HashMap
 import tools.nsc.doc.model._
-import tools.colladoc.search.AnyParams
-import org.apache.lucene.analysis.standard.StandardAnalyzer
 import tools.colladoc.utils.Timer
-import org.apache.lucene.analysis.core.{WhitespaceAnalyzer, KeywordAnalyzer}
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer
 import org.apache.lucene.document.{NumericField, Field, Document}
-import org.apache.lucene.util.{BytesRef, Bits, Version}
+import org.apache.lucene.util.{BytesRef, Version}
 import org.apache.lucene.search.DocIdSetIterator
 import org.apache.lucene.index._
 import org.apache.lucene.store._
@@ -228,8 +226,10 @@ class SearchIndex(indexDirectory : Directory) {
                       lookupKey.toString(),
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
+
     addCommentToDocument(member, doc)
-    // Fianlly, index the document for this entity.
+
+    // Finally, index the document for this entity.
     writer.addDocument(doc)
   }
 
@@ -247,45 +247,43 @@ class SearchIndex(indexDirectory : Directory) {
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
 
-    // Scala allows package objects (http://www.scala-lang.org/docu/files/packageobjects/packageobjects.html)
-    // so packages can have vals and fields.
-    //addValVarField("", doc)
-    //addDefsField("", doc)
-
     doc
   }
 
   private def createClassDocument(cls : Class) = {
-    createClassOrTraitDocument(classField, cls)
+    createTypeDocument(classField, cls)
   }
 
   private def createTraitDocument(trt : Trait) = {
-    createClassOrTraitDocument(traitField, trt)
+    createTypeDocument(traitField, trt)
   }
 
-  private def createClassOrTraitDocument(primaryField : String,
-                                         classOrTrait : DocTemplateEntity) = {
+  private def createObjectDocument(obj : Object) = {
+    createTypeDocument(objectField, obj)
+  }
+
+  private def createTypeDocument(primaryField : String,
+                                 typ : DocTemplateEntity) = {
     val doc = new Document
     doc.add(new Field(typeField,
                       primaryField,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
 
-    classOrTrait.parentType match {case Some(parent) => doc.add(new Field(extendsField, parent.name.toLowerCase, Field.Store.YES, Field.Index.NOT_ANALYZED))
-                                   case _ => {}}
+    val exts = typ.linearizationTemplates.filterNot(_.isTrait).map(_.name).mkString(" ").toLowerCase
+    doc.add(new Field(extendsField,
+                      exts,
+                      Field.Store.YES,
+                      Field.Index.ANALYZED))
+    val withs = typ.linearizationTemplates.filter(_.isTrait).map(_.name).mkString(" ").toLowerCase
+    doc.add(new Field(withsField,
+                      withs,
+                      Field.Store.YES,
+                      Field.Index.ANALYZED))
 
-    val withs = classOrTrait.linearizationTemplates.filter(_.isTrait).map(_.name).mkString(" ").toLowerCase
-    doc.add(new Field(withsField, withs, Field.Store.YES, Field.Index.ANALYZED))
-
-
-    addVisibilityField(classOrTrait.visibility, doc)
-
+    addVisibilityField(typ.visibility, doc)
 
     doc
-  }
-
-  private def createObjectDocument(obj : Object) = {
-    createClassOrTraitDocument(objectField, obj)
   }
 
   private def createDefDocument(df : Def) = {
