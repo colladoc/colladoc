@@ -14,6 +14,9 @@ import scala.tools.colladoc.search._
 import org.apache.lucene.search._
 import scala.collection.JavaConversions._
 
+import org.apache.lucene.search.IterablePaging.TotalHitsRef
+import org.apache.lucene.search.IterablePaging
+
 /**
  * Search snippet.
  */
@@ -90,15 +93,14 @@ class SearchOps extends StatefulSnippet{
 	    errorToHtml("We dont like empty queries")
     }
   }
-  /*
+
   def displayResults(query:Query):NodeSeq =
   {
+    println("test")
     var searcher : IndexSearcher = null
     try {
-      val hitsPerPage = 5
-      val collector = TopScoreDocCollector.create(hitsPerPage, true)
-      searcher = new IndexSearcher(index.vend.directory, true)
 
+      searcher = new IndexSearcher(index.vend.directory, true)
       println("Lucene Query: " + query.toString)
       searchResults(searcher, query, 1)
     }
@@ -106,13 +108,13 @@ class SearchOps extends StatefulSnippet{
       if (searcher != null) { searcher.close() }
     }
   }
-
-  */
+   /*
+   // Display results without paging
    def displayResults(query:Query):NodeSeq =
   {
     var searcher : IndexSearcher = null
     try {
-      val hitsPerPage = 100
+      val hitsPerPage = 50
       val collector = TopScoreDocCollector.create(hitsPerPage, true)
       searcher = new IndexSearcher(index.vend.directory, true)
 
@@ -137,8 +139,8 @@ class SearchOps extends StatefulSnippet{
       }
     }
   }
+   */
 
-  /*
   def searchResults(searcher : IndexSearcher, query : Query, pageNumber : Int)={
     val totalHitsRef = new TotalHitsRef();
 		val paging = new IterablePaging(searcher, query, 1000);
@@ -152,13 +154,14 @@ class SearchOps extends StatefulSnippet{
         val entitylookupKey = Integer.parseInt(searcher.doc(hit.doc).
                                       get(SearchIndex.entityLookupField))
         val entityResult = index.vend.entityLookup.get(entitylookupKey)
+
         entityResult
       })
 
       println("Results: " + totalHitsRef.totalHits())
       resultsToHtml(entityResults)
   }
-  */
+
   /** Render search results **/
   def resultsToHtml(members : Array[MemberEntity]) = {
     resultsCount = members.length

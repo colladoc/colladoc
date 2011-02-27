@@ -7,7 +7,7 @@ import org.apache.lucene.store.{RAMDirectory, Directory}
 import tools.nsc.doc.model.Package
 import org.apache.lucene.document.Document
 import tools.nsc.doc.model.comment.{Body, Comment}
-import org.apache.lucene.index.{TermDocs, IndexWriter, IndexReader}
+import org.apache.lucene.index.{IndexWriter, IndexReader}
 
 object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
    var directory: Directory = _
@@ -73,8 +73,8 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
       docs(0).get(SearchIndex.extendsField) mustEqual parentClassName
     }
 
-    "Index Def and stores its number of parameters, visibility, return value" in {
-      /*val mockDef = mock[Def]
+    /*"Index Def and stores its number of parameters, visibility, return value" in {
+      val mockDef = mock[Def]
       val mockVisibility = mock[Visibility]
       val mockReturnParam = mock[TypeParam]
       val mockParam = mock[TypeParam]
@@ -96,8 +96,8 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
 
       docs(0).get(SearchIndex.returnsField) mustEqual returnParamName
       docs(0).get(SearchIndex.typeParamsCountField) mustEqual(1)
-      docs(0).get(SearchIndex.visibilityField) mustEqual defVisibility*/
-    }
+      docs(0).get(SearchIndex.visibilityField) mustEqual defVisibility
+    }*/
 
     "Add valsOrVars field to package documents" in {
       val directory = new RAMDirectory
@@ -131,22 +131,22 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
       val docs = getAllDocs(directory)
       docs(0).get(SearchIndex.defsField) must notBeNull
     }
+
+    /*"Reindex document when the comment are updated" in {
+      var directory = new RAMDirectory
+      var readerMock = mock[IndexReader]
+      var writerMock = mock[IndexWriter]
+      var docs = mock[TermDocs]
+      var doc = new Document()
+      doc.add(SerachIndex.commentField, "TestComment")
+      expect{
+        exactly(1).of(readerMock).document willReturn(termDocs)
+        exactly(1).(termDocs).next willReturn 1
+        exactly
+      }
+    }*/
   }
 
-  "Reindex document when the comment are updated" in {
-    /*var directory = new RAMDirectory
-    var readerMock = mock[IndexReader]
-    var writerMock = mock[IndexWriter]
-    var docs = mock[TermDocs]
-    var doc = new Document()
-    doc.add(SerachIndex.commentField, "TestComment")
-    expect{
-      exactly(1).of(readerMock).document willReturn(termDocs)
-      exactly(1).(termDocs).next willReturn 1
-      exactly
-    }
-      */
-  }
   private def getAllDocs(dir : Directory) = {
     var docs = List[Document]()
     var reader : IndexReader = null
@@ -162,5 +162,5 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
       }
     }
     docs
-    }
+  }
 }
