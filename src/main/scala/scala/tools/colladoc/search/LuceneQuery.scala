@@ -280,3 +280,16 @@ object LuceneQuery
   // NOTE: All entities should contain their package:! Dotted packages (wow.test) are not separated)
 
 }
+
+abstract sealed  class LuceneQuery
+{
+}
+
+case class CompositeQuery extends LuceneQuery
+{
+}
+
+case class SingleQuery
+{
+}
+
