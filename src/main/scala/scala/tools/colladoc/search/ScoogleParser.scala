@@ -25,23 +25,26 @@ object  ScoogleParser extends RegexParsers{
   def charExcept(cs: Char*) = elem("", ch => (cs forall (ch !=)))
 
   // WARNING: Words containing dots (.) are allowed!
-  def identifierOrKeyword = """[a-zA-Z_][\w\._]*""".r
+  def identifierOrKeyword = """[^ :)(\[\],"`]+""".r
 
   def identifier = notkeyword(identifierOrKeyword)
 
-  def startsWithIdentifier = """[a-zA-Z][\w\._]*_""".r
+  def startsWithIdentifier = """[^ :)(\[\],"`]+_""".r
 
+  def nonApostrophy = "[^`]+".r
 
   def stringLit = '\"' ~ rep( charExcept('\"', '\n', EofCh) ) ~ '\"' ^^ { case '\"' ~ chars ~ '\"' => (chars mkString "") }
 
-  def word =  ("_\\b".r ^^ {s => AnyWord()}
+  def word =  ( "`" ~> nonApostrophy <~ "`" ^^ {Word(_)}
+              | "_\\b".r ^^ {s => AnyWord()}
               | "_" ~> startsWithIdentifier ^^ {s => Contains(s.substring(0, s.length-1))}
               | "_" ~> identifier ^^ {EndWith(_)}
               | startsWithIdentifier ^^ {s => StartWith(s.substring(0, s.length-1))}
               | identifier ^^ {Word(_)}
               | stringLit ^^ {ExactWord(_)})
 
-  def wordOrKeyword =   ( "_\\b".r ^^ {s => AnyWord()}
+  def wordOrKeyword =   ( "`" ~> nonApostrophy <~ "`" ^^ {Word(_)}
+                        | "_\\b".r ^^ {s => AnyWord()}
                         | "_" ~> startsWithIdentifier ^^ {s => Contains(s.substring(0, s.length-1))}
                         | "_" ~> identifierOrKeyword ^^ {EndWith(_)}
                         | startsWithIdentifier ^^ {s => StartWith(s.substring(0, s.length-1))}

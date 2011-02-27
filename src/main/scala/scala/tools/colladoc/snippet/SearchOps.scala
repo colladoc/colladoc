@@ -98,7 +98,7 @@ class SearchOps extends StatefulSnippet{
   {
     var searcher : IndexSearcher = null
     try {
-      val hitsPerPage = 10
+      val hitsPerPage = 50
       val collector = TopScoreDocCollector.create(hitsPerPage, true)
       searcher = new IndexSearcher(index.vend.directory, true)
 

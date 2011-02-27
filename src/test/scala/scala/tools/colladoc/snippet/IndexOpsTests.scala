@@ -22,22 +22,42 @@
  */
 package scala.tools.colladoc.snippet
 
-import org.specs.runner.{JUnit3, ConsoleRunner}
 import net.liftweb.http.{S, LiftSession}
 import org.specs.specification.Examples
 import net.liftweb.common.Empty
 import net.liftweb.util.{TimeHelpers, StringHelpers}
 import org.specs.SpecificationWithJUnit
+import tools.nsc.doc.Universe
+import org.specs.mock.JMocker
+import tools.nsc.doc.model.{DocTemplateEntity, Package}
 
-object TemplateHelperTestSpecs extends SpecificationWithJUnit {
+
+object IndexOpsTests extends SpecificationWithJUnit with JMocker {
   val session = new LiftSession("", StringHelpers.randomString(20), Empty)
   val stableTime = TimeHelpers.now
 
-  override def executeExpectations(ex: Examples, t: =>Any): Any = {
-    S.initIfUninitted(session) {
-      //DependencyFactory.time.doWith(stableTime) {
+    override def executeExpectations(ex: Examples, t: =>Any): Any = {
+      S.initIfUninitted(session) {
         super.executeExpectations(ex, t)
-      //}
+      }
+    }
+
+  "IndexOps Snippet" should {
+    "Put the filter in the node" in {
+      val mockUniverse = mock[Universe]
+      val mockRootPackage = mock[Package]
+      expect {
+        exactly(1).of(mockUniverse).rootPackage willReturn mockRootPackage
+        exactly(1).of(mockRootPackage).isRootPackage willReturn true
+        exactly(1).of(mockRootPackage).templates willReturn List[DocTemplateEntity]()
+        exactly(1).of(mockRootPackage).packages willReturn List[Package]()
+      }
+
+      val index = new IndexOps(mockUniverse)
+
+      val str = index.body(<html></html>).toString
+
+      str.indexOf((<div id="filter"></div>).toString) must be >= 0
     }
   }
 }

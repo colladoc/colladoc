@@ -704,7 +704,62 @@ class ScoogleParserTests extends TestCase
      Assert.assertEquals("+type:trait +name:bau* +extends:list[*] +(+withs:wow +withs:set[wow])", result)
   }
 
-  // TODO: Test strange identifiers
+  def testExactNameTildaCharacter()
+  {
+    ScoogleParser.parse("with `~`") match {
+      case Withs(List(Type(Word("~"), _))) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testExactNameTildaCharacter_Query()
+  {
+     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("with `~`"))
+     Assert.assertEquals("+withs:~", result)
+  }
+
+  def testCharactersInName()
+  {
+    ScoogleParser.parse("with ~*=><") match {
+      case Withs(List(Type(Word("~*=><"), _))) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testCharactersInName_Query()
+  {
+     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("with ~*=><"))
+     Assert.assertEquals("+withs:~*=><", result)
+  }
+
+  def testKeywordInName()
+  {
+    ScoogleParser.parse("with `def`") match {
+      case Withs(List(Type(Word("def"), _))) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testKeywordInName_Query()
+  {
+     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("with `def`"))
+     Assert.assertEquals("+withs:def", result)
+  }
+
+  def testNoWildcardsInExactName()
+  {
+    ScoogleParser.parse("with `_:`") match {
+      case Withs(List(Type(Word("_:"), _))) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testNoWildcardsInExactName_Query()
+  {
+     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("with `_:`"))
+     Assert.assertEquals("+withs:_:", result)
+  }
+
   // TODO: Test invalid syntax
   // TODO: Test nonsensical queries (x-category)
 }

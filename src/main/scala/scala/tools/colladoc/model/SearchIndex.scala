@@ -13,9 +13,6 @@ import org.apache.lucene.search.DocIdSetIterator
 import org.apache.lucene.index._
 import org.apache.lucene.store._
 
-//import org.apache.lucene.index.{IndexWriter}
-//import org.apache.lucene.analysis.standard.StandardAnalyzer
-
 object SearchIndex {
 
   /** The type is a package */
@@ -42,10 +39,16 @@ object SearchIndex {
 
   /** Members have a return type */
   val returnsField = "return"
+
   val typeParamsCountField = "typeparamscount"
+
+  /** Contains the visibility of the entity */
   val visibilityField = "visibility"
 
+  /** The def documents contain the number of parameters as a NumberField */
   val methodParamsCount = "methodParamsCount"
+
+  /** The method parameters are stored as a sequence of type names, i.e. "A B C[D]" */
   val methodParams = "methodParams"
 
   /** All documents have a name */
@@ -56,13 +59,18 @@ object SearchIndex {
 
   /** All documents contain a comments field */
   val commentField = "comment"
+
+  /** This field contains a key that can be used to retrieve the original entity if needed */
   val entityLookupField = "entityLookup"
 
   /** Entities that extend something has this field */
   val extendsField = "extends"
 
+  /** Contains the traits that of a class or obejct - a sequance of type names - "A B C[D]" */
   val withsField = "withs"
+
   val valvarField = "valvar"
+
   val defsField = "defs"
 }
 
@@ -266,6 +274,9 @@ class SearchIndex(indexDirectory : Directory) {
     classOrTrait.parentType match {case Some(parent) => doc.add(new Field(extendsField, parent.name.toLowerCase, Field.Store.YES, Field.Index.NOT_ANALYZED))
                                    case _ => {}}
 
+    val withs = classOrTrait.linearizationTemplates.filter(_.isTrait).map(_.name).mkString(" ").toLowerCase
+    doc.add(new Field(withsField, withs, Field.Store.YES, Field.Index.ANALYZED))
+
 
     addVisibilityField(classOrTrait.visibility, doc)
 
@@ -297,17 +308,11 @@ class SearchIndex(indexDirectory : Directory) {
 
     val fieldValue = paramTypes.mkString(" ")
 
-    println("methodParams: " + fieldValue )
-
     val pField = new Field(methodParams, fieldValue.toLowerCase, Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.WITH_POSITIONS)
 
     pField.setOmitTermFreqAndPositions(false)
 
     doc.add(pField)
-
-    println(pField.isStorePositionWithTermVector)
-    println(pField.isTermVectorStored)
-    println(pField.isIndexed)
 
     doc.add(new NumericField(methodParamsCount).setIntValue(params.size))
 
