@@ -130,7 +130,6 @@ class SearchIndex(indexDirectory : Directory) {
   private def updateDocumentComments(docs : List[Document],
                                        member : MemberEntity,
                                        writer : IndexWriter){
-          println("Write docs: " + docs.length)
           docs.foreach(doc =>{
             doc.removeField(commentField)
             val newDoc = addCommentToDocument(member, doc)
@@ -228,7 +227,7 @@ class SearchIndex(indexDirectory : Directory) {
                       lookupKey.toString(),
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
-    addCommentToDocument(member, doc)
+    //addCommentToDocument(member, doc)
     // Fianlly, index the document for this entity.
     writer.addDocument(doc)
   }

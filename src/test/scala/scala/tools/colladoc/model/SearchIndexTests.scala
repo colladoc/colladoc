@@ -9,7 +9,9 @@ import org.apache.lucene.document.Document
 import tools.nsc.doc.model.comment.{Body, Comment}
 import org.apache.lucene.index.{IndexWriter, IndexReader}
 
-object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
+object SearchIndexTests extends SpecificationWithJUnit
+       with EntityMemberMock
+       with ClassMock{
    var directory: Directory = _
   "Search Index" should {
     doBefore {
@@ -29,7 +31,7 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
       val docs = getAllDocs(directory)
 
       docs.length must beEqualTo(1)
-      docs(0).get(SearchIndex.nameField) mustEqual packageName
+      docs(0).get(SearchIndex.nameField) mustEqual packageName.toLowerCase
     }
 
     // TODO: Test comments and entityLookUp
@@ -45,32 +47,26 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock {
       val docs = getAllDocs(directory)
 
       docs.length must beEqual(2)
-      docs(0).get(SearchIndex.nameField) mustEqual entityName
+      docs(1).get(SearchIndex.nameField) mustEqual entityName.toLowerCase
     }
 
-    "Index class and store their visibility, parentClass  " in {
-      val mockClass = mock[Class]
-      val parentClass = mock[TypeEntity]
-      val classVisibility = "public"
-      val parentClassName = "ParentClass"
-      val mockVisibility = mock[Visibility]
+    "Index class and store their visibility, parentClass, Traits that extends  " in {
 
       expect {
         defaultExpectationsForPackage
         one(mockPackage).members.willReturn(List[MemberEntity](mockClass))
-        one(mockClass).parentType willReturn Some(parentClass)
-        one(parentClass).name willReturn parentClassName
-        one(mockClass).visibility willReturn mockVisibility
-        one(mockVisibility).isPublic willReturn true
+        expectationsForClass
         expectationsForAnyMemberEntity(mockClass)
       }
+
       val index = new SearchIndex(directory)
       index.index(mockPackage)
       val docs = getAllDocs(directory)
 
       docs.length must beEqual(2)
-      docs(0).get(SearchIndex.visibilityField) mustEqual classVisibility
-      docs(0).get(SearchIndex.extendsField) mustEqual parentClassName
+      docs(1).get(SearchIndex.visibilityField) mustEqual classVisibility
+      docs(1).get(SearchIndex.extendsField) mustEqual parentClassName.toLowerCase
+      docs(1).get(SearchIndex.withsField)  mustEqual traitTemplateEntityName.toLowerCase
     }
 
     /*"Index Def and stores its number of parameters, visibility, return value" in {
