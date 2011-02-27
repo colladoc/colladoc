@@ -163,8 +163,8 @@ class SearchOps extends StatefulSnippet{
   }
 
   /** Render search results **/
-  def resultsToHtml(members : Array[MemberEntity]) = {
-    resultsCount = members.length
+  def resultsToHtml(members : Iterable[MemberEntity]) = {
+    resultsCount = members.size
 
     <div id="searchResults">
       {
