@@ -30,8 +30,25 @@ $(document).ready(function() {
 
     if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight((urlpart[1]).replace("_"," ")); copy(src);}
 
+    shortcut_enable();
 })
 
+function shortcut_enable(){
+    var isCtrl=false;
+    $(document).keyup(function (e) {
+        if(e.which == 17) isCtrl=false;
+    }).keydown(function (e) {
+        if(e.which == 17) isCtrl=true;
+        if(e.which == 81 && isCtrl == true) {
+
+            var elem = parent.window.document.getElementById("svalue");
+            elem.focus();
+            elem.select();
+            isCtrl = false;
+            return false;
+       }
+    });
+}
 
 function reinit(selector) {
     $('.button', $(selector)).button();
