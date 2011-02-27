@@ -25,14 +25,18 @@ class SearchOps extends StatefulSnippet{
   object queryRequestVar extends RequestVar[String](S.param("q") openOr "")
   var hasMember:Boolean = false
 
+  // TODO: Maybe we should set this value in the SearchPage?
+  val resultsPerPage = 10
+  var resultsCount = 0
+
   val dispatch: DispatchIt ={ case "show" => show _
                               case "body" => body _
                               case "sText" => sText
-
+                              case "pages" => pages
                              }
 
   def sText (xhtml:NodeSeq): NodeSeq = {
-    {searchValue}
+    {scala.xml.Unparsed(searchValue)}
   }
   var searchValue = queryRequestVar.is
 
@@ -42,6 +46,19 @@ class SearchOps extends StatefulSnippet{
   def title(xhtml: NodeSeq): NodeSeq =
     Text(searchPage.title)
 
+
+  def pages(xhtml:NodeSeq):NodeSeq = {
+   val numberOfPages = (math.ceil(resultsCount / resultsPerPage))
+   var x=""
+
+   <div align="center" id="spages">{
+      for (i <- 0 until numberOfPages.toInt+1) {x=x + "<a href=\"#\" style=\"margin:5px;\">" + (i+1) + "</a>"}
+     }{scala.xml.Unparsed(x)}
+
+   </div>
+    <br/>
+
+  }
   def show(xhtml:NodeSeq):NodeSeq = {
       <xml:group>
       <label for="searchText">Search :</label>
@@ -56,10 +73,9 @@ class SearchOps extends StatefulSnippet{
 
     bind("search", searchPage.body,
          "results" -> search(searchValue),
-         if (hasMember) {"header" -> searchPage.bodyHeader _ } else {"header" -> <div/>}
-         )
-
-
+         if (hasMember) {"header" -> searchPage.bodyHeader _ } else {"header" -> <div/>},
+          "pages" -> pages _
+        )
   }
   def search(query : String) :NodeSeq =
   {
@@ -98,7 +114,7 @@ class SearchOps extends StatefulSnippet{
   {
     var searcher : IndexSearcher = null
     try {
-      val hitsPerPage = 10
+      val hitsPerPage = 50
       val collector = TopScoreDocCollector.create(hitsPerPage, true)
       searcher = new IndexSearcher(index.vend.directory, true)
 
@@ -148,6 +164,8 @@ class SearchOps extends StatefulSnippet{
 
   /** Render search results **/
   def resultsToHtml(members : Iterable[MemberEntity]) = {
+    resultsCount = members.size
+
     <div id="searchResults">
       {
         if (members.nonEmpty) {

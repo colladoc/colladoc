@@ -50,13 +50,34 @@ $(document).ready(function() {
     configureKindFilter();
     configureEntityList();
 
+    shortcut_enable();
+
+
 });
 
+function shortcut_enable(){
+    scheduler.add("init", function() {
+
+    var isCtrl=false;
+    $(document).keyup(function (e) {
+        if(e.which == 17) isCtrl=false;
+    }).keydown(function (e) {
+        if(e.which == 17) isCtrl=true;
+        if(e.which == 81 && isCtrl == true) {
+
+            $("#svalue").focus().select();
+
+            isCtrl = false;
+            return false;
+       }
+    });
+   });
+}
 function configureEntityList() {
     kindFilterSync();
     configureHideFilter();
     configureFocusFilter();
-    textFilter();
+    //textFilter();
 }
 
 /* The DomCache class holds a series of pointers to interesting parts of the page's DOM tree. Generally, any DOM
@@ -100,16 +121,17 @@ function prepareEntityList() {
 function configureTextFilter() {
     scheduler.add("init", function() {
         $("#filter").append("<div id='textfilter'><span class='pre' id='searchbtn' style='cursor:pointer;'/><span class='input'><input id='svalue' type='text' accesskey='/'/></span><span class='post'/></div>");
- /*       var input = $("#textfilter input");
+        var input = $("#textfilter input");
         resizeFilterBlock();
         input.bind("keyup", function(event) {
             if (event.keyCode == 27) { // escape
                 input.attr("value", "");
             }
-            textFilter();
+            //textFilter();
+
         });
-        input.focus(function(event) { input.select(); });
-*/    });
+        input.focus();
+    });
     scheduler.add("init", function() {
         $("#textfilter > .post").click(function(){
             $("#textfilter input").attr("value", "");
@@ -119,8 +141,7 @@ function configureTextFilter() {
 
     scheduler.add("init", function() {$("#textfilter input").keypress(function (e) {
 		if (((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) && ($("#textfilter input").attr("value")!="")) {
-		$("#textfilter > .pre").click();
-         textFilter();
+		doStuff();
 		}
        });
     });
@@ -135,8 +156,6 @@ function configureTextFilter() {
             retrieveUrl();
 
         });
-
-
     });
 }
 
@@ -144,9 +163,9 @@ function configureTextFilter() {
 function doStuff() {
 
             var str= $("#textfilter input").attr("value");
-            //alert(str);
-            $("iframe").eq(0).attr("src","search?q="+str);
-            textFilter();
+           $("iframe").eq(0).attr("src","search?q="+escape(str));
+            //textFilter();
+
 }
 
 function retrieveUrl(){

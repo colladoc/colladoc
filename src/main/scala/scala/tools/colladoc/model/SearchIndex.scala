@@ -3,19 +3,15 @@ import scala.tools.colladoc.lib.util.NameUtils._
 import java.io.File
 import java.util.HashMap
 import tools.nsc.doc.model._
-import org.apache.lucene.store.{Directory, FSDirectory}
 import tools.colladoc.search.AnyParams
-import org.apache.lucene.index.{IndexWriterConfig, IndexWriter}
-import org.apache.lucene.index.{Term, IndexReader, IndexWriter}
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import tools.colladoc.utils.Timer
 import org.apache.lucene.analysis.core.{WhitespaceAnalyzer, KeywordAnalyzer}
 import org.apache.lucene.document.{NumericField, Field, Document}
 import org.apache.lucene.util.{BytesRef, Bits, Version}
 import org.apache.lucene.search.DocIdSetIterator
-
-//import org.apache.lucene.index.{IndexWriter}
-//import org.apache.lucene.analysis.standard.StandardAnalyzer
+import org.apache.lucene.index._
+import org.apache.lucene.store._
 
 object SearchIndex {
 
@@ -43,10 +39,16 @@ object SearchIndex {
 
   /** Members have a return type */
   val returnsField = "return"
+
   val typeParamsCountField = "typeparamscount"
+
+  /** Contains the visibility of the entity */
   val visibilityField = "visibility"
 
+  /** The def documents contain the number of parameters as a NumberField */
   val methodParamsCount = "methodParamsCount"
+
+  /** The method parameters are stored as a sequence of type names, i.e. "A B C[D]" */
   val methodParams = "methodParams"
 
   /** All documents have a name */
@@ -57,13 +59,18 @@ object SearchIndex {
 
   /** All documents contain a comments field */
   val commentField = "comment"
+
+  /** This field contains a key that can be used to retrieve the original entity if needed */
   val entityLookupField = "entityLookup"
 
   /** Entities that extend something has this field */
   val extendsField = "extends"
 
+  /** Contains the traits that of a class or obejct - a sequance of type names - "A B C[D]" */
   val withsField = "withs"
+
   val valvarField = "valvar"
+
   val defsField = "defs"
 }
 
@@ -73,79 +80,83 @@ class SearchIndex(indexDirectory : Directory) {
   var directory = indexDirectory
   def this() = this(FSDirectory.open(new File("lucene-index")))
 
-  def reindexEntityComment(member : MemberEntity){
-    Timer.go
-    var reader : IndexReader = null
-    var writer : IndexWriter = null
-
-    try{
-      var docsToBeModified =  removeDocuments(member, directory)
-
-      val config = new IndexWriterConfig(Version.LUCENE_40, new WhitespaceAnalyzer(Version.LUCENE_40))
-      var writer = new IndexWriter(directory, config)
-      updateDocumentComments(docsToBeModified, member, writer)
-
-    }
-    finally {
-      if (writer != null) { writer.optimize(); writer.close() }
-      Timer.stop
-    }
-  }
-
   def index(rootPackage : Package){
     var writer : IndexWriter = null
     try {
 
-      val config = new IndexWriterConfig(Version.LUCENE_40, new WhitespaceAnalyzer(Version.LUCENE_40))
-      writer = new IndexWriter(directory, config)
-
-      //writer = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_30), IndexWriter.MaxFieldLength.UNLIMITED)
-
-      // Clear any previously indexed data.
-      writer.deleteAll()
-
+      writer = getWriter
+      writer.deleteAll
       indexMembers(rootPackage :: Nil, writer)
-
-      writer.optimize()
     }
     finally {
-      if (writer != null) {
-        writer.close()
-      }
+      if (writer != null) { writer.optimize(); writer.close(); }
     }
   }
 
-  private def getDocumentsByMember(member:MemberEntity,reader : IndexReader) = {
-      val number = reader.docFreq(new Term(entityLookupField, member.hashCode.toString))
-      println("number:" + number)
+  private def getDocumentsByMember(member:MemberEntity, reader : IndexReader) = {
       println(member.hashCode.toString)
-      val docsToBeModified = reader.termDocsEnum(new Bits.MatchAllBits(1),
-                                                 entityLookupField,
-                                                 new BytesRef(member.hashCode.toString))
+      val docsToBeModified = MultiFields.getTermDocsEnum(reader,
+                                               MultiFields.getDeletedDocs(reader),
+                                               entityLookupField,
+                                               new BytesRef(member.hashCode.toString))
+
       docsToBeModified
     }
+
+  // Update the documents related to the member so they contain the latest comment for the member
+  // Note that currently Lucene does not support index update and teh only way of updating a document is
+  // deleting the document, changing its fields and adding it again
+  def reindexEntityComment(member : MemberEntity){
+    Timer.go
+    val reader : IndexReader = null
+    var writer : IndexWriter = null
+    try{
+      val docsToBeModified =  removeDocuments(member, directory)
+      writer = getWriter
+      updateDocumentComments(docsToBeModified, member, writer)
+    }
+    finally {
+      if (writer != null) { writer.optimize(); writer.close(); }
+      Timer.stop
+    }
+  }
+
+  private def getWriter(): IndexWriter ={
+      val config = new IndexWriterConfig(Version.LUCENE_40, new WhitespaceAnalyzer(Version.LUCENE_40))
+      val writer = new IndexWriter(directory, config)
+      writer
+  }
 
   private def updateDocumentComments(docs : List[Document],
                                        member : MemberEntity,
                                        writer : IndexWriter){
+          println("Write docs: " + docs.length)
           docs.foreach(doc =>{
-          doc.removeField(commentField)
-          val newDoc = addCommentToDocument(member, doc)
-          writer.addDocument(newDoc)
+            doc.removeField(commentField)
+            val newDoc = addCommentToDocument(member, doc)
+            writer.addDocument(newDoc)
       })
     }
 
   private def removeDocuments(member : MemberEntity, directory : Directory) : List[Document] = {
-      val reader = IndexReader.open(directory, false)
-      val docs = getDocumentsByMember(member, reader)
-      var removeDocs = List[Document]()
-      while(docs.nextDoc()!= DocIdSetIterator.NO_MORE_DOCS){
-      val doc = reader.document(docs.docID())
-      reader.deleteDocument(docs.docID())
-      removeDocs = doc :: removeDocs
+      var  reader : IndexReader = null
+      try{
+        reader = IndexReader.open(directory, false)
+        val docs = getDocumentsByMember(member, reader)
+        val number = reader.docFreq(new Term(entityLookupField, member.hashCode.toString))
+        var removeDocs = List[Document]()
+
+        while(docs.nextDoc()!= DocIdSetIterator.NO_MORE_DOCS){
+          val docNum =  docs.docID()
+          val doc = reader.document(docNum)
+          reader.deleteDocument(docNum)
+          removeDocs = doc :: removeDocs
+        }
+        removeDocs
       }
+      finally{
       reader.close
-      removeDocs
+      }
     }
 
   private def indexMembers(members : List[MemberEntity], writer : IndexWriter) : Unit = {
@@ -263,6 +274,9 @@ class SearchIndex(indexDirectory : Directory) {
     classOrTrait.parentType match {case Some(parent) => doc.add(new Field(extendsField, parent.name.toLowerCase, Field.Store.YES, Field.Index.NOT_ANALYZED))
                                    case _ => {}}
 
+    val withs = classOrTrait.linearizationTemplates.filter(_.isTrait).map(_.name).mkString(" ").toLowerCase
+    doc.add(new Field(withsField, withs, Field.Store.YES, Field.Index.ANALYZED))
+
 
     addVisibilityField(classOrTrait.visibility, doc)
 
@@ -294,17 +308,11 @@ class SearchIndex(indexDirectory : Directory) {
 
     val fieldValue = paramTypes.mkString(" ")
 
-    println("methodParams: " + fieldValue )
-
     val pField = new Field(methodParams, fieldValue.toLowerCase, Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.WITH_POSITIONS)
 
     pField.setOmitTermFreqAndPositions(false)
 
     doc.add(pField)
-
-    println(pField.isStorePositionWithTermVector)
-    println(pField.isTermVectorStored)
-    println(pField.isIndexed)
 
     doc.add(new NumericField(methodParamsCount).setIntValue(params.size))
 

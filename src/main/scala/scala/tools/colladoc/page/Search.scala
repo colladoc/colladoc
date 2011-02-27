@@ -19,20 +19,23 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
         <p><a href="#" id="linkURL" style={"font-size:10px;color:#ffffff;visibility:visible;" }>Copy Search URL</a></p>
       </div>
 
+
       <div id="template">
 
        <search:header />
+       <search:pages />
        <search:results />
 
       </div>
 
       <div id="tooltip" ></div>
 
-
     </body>
 
  def bodyHeader(xhtml:NodeSeq):NodeSeq = {
-      <div id="mbrsel">
+
+
+          <div id="mbrsel">
           <div id='textfilter'><span class='pre'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>
           {
             <div id="symboltype">
@@ -63,6 +66,7 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
             </div>
           }
         </div>
+
 }
   /**
    * Renders list of comments to its xhtml representation.
@@ -92,6 +96,7 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
     <xml:group>
       {
         aggregateMembers(results) flatMap { case (containingType, mbrs) =>
+
           <div class={"searchResult" +
                     (if (containingType.isTrait || containingType.isClass) " type"
                     else " value")
