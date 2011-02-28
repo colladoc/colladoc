@@ -193,6 +193,8 @@ class SearchIndex(indexDirectory : Directory) {
   }
 
   private def indexMember(member : MemberEntity, writer : IndexWriter) : Unit = {
+    var memberName = member.name
+
     val doc : Document = member match {
       case pkg : Package =>
         createPackageDocument(pkg)
@@ -204,6 +206,10 @@ class SearchIndex(indexDirectory : Directory) {
         createObjectDocument(obj)
       case df : Def =>
         createDefDocument(df)
+      case ctor : Constructor =>
+        // Constructor's should use their class name.
+        memberName = ctor.inTemplate.name
+        createConstructorDocument(ctor)
       case value : Val =>
         createValDocument(value)
       case _ =>
@@ -213,10 +219,9 @@ class SearchIndex(indexDirectory : Directory) {
     // Make sure that every entity at least has a field for their name to enable
     // general searches ([q1])
     doc.add(new Field(nameField,
-                      member.name.toLowerCase,
+                      memberName.toLowerCase,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
-
 
     // Add the entity to our lookup and store the lookup key as a field so that
     // we can recover the entity later.
@@ -294,25 +299,24 @@ class SearchIndex(indexDirectory : Directory) {
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
 
-
-
     addTypeParamsCountField(df.typeParams, doc)
     addVisibilityField(df.visibility, doc)
     addReturnsField(df.resultType, doc)
+    addMethodParamsField(df.valueParams, doc)
 
-    val params:List[ValueParam] = df.valueParams.flatten(l => l)
+    doc
+  }
 
-    val paramTypes = params.map(_.resultType.name);
+  private def createConstructorDocument(ctor : Constructor) = {
+    val doc = new Document
 
-    val fieldValue = paramTypes.mkString(" ")
+    doc.add(new Field(typeField,
+                      defField,
+                      Field.Store.YES,
+                      Field.Index.NOT_ANALYZED))
 
-    val pField = new Field(methodParams, fieldValue.toLowerCase, Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.WITH_POSITIONS)
-
-    pField.setOmitTermFreqAndPositions(false)
-
-    doc.add(pField)
-
-    doc.add(new NumericField(methodParamsCount).setIntValue(params.size))
+    addVisibilityField(ctor.visibility, doc)
+    addMethodParamsField(ctor.valueParams, doc)
 
     doc
   }
@@ -334,6 +338,27 @@ class SearchIndex(indexDirectory : Directory) {
     addReturnsField(valOrVar.resultType, doc)
 
     doc
+  }
+
+  private def addMethodParamsField(valueParams : List[List[ValueParam]],
+                                   doc : Document) {
+    val params:List[ValueParam] = valueParams.flatten(l => l)
+
+    val paramTypes = params.map(_.resultType.name);
+
+    val fieldValue = paramTypes.mkString(" ")
+
+    val pField = new Field(methodParams,
+                           fieldValue.toLowerCase,
+                           Field.Store.YES,
+                           Field.Index.ANALYZED,
+                           Field.TermVector.WITH_POSITIONS)
+
+    pField.setOmitTermFreqAndPositions(false)
+
+    doc.add(pField)
+
+    doc.add(new NumericField(methodParamsCount).setIntValue(params.size))
   }
 
   private def addTypeParamsCountField(typeParams : List[TypeParam],
