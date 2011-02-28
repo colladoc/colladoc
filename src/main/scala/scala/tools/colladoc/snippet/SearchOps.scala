@@ -144,7 +144,7 @@ class SearchOps extends StatefulSnippet{
   def searchResults(searcher : IndexSearcher, query : Query, pageNumber : Int)={
     val totalHitsRef = new TotalHitsRef();
 		val paging = new IterablePaging(searcher, query, 1000);
-    val itemsPerPage = 5;
+    val itemsPerPage = 30;
     val skipPages = (pageNumber - 1)* itemsPerPage
 
 		val entityResults = paging.skipTo(skipPages).gather(itemsPerPage).
