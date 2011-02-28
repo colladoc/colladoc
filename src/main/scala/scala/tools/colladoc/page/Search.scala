@@ -1,9 +1,8 @@
 package scala.tools.colladoc.page
 
-import tools.nsc.doc.model.{TemplateEntity, MemberEntity, Package, DocTemplateEntity}
-import xml.NodeSeq
-import scala.tools.colladoc.snippet._
+import xml._
 import collection.mutable.HashMap
+import tools.nsc.doc.model._
 
 class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootPack) {
   /** Page title. */
@@ -135,14 +134,14 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
     }
     val constructors = mbrs collect { case (mbr: MemberEntity) if mbr.isConstructor => mbr }
     <xml:group>
-      { if (constructors.isEmpty) NodeSeq.Empty else
-          <div id="constructors" class="members">
-            <ol>{ constructors map {memberToHtml(_) } }</ol>
-          </div>
-      }
       { if (typeMembers.isEmpty) NodeSeq.Empty else
           <div id="types" class="types members">
             <ol>{ typeMembers map { memberToHtml(_) } }</ol>
+          </div>
+      }
+      { if (constructors.isEmpty) NodeSeq.Empty else
+          <div id="constructors" class="members">
+            <ol>{ constructors map {memberToHtml(_) } }</ol>
           </div>
       }
       { if (valueMembers.isEmpty) NodeSeq.Empty else
@@ -150,6 +149,61 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
             <ol>{ valueMembers map { memberToHtml(_) } }</ol>
           </div>
       }
+    </xml:group>
+  }
+
+  override def signature(mbr: MemberEntity,
+                         isSelf: Boolean,
+                         isReduced: Boolean = false): NodeSeq = {
+    mbr match {
+      case ctor : Constructor =>
+        // Since we are showing constructors on the "root package page" we need
+        // to do our own work to make sure that they show with the name of their
+        // containing type.
+        constructorSignature(ctor)
+      case _ =>
+        super.signature(mbr, isSelf, isReduced)
+    }
+  }
+
+  private def constructorSignature(ctor : Constructor) : NodeSeq = {
+    val hasLinks = true
+    def constructorParamsToHtml(vlsss: List[List[ValueParam]]): NodeSeq = {
+      def constructorParam0(vl: ValueParam): NodeSeq =
+        // notice the }{ in the next lines, they are necessary to avoid a undesired withspace in output
+        <span name={ vl.name }>{ Text(vl.name + ": ") }{ typeToHtml(vl.resultType, hasLinks) }{
+          if(!vl.defaultValue.isEmpty) {
+            defaultValueToHtml(vl.defaultValue.get);
+          }
+          else NodeSeq.Empty
+        }</span>
+      def constructorParams0(vlss: List[ValueParam]): NodeSeq = vlss match {
+        case Nil => NodeSeq.Empty
+        case vl :: Nil => constructorParam0(vl)
+        case vl :: vls => constructorParam0(vl) ++ Text(", ") ++ constructorParams0(vls)
+      }
+      def constructorImplicitCheck(vlss: List[ValueParam]): NodeSeq = vlss match {
+        case vl :: vls => if(vl.isImplicit) { <span class="implicit">implicit </span> } else Text("")
+        case _ => Text("")
+      }
+      vlsss map {
+        vlss =>
+          <span class="params">
+            ({constructorImplicitCheck(vlss) ++ constructorParams0(vlss) })
+          </span>
+      }
+    }
+
+    <xml:group>
+      <h4 class="signature">
+        <span class="kind">{ kindToString(ctor) }</span>
+        <span class="symbol">
+          <span class={"name" + (if (ctor.deprecation.isDefined) " deprecated" else "") }>
+            { ctor.inTemplate.name }
+          </span>
+          { constructorParamsToHtml(ctor.valueParams) }
+        </span>
+      </h4>
     </xml:group>
   }
 }
