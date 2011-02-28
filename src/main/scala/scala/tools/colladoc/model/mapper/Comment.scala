@@ -76,7 +76,8 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
  * Mapper for comment table storing documentation changes.
  * @author Petr Hosek
  */
-object Comment extends Comment with LongKeyedMetaMapper[Comment] {
+object Comment extends Comment with LongKeyedMetaMapper[Comment]
+                               with CommentToString{
   override def dbTableName = "comments"
 
   /**
@@ -91,6 +92,10 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
       case _ => None
     }
   }
+
+  def latestToString(qualName: String) : String = {
+      latest(qualName) match { case Some(str) =>str.comment.is; case _ => ""}
+    }
 
   /**
    * Get all revisions for given symbol qualified name.
@@ -119,6 +124,9 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
 
 }
 
+trait CommentToString{
+  def latestToString(qualName: String) : String
+}
 }
 }
 }

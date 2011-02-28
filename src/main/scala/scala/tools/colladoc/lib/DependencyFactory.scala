@@ -25,6 +25,7 @@ package lib {
 
 import net.liftweb._
 import http._
+import model.mapper.{CommentToString, Comment}
 import model.{SearchIndex, Model}
 
 /**
@@ -36,8 +37,8 @@ object DependencyFactory extends Factory {
   implicit object path extends FactoryMaker(getPath _)
   implicit object index extends FactoryMaker(getIndex _)
 
-  private def getModel =
-    Model.model
+  private def getModel = Model.model
+
 
   private def getPath =
     S.param("path") openOr "" split('/')
@@ -45,6 +46,7 @@ object DependencyFactory extends Factory {
   private val getIndex = new SearchIndex()
 
   private def init() {
+
     // TODO: Is this the best place to start indexing?
     getIndex.index(getModel.rootPackage)
 
@@ -53,5 +55,10 @@ object DependencyFactory extends Factory {
   init()
 }
 
+object ExtendedDependencyFactory extends Factory{
+    implicit object commentMapper extends FactoryMaker[CommentToString](getComment _)
+    private def getComment = Comment
 }
+}
+
 }

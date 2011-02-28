@@ -75,7 +75,9 @@ object SearchIndex {
 }
 
 class SearchIndex(indexDirectory : Directory) {
+  import tools.colladoc.lib.ExtendedDependencyFactory._
   import SearchIndex._
+
   val entityLookup = new HashMap[Int, MemberEntity]()
   var directory = indexDirectory
   def this() = this(FSDirectory.open(new File("lucene-inex")))
@@ -83,7 +85,6 @@ class SearchIndex(indexDirectory : Directory) {
   def index(rootPackage : Package){
     var writer : IndexWriter = null
     try {
-
       writer = getWriter
       writer.deleteAll
       indexMembers(rootPackage :: Nil, writer)
@@ -92,16 +93,6 @@ class SearchIndex(indexDirectory : Directory) {
       if (writer != null) { writer.optimize(); writer.close(); }
     }
   }
-
-  private def getDocumentsByMember(member:MemberEntity, reader : IndexReader) = {
-      println(member.hashCode.toString)
-      val docsToBeModified = MultiFields.getTermDocsEnum(reader,
-                                               MultiFields.getDeletedDocs(reader),
-                                               entityLookupField,
-                                               new BytesRef(member.hashCode.toString))
-
-      docsToBeModified
-    }
 
   // Update the documents related to the member so they contain the latest comment for the member
   // Note that currently Lucene does not support index update and teh only way of updating a document is
@@ -121,6 +112,16 @@ class SearchIndex(indexDirectory : Directory) {
     }
   }
 
+  private def getDocumentsByMember(member:MemberEntity, reader : IndexReader) = {
+      println(member.hashCode.toString)
+      val docsToBeModified = MultiFields.getTermDocsEnum(reader,
+                                               MultiFields.getDeletedDocs(reader),
+                                               entityLookupField,
+                                               new BytesRef(member.hashCode.toString))
+
+      docsToBeModified
+    }
+
   private def getWriter(): IndexWriter ={
       val config = new IndexWriterConfig(Version.LUCENE_40, new WhitespaceAnalyzer(Version.LUCENE_40))
       val writer = new IndexWriter(directory, config)
@@ -132,7 +133,7 @@ class SearchIndex(indexDirectory : Directory) {
                                        writer : IndexWriter){
           docs.foreach(doc =>{
             doc.removeField(commentField)
-            val newDoc = addCommentToDocument(member, doc)
+            val newDoc = addCommentField(member, doc)
             writer.addDocument(newDoc)
       })
     }
@@ -227,16 +228,9 @@ class SearchIndex(indexDirectory : Directory) {
                       lookupKey.toString(),
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
-    //addCommentToDocument(member, doc)
+     addCommentField(member, doc)
     // Fianlly, index the document for this entity.
     writer.addDocument(doc)
-  }
-
-  private def addCommentToDocument(member : MemberEntity, doc:Document): Document = {
-    // Each entity will have a comment, only the last comment is indexed:
-    val comment = mapper.Comment.latest(member.uniqueName) match { case Some(str) =>str.comment.is; case _ => ""}
-    doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
-    doc
   }
 
   private def createPackageDocument(pkg : Package) = {
@@ -361,5 +355,12 @@ class SearchIndex(indexDirectory : Directory) {
                       returnType.name.toLowerCase,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
+  }
+
+  private def addCommentField(member : MemberEntity, doc:Document): Document = {
+    // Each entity will have a comment, only the last comment is indexed:
+    val entityComment:String = commentMapper.vend.latestToString(member.qualifiedName)
+    doc.add(new Field(commentField, entityComment, Field.Store.YES, Field.Index.ANALYZED))
+    doc
   }
 }

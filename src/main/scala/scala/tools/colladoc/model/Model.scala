@@ -119,6 +119,7 @@ object Model extends Logger {
   /** Initialize model. */
   def init() {
     List(model)
+
   }
 
 }
