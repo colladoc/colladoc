@@ -16,6 +16,7 @@ import scala.collection.JavaConversions._
 
 import org.apache.lucene.search.IterablePaging.TotalHitsRef
 import org.apache.lucene.search.IterablePaging
+import net.liftweb.common.Empty
 
 /**
  * Search snippet.
@@ -23,16 +24,21 @@ import org.apache.lucene.search.IterablePaging
 class SearchOps extends StatefulSnippet{
   import tools.colladoc.lib.DependencyFactory._
   object queryRequestVar extends RequestVar[String](S.param("q") openOr "")
+  object pageRequestVar extends RequestVar[String](S.param("page") openOr "1")
+
   var hasMember:Boolean = false
 
   // TODO: Maybe we should set this value in the SearchPage?
-  val resultsPerPage = 10
+
+  val pageNo:Int = (pageRequestVar.is).toInt
+  val resultsPerPage = 30
   var resultsCount = 0
+
 
   val dispatch: DispatchIt ={ case "show" => show _
                               case "body" => body _
                               case "sText" => sText
-                              case "pages" => pages
+
                              }
 
   def sText (xhtml:NodeSeq): NodeSeq = {
@@ -47,18 +53,6 @@ class SearchOps extends StatefulSnippet{
     Text(searchPage.title)
 
 
-  def pages(xhtml:NodeSeq):NodeSeq = {
-   val numberOfPages = (math.ceil(resultsCount / resultsPerPage))
-   var x=""
-
-   <div align="center" id="spages">{
-      for (i <- 0 until numberOfPages.toInt+1) {x=x + "<a href=\"#\" style=\"margin:5px;\">" + (i+1) + "</a>"}
-     }{scala.xml.Unparsed(x)}
-
-   </div>
-    <br/>
-
-  }
   def show(xhtml:NodeSeq):NodeSeq = {
       <xml:group>
       <label for="searchText">Search :</label>
@@ -73,9 +67,8 @@ class SearchOps extends StatefulSnippet{
 
     bind("search", searchPage.body,
          "results" -> search(searchValue),
-         if (hasMember) {"header" -> searchPage.bodyHeader _ } else {"header" -> <div/>},
-          "pages" -> pages _
-        )
+         if (hasMember) {"header" -> searchPage.bodyHeader _ } else {"header" -> <div/>}
+    )
   }
   def search(query : String) :NodeSeq =
   {
@@ -102,7 +95,7 @@ class SearchOps extends StatefulSnippet{
 
       searcher = new IndexSearcher(index.vend.directory, true)
       println("Lucene Query: " + query.toString)
-      searchResults(searcher, query, 1)
+      searchResults(searcher, query, pageNo)
     }
     finally {
       if (searcher != null) { searcher.close() }
@@ -142,9 +135,9 @@ class SearchOps extends StatefulSnippet{
    */
 
   def searchResults(searcher : IndexSearcher, query : Query, pageNumber : Int)={
-    val totalHitsRef = new TotalHitsRef();
-		val paging = new IterablePaging(searcher, query, 1000);
-    val itemsPerPage = 30;
+    val totalHitsRef = new TotalHitsRef()
+		val paging = new IterablePaging(searcher, query, 1000)
+    val itemsPerPage = resultsPerPage
     val skipPages = (pageNumber - 1)* itemsPerPage
 
 		val entityResults = paging.skipTo(skipPages).gather(itemsPerPage).
@@ -160,7 +153,10 @@ class SearchOps extends StatefulSnippet{
 
       println("Results: " + totalHitsRef.totalHits())
       resultsToHtml(entityResults)
+
   }
+
+
 
   /** Render search results **/
   def resultsToHtml(members : Iterable[MemberEntity]) = {
