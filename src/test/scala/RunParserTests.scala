@@ -11,7 +11,8 @@ import tools.colladoc.search._
 object RunParserTests extends Application
 {
   val suite = new TestSuite()
-  suite.addTestSuite(classOf[ParserAndLuceneTests])
+  suite.addTestSuite(classOf[ParseAndSearchMethods])
+  suite.addTestSuite(classOf[ParseAndSearchLambdaParams])
   suite.addTestSuite(classOf[LuceneRegressionTests])
   suite.addTestSuite(classOf[ScoogleParserTests])
 

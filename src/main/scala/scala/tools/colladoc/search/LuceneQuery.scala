@@ -216,6 +216,8 @@ object LuceneQuery
       case SimpleType(str, List()) => idToString(str)
       case SimpleType(str, generics) => idToString(str) + generics.map(typeToString).mkString("[", ",", "]")
       case Tuple(elements) => elements.map(typeToString).mkString("(", ",", ")")
+      case Func(List(), ret) => "(*)>" + typeToString(ret)
+      case Func(params, ret) => params.flatten(l =>l).map(typeToString).mkString("(", ",", ")>") + typeToString(ret)
       case AnyParams() => "*"
     }
   }
@@ -281,17 +283,5 @@ object LuceneQuery
 
   // NOTE: All entities should contain their package:! Dotted packages (wow.test) are not separated)
 
-}
-
-abstract sealed  class LuceneQuery
-{
-}
-
-case class CompositeQuery extends LuceneQuery
-{
-}
-
-case class SingleQuery
-{
 }
 

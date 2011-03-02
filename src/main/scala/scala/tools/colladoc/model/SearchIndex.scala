@@ -296,7 +296,10 @@ class SearchIndex(indexDirectory : Directory) {
 
   private def cleanTypeName(name:String):String =
   {
-     name.filter(_ != ' ').mkString("")
+
+     name.filter(_ != ' ').map(_ match {
+      case '⇒' => '>'
+      case c => c }).mkString("")
   }
 
   private def createDefDocument(df : Def) = {

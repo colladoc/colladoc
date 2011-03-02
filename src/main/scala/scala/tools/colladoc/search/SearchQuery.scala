@@ -34,6 +34,7 @@ case class Comment(words:List[Identifier]) extends SearchQuery
 
 case class SimpleType(id:Identifier, generics:List[Type] = List()) extends Type
 case class Tuple(elements:List[ParamType]) extends Type
+case class Func(args:List[List[ParamType]], ret:Type) extends Type
 
 case class AnyParams() extends ParamType
 

@@ -13,7 +13,7 @@ object  ScoogleParser extends RegexParsers{
 
   final val EofCh = '\032'
 
-  val keywords = List("class", "def", "trait", "package", "object", "or", "||", "&&", "and", "not", "!", "val", "var", "extends", "with", "_")
+  val keywords = List("class", "def", "trait", "package", "object", "or", "||", "&&", "and", "not", "!", "val", "var", "extends", "with", "_", "=>")
 
   def notkeyword[T](p: => Parser[T]) = Parser { in =>
     p(in) match {
@@ -66,6 +66,7 @@ object  ScoogleParser extends RegexParsers{
   def generics:Parser[List[Type]] = "[" ~> repsep(`type`, opt(",")) <~ "]"
 
   def `type`:Parser[Type] = ( word ~ generics ^^ {case i~g => SimpleType(i, g)}
+               | curriedParams ~ ("=>" ~> `type`) ^^ {case params~ret => Func(params, ret)}
                | word ^^ {SimpleType(_, List())}
                | "(" ~> rep1sep ( `paramType`, opt(",") ) <~ ")" ^^ {Tuple(_)}
               )
@@ -98,9 +99,11 @@ object  ScoogleParser extends RegexParsers{
 
   def `def` = "def" ~> word ~ curriedParams ~ returnType ^^ {case i~p~r => Def(i, p, r)}
 
+  def funcDef = curriedParams ~ ("=>" ~> `type`) ^^ {case p~r => Def(AnyWord(), p, Some(r))}
+
   def group:Parser[Group] = "(" ~> expr <~ ")" ^^ {Group(_)}
 
-  def term:Parser[SearchQuery] = not | group |  comment | `class` | `val` | `var` | `trait` | `package` |`object` | justWiths | justExtends | `def` | word
+  def term:Parser[SearchQuery] = not | funcDef | group |  comment | `class` | `val` | `var` | `trait` | `package` |`object` | justWiths | justExtends | `def` | word
 
   def or:Parser[Or] = (term ~ (((("or"|"||") ~> term)+) ^^ {a:List[SearchQuery] => a})) ^^ {case h ~ t => Or(h::t)}
 
