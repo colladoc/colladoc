@@ -191,8 +191,18 @@ $(document).ready(function(){
         onBeforeShow: function(ev) {
             $(this.getTip()).html(this.getTrigger().attr("name"))
         }        
-    });   
-    var docAllSigs = $(".signature");
+    });
+
+    reloadSignatureAnimation();
+});
+
+
+   // iterate through the items and assign functionality for
+    // newly created ones by InfiniteScroll.. trick uses whether "pointer was assigned or not"
+    // done by Alex
+
+function reloadSignatureAnimation() {
+        var docAllSigs = $(".signature");
     function commentShowFct(fullComment){
         var vis = $(":visible", fullComment);
         if (vis.length > 0) {
@@ -205,10 +215,16 @@ $(document).ready(function(){
     var docShowSigs = docAllSigs.filter(function(){
         return $("+ div.fullcomment", $(this)).length > 0;
     });
-    docShowSigs.css("cursor", "pointer");
-    docShowSigs.click(function(){
-        commentShowFct($("+ div.fullcomment", $(this)));
+
+    docShowSigs.each(function(i) {
+        if ($(this).css("cursor") != "pointer") {
+            $(this).css("cursor","pointer");
+            $(this).click(function(){
+                commentShowFct($("+ div.fullcomment", $(this)));
+            });
+        }
     });
+
     function commentToggleFct(shortComment){
         var vis = $("~ div.fullcomment:visible", shortComment);
         if (vis.length > 0) {
@@ -224,14 +240,21 @@ $(document).ready(function(){
     var docToggleSigs = docAllSigs.filter(function(){
         return $("+ p.shortcomment", $(this)).length > 0;
     });
-    docToggleSigs.css("cursor", "pointer");
-    docToggleSigs.click(function(){
-        commentToggleFct($("+ p.shortcomment", $(this)));
+
+    docToggleSigs.each(function(i) {
+        if ($(this).css("cursor") != "pointer") {
+            $(this).css("cursor","pointer");
+            $(this).click(function(){
+                commentToggleFct($("+ p.shortcomment", $(this)));
+            });
+        }
     });
+
     $("p.shortcomment").click(function(){
         commentToggleFct($(this));
     });
-});
+}
+
 
 function orderAlpha() {
     $("#template > div.parent").hide();
