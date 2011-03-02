@@ -53,11 +53,11 @@ object  ScoogleParser extends RegexParsers{
 
   def words:Parser[List[Identifier]] = rep1(word)
 
-  def anyParam:Parser[TypeIdentifier] = "*" ^^ {a => AnyParams()}
+  def anyParam:Parser[ParamType] = "*" ^^ {a => AnyParams()}
 
-  def typeOrStar:Parser[TypeIdentifier] = (anyParam | `type`)
+  def paramType:Parser[ParamType] = (anyParam | `type`)
 
-  def typesOrStar:Parser[List[TypeIdentifier]] = repsep(typeOrStar, opt(","))
+  def paramTypes:Parser[List[ParamType]] = repsep(paramType, opt(","))
 
   def manyWords:Parser[Comment] = phrase(rep1(word)) ^^ {Comment(_)}
 
@@ -65,8 +65,10 @@ object  ScoogleParser extends RegexParsers{
 
   def generics:Parser[List[Type]] = "[" ~> repsep(`type`, opt(",")) <~ "]"
 
-  def `type`:Parser[Type] = ( word ~ generics ^^ {case i~g => Type(i, g)}
-               | word ^^ {Type(_, List())} )
+  def `type`:Parser[Type] = ( word ~ generics ^^ {case i~g => SimpleType(i, g)}
+               | word ^^ {SimpleType(_, List())}
+               | "(" ~> rep1sep ( `paramType`, opt(",") ) <~ ")" ^^ {Tuple(_)}
+              )
 
   def `extends` = opt(("extends" ~> `type`))
 
@@ -90,9 +92,9 @@ object  ScoogleParser extends RegexParsers{
 
   def returnType = opt(":" ~> `type`)
 
-  def params = "(" ~> typesOrStar <~ ")"
+  def params = "(" ~> paramTypes <~ ")"
 
-  def curriedParams:Parser[List[List[TypeIdentifier]]] = params*
+  def curriedParams:Parser[List[List[ParamType]]] = params*
 
   def `def` = "def" ~> word ~ curriedParams ~ returnType ^^ {case i~p~r => Def(i, p, r)}
 

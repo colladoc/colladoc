@@ -89,7 +89,7 @@ object LuceneQuery
    *
    * The case with no restrictions is by the caller.
    */
-  def transformMethodParams(params:List[TypeIdentifier]):(Query, Query) =
+  def transformMethodParams(params:List[ParamType]):(Query, Query) =
   {
     val allBlocks = new ListBuffer[Query]
 
@@ -128,8 +128,8 @@ object LuceneQuery
     {
       p match {
         case AnyParams() => endSpan(); maxCount += 10
-        case Type(AnyWord(), List()) => endSpan();  minCount += 1; maxCount +=1;
-        case Type(Word(str), List()) => addToSpan(new SpanTermQuery(new Term(methodParams, str))); minCount += 1; maxCount += 1;
+        case SimpleType(AnyWord(), List()) => endSpan();  minCount += 1; maxCount +=1;
+        case SimpleType(Word(str), List()) => addToSpan(new SpanTermQuery(new Term(methodParams, str))); minCount += 1; maxCount += 1;
         case id:Type => addToSpan(new SpanMultiTermQueryWrapper((transformType(methodParams)(id)).asInstanceOf[WildcardQuery])); minCount += 1; maxCount += 1;
       }
     }
@@ -148,7 +148,7 @@ object LuceneQuery
     (countQuery, paramsQuery)
   }
 
-  def transformDef(id:Identifier, params:List[List[TypeIdentifier]], ret:Option[Type]):Query =
+  def transformDef(id:Identifier, params:List[List[ParamType]], ret:Option[Type]):Query =
   {
     val flattened = params.flatten(l => l);
 
@@ -201,20 +201,22 @@ object LuceneQuery
     ))
   }
 
-  def transformType(columnName:String)(id:Type) : Query =
+  def transformType(columnName:String)(id:ParamType) : Query =
   {
     id match {
-      case Type(word, List()) => transformWord(columnName)(word)
-      case withGenerics => new WildcardQuery(new Term(columnName, typeToString(withGenerics)))
+      case SimpleType(word, List()) => transformWord(columnName)(word)
+      case other => new WildcardQuery(new Term(columnName, typeToString(other)))
     }
   }
 
-  def typeToString(id:Type) : String =
+  def typeToString(id:ParamType) : String =
   {
-    id.generics match
+    id match
     {
-      case Nil => idToString(id.id)
-      case anyGenerics => idToString(id.id) + anyGenerics.map(typeToString).mkString("[", ",", "]")
+      case SimpleType(str, List()) => idToString(str)
+      case SimpleType(str, generics) => idToString(str) + generics.map(typeToString).mkString("[", ",", "]")
+      case Tuple(elements) => elements.map(typeToString).mkString("(", ",", ")")
+      case AnyParams() => "*"
     }
   }
 

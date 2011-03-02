@@ -275,12 +275,15 @@ class SearchIndex(indexDirectory : Directory) {
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
 
-    val exts = typ.linearizationTemplates.filterNot(_.isTrait).map(_.name).mkString(" ").toLowerCase
+    val exts = typ.linearizationTemplates.filterNot(_.isTrait).map(t => cleanTypeName(t.name)).mkString(" ").toLowerCase
+    
     doc.add(new Field(extendsField,
                       exts,
                       Field.Store.YES,
                       Field.Index.ANALYZED))
-    val withs = typ.linearizationTemplates.filter(_.isTrait).map(_.name).mkString(" ").toLowerCase
+
+    val withs = typ.linearizationTemplates.filter(_.isTrait).map(t => cleanTypeName(t.name)).mkString(" ").toLowerCase
+
     doc.add(new Field(withsField,
                       withs,
                       Field.Store.YES,
@@ -289,6 +292,11 @@ class SearchIndex(indexDirectory : Directory) {
     addVisibilityField(typ.visibility, doc)
 
     doc
+  }
+
+  private def cleanTypeName(name:String):String =
+  {
+     name.filter(_ != ' ').mkString("")
   }
 
   private def createDefDocument(df : Def) = {
@@ -344,7 +352,7 @@ class SearchIndex(indexDirectory : Directory) {
                                    doc : Document) {
     val params:List[ValueParam] = valueParams.flatten(l => l)
 
-    val paramTypes = params.map(_.resultType.name);
+    val paramTypes = params.map(t => cleanTypeName(t.resultType.name));
 
     val fieldValue = paramTypes.mkString(" ")
 
@@ -382,7 +390,7 @@ class SearchIndex(indexDirectory : Directory) {
 
   private def addReturnsField(returnType : TypeEntity, doc : Document) = {
     doc.add(new Field(returnsField,
-                      returnType.name.toLowerCase,
+                      cleanTypeName(returnType.name.toLowerCase),
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
   }

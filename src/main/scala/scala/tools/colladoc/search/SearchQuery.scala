@@ -18,7 +18,9 @@ abstract sealed trait SearchQuery
  */
 abstract sealed trait Identifier extends SearchQuery
 
-abstract sealed trait TypeIdentifier extends SearchQuery
+abstract sealed trait ParamType extends SearchQuery
+
+abstract sealed trait Type extends ParamType
 
 case class Word(identifier:String) extends Identifier
 case class ExactWord(exact:String) extends Identifier
@@ -30,8 +32,10 @@ case class AnyWord() extends Identifier
 
 case class Comment(words:List[Identifier]) extends SearchQuery
 
-case class Type(id:Identifier, generics:List[Type] = List()) extends TypeIdentifier
-case class AnyParams() extends TypeIdentifier
+case class SimpleType(id:Identifier, generics:List[Type] = List()) extends Type
+case class Tuple(elements:List[ParamType]) extends Type
+
+case class AnyParams() extends ParamType
 
 case class Entity(name:Type) extends SearchQuery
 case class Class(className:Identifier, base:Option[Type] = None, withs:List[Type] = List()) extends SearchQuery
@@ -43,7 +47,7 @@ case class Withs(ids:List[Type]) extends SearchQuery
 
 
 
-case class Def(methodName:Identifier, params:List[List[TypeIdentifier]] = List(), defReturn:Option[Type] = None) extends SearchQuery
+case class Def(methodName:Identifier, params:List[List[ParamType]] = List(), defReturn:Option[Type] = None) extends SearchQuery
 case class Val(valName:Identifier, valReturn:Option[Type] = None) extends SearchQuery
 case class Var(varName:Identifier, varReturn:Option[Type] = None) extends SearchQuery
 
