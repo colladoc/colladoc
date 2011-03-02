@@ -170,7 +170,7 @@ class SearchOps extends StatefulSnippet{
 
         } else {
          hasMember=false
-         <div style="margin:25px 50px;"> Sorry, but the search couldn't find anything to fetch...
+         <div style="margin:25px 50px;" id="noResults"> Sorry, but the search couldn't find anything to fetch...
            <br/><br/>
            <p>Please try the following: </p>
              <ul style="margin:25px 50px;">
