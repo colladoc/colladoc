@@ -1,10 +1,12 @@
 package scala.tools.colladoc
 
+import lib.DependencyFactory
 import org.specs.Specification
 import org.mortbay.jetty.Server
 import org.mortbay.jetty.webapp.WebAppContext
 import org.openqa.selenium.server.{RemoteControlConfiguration, SeleniumServer}
 import com.thoughtworks.selenium.DefaultSelenium
+import util.TestProps
 
 object IntegrationTests extends Specification {
   private val pageLoadTimeoutInMs = "30000"
@@ -14,17 +16,11 @@ object IntegrationTests extends Specification {
   private var seleniumServer : SeleniumServer = null
 
   doBeforeSpec {
-    /*  This code takes care of the following:
-
-        1. Start an instance of your web application
-        2. Start an instance of the Selenium backend
-        3. Start an instance of the Selenium client
-    */
     val GUI_PORT             = 8080
     val SELENIUM_SERVER_PORT = 4444
 
-    // Setting up the jetty instance which will be running the
-    // GUI for the duration of the tests
+    // Setting up the jetty instance which will be running Colladoc for the
+    // duration of the tests.
     server  = new Server(GUI_PORT)
     val context = new WebAppContext()
     context.setServer(server)
@@ -32,6 +28,10 @@ object IntegrationTests extends Specification {
     context.setWar("src/main/webapp")
     server.addHandler(context)
     server.start()
+
+    // We use the test props for this integration test so that we don't depend
+    // on any external .props files being in the correct state.
+    DependencyFactory.props.default.set(TestProps.props)
 
     // Setting up the Selenium Server for the duration of the tests
     val rc = new RemoteControlConfiguration()

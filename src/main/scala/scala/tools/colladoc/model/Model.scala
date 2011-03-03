@@ -28,7 +28,6 @@ import tools.nsc.reporters.AbstractReporter
 import tools.nsc.util.Position
 
 import net.liftweb.common.Logger
-import net.liftweb.util.Props
 import net.liftweb.http.S
 
 import tools.nsc.Global
@@ -38,6 +37,7 @@ import tools.nsc.io.Directory
 import java.io.File
 import tools.nsc.doc.model.{TreeFactory, ModelFactory}
 import tools.nsc.interactive.RangePositions
+import lib.DependencyFactory
 
 /**
  * Documentation model.
@@ -47,7 +47,7 @@ object Model extends Logger {
 
   /** Compiler settings. */
   object settings extends Settings(msg => error(msg)) {
-    processArguments((Props.props.flatMap {
+    processArguments((DependencyFactory.props.vend.flatMap {
       case (k, v) if k.startsWith("-") => if (!v.isEmpty) List(k, v) else List(k)
       case (_, _) => Nil
     }) toList, false)
