@@ -82,7 +82,7 @@ class SearchIndex(rootPackage : Package, indexDirectory : Directory, commentToSt
   var commentMapper = commentToString
 
   def this(rootPackage : Package, commentToString : CommentToString) =
-    this(rootPackage, FSDirectory.open(new File("lucene-inex")), commentToString)
+    this(rootPackage, FSDirectory.open(new File("lucene-index")), commentToString)
 
   def index(rootPackage : Package){
     var writer : IndexWriter = null
