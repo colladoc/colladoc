@@ -1,5 +1,5 @@
 package scala.tools.colladoc.model
-import mapper.{CommentToString, Comment}
+import mapper.{CommentToString}
 import tools.nsc.doc.model._
 import org.specs.SpecificationWithJUnit
 import org.specs.mock._
@@ -9,70 +9,135 @@ import tools.nsc.doc.model.Package
 import org.apache.lucene.document.Document
 import tools.nsc.doc.model
 import org.apache.lucene.index.{IndexWriter, IndexReader}
+import org.apache.lucene.index.{IndexWriter, IndexReader}
+import net.liftweb.common.Logger
 
 object SearchIndexTests extends SpecificationWithJUnit
        with EntityMemberMock
-       with ClassMock{
-   import tools.colladoc.lib.ExtendedDependencyFactory._
+       with DocTemplateEntityMock{
    var directory: Directory = _
   "Search Index" should {
     doBefore {
       directory = new RAMDirectory
       construct
-      commentMapper.default.set(()=> new TestCommentMapper)
     }
     "Use the FSDirectory that is given to it on creation" in {
+      expect { expectationsForEmptyPackage }
 
-      val index = new SearchIndex(directory)
+      val index = new SearchIndex(mockPackage, directory, commentMapper)
       index.directory must beEqualTo(directory)
     }
 
     "Index the root package" in {
       expect { expectationsForEmptyPackage }
 
-      val index = new SearchIndex(directory)
-      index.index(mockPackage)
+      val index = new SearchIndex(mockPackage, directory, commentMapper)
       val docs = getAllDocs(directory)
 
       docs.length must beEqualTo(1)
       docs(0).get(SearchIndex.nameField) mustEqual packageName.toLowerCase
-      docs(0).get(SearchIndex.commentField) mustEqual commentMapper.vend.latestToString(packageName)
+      docs(0).get(SearchIndex.commentField) mustEqual defaultUserComment
     }
 
-    // TODO: Test entityLookUp
-    "Add Any Entity and stores its name, entityId and comment" in {
+    "Index Entity: name, entityId and user-defined comment" in {
       val mockEntity = mock[MemberEntity]
       expect {
         expectationsForPackageWithEntity(mockEntity)
-        expectationsForAnyMemberEntity(mockEntity)
+        expectationsForAnyMemberEntityWithUserComment(mockEntity)
       }
 
-      val index = new SearchIndex(directory)
-      index.index(mockPackage)
+      val index = new SearchIndex(mockPackage, directory, commentMapper)
       val docs = getAllDocs(directory)
 
       docs.length must beEqual(2)
       docs(1).get(SearchIndex.nameField) mustEqual entityName.toLowerCase
-      docs(1).get(SearchIndex.commentField) mustEqual commentMapper.vend.latestToString(packageName)
+      docs(1).get(SearchIndex.commentField) mustEqual defaultUserComment
       docs(1).get(SearchIndex.entityLookupField) mustEqual mockEntity.hashCode.toString
     }
 
-    "Index class and store their : visibility, parentClass, Traits that extends  " in {
+    "Index Entities without comments" in {
+      val mockEntity = mock[MemberEntity]
+      expect {
+        expectationsForPackageWithEntity(mockEntity)
+        expectationsForAnyMemberEntityWithoutComment(mockEntity)
+      }
+
+      val index = new SearchIndex(mockPackage, directory, commentMapper)
+      val docs = getAllDocs(directory)
+
+      docs.length must beEqual(2)
+      docs(1).get(SearchIndex.nameField) mustEqual entityName.toLowerCase
+      docs(1).get(SearchIndex.commentField) mustEqual ""
+      docs(1).get(SearchIndex.entityLookupField) mustEqual mockEntity.hashCode.toString
+    }
+
+    "Index Entities with default comments" in {
+      val mockEntity = mock[MemberEntity]
+      expect {
+        expectationsForPackageWithEntity(mockEntity)
+        expectationsForAnyMemberEntityWithComment(mockEntity)
+      }
+
+      val index = new SearchIndex(mockPackage, directory, commentMapper)
+      val docs = getAllDocs(directory)
+
+      docs.length must beEqual(2)
+      docs(1).get(SearchIndex.nameField) mustEqual entityName.toLowerCase
+      docs(1).get(SearchIndex.commentField) mustEqual defaultComment
+      docs(1).get(SearchIndex.entityLookupField) mustEqual mockEntity.hashCode.toString
+    }
+
+    "Index class:  visibility, parentClass, Traits that extends  " in {
       expect {
         defaultExpectationsForPackage
         one(mockPackage).members.willReturn(List[MemberEntity](mockClass))
-        expectationsForClass
-        expectationsForAnyMemberEntity(mockClass)
+        expectationsForDocTemplateEntity(mockClass)
+        expectationsForAnyMemberEntityWithUserComment(mockClass)
       }
 
-      val index = new SearchIndex(directory)
-      index.index(mockPackage)
+      val index = new SearchIndex(mockPackage, directory, commentMapper)
+      val docs = getAllDocs(directory)
+
+      docs.length must beEqual(2)
+      docs(1).get(SearchIndex.visibilityField) mustEqual classVisibility
+      docs(1).get(SearchIndex.extendsField) mustEqual parentClassName.toLowerCase
+      docs(1).get(SearchIndex.typeField)  mustEqual SearchIndex.classField
+    }
+
+     "Index trait:  visibility, parentClass, Traits that extends  " in {
+      expect {
+        defaultExpectationsForPackage
+        one(mockPackage).members.willReturn(List[MemberEntity](mockTrait))
+        expectationsForDocTemplateEntity(mockTrait)
+        expectationsForAnyMemberEntityWithUserComment(mockTrait)
+      }
+
+      val index = new SearchIndex(mockPackage, directory, commentMapper)
       val docs = getAllDocs(directory)
 
       docs.length must beEqual(2)
       docs(1).get(SearchIndex.visibilityField) mustEqual classVisibility
       docs(1).get(SearchIndex.extendsField) mustEqual parentClassName.toLowerCase
       docs(1).get(SearchIndex.withsField)  mustEqual traitTemplateEntityName.toLowerCase
+      docs(1).get(SearchIndex.typeField)  mustEqual SearchIndex.traitField
+    }
+
+     "Index Object:  visibility, parentClass, Traits that extends  " in {
+      expect {
+        defaultExpectationsForPackage
+        one(mockPackage).members.willReturn(List[MemberEntity](mockObject))
+        expectationsForDocTemplateEntity(mockObject)
+        expectationsForAnyMemberEntityWithUserComment(mockObject)
+      }
+
+      val index = new SearchIndex(mockPackage, directory, commentMapper)
+      val docs = getAllDocs(directory)
+
+      docs.length must beEqual(2)
+      docs(1).get(SearchIndex.visibilityField) mustEqual classVisibility
+      docs(1).get(SearchIndex.extendsField) mustEqual parentClassName.toLowerCase
+      docs(1).get(SearchIndex.withsField)  mustEqual traitTemplateEntityName.toLowerCase
+      docs(1).get(SearchIndex.typeField)  mustEqual SearchIndex.objectField
     }
 
     /*"Index Def and stores its number of parameters, visibility, return value" in {
@@ -104,8 +169,7 @@ object SearchIndexTests extends SpecificationWithJUnit
     "Add valsOrVars field to package documents" in {
       expect { expectationsForEmptyPackage }
 
-      val index = new SearchIndex(directory)
-      index.index(mockPackage)
+      val index = new SearchIndex(mockPackage, directory, commentMapper)
       val docs = getAllDocs(directory)
 
       docs(0).get(SearchIndex.valvarField) must notBeNull
@@ -114,33 +178,39 @@ object SearchIndexTests extends SpecificationWithJUnit
     "Add defs field to package documents" in {
       expect { expectationsForEmptyPackage }
 
-      val index = new SearchIndex(directory)
-      index.index(mockPackage)
+      val index = new SearchIndex(mockPackage, directory, commentMapper)
 
       val docs = getAllDocs(directory)
       docs(0).get(SearchIndex.defsField) must notBeNull
     }
-  }
 
-    /*"Reindex document when the comment is updated" in {
-      var directory = new RAMDirectory
-      var readerMock = mock[IndexReader]
-      var writerMock = mock[IndexWriter]
-      var docs = mock[TermDocs]
-      var doc = new Document()
-      doc.add(SerachIndex.commentField, "TestComment")
+    "Reindex document when the comment is updated" in {
 
-      // 1. get the initial comment for the entity
+      // 1. check the initial comment for the entity
+     val mockEntity = mock[MemberEntity]
+      expect {
+        expectationsForPackageWithEntity(mockEntity)
+        expectationsForAnyMemberEntityWithUserComment(mockEntity)
+      }
+
+      val index = new SearchIndex(mockPackage, directory, commentMapper)
+      var docs = getAllDocs(directory)
+
+      docs.length must beEqual(2)
+      docs(1).get(SearchIndex.commentField) mustEqual defaultUserComment
+
       // 2. Change the comment
+      expect { one(commentMapper).latestToString(mockEntity) willReturn(Some(updatedUserComment)) }
+
+      index.reindexEntityComment(mockEntity)
+
       // 3. Verify that the document exist
       // 4. And the new comment is indexed
+      docs = getAllDocs(directory)
+      docs(1).get(SearchIndex.commentField) mustEqual updatedUserComment
 
-      expect{
-        exactly(1).of(readerMock).document willReturn(termDocs)
-        exactly(1).(termDocs).next willReturn 1
-        exactly
-      }
-    } */
+    }
+  }
 
   private def getAllDocs(dir : Directory) = {
     var docs = List[Document]()

@@ -23,14 +23,15 @@
 package scala.tools.colladoc {
 package model {
 package mapper {
-
 import lib.util.Helpers._
+import lib.util.NameUtils._
 
 import net.liftweb.common._
 import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
 import java.text.SimpleDateFormat
+import tools.nsc.doc.model.MemberEntity
 
 /**
  * Mapper for comment table storing documentation changes.
@@ -93,8 +94,10 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
     }
   }
 
-  def latestToString(qualName: String) : String = {
-      latest(qualName) match { case Some(str) =>str.comment.is; case _ => ""}
+  def latestToString(member: MemberEntity) : Option[String] = {
+      latest(member.uniqueName) match { case Some(str) => Some(str.comment.is);
+                                        case _ => None}
+                                        //member.comment match { case Some(str) => str.body.toString; case _ => ""}}
     }
 
   /**
@@ -125,7 +128,7 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
 }
 
 trait CommentToString{
-  def latestToString(qualName: String) : String
+  def latestToString(member: MemberEntity) : Option[String]
 }
 }
 }

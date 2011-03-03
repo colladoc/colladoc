@@ -36,6 +36,8 @@ object DependencyFactory extends Factory {
   implicit object model extends FactoryMaker(getModel _)
   implicit object path extends FactoryMaker(getPath _)
   implicit object index extends FactoryMaker(getIndex _)
+  implicit object commentMapper extends FactoryMaker[CommentToString](getComment _)
+  private def getComment = Comment
 
   private def getModel = Model.model
 
@@ -43,21 +45,16 @@ object DependencyFactory extends Factory {
   private def getPath =
     S.param("path") openOr "" split('/')
 
-  private val getIndex = new SearchIndex()
+  private val getIndex = new SearchIndex(getModel.rootPackage, getComment)
 
   private def init() {
 
     // TODO: Is this the best place to start indexing?
-    getIndex.index(getModel.rootPackage)
+    getIndex
 
     List(model, path)
   }
   init()
-}
-
-object ExtendedDependencyFactory extends Factory{
-    implicit object commentMapper extends FactoryMaker[CommentToString](getComment _)
-    private def getComment = Comment
 }
 }
 
