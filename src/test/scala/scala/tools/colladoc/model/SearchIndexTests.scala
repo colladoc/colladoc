@@ -166,6 +166,7 @@ object SearchIndexTests extends SpecificationWithJUnit
       docs(0).get(SearchIndex.visibilityField) mustEqual defVisibility
     }*/
 
+<<<<<<< HEAD
     "Add valsOrVars field to package documents" in {
       expect { expectationsForEmptyPackage }
 
@@ -180,10 +181,29 @@ object SearchIndexTests extends SpecificationWithJUnit
 
       val index = new SearchIndex(mockPackage, directory, commentMapper)
 
+=======
+    "Only index each entity once" in {
+      val directory = new RAMDirectory
+      val packageName = "foo"
+      val mockRootPackage = mock[Package]
+      expect {
+        exactly(2).of(mockRootPackage).name willReturn(packageName)
+        allowingMatch(mockRootPackage, "comment")
+
+        // This entity returns itself as a member, putting us in a situation where
+        // we could index it twice (or infinitely) if we are not careful.
+        one(mockRootPackage).members willReturn(List[MemberEntity](mockRootPackage))
+      }
+
+      val index = new SearchIndex(directory)
+      index.index(mockRootPackage)
+>>>>>>> 778c7561aab78f1a96cb27d30af2786e8a2bf751
       val docs = getAllDocs(directory)
-      docs(0).get(SearchIndex.defsField) must notBeNull
+
+      docs.length must beEqual(1)
     }
 
+<<<<<<< HEAD
     "Reindex document when the comment is updated" in {
 
       // 1. check the initial comment for the entity
@@ -191,6 +211,24 @@ object SearchIndexTests extends SpecificationWithJUnit
       expect {
         expectationsForPackageWithEntity(mockEntity)
         expectationsForAnyMemberEntityWithUserComment(mockEntity)
+=======
+//    "Index all inherited classes and their parents" in {
+//      // TODO: Implement this...
+//      assert(false)
+//    }
+
+    /*"Reindex document when the comment are updated" in {
+      var directory = new RAMDirectory
+      var readerMock = mock[IndexReader]
+      var writerMock = mock[IndexWriter]
+      var docs = mock[TermDocs]
+      var doc = new Document()
+      doc.add(SerachIndex.commentField, "TestComment")
+      expect{
+        exactly(1).of(readerMock).document willReturn(termDocs)
+        exactly(1).(termDocs).next willReturn 1
+        exactly
+>>>>>>> 778c7561aab78f1a96cb27d30af2786e8a2bf751
       }
 
       val index = new SearchIndex(mockPackage, directory, commentMapper)

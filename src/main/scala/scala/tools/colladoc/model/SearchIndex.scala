@@ -4,12 +4,10 @@ import java.io.File
 import java.util.HashMap
 import mapper.{Comment, CommentToString}
 import tools.nsc.doc.model._
-import tools.colladoc.search.AnyParams
-import org.apache.lucene.analysis.standard.StandardAnalyzer
 import tools.colladoc.utils.Timer
-import org.apache.lucene.analysis.core.{WhitespaceAnalyzer, KeywordAnalyzer}
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer
 import org.apache.lucene.document.{NumericField, Field, Document}
-import org.apache.lucene.util.{BytesRef, Bits, Version}
+import org.apache.lucene.util.{BytesRef, Version}
 import org.apache.lucene.search.DocIdSetIterator
 import org.apache.lucene.index._
 import org.apache.lucene.store._
@@ -198,6 +196,8 @@ class SearchIndex(rootPackage : Package, indexDirectory : Directory, commentToSt
   }
 
   private def indexMember(member : MemberEntity, writer : IndexWriter) : Unit = {
+    var memberName = member.name
+
     val doc : Document = member match {
       case pkg : Package =>
         createPackageDocument(pkg)
@@ -209,6 +209,10 @@ class SearchIndex(rootPackage : Package, indexDirectory : Directory, commentToSt
         createObjectDocument(obj)
       case df : Def =>
         createDefDocument(df)
+      case ctor : Constructor =>
+        // Constructor's should use their class name.
+        memberName = ctor.inTemplate.name
+        createConstructorDocument(ctor)
       case value : Val =>
         createValDocument(value)
       case _ =>
@@ -218,10 +222,9 @@ class SearchIndex(rootPackage : Package, indexDirectory : Directory, commentToSt
     // Make sure that every entity at least has a field for their name to enable
     // general searches ([q1])
     doc.add(new Field(nameField,
-                      member.name.toLowerCase,
+                      memberName.toLowerCase,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
-
 
     // Add the entity to our lookup and store the lookup key as a field so that
     // we can recover the entity later.
@@ -233,7 +236,6 @@ class SearchIndex(rootPackage : Package, indexDirectory : Directory, commentToSt
                       Field.Index.NOT_ANALYZED))
 
     addCommentField(member, doc)
-    // Fianlly, index the document for this entity.
     writer.addDocument(doc)
   }
 
@@ -244,45 +246,54 @@ class SearchIndex(rootPackage : Package, indexDirectory : Directory, commentToSt
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
 
-    // Scala allows package objects (http://www.scala-lang.org/docu/files/packageobjects/packageobjects.html)
-    // so packages can have vals and fields.
-    //addValVarField("", doc)
-    //addDefsField("", doc)
-
     doc
   }
 
   private def createClassDocument(cls : Class) = {
-    createClassOrTraitDocument(classField, cls)
+    createTypeDocument(classField, cls)
   }
 
   private def createTraitDocument(trt : Trait) = {
-    createClassOrTraitDocument(traitField, trt)
+    createTypeDocument(traitField, trt)
   }
 
-  private def createClassOrTraitDocument(primaryField : String,
-                                         classOrTrait : DocTemplateEntity) = {
+  private def createObjectDocument(obj : Object) = {
+    createTypeDocument(objectField, obj)
+  }
+
+  private def createTypeDocument(primaryField : String,
+                                 typ : DocTemplateEntity) = {
     val doc = new Document
     doc.add(new Field(typeField,
                       primaryField,
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
 
-    classOrTrait.parentType match {case Some(parent) => doc.add(new Field(extendsField, parent.name.toLowerCase, Field.Store.YES, Field.Index.NOT_ANALYZED))
-                                   case _ => {}}
+    val exts = typ.linearizationTemplates.filterNot(_.isTrait).map(t => cleanTypeName(t.name)).mkString(" ").toLowerCase
+    
+    doc.add(new Field(extendsField,
+                      exts,
+                      Field.Store.YES,
+                      Field.Index.ANALYZED))
 
-    val withs = classOrTrait.linearizationTemplates.filter(_.isTrait).map(_.name).mkString(" ").toLowerCase
-    doc.add(new Field(withsField, withs, Field.Store.YES, Field.Index.ANALYZED))
+    val withs = typ.linearizationTemplates.filter(_.isTrait).map(t => cleanTypeName(t.name)).mkString(" ").toLowerCase
 
+    doc.add(new Field(withsField,
+                      withs,
+                      Field.Store.YES,
+                      Field.Index.ANALYZED))
 
-    addVisibilityField(classOrTrait.visibility, doc)
-
+    addVisibilityField(typ.visibility, doc)
 
     doc
   }
 
-  private def createObjectDocument(obj : Object) = {
-    createClassOrTraitDocument(objectField, obj)
+  private def cleanTypeName(name:String):String =
+  {
+
+     name.filter(_ != ' ').map(_ match {
+      case '⇒' => '>'
+      case c => c }).mkString("")
   }
 
   private def createDefDocument(df : Def) = {
@@ -293,25 +304,24 @@ class SearchIndex(rootPackage : Package, indexDirectory : Directory, commentToSt
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
 
-
-
     addTypeParamsCountField(df.typeParams, doc)
     addVisibilityField(df.visibility, doc)
     addReturnsField(df.resultType, doc)
+    addMethodParamsField(df.valueParams, doc)
 
-    val params:List[ValueParam] = df.valueParams.flatten(l => l)
+    doc
+  }
 
-    val paramTypes = params.map(_.resultType.name);
+  private def createConstructorDocument(ctor : Constructor) = {
+    val doc = new Document
 
-    val fieldValue = paramTypes.mkString(" ")
+    doc.add(new Field(typeField,
+                      defField,
+                      Field.Store.YES,
+                      Field.Index.NOT_ANALYZED))
 
-    val pField = new Field(methodParams, fieldValue.toLowerCase, Field.Store.YES, Field.Index.ANALYZED, Field.TermVector.WITH_POSITIONS)
-
-    pField.setOmitTermFreqAndPositions(false)
-
-    doc.add(pField)
-
-    doc.add(new NumericField(methodParamsCount).setIntValue(params.size))
+    addVisibilityField(ctor.visibility, doc)
+    addMethodParamsField(ctor.valueParams, doc)
 
     doc
   }
@@ -335,6 +345,27 @@ class SearchIndex(rootPackage : Package, indexDirectory : Directory, commentToSt
     doc
   }
 
+  private def addMethodParamsField(valueParams : List[List[ValueParam]],
+                                   doc : Document) {
+    val params:List[ValueParam] = valueParams.flatten(l => l)
+
+    val paramTypes = params.map(t => cleanTypeName(t.resultType.name));
+
+    val fieldValue = paramTypes.mkString(" ")
+
+    val pField = new Field(methodParams,
+                           fieldValue.toLowerCase,
+                           Field.Store.YES,
+                           Field.Index.ANALYZED,
+                           Field.TermVector.WITH_POSITIONS)
+
+    pField.setOmitTermFreqAndPositions(false)
+
+    doc.add(pField)
+
+    doc.add(new NumericField(methodParamsCount).setIntValue(params.size))
+  }
+
   private def addTypeParamsCountField(typeParams : List[TypeParam],
                                       doc : Document) = {
     doc.add(new Field(typeParamsCountField,
@@ -356,7 +387,7 @@ class SearchIndex(rootPackage : Package, indexDirectory : Directory, commentToSt
 
   private def addReturnsField(returnType : TypeEntity, doc : Document) = {
     doc.add(new Field(returnsField,
-                      returnType.name.toLowerCase,
+                      cleanTypeName(returnType.name.toLowerCase),
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
   }

@@ -23,7 +23,7 @@ import tools.colladoc.search.{LuceneQuery, ScoogleParser}
  * For queries involving more complex transformation, like method queries we test only the end result and not
  * the lucene query syntax.
  */
-class ParserAndLuceneTests  extends TestCase
+class ParseAndSearchMethods  extends TestCase
 {
   import SearchIndex._
 
@@ -137,4 +137,54 @@ class ParserAndLuceneTests  extends TestCase
   def testManyConcrete() = expect("def _( String, List[Double], Array[Int], Map[Long,String], Long)", 1);
 
   def testConcreteStarConcrete2() = expect("def _(Double, *): Unit", 2);
+
+  // Lambda def syntax:
+
+  def testNoRestrictionsLambda() = expect("=> _", 10);
+
+  def testNoParamsLambda() = expect("() => _", 1);
+
+  def testReturnsConcreteLambda() = expect("=> Double", 1);
+
+  def testReturnsWidlcardLambda() = expect("=> Bool_", 2);
+
+  def testAnyParamLambda() = expect("(_) => _", 2);
+
+  def testAnyParamsLambda() = expect("(*) => _", 10);
+
+  def testManyAnyParamsLambda() = expect("(*, *, *) => _", 10);
+
+  def testAnyTwoParamsLambda() = expect("(_, _) => _", 2);
+
+  def testAtLeastTwoParamsLambda() = expect("(_, _, *) => _", 7);
+
+  def testConcreteLambda() = expect("(Int) => _", 1);
+
+  def testConcrete2Lambda() = expect("(Double) => _", 1);
+
+  def testTwoConcreteLambda() = expect("(Int String) => _", 1);
+
+  def testConcreteThenAnyLambda() = expect("(Int, *) => _", 2);
+
+  def testConcreteAnyConcreteAnyLambda() = expect("(Double, _, Int, _) => _", 1);
+
+  def testStarConcreteStarLambda() = expect("(*, Int, *) => _", 4);
+
+  def testConcreteWildcardStarLambda() = expect("(Double, List_, *) => _", 3);
+
+  def testConcreteGenericStarLambda() = expect("(Double, List[Int], *) => _", 2);
+
+  def testConcreteStarConcreteLambda() = expect("(String * Long) => _", 2);
+
+  def testThreeBlanksWithSpacesLambda() = expect("(String _ _ _ Long) => _", 1);
+
+  def testWildcardGenericsLambda() = expect("(String List_ Array_ Map_ Long) => _", 1);
+
+  def testInnerWildcardGenericsLambda() = expect("(String List[_] Array[_] Map[_, _] Long) => _", 1);
+
+  def testManyConcreteLambda() = expect("( String, List[Double], Array[Int], Map[Long,String], Long) => _", 1);
+
+  def testConcreteStarConcrete2Lambda() = expect("(Double, *) => Unit", 2);
+
+
 }

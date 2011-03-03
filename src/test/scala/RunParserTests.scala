@@ -11,7 +11,8 @@ import tools.colladoc.search._
 object RunParserTests extends Application
 {
   val suite = new TestSuite()
-  suite.addTestSuite(classOf[ParserAndLuceneTests])
+  suite.addTestSuite(classOf[ParseAndSearchMethods])
+  suite.addTestSuite(classOf[ParseAndSearchLambdaParams])
   suite.addTestSuite(classOf[LuceneRegressionTests])
   suite.addTestSuite(classOf[ScoogleParserTests])
 
@@ -22,7 +23,7 @@ class ScoogleParserTests extends TestCase
 {
   implicit def idToType(id:Identifier):Type =
   {
-    Type(id, List())
+    SimpleType(id, List())
   }
 
   def testSingleWord()
@@ -33,7 +34,7 @@ class ScoogleParserTests extends TestCase
     }
   }
 
-  def simpleType(str:String) : Type = Type(Word(str), List())
+  def simpleType(str:String) : Type = SimpleType(Word(str), List())
 
   def testSingleWord_Query()
   {
@@ -122,7 +123,7 @@ class ScoogleParserTests extends TestCase
   def testClassWithExtends()
   {
     ScoogleParser.parse("class Robot extends Cloneable") match {
-      case Class(Word("robot"), Some(Type(Word("cloneable"), List())), List()) => ()
+      case Class(Word("robot"), Some(SimpleType(Word("cloneable"), List())), List()) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -136,7 +137,7 @@ class ScoogleParserTests extends TestCase
   def testTraitWithExtends()
   {
     ScoogleParser.parse("trait Robot extends Cloneable") match {
-      case Trait(Word("robot"), Some(Type(Word("cloneable"), List())), List()) => ()
+      case Trait(Word("robot"), Some(SimpleType(Word("cloneable"), List())), List()) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -150,7 +151,7 @@ class ScoogleParserTests extends TestCase
   def testObjectWithExtends()
   {
     ScoogleParser.parse("object Robot extends Cloneable") match {
-      case Object(Word("robot"), Some(Type(Word("cloneable"), List())), List()) => ()
+      case Object(Word("robot"), Some(SimpleType(Word("cloneable"), List())), List()) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -164,7 +165,7 @@ class ScoogleParserTests extends TestCase
   def testJustExtends()
   {
     ScoogleParser.parse("extends Cloneable") match {
-      case Extends(Type(Word("cloneable"), List())) => ()
+      case Extends(SimpleType(Word("cloneable"), List())) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -322,7 +323,7 @@ class ScoogleParserTests extends TestCase
     ScoogleParser.parse("(trait Robot and // copy) or extends Cloneable") match {
       case Or(List(
         Group(And(List(Trait(Word("robot"), None, List()), Comment(List(Word("copy")))))),
-        Extends(Type(Word("cloneable"), List())))
+        Extends(SimpleType(Word("cloneable"), List())))
       ) => ()
       case e => Assert.fail(e.toString)
     }
@@ -333,7 +334,7 @@ class ScoogleParserTests extends TestCase
     ScoogleParser.parse("(trait Robot && // copy) || extends Cloneable") match {
       case Or(List(
         Group(And(List(Trait(Word("robot"), None, List()), Comment(List(Word("copy")))))),
-        Extends(Type(Word("cloneable"), List())))
+        Extends(SimpleType(Word("cloneable"), List())))
       ) => ()
       case e => Assert.fail(e.toString)
     }
@@ -362,7 +363,7 @@ class ScoogleParserTests extends TestCase
   def testDefReturn()
   {
     ScoogleParser.parse("def test:Int") match {
-      case Def(Word("test"), List(), Some(Type(Word("int"), List()))) => ()
+      case Def(Word("test"), List(), Some(SimpleType(Word("int"), List()))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -376,7 +377,7 @@ class ScoogleParserTests extends TestCase
   def testSimpleNot()
   {
     ScoogleParser.parse("not def test:Int") match {
-      case Not(Def(Word("test"), List(), Some(Type(Word("int"), List())))) => ()
+      case Not(Def(Word("test"), List(), Some(SimpleType(Word("int"), List())))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -384,7 +385,7 @@ class ScoogleParserTests extends TestCase
   def testNotWithExclamation()
   {
     ScoogleParser.parse("! def test:Int") match {
-      case Not(Def(Word("test"), List(), Some(Type(Word("int"), List())))) => ()
+      case Not(Def(Word("test"), List(), Some(SimpleType(Word("int"), List())))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -398,7 +399,7 @@ class ScoogleParserTests extends TestCase
   def testDoubleNot()
   {
     ScoogleParser.parse("not not def test:Int") match {
-      case Not(Not(Def(Word("test"), List(), Some(Type(Word("int"), List()))))) => ()
+      case Not(Not(Def(Word("test"), List(), Some(SimpleType(Word("int"), List()))))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -412,7 +413,7 @@ class ScoogleParserTests extends TestCase
   def testDefWithAnyName()
   {
     ScoogleParser.parse("def _ : Int") match {
-      case Def(AnyWord(), List(), Some(Type(Word("int"), List()))) => ()
+      case Def(AnyWord(), List(), Some(SimpleType(Word("int"), List()))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -426,7 +427,7 @@ class ScoogleParserTests extends TestCase
   def testValWithReturnType()
   {
       ScoogleParser.parse("val test:Int") match {
-        case Val(Word("test"), Some(Type(Word("int"), List()))) => ()
+        case Val(Word("test"), Some(SimpleType(Word("int"), List()))) => ()
         case e => Assert.fail(e.toString)
     }
   }
@@ -454,7 +455,7 @@ class ScoogleParserTests extends TestCase
   def testVarWithReturnType()
   {
     ScoogleParser.parse("var test:Int") match {
-      case Var(Word("test"), Some(Type(Word("int"), List()))) => ()
+      case Var(Word("test"), Some(SimpleType(Word("int"), List()))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -468,7 +469,7 @@ class ScoogleParserTests extends TestCase
   def testDefWithEmptyParams()
   {
     ScoogleParser.parse("def _() : Int") match {
-      case Def(AnyWord(), List(List()), Some(Type(Word("int"), List()))) => ()
+      case Def(AnyWord(), List(List()), Some(SimpleType(Word("int"), List()))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -482,7 +483,7 @@ class ScoogleParserTests extends TestCase
   def testDefWithCurriedEmptyParams()
   {
     ScoogleParser.parse("def _()() : Int") match {
-      case Def(AnyWord(), List(List(), List()), Some(Type(Word("int"), List()))) => ()
+      case Def(AnyWord(), List(List(), List()), Some(SimpleType(Word("int"), List()))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -496,7 +497,7 @@ class ScoogleParserTests extends TestCase
   def testDefWithConcreteParam()
   {
     ScoogleParser.parse("def _(Int) : Int") match {
-      case Def(AnyWord(), List(List(Type(Word("int"), List()))), Some(Type(Word("int"), List()))) => ()
+      case Def(AnyWord(), List(List(SimpleType(Word("int"), List()))), Some(SimpleType(Word("int"), List()))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -504,7 +505,7 @@ class ScoogleParserTests extends TestCase
   def testDefWithMultipleConcreteParam()
   {
       ScoogleParser.parse("def _(Int, String) : Int") match {
-        case Def(AnyWord(), List(List(Type(Word("int"), List()), Type(Word("string"), List()))), Some(Type(Word("int"), List()))) => ()
+        case Def(AnyWord(), List(List(SimpleType(Word("int"), List()), SimpleType(Word("string"), List()))), Some(SimpleType(Word("int"), List()))) => ()
         case e => Assert.fail(e.toString)
     }
   }
@@ -512,7 +513,7 @@ class ScoogleParserTests extends TestCase
   def testDefWithMultipleConcreteAndAnyParam()
   {
     ScoogleParser.parse("def _(Int, String, *) : Int") match {
-      case Def(AnyWord(), List(List(Type(Word("int"), List()), Type(Word("string"), List()), AnyParams())), Some(Type(Word("int"), List()))) => ()
+      case Def(AnyWord(), List(List(SimpleType(Word("int"), List()), SimpleType(Word("string"), List()), AnyParams())), Some(SimpleType(Word("int"), List()))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -521,9 +522,9 @@ class ScoogleParserTests extends TestCase
   {
       ScoogleParser.parse("def _(Int, String, *)(_, *) : Int") match {
         case Def(AnyWord(), List(
-                              List(Type(Word("int"), List()), Type(Word("string"), List()), AnyParams()),
-                              List(Type(AnyWord(), List()), AnyParams())
-                           ), Some(Type(Word("int"), List()))) => ()
+                              List(SimpleType(Word("int"), List()), SimpleType(Word("string"), List()), AnyParams()),
+                              List(SimpleType(AnyWord(), List()), AnyParams())
+                           ), Some(SimpleType(Word("int"), List()))) => ()
         case e => Assert.fail(e.toString)
     }
   }
@@ -532,9 +533,9 @@ class ScoogleParserTests extends TestCase
   {
       ScoogleParser.parse("def _(Int String *)(_ *) : Int") match {
         case Def(AnyWord(), List(
-                              List(Type(Word("int"), List()), Type(Word("string"), List()), AnyParams()),
-                              List(Type(AnyWord(), List()), AnyParams())
-                           ), Some(Type(Word("int"), List()))) => ()
+                              List(SimpleType(Word("int"), List()), SimpleType(Word("string"), List()), AnyParams()),
+                              List(SimpleType(AnyWord(), List()), AnyParams())
+                           ), Some(SimpleType(Word("int"), List()))) => ()
         case e => Assert.fail(e.toString)
     }
   }
@@ -598,7 +599,7 @@ class ScoogleParserTests extends TestCase
   def testContains()
   {
     ScoogleParser.parse("class _c_ extends _e_") match {
-      case Class(Contains("c"), Some(Type(Contains("e"),_)), List()) => ()
+      case Class(Contains("c"), Some(SimpleType(Contains("e"),_)), List()) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -612,7 +613,7 @@ class ScoogleParserTests extends TestCase
   def testSimpleGeneric()
   {
     ScoogleParser.parse("extends List[Int]") match {
-      case Extends(Type(Word("list"), List(Type(Word("int"), _)))) => ()
+      case Extends(SimpleType(Word("list"), List(SimpleType(Word("int"), _)))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -626,7 +627,7 @@ class ScoogleParserTests extends TestCase
   def testNestedGeneric()
   {
     ScoogleParser.parse("extends List[Array[Int]]") match {
-      case Extends(Type(Word("list"), List(Type(Word("array"), List(Type(Word("int"), _)))))) => ()
+      case Extends(SimpleType(Word("list"), List(SimpleType(Word("array"), List(SimpleType(Word("int"), _)))))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -640,7 +641,7 @@ class ScoogleParserTests extends TestCase
   def testMultipleGeneric()
   {
     ScoogleParser.parse("extends Map[String,Int]") match {
-      case Extends(Type(Word("map"), List(Type(Word("string"), _), Type(Word("int"), _)))) => ()
+      case Extends(SimpleType(Word("map"), List(SimpleType(Word("string"), _), SimpleType(Word("int"), _)))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -654,7 +655,7 @@ class ScoogleParserTests extends TestCase
   def testMultipleGenericWithSpace()
   {
     ScoogleParser.parse("extends Map[String Int]") match {
-      case Extends(Type(Word("map"), List(Type(Word("string"), _), Type(Word("int"), _)))) => ()
+      case Extends(SimpleType(Word("map"), List(SimpleType(Word("string"), _), SimpleType(Word("int"), _)))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -662,7 +663,7 @@ class ScoogleParserTests extends TestCase
   def testSingleWith()
   {
     ScoogleParser.parse("with Wow") match {
-      case Withs(List(Type(Word("wow"), _))) => ()
+      case Withs(List(SimpleType(Word("wow"), _))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -676,7 +677,7 @@ class ScoogleParserTests extends TestCase
   def testMultipleWith()
   {
     ScoogleParser.parse("with Wow with List[Wow]") match {
-      case Withs(List(Type(Word("wow"), _), Type(Word("list"), List(Type(Word("wow"), _))))) => ()
+      case Withs(List(SimpleType(Word("wow"), _), SimpleType(Word("list"), List(SimpleType(Word("wow"), _))))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -692,8 +693,8 @@ class ScoogleParserTests extends TestCase
     ScoogleParser.parse("trait Bau_ extends List[_] with Wow with Set[Wow]") match {
       case Trait(
             StartWith("bau"),
-            Some(Type(Word("list"), List(Type(AnyWord(), _)))),
-            List(Type(Word("wow"), _), Type(Word("set"), List(Type(Word("wow"), _))))) => ()
+            Some(SimpleType(Word("list"), List(SimpleType(AnyWord(), _)))),
+            List(SimpleType(Word("wow"), _), SimpleType(Word("set"), List(SimpleType(Word("wow"), _))))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -707,7 +708,7 @@ class ScoogleParserTests extends TestCase
   def testExactNameTildaCharacter()
   {
     ScoogleParser.parse("with `~`") match {
-      case Withs(List(Type(Word("~"), _))) => ()
+      case Withs(List(SimpleType(Word("~"), _))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -721,7 +722,7 @@ class ScoogleParserTests extends TestCase
   def testCharactersInName()
   {
     ScoogleParser.parse("with ~*=><") match {
-      case Withs(List(Type(Word("~*=><"), _))) => ()
+      case Withs(List(SimpleType(Word("~*=><"), _))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -735,7 +736,7 @@ class ScoogleParserTests extends TestCase
   def testKeywordInName()
   {
     ScoogleParser.parse("with `def`") match {
-      case Withs(List(Type(Word("def"), _))) => ()
+      case Withs(List(SimpleType(Word("def"), _))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -749,7 +750,7 @@ class ScoogleParserTests extends TestCase
   def testNoWildcardsInExactName()
   {
     ScoogleParser.parse("with `_:`") match {
-      case Withs(List(Type(Word("_:"), _))) => ()
+      case Withs(List(SimpleType(Word("_:"), _))) => ()
       case e => Assert.fail(e.toString)
     }
   }
@@ -759,6 +760,132 @@ class ScoogleParserTests extends TestCase
      val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("with `_:`"))
      Assert.assertEquals("+withs:_:", result)
   }
+
+  def testSimpleTuple()
+  {
+    ScoogleParser.parse("with (Int)") match {
+      case Withs(List(Tuple(List(SimpleType(Word("int"), _))))) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testSimpleTuple_Query()
+  {
+     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("with (Int)"))
+     Assert.assertEquals("+withs:(int)", result)
+  }
+
+  def testMultiTuple()
+  {
+    ScoogleParser.parse("with (Int, String)") match {
+      case Withs(List(Tuple(List(
+        SimpleType(Word("int"), _),
+        SimpleType(Word("string"), _)
+      )))) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testMultiTupleNoComma()
+  {
+    ScoogleParser.parse("with (Int String)") match {
+      case Withs(List(Tuple(List(
+        SimpleType(Word("int"), _),
+        SimpleType(Word("string"), _)
+      )))) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testMultiTuple_Query()
+  {
+     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("with (Int, String)"))
+     Assert.assertEquals("+withs:(int,string)", result)
+  }
+
+  def testNestedTuple()
+  {
+    ScoogleParser.parse("with (Int, (String, Wow))") match {
+      case Withs(List(Tuple(List(
+        SimpleType(Word("int"), _),
+        Tuple(List(
+          SimpleType(Word("string"), _),
+          SimpleType(Word("wow"), _)
+      )))))) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testNestedTupleNoCommas()
+  {
+    ScoogleParser.parse("with (Int(String Wow))") match {
+      case Withs(List(Tuple(List(
+        SimpleType(Word("int"), _),
+        Tuple(List(
+          SimpleType(Word("string"), _),
+          SimpleType(Word("wow"), _)
+      )))))) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testNestedTuple_Query()
+  {
+     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("with (Int, (String, Wow))"))
+     Assert.assertEquals("+withs:(int,(string,wow))", result)
+  }
+
+  def testTupleOfGenerics()
+  {
+    ScoogleParser.parse("with (Map[Int, Wow], List[String])") match {
+      case Withs(List(Tuple(List(
+        SimpleType(Word("map"), List(SimpleType(Word("int"), _), SimpleType(Word("wow"), _))),
+        SimpleType(Word("list"), List(SimpleType(Word("string"), _)))
+      )))) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testTupleOfGenerics_Query()
+  {
+     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("with (Map[Int, Wow], List[String])"))
+     Assert.assertEquals("+withs:(map[int,wow],list[string])", result)
+  }
+
+  def testGenericTuple()
+  {
+    ScoogleParser.parse("with Map[(Int, Wow), (String)]") match {
+      case Withs(List(SimpleType(Word("map"), List(
+        Tuple(List(SimpleType(Word("int"),_), SimpleType(Word("wow"), _))),
+        Tuple(List(SimpleType(Word("string"), _)))
+      )))) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testGenericTuple_Query()
+  {
+     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("with Map[(Int, Wow), (String)]"))
+     Assert.assertEquals("+withs:map[(int,wow),(string)]", result)
+  }
+
+  def testWildcardTuple()
+  {
+    ScoogleParser.parse("with (_, Wow_) with (_String, *)") match {
+      case Withs(List(
+        Tuple(List(SimpleType(AnyWord(), _), SimpleType(StartWith("wow"), _))),
+        Tuple(List(SimpleType(EndWith("string"), _), AnyParams()))
+      )) => ()
+      case e => Assert.fail(e.toString)
+    }
+  }
+
+  def testWildcardTuple_Query()
+  {
+     val result = LuceneQuery.toLuceneQueryString(ScoogleParser.parse("with (_, Wow_) with (_String, *)"))
+     Assert.assertEquals("+withs:(*,wow*) +withs:(*string,*)", result)
+  }
+
 
   // TODO: Test invalid syntax
   // TODO: Test nonsensical queries (x-category)

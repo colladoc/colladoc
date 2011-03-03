@@ -16,6 +16,7 @@ import scala.collection.JavaConversions._
 
 import org.apache.lucene.search.IterablePaging.TotalHitsRef
 import org.apache.lucene.search.IterablePaging
+import net.liftweb.common.Empty
 
 /**
  * Search snippet.
@@ -23,7 +24,16 @@ import org.apache.lucene.search.IterablePaging
 class SearchOps extends StatefulSnippet{
   import tools.colladoc.lib.DependencyFactory._
   object queryRequestVar extends RequestVar[String](S.param("q") openOr "")
+  object pageRequestVar extends RequestVar[String](S.param("page") openOr "1")
+
   var hasMember:Boolean = false
+
+  // TODO: Maybe we should set this value in the SearchPage?
+
+  val pageNo:Int = (pageRequestVar.is).toInt
+  val resultsPerPage = 30
+  var resultsCount = 0
+
 
   val dispatch: DispatchIt ={ case "show" => show _
                               case "body" => body _
@@ -32,7 +42,7 @@ class SearchOps extends StatefulSnippet{
                              }
 
   def sText (xhtml:NodeSeq): NodeSeq = {
-    {searchValue}
+    {scala.xml.Unparsed(searchValue)}
   }
   var searchValue = queryRequestVar.is
 
@@ -41,6 +51,7 @@ class SearchOps extends StatefulSnippet{
   /** Return history title. */
   def title(xhtml: NodeSeq): NodeSeq =
     Text(searchPage.title)
+
 
   def show(xhtml:NodeSeq):NodeSeq = {
       <xml:group>
@@ -57,9 +68,7 @@ class SearchOps extends StatefulSnippet{
     bind("search", searchPage.body,
          "results" -> search(searchValue),
          if (hasMember) {"header" -> searchPage.bodyHeader _ } else {"header" -> <div/>}
-         )
-
-
+    )
   }
   def search(query : String) :NodeSeq =
   {
@@ -86,7 +95,7 @@ class SearchOps extends StatefulSnippet{
 
       searcher = new IndexSearcher(index.vend.directory, true)
       println("Lucene Query: " + query.toString)
-      searchResults(searcher, query, 1)
+      searchResults(searcher, query, pageNo)
     }
     finally {
       if (searcher != null) { searcher.close() }
@@ -126,9 +135,9 @@ class SearchOps extends StatefulSnippet{
    */
 
   def searchResults(searcher : IndexSearcher, query : Query, pageNumber : Int)={
-    val totalHitsRef = new TotalHitsRef();
-		val paging = new IterablePaging(searcher, query, 1000);
-    val itemsPerPage = 5;
+    val totalHitsRef = new TotalHitsRef()
+		val paging = new IterablePaging(searcher, query, 1000)
+    val itemsPerPage = resultsPerPage
     val skipPages = (pageNumber - 1)* itemsPerPage
 
 		val entityResults = paging.skipTo(skipPages).gather(itemsPerPage).
@@ -144,10 +153,15 @@ class SearchOps extends StatefulSnippet{
 
       println("Results: " + totalHitsRef.totalHits())
       resultsToHtml(entityResults)
+
   }
+
+
 
   /** Render search results **/
   def resultsToHtml(members : Iterable[MemberEntity]) = {
+    resultsCount = members.size
+
     <div id="searchResults">
       {
         if (members.nonEmpty) {
@@ -156,7 +170,7 @@ class SearchOps extends StatefulSnippet{
 
         } else {
          hasMember=false
-         <div style="margin:25px 50px;"> Sorry, but the search couldn't find anything to fetch...
+         <div style="margin:25px 50px;" id="noResults"> Sorry, but the search couldn't find anything to fetch...
            <br/><br/>
            <p>Please try the following: </p>
              <ul style="margin:25px 50px;">
