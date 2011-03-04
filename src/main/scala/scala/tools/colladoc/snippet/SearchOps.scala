@@ -146,19 +146,23 @@ class SearchOps extends StatefulSnippet{
         } else {
          hasMember=false
          //background-color: #E5E5E5
-         <div style="pagging: 3px;font-family: monospace;font-size: 12pt; top: 0; margin: -100px 0px;"
-              id="noResults">
+
+          val updateTop = JsRaw("$('#searchPanel').css('top','80px');")
+
+          <script type="text/javascript">{ Unparsed(updateTop.toJsCmd) }</script>
+
+         <div style="pagging: 3px;font-family: monospace;font-size: 12pt; top: 0;" id="noResults">
            <div style="margin: 0px 0px -45px 0px;">
              <img src="/images/no_search_results.png" border="0" width="80px" heigh="80px"/>
              <div style="margin: 0px 0px 0px 100px;position:relative; top: -40pt">
              Your search returned no matches
               <img src="/images/wonderingFace.jpg" border="0" width="20px" heigh="20px"/>
-              <div style="text-align: right;margin: 0px 500px 0px 0px;"><br><i>... but don't give up </i></br></div>
+              <div style="text-align:left;margin-left: 120px;"><br><i>... but don't give up </i></br></div>
              </div></div>
            <div id = "helpTemplate">
             <h3>Here are some sample queries to get you started:</h3>
            </div>
-           <div style = "background-color: #E5E5E5">
+           <div style = "background-color: #E5E5E5" >
              <ul style="margin: 0px 30px;font-size: 11pt;padding: 4pt" class = "nodecoration">
                <li style="margin: 10px 30px;"><a href="/search?q=foo" >foo</a>
                 searches for everything that has the word foo in its name, definition or comment
