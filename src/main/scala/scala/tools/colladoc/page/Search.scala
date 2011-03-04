@@ -1,5 +1,7 @@
 package scala.tools.colladoc.page
 
+import net.liftweb.http.js.{JE, JsCmds, JsExp}
+import net.liftweb.http.js.JE._
 import xml._
 import collection.mutable.HashMap
 import tools.nsc.doc.model._
@@ -14,11 +16,11 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
       <div id="definition">
             <img src="/images/search_big.png"/>
             <h1><search:count/> for: <span  id="searchValue"><i><lift:SearchOps.sText/></i></span></h1>
-            <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;visibility:visible;">Copy Search URL</a></p>
+            <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;">Copy Search URL</a></p>
           </div>
 	       <search:header />
 
-         <div style="bottom:0;display:block;position:absolute;width:100%;overflow:true;top:140pt;" id="searchPanel">
+         <div style="bottom:0;display:block;position:absolute;width:100%;overflow:auto;top:180px;" id="searchPanel">
 
             <div id="template">
 
@@ -67,27 +69,32 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
 }
 
  def bodyHelp(searchValue:String, errorMessage:String): NodeSeq = {
-        <div style="pagging: 3px;font-family: monospace;font-size: 12pt; top: 0; margin: -100px 0px;" id="noResults">
+
+          val updateTop = JsRaw("$('#searchPanel').css('top','80px');")
+
+          <script type="text/javascript">{ Unparsed(updateTop.toJsCmd) }</script>
+
+         <div style="pagging: 3px;font-family: monospace;font-size: 12pt; top: 0;" id="noResults">
            <div style="margin: 0px 0px -45px 0px;">
              <img src="/images/no_search_results.png" border="0" width="80px" heigh="80px"/>
              <div style="margin: 0px 0px 0px 100px;position:relative; top: -40pt">
                {errorMessage}
               <img src="/images/wonderingFace.jpg" border="0" width="20px" heigh="20px"/>
-              <div style="text-align: right;margin: 0px 500px 0px 0px;"><br><i>... but don't give up </i></br></div>
+              <div style="text-align:left;margin-left: 120px;"><br><i>... but don't give up </i></br></div>
              </div></div>
            <div id = "helpTemplate">
             <h3>Here are some sample queries to get you started:</h3>
            </div>
-           <div style = "background-color: #E5E5E5">
+           <div style = "background-color: #E5E5E5" >
              <ul style="margin: 0px 30px;font-size: 11pt;padding: 4pt" class = "nodecoration">
-               <li style="margin: 10px 30px;"><a href="/search?q=foo" >foo</a>
-                searches for everything that has the word foo in its name, definition or comment
+               <li style="margin: 10px 30px;"><a href="/search?q=any" >any</a>
+                searches for everything that has the word any in its name, definition or comment
                </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=_foo_">foo_</a>
-                searches for everything that starts with foo
+               <li style="margin: 10px 30px;"><a href="/search?q=any_">any_</a>
+                searches for everything that starts with any
                </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=//_foo">//foo</a>
-                searches for all comments that contain a word that end with foo
+               <li style="margin: 10px 30px;"><a href="/search?q=//_any">//any</a>
+                searches for all comments that contain a word that end with any
                </li>
                <li style="margin: 10px 30px;"><a href="/search?q=class AnyRef">class AnyRef</a>
                 searches for all classes with name AnyRef
@@ -116,8 +123,8 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
                <li style="margin: 10px 30px;"><a href="/search?q=def toString : String">def toString : String</a>
                 searches for all methods with name toString and return type String
                </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=def _(_) : Boolen">def _(_) : Boolen</a>
-                searches for all methods with one argument and  returnType Boolen and
+               <li style="margin: 10px 30px;"><a href="/search?q=def _(_) : Boolen">def _(_) : Boolean</a>
+                searches for all methods with one argument and  returnType Boolean
                </li>
                <li style="margin: 10px 30px;"><a href="/search?q=def _(Int, _)">def _(Int, _)</a>
                 searches for all methods with arguments and the first is of type Int
