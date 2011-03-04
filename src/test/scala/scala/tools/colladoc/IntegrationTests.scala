@@ -50,6 +50,9 @@ object IntegrationTests extends Specification {
   }
 
   "a user" should {
+    // We want to share the same selenium objects throughout all examples.
+    shareVariables
+
     "be shown the root package page after navigating to Colladoc" in {
       selenium.open("/")
       selenium.waitForPageToLoad(pageLoadTimeoutInMs)
@@ -57,15 +60,31 @@ object IntegrationTests extends Specification {
       selenium.getTitle() mustMatch "_root_"
     }
 
-//    "be taken to the results page after entering a search query" in {
-//      selenium.open("/")
-//      selenium.waitForPageToLoad(pageLoadTimeoutInMs)
-//
-//      selenium.typeKeys("svalue", "class _")
-//      selenium.click("searchbtn")
-//
-//      selenium.getTitle() mustMatch "Search"
-//    }
+    "be taken to the results page after entering a search query [c1]" in {
+      selenium.open("/")
+      selenium.waitForPageToLoad(pageLoadTimeoutInMs)
+
+      enterSearchQuery("class _")
+
+      // Give the results page a litle time to load
+      Thread.sleep(3000)
+
+      selenium.getTitle() mustMatch "Search"
+    }
+
+    "not be taken anywhere if he clicks the search button with an empty query [c2]" in {
+      selenium.open("/")
+      selenium.waitForPageToLoad(pageLoadTimeoutInMs)
+
+      enterSearchQuery("")
+
+      // Just to be sure that nothing is happening.
+      // TODO: At this rate we'll end up having lots of sleeps in the code...
+      // There must be a more deterministic wait that we can do.
+      Thread.sleep(3000)
+
+      selenium.getTitle() mustMatch "_root_"
+    }
   }
 
   doAfterSpec {
@@ -74,5 +93,10 @@ object IntegrationTests extends Specification {
     selenium.stop()
     server.stop()
     seleniumServer.stop()
+  }
+
+  private def enterSearchQuery(q : String) = {
+    selenium.`type`("svalue", q)
+    selenium.click("searchbtn")
   }
 }

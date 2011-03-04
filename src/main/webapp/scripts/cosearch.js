@@ -1,8 +1,13 @@
 $(document).ready(function() {
 
     infiniteScroll();
-
     reloadSearchHeaders();
+
+    $("body").append('<div id="loaderGif" align="center" style="position:fixed;bottom:1px;right:15px;display:none;">' +
+                        'Loading...<p>'+
+                        '<img src="images/ajax-loader2.gif" />' +
+                 '</div>');
+
 
 })
 
@@ -58,44 +63,74 @@ function reloadSearchHeaders() {
     });
 }
 
+function reloadSearchHighlight() {
 
+    var urlpart=$(location).attr("href").split("q=");
+    if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight((urlpart[1]).replace("_"," "))};
+
+}
 
 function infiniteScroll(){
         $contentLoadTriggered = false;
 
         // initialisation of page
         var page=2;
-        var pageUrl=window.location.href;
 
         $("#searchPanel").scroll(function(){
 
-            if($("#searchPanel").scrollTop() > ($("#searchResults").height() - $("#searchPanel").height()) && $contentLoadTriggered == false)
+            if($("#searchPanel").scrollTop() > ($("#searchResults").height() - $("#searchPanel").height()-20) && $contentLoadTriggered == false)
             {
                 $contentLoadTriggered = true;
 
+                //calculating new page url
+
+                var pageUrl=window.location.href;
+                pageUrl=pageUrl+"&page="+page;
+
+                // Show loading image
+                $("#loaderGif").fadeIn('fast').delay(300).fadeOut('fast');
+
                 // load content
                 $.ajax({
-                url: pageUrl+ '&page='+page,
+                url: pageUrl,
                 async: true,
                 cache: false,
                 success: function (data) {
 
-                    if (data.length != 0 ){
+                if (data.length != 0 ){
+
                     var result=$(data).find("#searchResults");
                     var noRes =$(result).find("#noResults");
+
                         if (!noRes.length) {
+
+
+
+                             // get the existing rec count from the view and update then
+                            var recText = $("#recCount").text();
+
+                            // number of elements of newly added elements
+                            var newNum=result.children("div").children("div").children("div").children("ol").children().length;
+
+                            // update retrieved record count
+                            $("#recCount").text(parseInt(recText) + newNum);
+
+                            // append new elements to results page
                             $("#searchResults").append(result.children());
                             $contentLoadTriggered = false;
-                                //alert(pageUrl+ '&page='+page);
+
+                            // increase the page variable
                             page++;
 
-                            var urlpart=pageUrl.split("q=");
-                            if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight((urlpart[1]).replace("_"," "))};
+                            // reload function to bind activities to newly added elements
+                            reloadSearchHighlight();
                             reloadSearchHeaders();
                             reloadSignatureAnimation();
+
                         }
 
                     }
+
                 }
             });
 
