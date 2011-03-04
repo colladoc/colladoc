@@ -1,5 +1,7 @@
 package scala.tools.colladoc.page
 
+import net.liftweb.http.js.{JE, JsCmds, JsExp}
+import net.liftweb.http.js.JE._
 import xml._
 import collection.mutable.HashMap
 import tools.nsc.doc.model._
@@ -65,6 +67,84 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
         </div>
 
 }
+
+ def bodyHelp(searchValue:String, errorMessage:String): NodeSeq = {
+
+          val updateTop = JsRaw("$('#searchPanel').css('top','80px');")
+
+          <script type="text/javascript">{ Unparsed(updateTop.toJsCmd) }</script>
+
+         <div style="pagging: 3px;font-family: monospace;font-size: 12pt; top: 0;" id="noResults">
+           <div style="margin: 0px 0px -45px 0px;">
+             <img src="/images/no_search_results.png" border="0" width="80px" heigh="80px"/>
+             <div style="margin: 0px 0px 0px 100px;position:relative; top: -40pt">
+               {errorMessage}
+              <img src="/images/wonderingFace.jpg" border="0" width="20px" heigh="20px"/>
+              <div style="text-align:left;margin-left: 120px;"><br><i>... but don't give up </i></br></div>
+             </div></div>
+           <div id = "helpTemplate">
+            <h3>Here are some sample queries to get you started:</h3>
+           </div>
+           <div style = "background-color: #E5E5E5" >
+             <ul style="margin: 0px 30px;font-size: 11pt;padding: 4pt" class = "nodecoration">
+               <li style="margin: 10px 30px;"><a href="/search?q=any" >any</a>
+                searches for everything that has the word any in its name, definition or comment
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=any_">any_</a>
+                searches for everything that starts with any
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=//_any">//any</a>
+                searches for all comments that contain a word that end with any
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=class AnyRef">class AnyRef</a>
+                searches for all classes with name AnyRef
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=trait _">trait _</a>
+                searches for all traits
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=object _">object _</a>
+                searches for all objects
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=class A_ || class B_">class A_ || class B_</a>
+                searches for all classes that starts with A or B
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=class  _ extends _ with _">class  _ extends _ with _</a>
+                searches for all classes that extend a class and implement a trait
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=var _">var _: Int</a>
+                searches for all values or variables of type Int, vars are displayed before the vals
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=val _">val _: Int</a>
+                the same as above, but vals will be displayed before the vars
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=def toString">def toString</a>
+                searches for all methods with name toString
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=def toString : String">def toString : String</a>
+                searches for all methods with name toString and return type String
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=def _(_) : Boolen">def _(_) : Boolean</a>
+                searches for all methods with one argument and  returnType Boolean
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=def _(Int, _)">def _(Int, _)</a>
+                searches for all methods with arguments and the first is of type Int
+               </li>
+               <li style="margin: 10px 30px;"><a href="/search?q=def _(_, *)">def _(_, *)</a>
+                searches for all methods with one or more arguments
+               </li>
+             </ul>
+           <p style="padding: 10px 50px 10px;"> For more query syntax samples, please refer to the <a href="/syntax.html" onclick="window.open(this.href, 'newWindow', 'height=600, width=500, left=50, top=50, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,'); return false">Syntax reference</a></p>
+             <FORM method="GET" action="http://www.google.com/search?q=123">
+               <div style="padding: 10px 50px 10px;">
+                    <span style="position:relative;top:-5pt">Still nothing... try with </span>
+                    <INPUT TYPE="hidden" name="q" value={searchValue}/>
+                    <INPUT TYPE="hidden" name="hl" value="en"/>
+                    <INPUT type="image" src="/images/google_logo.gif" height="30px"/>
+               </div>
+             </FORM>
+         </div>
+         </div>
+ }
   /**
    * Renders list of comments to its xhtml representation.
    * @param cmts list of comments
