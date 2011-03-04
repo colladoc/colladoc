@@ -1,10 +1,12 @@
 package scala.tools.colladoc
 
+import lib.DependencyFactory
 import org.specs.Specification
 import org.mortbay.jetty.Server
 import org.mortbay.jetty.webapp.WebAppContext
 import org.openqa.selenium.server.{RemoteControlConfiguration, SeleniumServer}
 import com.thoughtworks.selenium.DefaultSelenium
+import util.TestProps
 
 object IntegrationTests extends Specification {
   private val pageLoadTimeoutInMs = "30000"
@@ -14,17 +16,11 @@ object IntegrationTests extends Specification {
   private var seleniumServer : SeleniumServer = null
 
   doBeforeSpec {
-    /*  This code takes care of the following:
-
-        1. Start an instance of your web application
-        2. Start an instance of the Selenium backend
-        3. Start an instance of the Selenium client
-    */
     val GUI_PORT             = 8080
     val SELENIUM_SERVER_PORT = 4444
 
-    // Setting up the jetty instance which will be running the
-    // GUI for the duration of the tests
+    // Setting up the jetty instance which will be running Colladoc for the
+    // duration of the tests.
     server  = new Server(GUI_PORT)
     val context = new WebAppContext()
     context.setServer(server)
@@ -32,6 +28,10 @@ object IntegrationTests extends Specification {
     context.setWar("src/main/webapp")
     server.addHandler(context)
     server.start()
+
+    // We use the test props for this integration test so that we don't depend
+    // on any external .props files being in the correct state.
+    DependencyFactory.props.default.set(TestProps.props)
 
     // Setting up the Selenium Server for the duration of the tests
     val rc = new RemoteControlConfiguration()
@@ -50,6 +50,9 @@ object IntegrationTests extends Specification {
   }
 
   "a user" should {
+    // We want to share the same selenium objects throughout all examples.
+    shareVariables
+
     "be shown the root package page after navigating to Colladoc" in {
       selenium.open("/")
       selenium.waitForPageToLoad(pageLoadTimeoutInMs)
@@ -57,15 +60,31 @@ object IntegrationTests extends Specification {
       selenium.getTitle() mustMatch "_root_"
     }
 
-//    "be taken to the results page after entering a search query" in {
-//      selenium.open("/")
-//      selenium.waitForPageToLoad(pageLoadTimeoutInMs)
-//
-//      selenium.typeKeys("svalue", "class _")
-//      selenium.click("searchbtn")
-//
-//      selenium.getTitle() mustMatch "Search"
-//    }
+    "be taken to the results page after entering a search query [c1]" in {
+      selenium.open("/")
+      selenium.waitForPageToLoad(pageLoadTimeoutInMs)
+
+      enterSearchQuery("class _")
+
+      // Give the results page a litle time to load
+      Thread.sleep(3000)
+
+      selenium.getTitle() mustMatch "Search"
+    }
+
+    "not be taken anywhere if he clicks the search button with an empty query [c2]" in {
+      selenium.open("/")
+      selenium.waitForPageToLoad(pageLoadTimeoutInMs)
+
+      enterSearchQuery("")
+
+      // Just to be sure that nothing is happening.
+      // TODO: At this rate we'll end up having lots of sleeps in the code...
+      // There must be a more deterministic wait that we can do.
+      Thread.sleep(3000)
+
+      selenium.getTitle() mustMatch "_root_"
+    }
   }
 
   doAfterSpec {
@@ -74,5 +93,10 @@ object IntegrationTests extends Specification {
     selenium.stop()
     server.stop()
     seleniumServer.stop()
+  }
+
+  private def enterSearchQuery(q : String) = {
+    selenium.`type`("svalue", q)
+    selenium.click("searchbtn")
   }
 }

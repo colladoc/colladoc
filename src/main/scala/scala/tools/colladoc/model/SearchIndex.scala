@@ -1,7 +1,8 @@
 package scala.tools.colladoc.model
-import scala.tools.colladoc.lib.util.NameUtils._
+
 import java.io.File
 import java.util.HashMap
+import mapper.{Comment, CommentToString}
 import tools.nsc.doc.model._
 import tools.colladoc.utils.Timer
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer
@@ -72,16 +73,20 @@ object SearchIndex {
   val defsField = "defs"
 }
 
-class SearchIndex(indexDirectory : Directory) {
+class SearchIndex(rootPackage : Package, indexDirectory : Directory, commentToString : CommentToString) {
   import SearchIndex._
+
   val entityLookup = new HashMap[Int, MemberEntity]()
   var directory = indexDirectory
-  def this() = this(FSDirectory.open(new File("lucene-index")))
+  var indexPackage = rootPackage
+  var commentMapper = commentToString
+
+  def this(rootPackage : Package, commentToString : CommentToString) =
+    this(rootPackage, FSDirectory.open(new File("lucene-index")), commentToString)
 
   def index(rootPackage : Package){
     var writer : IndexWriter = null
     try {
-
       writer = getWriter
       writer.deleteAll
       indexMembers(rootPackage :: Nil, writer)
@@ -90,16 +95,6 @@ class SearchIndex(indexDirectory : Directory) {
       if (writer != null) { writer.optimize(); writer.close(); }
     }
   }
-
-  private def getDocumentsByMember(member:MemberEntity, reader : IndexReader) = {
-      println(member.hashCode.toString)
-      val docsToBeModified = MultiFields.getTermDocsEnum(reader,
-                                               MultiFields.getDeletedDocs(reader),
-                                               entityLookupField,
-                                               new BytesRef(member.hashCode.toString))
-
-      docsToBeModified
-    }
 
   // Update the documents related to the member so they contain the latest comment for the member
   // Note that currently Lucene does not support index update and teh only way of updating a document is
@@ -119,6 +114,15 @@ class SearchIndex(indexDirectory : Directory) {
     }
   }
 
+  private def getDocumentsByMember(member:MemberEntity, reader : IndexReader) = {
+      val docsToBeModified = MultiFields.getTermDocsEnum(reader,
+                                               MultiFields.getDeletedDocs(reader),
+                                               entityLookupField,
+                                               new BytesRef(member.hashCode.toString))
+
+      docsToBeModified
+    }
+
   private def getWriter(): IndexWriter ={
       val config = new IndexWriterConfig(Version.LUCENE_40, new WhitespaceAnalyzer(Version.LUCENE_40))
       val writer = new IndexWriter(directory, config)
@@ -128,10 +132,9 @@ class SearchIndex(indexDirectory : Directory) {
   private def updateDocumentComments(docs : List[Document],
                                        member : MemberEntity,
                                        writer : IndexWriter){
-          println("Write docs: " + docs.length)
           docs.foreach(doc =>{
             doc.removeField(commentField)
-            val newDoc = addCommentToDocument(member, doc)
+            val newDoc = addCommentField(member, doc)
             writer.addDocument(newDoc)
       })
     }
@@ -232,17 +235,8 @@ class SearchIndex(indexDirectory : Directory) {
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
 
-    addCommentToDocument(member, doc)
-
-    // Finally, index the document for this entity.
+    addCommentField(member, doc)
     writer.addDocument(doc)
-  }
-
-  private def addCommentToDocument(member : MemberEntity, doc:Document): Document = {
-    // Each entity will have a comment, only the last comment is indexed:
-    val comment = mapper.Comment.latest(member.uniqueName) match { case Some(str) =>str.comment.is; case _ => ""}
-    doc.add(new Field(commentField, comment, Field.Store.YES, Field.Index.ANALYZED))
-    doc
   }
 
   private def createPackageDocument(pkg : Package) = {
@@ -397,4 +391,21 @@ class SearchIndex(indexDirectory : Directory) {
                       Field.Store.YES,
                       Field.Index.NOT_ANALYZED))
   }
+
+  // The logic for indexing entity comments is as follow:
+  // At first we check is there user-defined comment associated with the given entity
+  // If such comment exist then it is indexed, if not the comment that is associated
+  // with the entity(the comment generated from the code) is indexed
+  private def addCommentField(member : MemberEntity, doc:Document): Document = {
+
+    // Although each entity can have many comment, only the last comment is indexed:
+    val entityComment:String = commentMapper.latestToString(member) match { case Some(str) => str;
+                               case None =>
+                               member.comment match { case Some(str) => str.toString; case _ => ""}}
+
+    doc.add(new Field(commentField, entityComment, Field.Store.YES, Field.Index.ANALYZED))
+    doc
+  }
+
+  index(rootPackage)
 }

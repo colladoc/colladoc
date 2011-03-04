@@ -26,6 +26,7 @@ div.controls > a.control:hover {
 
 form.edit > div.editor {
     width: auto;
+
     margin: 4px 8px 0px 0px;
 }
 
@@ -52,3 +53,32 @@ form.edit div.buttons > a {
 form.edit div.buttons > a:hover {
     text-decoration: underline;
 }
+
+ul.nodecoration a{
+	text-decoration: none;
+	color: blue;
+	font-weight: bolder
+}
+
+ul.nodecoration il{
+padding: 3px;
+font-family: monospace;
+font-size: 10pt;
+clear: both;
+display: block;
+background-color: #E5E5E5;
+}
+
+span.alignRight {
+text-align: right;
+margin: 250px 0px 0px 0px;
+background-color: #E5E5E5;
+}
+
+#helpTemplate > h3 {
+  color: white;
+  padding: 4px;
+  background-color: #7996AC;
+  font-size: 12pt;
+  font-weight: bold;
+}}}}}

@@ -23,14 +23,15 @@
 package scala.tools.colladoc {
 package model {
 package mapper {
-
 import lib.util.Helpers._
+import lib.util.NameUtils._
 
 import net.liftweb.common._
 import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
 import java.text.SimpleDateFormat
+import tools.nsc.doc.model.MemberEntity
 
 /**
  * Mapper for comment table storing documentation changes.
@@ -76,7 +77,8 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
  * Mapper for comment table storing documentation changes.
  * @author Petr Hosek
  */
-object Comment extends Comment with LongKeyedMetaMapper[Comment] {
+object Comment extends Comment with LongKeyedMetaMapper[Comment]
+                               with CommentToString{
   override def dbTableName = "comments"
 
   /**
@@ -91,6 +93,12 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
       case _ => None
     }
   }
+
+  def latestToString(member: MemberEntity) : Option[String] = {
+      latest(member.uniqueName) match { case Some(str) => Some(str.comment.is);
+                                        case _ => None}
+                                        //member.comment match { case Some(str) => str.body.toString; case _ => ""}}
+    }
 
   /**
    * Get all revisions for given symbol qualified name.
@@ -119,6 +127,9 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
 
 }
 
+trait CommentToString{
+  def latestToString(member: MemberEntity) : Option[String]
+}
 }
 }
 }

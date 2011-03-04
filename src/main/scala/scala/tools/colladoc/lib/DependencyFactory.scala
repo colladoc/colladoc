@@ -25,7 +25,9 @@ package lib {
 
 import net.liftweb._
 import http._
+import model.mapper.{CommentToString, Comment}
 import model.{SearchIndex, Model}
+import net.liftweb.util.Props
 
 /**
  * Factory providing various dependencies.
@@ -33,25 +35,31 @@ import model.{SearchIndex, Model}
  */
 object DependencyFactory extends Factory {
   implicit object model extends FactoryMaker(getModel _)
-  implicit object path extends FactoryMaker(getPath _)
   implicit object index extends FactoryMaker(getIndex _)
+  implicit object path extends FactoryMaker(getPath _)
+  implicit object props extends FactoryMaker(getProps _)
+  implicit object commentMapper extends FactoryMaker[CommentToString](getComment _)
 
-  private def getModel =
-    Model.model
+  private def getComment = Comment
 
   private def getPath =
     S.param("path") openOr "" split('/')
 
-  private val getIndex = new SearchIndex()
+  private def getProps =
+    Props.props
 
-  private def init() {
-    // TODO: Is this the best place to start indexing?
-    getIndex.index(getModel.rootPackage)
+  // Note: Lazy eval is necessary here to give us an opportunity to do DI of
+  // dependencies required by the model and the index.
+  private lazy val getModel = {
+    // Make sure that we index the model when it is created.
+    getIndex
 
-    List(model, path)
+    Model.model
   }
-  init()
+
+  private lazy val getIndex =
+    new SearchIndex(Model.model.rootPackage, getComment)
+}
 }
 
-}
 }

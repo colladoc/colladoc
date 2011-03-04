@@ -13,12 +13,12 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
 <body class="value" onload="windowTitle();" scroll="no">
       <div id="definition">
             <img src="/images/search_big.png"/>
-            <h1>Search for: <lift:SearchOps.sText/></h1>
+            <h1><search:count/> for: <span  id="searchValue"><i><lift:SearchOps.sText/></i></span></h1>
             <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;visibility:visible;">Copy Search URL</a></p>
           </div>
 	       <search:header />
 
-         <div style="bottom:0;display:block;position:absolute;width:100%;overflow:auto;top:140pt;" id="searchPanel">
+         <div style="bottom:0;display:block;position:absolute;width:100%;overflow:true;top:140pt;" id="searchPanel">
 
             <div id="template">
 
