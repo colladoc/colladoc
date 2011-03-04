@@ -8,8 +8,33 @@ $(document).ready(function() {
                         '<img src="images/ajax-loader2.gif" />' +
                  '</div>');
 
+     updateSearchText();
 
 })
+
+
+function updateSearchText() {
+
+        var links = $(".nodecoration li").children();
+
+        links.each(function (i) {
+
+                    $(this).click( function() {
+
+                    var val=$(this).text();
+                    
+                      var elem = parent.window.document.getElementById("svalue");
+
+                      $(elem).attr("value", val);
+
+                    });
+
+        });
+
+}
+
+
+
 
 function reloadSearchHeaders() {
     $(".extype").tooltip({

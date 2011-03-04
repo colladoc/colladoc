@@ -31,7 +31,6 @@ $(document).ready(function() {
     if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight((urlpart[1]).replace("_"," ")); copy(src);}
 
     shortcut_enable();
-    updateSearchText();
 })
 
 function shortcut_enable(){
@@ -75,19 +74,7 @@ function reinit(selector) {
 };
 
 
-function updateSearchText () {
 
-alert("outer");
-
-        var links = $(".nodecoration").find("a");
-
-        links.each(function (i) {
-
-                    $(this).click( function() {alert("i'm here");});
-
-        });
-
-}
 
 
 function copy(txt) {
