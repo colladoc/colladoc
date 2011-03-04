@@ -144,7 +144,7 @@ class SearchOps extends StatefulSnippet{
              <img src="/images/no_search_results.png" border="0" width="80px" heigh="80px"/>
              <div style="margin: 0px 0px 0px 100px;position:relative; top: -40pt">
              Your search returned no matches
-              <img src="http://www.cool-smileys.com/images/out15.jpg" border="0" width="20px" heigh="20px"/>
+              <img src="/images/wonderingFace.jpg" border="0" width="20px" heigh="20px"/>
               <div style="text-align: right;margin: 0px 500px 0px 0px;"><br><i>... but don't give up </i></br></div>
              </div></div>
            <div id = "helpTemplate">
@@ -204,7 +204,7 @@ class SearchOps extends StatefulSnippet{
                     <span style="position:relative;top:-5pt">Still nothing... try with </span>
                     <INPUT TYPE="hidden" name="q" value={searchValue}/>
                     <INPUT TYPE="hidden" name="hl" value="en"/>
-                    <INPUT type="image" src="http://www.google.com/logos/Logo_40wht.gif" height="30px"/>
+                    <INPUT type="image" src="/images/google_logo.gif" height="30px"/>
                </div>
              </FORM>
          </div>

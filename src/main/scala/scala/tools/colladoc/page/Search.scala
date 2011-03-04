@@ -18,7 +18,7 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
           </div>
 	       <search:header />
 
-         <div style="bottom:0;display:block;position:absolute;width:100%;overflow:auto;top:140pt;" id="searchPanel">
+         <div style="bottom:0;display:block;position:absolute;width:100%;overflow:true;top:140pt;" id="searchPanel">
 
             <div id="template">
 
