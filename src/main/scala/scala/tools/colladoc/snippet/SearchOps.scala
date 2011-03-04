@@ -32,17 +32,21 @@ class SearchOps extends StatefulSnippet{
 
   val pageNo:Int = (pageRequestVar.is).toInt
   val resultsPerPage = 30
+  var totalResultsPerquery = 0
   var resultsCount = 0
 
 
   val dispatch: DispatchIt ={ case "show" => show _
                               case "body" => body _
                               case "sText" => sText
-
-                             }
+                            }
 
   def sText (xhtml:NodeSeq): NodeSeq = {
-    {scala.xml.Unparsed(searchValue)}
+    {Unparsed(searchValue)}
+  }
+
+  def iRecCount (xhtml:NodeSeq): NodeSeq = {
+    {if (resultsPerPage < totalResultsPerquery) Unparsed("<span id='recCount'>"+resultsPerPage + "</span> out of " + totalResultsPerquery) else Unparsed(totalResultsPerquery + " out of " + totalResultsPerquery)}
   }
   var searchValue = queryRequestVar.is
 
@@ -67,7 +71,8 @@ class SearchOps extends StatefulSnippet{
 
     bind("search", searchPage.body,
          "results" -> search(searchValue),
-         if (hasMember) {"header" -> searchPage.bodyHeader _ } else {"header" -> <div/>}
+         if (hasMember) {"header" -> searchPage.bodyHeader _ } else {"header" -> <div/>},
+         "count" -> iRecCount _
     )
   }
   def search(query : String) :NodeSeq =
@@ -152,6 +157,9 @@ class SearchOps extends StatefulSnippet{
       })
 
       println("Results: " + totalHitsRef.totalHits())
+
+      // return total records count. is used to show on screen
+      totalResultsPerquery = totalHitsRef.totalHits()
       resultsToHtml(entityResults)
 
   }
