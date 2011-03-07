@@ -21,8 +21,9 @@ import net.liftweb.common.Empty
 /**
  * Search snippet.
  */
-class SearchOps extends StatefulSnippet{
+class SearchOps {
   import tools.colladoc.lib.DependencyFactory._
+
   object queryRequestVar extends RequestVar[String](S.param("q") openOr "")
   object pageRequestVar extends RequestVar[String](S.param("page") openOr "1")
 
@@ -33,20 +34,17 @@ class SearchOps extends StatefulSnippet{
   val pageNo:Int = (pageRequestVar.is).toInt
   val resultsPerPage = 30
   var totalResultsPerquery = 0
-  var resultsCount = 0
 
 
-  val dispatch: DispatchIt ={ case "show" => show _
-                              case "body" => body _
-                              case "sText" => sText
-                            }
 
   def sText (xhtml:NodeSeq): NodeSeq = {
     {Unparsed(searchValue)}
   }
 
   def iRecCount (xhtml:NodeSeq): NodeSeq = {
-    {if (resultsPerPage < totalResultsPerquery) Unparsed("<span id='recCount'>"+resultsPerPage + "</span> out of " + totalResultsPerquery) else Unparsed(totalResultsPerquery + " out of " + totalResultsPerquery)}
+    {if (resultsPerPage < totalResultsPerquery)
+      Unparsed("<span id='recCount'>"+resultsPerPage + "</span> out of " + totalResultsPerquery)
+    else {if (totalResultsPerquery == 0) Unparsed("No results found") else Unparsed(totalResultsPerquery + " result(s)") }}
   }
   var searchValue = queryRequestVar.is
 
@@ -57,15 +55,6 @@ class SearchOps extends StatefulSnippet{
     Text(searchPage.title)
 
 
-  def show(xhtml:NodeSeq):NodeSeq = {
-      <xml:group>
-      <label for="searchText">Search :</label>
-      { text(searchValue, v => searchValue = v) % ("size" -> "10") % ("id" -> "searchText") }
-      { submit("Go", () => S.redirectTo("search", () => queryRequestVar(searchValue))) }
-      </xml:group>
-
-  }
-
   /** Return history body. */
   def body(xhtml: NodeSeq): NodeSeq = {
 
@@ -75,6 +64,7 @@ class SearchOps extends StatefulSnippet{
          "count" -> iRecCount _
     )
   }
+
   def search(query : String) :NodeSeq =
   {
     println("Searching for: " + query)
@@ -131,22 +121,20 @@ class SearchOps extends StatefulSnippet{
 
   }
 
-
-
   /** Render search results **/
   def resultsToHtml(members : Iterable[MemberEntity]) = {
-    resultsCount = members.size
 
     <div id="searchResults">
       {
         if (members.nonEmpty) {
-        hasMember=true
+          hasMember=true
+
           searchPage.resultsToHtml(members)
 
         } else {
-         hasMember=false
-         //background-color: #E5E5E5
-         searchPage.bodyHelp(searchValue,"Your search returned no matches");
+
+          hasMember=false
+          searchPage.bodyHelp(searchValue,"Your search returned no matches");
   }}
       </div>
   }

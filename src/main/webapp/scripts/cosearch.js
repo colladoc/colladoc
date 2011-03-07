@@ -21,7 +21,7 @@ function updateSearchText() {
 
                     $(this).click( function() {
 
-                    var val=$(this).text();
+                      var val=$(this).text();
                     
                       var elem = parent.window.document.getElementById("svalue");
 
@@ -91,7 +91,7 @@ function reloadSearchHeaders() {
 function reloadSearchHighlight() {
 
     var urlpart=$(location).attr("href").split("q=");
-    if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight((urlpart[1]).replace("_"," "))};
+    if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight(urlpart[1])};
 
 }
 
