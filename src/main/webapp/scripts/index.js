@@ -135,7 +135,7 @@ function configureTextFilter() {
     scheduler.add("init", function() {
         $("#textfilter > .post").click(function(){
             $("#textfilter input").attr("value", "");
-            textFilter();
+            //textFilter();
         });
     });
 
@@ -337,7 +337,7 @@ function kindFilterSync() {
             scheduler.addForAll("kind", domCache.packs, function(pack0) {
                 $("> ol.templates", pack0).hide();
             });
-        textFilter();
+        //textFilter();
     });
 }
 
