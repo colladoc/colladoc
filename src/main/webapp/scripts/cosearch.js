@@ -8,9 +8,27 @@ $(document).ready(function() {
                         '<img src="images/ajax-loader2.gif" />' +
                  '</div>');
 
+     replaceImgNameToClass();
      updateSearchText();
 
 })
+
+// there is a bug in original ScalaDoc. they forgot to include "case class" icon,
+// which produces undefined img-src during the runtime.
+// author: Alex
+
+function replaceImgNameToClass(){
+   var allImg=$("h4.definition a>img");
+    allImg.each(function () {
+
+        if ($(this).attr("src")=="lib/case class.png") {
+           $(this).attr("src","lib/class.png");
+        }
+
+    });
+
+
+}
 
 
 function updateSearchText() {
