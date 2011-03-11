@@ -1,6 +1,7 @@
 import sbt._
+import reaktor.scct.ScctProject
 
-class ColladocProject(info: ProjectInfo) extends DefaultWebProject(info)
+class ColladocProject(info: ProjectInfo) extends DefaultWebProject(info) with ScctProject
 with WinstoneProject {
   val snapshots = ScalaToolsSnapshots
 
