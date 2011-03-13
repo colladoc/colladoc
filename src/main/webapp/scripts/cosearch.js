@@ -158,6 +158,9 @@ function infiniteScroll(){
                             // update retrieved record count
                             $("#recCount").text(parseInt(recText) + newNum);
 
+                            var combos=$(result).find("select");
+                            combos.selectmenu({width:300});
+
                             // append new elements to results page
                             $("#searchResults").append(result.children());
                             $contentLoadTriggered = false;
@@ -169,6 +172,7 @@ function infiniteScroll(){
                             reloadSearchHighlight();
                             reloadSearchHeaders();
                             reloadSignatureAnimation();
+
 
                         }
 
