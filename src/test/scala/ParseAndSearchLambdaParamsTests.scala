@@ -1,4 +1,3 @@
-import junit.framework.TestCase
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer
 import org.apache.lucene.document.{NumericField, Field, Document}
 import org.apache.lucene.index._
@@ -7,29 +6,21 @@ import org.apache.lucene.store.RAMDirectory
 import org.apache.lucene.util.Version
 import org.junit.Assert
 import java.util.ArrayList
+import org.specs.SpecificationWithJUnit
 import tools.colladoc.model.SearchIndex
 import tools.colladoc.search.{LuceneQuery, ScoogleParser}
-
-/**
- * User: Miroslav Paskov
- * Date: 2/23/11
- * Time: 3:06 PM
- */
 
 /**
  * For queries involving more complex transformation, like method queries we test only the end result and not
  * the lucene query syntax.
  */
-class ParseAndSearchLambdaParams  extends TestCase
+object ParseAndSearchLambdaParamsTests  extends SpecificationWithJUnit
 {
   import SearchIndex._
 
   private var directory:RAMDirectory = null
 
-  override def setUp()
-  {
-    super.setUp()
-
+  doBeforeSpec {
     directory = new RAMDirectory();
 
     // Lucene 4 Init
@@ -77,12 +68,6 @@ class ParseAndSearchLambdaParams  extends TestCase
     writer.close()
   }
 
-  override def tearDown()
-  {
-    super.tearDown()
-    directory.close();
-  }
-
   implicit def convertToArrayList[T](l:List[T]):ArrayList[T] =
   {
     val array = new ArrayList[T](l.size)
@@ -100,58 +85,68 @@ class ParseAndSearchLambdaParams  extends TestCase
     Assert.assertEquals("\nQuery: " + LuceneQuery.toLuceneQueryString(searchQuery) + "\n" + searchQuery, totalResults, collector.getTotalHits);
   }
 
-  def testNoRestrictionsLambda() = expect("=> _", 10);
+  def parseAndRetrieveResultsForLambdaParamsWith =
+    addToSusVerb("parse and retrieve results for lamda params with/that")
 
-  def testNoParamsLambda() = expect("() => _", 1);
+  "Query Layer" should parseAndRetrieveResultsForLambdaParamsWith {
+    // We want to share the index throughout all examples.
+    shareVariables
 
-  def testReturnsConcreteLambda() = expect("=> Double", 1);
+    "no restrictions" in { expect("=> _", 10) }
 
-  def testReturnsWidlcardLambda() = expect("=> Bool_", 2);
+    "no params" in { expect("() => _", 1) }
 
-  // NOTE: Unless we use regular expression queries, searchinf for (_) within a type will translate to a greedy *
-  def testAnyParamLambda() = expect("(_) => _", 10);
+    "returns concrete" in { expect("=> Double", 1) }
 
-  def testAnyParamsLambda() = expect("(*) => _", 10);
+    "returns wildcard" in { expect("=> Bool_", 2) }
 
-  // NOTE: Stars are translated to * wildcards and not collapsed to a single *, thsi differs from the param behavior.
-  def testManyAnyParamsLambda() = expect("(*, *, *) => _", 5);
+    // NOTE: Unless we use regular expression queries, searchinf for (_) within a type will translate to a greedy *
+    "any param" in { expect("(_) => _", 10) }
 
-  // Note: Greedy star here, expected 2 but actual 7
-  def testAnyTwoParamsLambda() = expect("(_, _) => _", 7);
+    "any params" in { expect("(*) => _", 10) }
 
-  // Note: Star takes the third position here, expected 7 but actual 5
-  def testAtLeastTwoParamsLambda() = expect("(_, _, *) => _", 5);
+    // NOTE: Stars are translated to * wildcards and not collapsed to a single *, thsi differs from the param behavior.
+    "many any params" in { expect("(*, *, *) => _", 5) }
 
-  def testConcreteLambda() = expect("(Int) => _", 1);
+    // Note: Greedy star here, expected 2 but actual 7
+    "any two params" in { expect("(_, _) => _", 7) }
 
-  def testConcrete2Lambda() = expect("(Double) => _", 1);
+    // Note: Star takes the third position here, expected 7 but actual 5
+    "at least two params" in { expect("(_, _, *) => _", 5) }
 
-  def testTwoConcreteLambda() = expect("(Int String) => _", 1);
+    "concrete" in { expect("(Int) => _", 1) }
 
-  // Note: Star takes the second position here, expected 2 but actual 1
-  def testConcreteThenAnyLambda() = expect("(Int, *) => _", 1);
+    "concrete (2)" in { expect("(Double) => _", 1) }
 
-  def testConcreteAnyConcreteAnyLambda() = expect("(Double, _, Int, _) => _", 1);
+    "two param concrete" in { expect("(Int String) => _", 1) }
 
-  // Note: Star takes the first and third positions here, expected 4 but actual 2
-  def testStarConcreteStarLambda() = expect("(*, Int, *) => _", 2);
+    // Note: Star takes the second position here, expected 2 but actual 1
+    "concrete param then any param" in { expect("(Int, *) => _", 1) }
 
-  // Note: Star takes the third position here, expected 3 but actual 2
-  def testConcreteWildcardStarLambda() = expect("(Double, List_, *) => _", 2);
+    "mixture of concrete params and any params" in { expect("(Double, _, Int, _) => _", 1) }
 
-  def testConcreteGenericStarLambda() = expect("(Double, List[Int], *) => _", 2);
+    // Note: Star takes the first and third positions here, expected 4 but actual 2
+    "star param, concrete param, star param" in { expect("(*, Int, *) => _", 2) }
 
-  def testConcreteStarConcreteLambda() = expect("(String * Long) => _", 2);
+    // Note: Star takes the third position here, expected 3 but actual 2
+    "mixture of concrete, wildcard and star params" in { expect("(Double, List_, *) => _", 2) }
 
-  def testThreeBlanksWithSpacesLambda() = expect("(String _ _ _ Long) => _", 1);
+    "concrete param, generic param and star param" in { expect("(Double, List[Int], *) => _", 2) }
 
-  def testWildcardGenericsLambda() = expect("(String List_ Array_ Map_ Long) => _", 1);
+    "concrete param, star param, concrete param" in { expect("(String * Long) => _", 2) }
 
-  def testInnerWildcardGenericsLambda() = expect("(String List[_] Array[_] Map[_, _] Long) => _", 1);
+    "three wildcard params with spaces" in { expect("(String _ _ _ Long) => _", 1) }
 
-  def testManyConcreteLambda() = expect("( String, List[Double], Array[Int], Map[Long,String], Long) => _", 1);
+    "wildcard generics" in { expect("(String List_ Array_ Map_ Long) => _", 1) }
 
-  def testConcreteStarConcrete2Lambda() = expect("(Double, *) => Unit", 2);
+    "inner wildcard generics" in { expect("(String List[_] Array[_] Map[_, _] Long) => _", 1) }
 
+    "many concrete params" in { expect("( String, List[Double], Array[Int], Map[Long,String], Long) => _", 1) }
 
+    "concrete param, star param (2)" in { expect("(Double, *) => Unit", 2) }
+  }
+
+  doAfterSpec {
+    directory.close();
+  }
 }

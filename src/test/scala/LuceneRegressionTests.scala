@@ -1,15 +1,14 @@
-import junit.framework.TestCase
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.document.{NumericField, Field, Document}
 import org.apache.lucene.index._
-import org.apache.lucene.queryParser.QueryParser
 import org.apache.lucene.search._
 import org.apache.lucene.search.spans._
 import org.apache.lucene.search.BooleanClause.Occur
 import org.apache.lucene.store.RAMDirectory
 import org.apache.lucene.util.Version
 import org.junit.Assert
-import java.util.{ArrayList}
+import java.util.ArrayList
+import org.specs.SpecificationWithJUnit
 
 /**
  * User: Miroslav Paskov
@@ -21,7 +20,7 @@ import java.util.{ArrayList}
  * There is not enough documentation on how the more advanced Lucene Queries work.
  * Here are examples ot the ones we use.
  */
-class LuceneRegressionTests  extends TestCase
+object LuceneRegressionTests  extends SpecificationWithJUnit
 {
   val TextField = "text"
   val TeamField = "team"
@@ -29,11 +28,7 @@ class LuceneRegressionTests  extends TestCase
 
   private var directory:RAMDirectory = null
 
-
-  override def setUp()
-  {
-    super.setUp()
-
+  doBeforeSpec {
     directory = new RAMDirectory();
 
     // Lucene 4
@@ -68,12 +63,6 @@ class LuceneRegressionTests  extends TestCase
     writer.close();
   }
 
-  override def tearDown()
-  {
-    super.tearDown()
-    directory.close();
-  }
-
   implicit def convertToArrayList[T](l:List[T]):ArrayList[T] =
   {
     val array = new ArrayList[T](l.size)
@@ -102,35 +91,46 @@ class LuceneRegressionTests  extends TestCase
      Assert.assertEquals(totalResults, c.getTotalHits);
   }
 
-  def testSimpleTermQuery() = expect(new TermQuery(new Term(TeamField, "rumi")), 1);
+  // We want to share the index throughout all examples.
+  shareVariables
 
-  def testSimpleOrTerm() = expect(or(List(new TermQuery(new Term(TeamField, "jamil")))), 1);
+  def execute = addToSusVerb("execute")
 
-  def testSimpleSpanTerm() = expect( new SpanTermQuery(new Term(TeamField, "akil")), 1);
+  "Lucene" should execute {
+    "simple term query" in { expect(new TermQuery(new Term(TeamField, "rumi")), 1) }
 
-  def testSimpleNearSpanTerm() = expect( new SpanNearQuery(List(
-    new SpanTermQuery(new Term(TeamField, "akil")),
-    new SpanTermQuery(new Term(TeamField, "alek"))
-  ).toArray, 0, true) , 1);
+    "simple or term query" in { expect(or(List(new TermQuery(new Term(TeamField, "jamil")))), 1) }
 
-  def testNearSpanTermTooFarAway() = expect( new SpanNearQuery(List(
-    new SpanTermQuery(new Term(TeamField, "akil")),
-    new SpanTermQuery(new Term(TeamField, "jamil"))
-  ).toArray, 0, true) , 0);
+    "simple span term query" in { expect( new SpanTermQuery(new Term(TeamField, "akil")), 1) }
 
-  def testNearSpanTermOrderMatters() = expect( new SpanNearQuery(List(
-    new SpanTermQuery(new Term(TeamField, "alek")),
-    new SpanTermQuery(new Term(TeamField, "akil"))
-  ).toArray, 0, true) , 0);
+    "simple near span term query" in { expect( new SpanNearQuery(List(
+      new SpanTermQuery(new Term(TeamField, "akil")),
+      new SpanTermQuery(new Term(TeamField, "alek"))
+    ).toArray, 0, true) , 1) }
 
-  // Note that the word is third, param position is 2, 3
-  def testExactPosition() = expect( new SpanPositionRangeQuery(
+    "near span term too far away" in { expect( new SpanNearQuery(List(
+      new SpanTermQuery(new Term(TeamField, "akil")),
+      new SpanTermQuery(new Term(TeamField, "jamil"))
+    ).toArray, 0, true) , 0) }
+
+    "near span term order matters" in { expect( new SpanNearQuery(List(
       new SpanTermQuery(new Term(TeamField, "alek")),
-    2, 3), 1);
+      new SpanTermQuery(new Term(TeamField, "akil"))
+    ).toArray, 0, true) , 0) }
 
-  def testExactPositionWrontPosition() = expect( new SpanPositionRangeQuery(
-      new SpanTermQuery(new Term(TeamField, "alek")),
-    3, 4), 0);
+    // Note that the word is third, param position is 2, 3
+    "exact position span query" in { expect( new SpanPositionRangeQuery(
+        new SpanTermQuery(new Term(TeamField, "alek")),
+      2, 3), 1) }
 
-  def testRangeQuery() = expect(NumericRangeQuery.newIntRange(CountField, 0, 10, true, true), 6);
+    "exact position wrong position query" in { expect( new SpanPositionRangeQuery(
+        new SpanTermQuery(new Term(TeamField, "alek")),
+      3, 4), 0) }
+
+    "range query" in { expect(NumericRangeQuery.newIntRange(CountField, 0, 10, true, true), 6) }
+  }
+
+  doAfterSpec {
+    directory.close();
+  }
 }
