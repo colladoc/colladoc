@@ -1,14 +1,14 @@
+package scala.tools.colladoc.search
+
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer
 import org.apache.lucene.document.{NumericField, Field, Document}
 import org.apache.lucene.index._
 import org.apache.lucene.search._
 import org.apache.lucene.store.RAMDirectory
 import org.apache.lucene.util.Version
-import org.junit.Assert
 import java.util.ArrayList
 import org.specs.SpecificationWithJUnit
 import tools.colladoc.model.SearchIndex
-import tools.colladoc.search.{LuceneQuery, ScoogleParser}
 
 /**
  * For queries involving more complex transformation, like method queries we test only the end result and not
@@ -70,8 +70,9 @@ object ParseAndSearchMethodsTests  extends SpecificationWithJUnit
     val searchQuery = ScoogleParser.parse(q)
     val luceneQuery = LuceneQuery.toLuceneQuery(searchQuery)
     val collector = TopScoreDocCollector.create(100, true)
-    new IndexSearcher(directory, true).search(luceneQuery, collector);
-    Assert.assertEquals("\nQuery: " + LuceneQuery.toLuceneQueryString(searchQuery) + "\n" + searchQuery, totalResults, collector.getTotalHits);
+    new IndexSearcher(directory, true).search(luceneQuery, collector)
+
+    totalResults mustBe collector.getTotalHits
   }
 
   def parseAndRetrieveResultsForDefsWith =

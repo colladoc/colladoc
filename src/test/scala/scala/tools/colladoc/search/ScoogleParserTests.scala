@@ -1,15 +1,8 @@
-import junit.framework.TestSuite
+package scala.tools.colladoc.search
+
 import org.junit.Assert
 import org.specs.SpecificationWithJUnit
 import org.specs.util.Configuration
-import tools.colladoc.search._
-
-object configuration extends Configuration {
-  // Since we converted these examples from JUnit tests, most don't have any
-  // Specs expectations. Therefore, we need to override the default Specs
-  // behaviour.
-  override def examplesWithoutExpectationsMustBePending = false
-}
 
 object ScoogleParserTests extends SpecificationWithJUnit
 {
@@ -21,6 +14,22 @@ object ScoogleParserTests extends SpecificationWithJUnit
   def simpleType(str:String) : Type = SimpleType(Word(str), List())
 
   def parse = addToSusVerb("parse")
+
+
+  // Used to store and restore the config that was being used before this test
+  // runs
+  val oldConfig = Configuration.config
+
+  doBeforeSpec {
+    object configuration extends Configuration {
+      // Since we converted these examples from JUnit tests, most don't have any
+      // Specs expectations. Therefore, we need to override the default Specs
+      // behaviour.
+      override def examplesWithoutExpectationsMustBePending = false
+    }
+
+    Configuration.config = configuration
+  }
 
   "ScoogleParser" should parse {
     "single word" in {
@@ -774,5 +783,10 @@ object ScoogleParserTests extends SpecificationWithJUnit
 
     // TODO: Test invalid syntax
     // TODO: Test nonsensical queries (x-category)
+  }
+
+  doAfterSpec {
+    // Restore the config that was being used before this test.
+    Configuration.config = oldConfig
   }
 }

@@ -1,3 +1,5 @@
+package scala.tools.colladoc.search
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.document.{NumericField, Field, Document}
 import org.apache.lucene.index._
@@ -6,7 +8,6 @@ import org.apache.lucene.search.spans._
 import org.apache.lucene.search.BooleanClause.Occur
 import org.apache.lucene.store.RAMDirectory
 import org.apache.lucene.util.Version
-import org.junit.Assert
 import java.util.ArrayList
 import org.specs.SpecificationWithJUnit
 
@@ -87,8 +88,8 @@ object LuceneRegressionTests  extends SpecificationWithJUnit
   def expect(q:Query, totalResults:Int)
   {
      val c = TopScoreDocCollector.create(100, true)
-     new IndexSearcher(directory, true).search(q, c);
-     Assert.assertEquals(totalResults, c.getTotalHits);
+     new IndexSearcher(directory, true).search(q, c)
+     totalResults mustBe c.getTotalHits
   }
 
   // We want to share the index throughout all examples.
