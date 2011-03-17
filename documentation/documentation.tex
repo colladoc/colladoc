@@ -1,0 +1,86 @@
+% $Id$
+\documentclass[a4paper,11pt, titlepage]{article}
+
+\usepackage{a4wide}
+\usepackage{hyperref}
+\usepackage{listings, color, parskip,}
+\usepackage{graphicx, subfigure }
+
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\hypersetup{
+  pdftitle={Improving code documentation via smart searching},
+  pdfauthor={Authors all over the place},
+  pdfsubject={Improving code documentation via smart searching},
+  pdfkeywords={scala, documentation, searching},
+  colorlinks=true,
+  linkcolor	= black
+}
+
+\lstdefinelanguage{Scala}{
+  morekeywords={abstract,case,catch,class,def,
+    do,else,extends,false,final,finally,
+    for,if,implicit,import,match,mixin,
+    new,null,object,override,package,
+    private,protected,requires,return,sealed,
+    super,this,throw,trait,true,try,
+    type,val,var,while,with,yield},
+  otherkeywords={=>,<-,<\%,<:,>:,\#,@},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[n]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]',
+  morestring=[b]"""
+}
+
+\title{\textbf{Improving code documentation\\via smart searching}}
+
+\author{Authors all over the place\\
+\\
+Department of Computing\\
+Imperial College London
+} 
+\date{\small{March 2011}}
+
+\begin{document}
+\lstset{
+  language=Scala,
+  captionpos=b,
+  basicstyle= \sffamily ,
+  breaklines=true,
+  breakatwhitespace=true,
+  numbers=left,
+  numberstyle=\tiny,
+  extendedchars=true,
+  columns=fullflexible,
+  tabsize=2
+}
+
+\maketitle
+\thispagestyle{empty}
+\tableofcontents
+\newpage
+
+\input{intro}
+\input{specification}
+\input{design}
+\input{implementation}
+\input{methodology}
+\input{groupwork}
+\input{finalproduct}
+
+\section*{Appendix}
+\addcontentsline{toc}{section}{Appendix}
+\appendix
+\input{logbook}
+\input{tools}
+
+\bibliographystyle{plain}
+\small{
+\bibliography{bibliography.bib}
+}
+
+\end{document}
