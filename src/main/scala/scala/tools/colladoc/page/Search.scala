@@ -15,8 +15,8 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
 <body class="value" onload="windowTitle();" scroll="no">
       <div id="definition">
             <img src="/images/search_big.png"/>
-            <h1><search:count/> for: <span  id="searchValue"><i><lift:SearchOps.sText/></i></span></h1>
-            <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;">Copy Search URL</a></p>
+            <h1><search:count/> for: </h1><h1><span  id="searchValue" style="white-space:wrap;"><i>&laquo;<lift:SearchOps.sText/>&raquo;</i></span></h1>
+            <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;">Permanent link</a></p>
           </div>
 	       <search:header />
 
@@ -74,7 +74,7 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
 
           <script type="text/javascript">{ Unparsed(updateTop.toJsCmd) }</script>
 
-         <div style="pagging: 3px;font-family: monospace;font-size: 12pt; top: 0;" id="noResults">
+         <div style="pagging: 3px; top: 0;" id="noResults">
            <div style="margin: 0px 0px -45px 0px;">
              <img src="/images/no_search_results.png" border="0" width="80px" heigh="80px"/>
              <div style="margin: 0px 0px 0px 100px;position:relative; top: -40pt">
@@ -86,7 +86,7 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
             <h3>Here are some sample queries to get you started:</h3>
            </div>
            <div style = "background-color: #E5E5E5" >
-             <ul style="margin: 0px 30px;font-size: 11pt;padding: 4pt" class = "nodecoration">
+             <ul style="margin: 0px 30px; padding: 4pt" class = "nodecoration">
                <li style="margin: 10px 30px;"><a href="/search?q=any" >any</a>
                 searches for everything that has the word any in its name, definition or comment
                </li>
@@ -111,10 +111,10 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
                <li style="margin: 10px 30px;"><a href="/search?q=class  _ extends _ with _">class  _ extends _ with _</a>
                 searches for all classes that extend a class and implement a trait
                </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=var _">var _: Int</a>
+               <li style="margin: 10px 30px;"><a href="/search?q=var _: Int">var _: Int</a>
                 searches for all values or variables of type Int, vars are displayed before the vals
                </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=val _">val _: Int</a>
+               <li style="margin: 10px 30px;"><a href="/search?q=val _: Int">val _: Int</a>
                 the same as above, but vals will be displayed before the vars
                </li>
                <li style="margin: 10px 30px;"><a href="/search?q=def toString">def toString</a>
@@ -123,7 +123,7 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
                <li style="margin: 10px 30px;"><a href="/search?q=def toString : String">def toString : String</a>
                 searches for all methods with name toString and return type String
                </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=def _(_) : Boolen">def _(_) : Boolean</a>
+               <li style="margin: 10px 30px;"><a href="/search?q=def _(_) : Boolean">def _(_) : Boolean</a>
                 searches for all methods with one argument and  returnType Boolean
                </li>
                <li style="margin: 10px 30px;"><a href="/search?q=def _(Int, _)">def _(Int, _)</a>
@@ -133,13 +133,13 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
                 searches for all methods with one or more arguments
                </li>
              </ul>
-           <p style="padding: 10px 50px 10px;"> For more query syntax samples, please refer to the <a href="/syntax.html" onclick="window.open(this.href, 'newWindow', 'height=600, width=500, left=50, top=50, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,'); return false">Syntax reference</a></p>
+           <p style="padding: 10px 50px 10px;"> For more query syntax samples, please see the <a href="/syntax.html" onclick="window.open(this.href, 'newWindow', 'height=600, width=500, left=50, top=50, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,'); return false">Syntax reference</a></p>
              <FORM method="GET" action="http://www.google.com/search?q=123">
                <div style="padding: 10px 50px 10px;">
-                    <span style="position:relative;top:-5pt">Still nothing... try with </span>
-                    <INPUT TYPE="hidden" name="q" value={searchValue}/>
+                    <span style="position:relative;top:2pt">Still nothing?... try with </span>
+                    <INPUT TYPE="hidden" name="q" value={"Scala " + searchValue}/>
                     <INPUT TYPE="hidden" name="hl" value="en"/>
-                    <INPUT type="image" src="/images/google_logo.gif" height="30px"/>
+                    <INPUT type="image" src="/images/google_logo.gif" height="30px" style="vertical-align:middle;"/>
                </div>
              </FORM>
          </div>

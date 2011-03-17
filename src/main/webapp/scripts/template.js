@@ -250,9 +250,11 @@ function reloadSignatureAnimation() {
         }
     });
 
-    $("p.shortcomment").click(function(){
-        commentToggleFct($(this));
+
+    $("p.shortcomment").unbind("click").click(function(){
+            commentToggleFct($(this));
     });
+
 }
 
 

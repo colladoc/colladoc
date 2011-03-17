@@ -8,9 +8,27 @@ $(document).ready(function() {
                         '<img src="images/ajax-loader2.gif" />' +
                  '</div>');
 
+     replaceImgNameToClass();
      updateSearchText();
 
 })
+
+// there is a bug in original ScalaDoc. they forgot to include "case class" icon,
+// which produces undefined img-src during the runtime.
+// author: Alex
+
+function replaceImgNameToClass(){
+   var allImg=$("h4.definition a>img");
+    allImg.each(function () {
+
+        if ($(this).attr("src")=="lib/case class.png") {
+           $(this).attr("src","lib/class.png");
+        }
+
+    });
+
+
+}
 
 
 function updateSearchText() {
@@ -21,7 +39,7 @@ function updateSearchText() {
 
                     $(this).click( function() {
 
-                    var val=$(this).text();
+                      var val=$(this).text();
                     
                       var elem = parent.window.document.getElementById("svalue");
 
@@ -91,7 +109,7 @@ function reloadSearchHeaders() {
 function reloadSearchHighlight() {
 
     var urlpart=$(location).attr("href").split("q=");
-    if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight((urlpart[1]).replace("_"," "))};
+    if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight(urlpart[1])};
 
 }
 
@@ -140,6 +158,9 @@ function infiniteScroll(){
                             // update retrieved record count
                             $("#recCount").text(parseInt(recText) + newNum);
 
+                            var combos=$(result).find("select");
+                            combos.selectmenu({width:300});
+
                             // append new elements to results page
                             $("#searchResults").append(result.children());
                             $contentLoadTriggered = false;
@@ -151,6 +172,7 @@ function infiniteScroll(){
                             reloadSearchHighlight();
                             reloadSearchHeaders();
                             reloadSignatureAnimation();
+
 
                         }
 
