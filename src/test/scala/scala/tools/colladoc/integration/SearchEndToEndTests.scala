@@ -1,14 +1,14 @@
-package scala.tools.colladoc
+package scala.tools.colladoc.integration
 
-import lib.DependencyFactory
 import org.specs.Specification
 import org.mortbay.jetty.Server
 import org.mortbay.jetty.webapp.WebAppContext
 import org.openqa.selenium.server.{RemoteControlConfiguration, SeleniumServer}
 import com.thoughtworks.selenium.DefaultSelenium
-import util.TestProps
+import tools.colladoc.lib.DependencyFactory
+import tools.colladoc.util.TestProps
 
-object IntegrationTests extends Specification {
+object SearchEndToEndTests extends Specification {
   private val pageLoadTimeoutInMs = "30000"
 
   private var server : Server = null

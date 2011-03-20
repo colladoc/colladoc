@@ -18,10 +18,6 @@ object TestProps {
                     classpathDir + "scala-library.jar"
     }
 
-    println(sourcepath)
-
-    println(classpath)
-
     Map[String, String]("-doc-title" -> "Colladoc",
                         "-doc-version" -> "1.0-SNAPSHOT",
                         "-sourcepath" -> sourcepath,
