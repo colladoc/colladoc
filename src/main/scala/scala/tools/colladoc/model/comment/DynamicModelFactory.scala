@@ -24,7 +24,6 @@ package scala.tools.colladoc {
 package model {
 package comment {
 
-import tools.nsc.doc.model.MemberEntity
 import tools.nsc.doc.model._
 
 import tools.nsc.doc.model.comment.Comment

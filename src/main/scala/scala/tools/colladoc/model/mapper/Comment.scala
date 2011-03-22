@@ -30,8 +30,10 @@ import net.liftweb.common._
 import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
-import java.text.SimpleDateFormat
 import tools.nsc.doc.model.MemberEntity
+
+import java.text.SimpleDateFormat
+import java.util.Date
 
 /**
  * Mapper for comment table storing documentation changes.
@@ -66,11 +68,29 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
     case _ => ""
   }
 
-  def dateFormat = new SimpleDateFormat("HH:mm:ss dd MMMM yyyy")
+  def dateFormatter(d: Date) = new SimpleDateFormat("HH:mm:ss dd MMMM yyyy").format(d)
+
+  def atomDateFormatter(d: Date) = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(d)
+
+  def iso8601Formatter(d: Date) = new SimpleDateFormat("yyyy-MM-dd").format(d)
 
   /** Get change author's username and date. */
   def userNameDate: String =
-    "%s by %s".format(dateFormat.format(dateTime.is), userName)
+    "%s by %s".format(dateFormatter(dateTime.is), userName)
+
+  /**
+   * Comment representation for Atom.
+   * @return Atom entry for comment
+   */
+  def toAtomEntry =
+    <entry>
+      <title>{qualifiedName.is}</title>
+      <id>tag:colladoc,{iso8601Formatter(dateTime.is)}:/atom/comments/{id.is}</id>
+      <updated>{atomDateFormatter(dateTime.is)}</updated>
+      <content>
+        {"New comment for " + qualifiedName.is + ":" + comment.is + " by " + userName + " at " + dateFormatter(changeSet.is)}
+      </content>
+    </entry>
 }
 
 /**
@@ -125,6 +145,31 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
     else
       cmts
 
+  /**
+   * Atom representation for list of messages.
+   * @param cmts list of comment changes
+   * @return Atom feed
+   */
+  def toAtomFeed(cmts: List[Comment]) = {
+    val entries = cmts.map(_.toAtomEntry)
+    val updatedDate = if (cmts isEmpty) new Date() else cmts.head.dateTime.is
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <author>
+        <name>Colladoc</name>
+      </author>
+      <id>tag:coladoc,2011:/atom</id>
+      <title>Colladoc recent chaneged comments</title>
+      <updated>{atomDateFormatter(updatedDate)}</updated>
+      {entries}
+    </feed>
+  }
+
+  /**
+   * Get latest comments.
+   * @param count amount of entries
+   * @return list of comments
+   */
+  def getLatestComments(count: Int) = Comment.findAll(OrderBy(Comment.dateTime, Descending), MaxRows(count))
 }
 
 trait CommentToString{

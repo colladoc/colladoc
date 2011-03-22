@@ -1,8 +1,7 @@
 import sbt._
 import reaktor.scct.ScctProject
 
-class ColladocProject(info: ProjectInfo) extends DefaultWebProject(info) with ScctProject
-with WinstoneProject {
+class ColladocProject(info: ProjectInfo) extends DefaultWebProject(info) with ScctProject with WinstoneProject {
   val snapshots = ScalaToolsSnapshots
 
   val liftMapper = "net.liftweb" % "lift-mapper_2.8.1" % "2.2" % "compile"
@@ -10,6 +9,7 @@ with WinstoneProject {
   val jetty6 = "org.mortbay.jetty" % "jetty" % "6.1.24" % "test->default"
   val h2 = "com.h2database" % "h2" % "1.2.144" % "runtime"
   val postgresql = "postgresql" % "postgresql" % "8.4-701.jdbc4"
+  val jodaTime = "joda-time" % "joda-time" % "1.6.2" % "compile"
   val junit = "junit" % "junit" % "4.8.2" % "test->default"
   val jmock_junit4 = "org.jmock" % "jmock-junit4" % "2.5.1" % "test->default"
   // We need all mock_classes_ext libraries inorder to use ClassMocker class for mocking classes
@@ -23,8 +23,6 @@ with WinstoneProject {
   override def localScala = defineScala("2.8.1-local", ("scala" / "build" / "pack").asFile) :: Nil
 
   override def managedStyle = ManagedStyle.Maven
-
   override def jettyWebappPath = webappPath
-
   override def scanDirectories = Nil
 }

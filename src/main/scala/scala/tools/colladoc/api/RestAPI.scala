@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Petr Hosek. All rights reserved.
+ * Copyright (c) 2011, Sergey Ignatov. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided
  * that the following conditions are met:
@@ -21,37 +21,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scala.tools.colladoc {
-package snippet {
+package api {
 
-import lib.DependencyFactory._
-import page.Index
-
-import xml._
-
-import tools.nsc.doc.model._
-import tools.nsc.doc.Universe
+import xml.NodeSeq
+import net.liftweb.http.{AtomResponse, GetRequest, LiftResponse, LiftRules, NotFoundResponse, Req}
+import net.liftweb.http.rest.XMLApiHelper
+import model.mapper.Comment
 
 /**
- * Index snippet.
- * @author Petr Hosek
+ * @author ignatov
  */
-class IndexOps(universe: Universe) {
-  def this() = this(model.vend)
+object RestAPI extends XMLApiHelper {
+  def dispatch: LiftRules.DispatchPF = {
+    case Req("atom" :: "comments" :: Nil, "", GetRequest) => () => showRecentCommentsAtom()
+    case Req("atom" :: x :: Nil, "", _) => failure _
+  }
 
-  lazy val index = new Index(universe)
+  def failure(): LiftResponse = {
+    NotFoundResponse()
+  }
 
-  /** Return index title. */
-  def title(xhtml: NodeSeq): NodeSeq =
-    Text(index.title)
+  def createTag(in: NodeSeq) = {
+    <colladoc_api>in</colladoc_api>
+  }
 
-  def headers =
-    index.headers
-
-  /** Return index body. */
-  def body(xhtml: NodeSeq): NodeSeq =
-    index.body
-
+  def showRecentCommentsAtom() = AtomResponse(Comment.toAtomFeed(Comment.getLatestComments(20)))
 }
 
 }
+
 }

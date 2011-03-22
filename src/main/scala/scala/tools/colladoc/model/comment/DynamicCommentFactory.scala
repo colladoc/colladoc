@@ -38,7 +38,6 @@ import tools.nsc.util._
 trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFactory with CommentFactory =>
 
   val global: Global
-  import global.reporter
 
   /** Empty comment. */
   protected[comment] val empty = createComment()
@@ -119,7 +118,7 @@ trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFa
       case prx: CommentProxy =>
         val str = global.expandedDocComment(prx.sym, prx.inTpl.sym, docStr).trim
         val cmt = parse(str, docStr, NoPosition)
-        if (!reporter.hasWarnings) prx.cmt = cmt
+        if (!global.reporter.hasWarnings) prx.cmt = cmt
       case _ =>
     }
 

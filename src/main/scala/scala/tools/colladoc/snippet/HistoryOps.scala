@@ -30,16 +30,15 @@ import lib.widgets._
 import page.History
 
 import net.liftweb.common._
-import net.liftweb.http._
-import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
-import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
 import xml._
 
-import java.util.{Calendar, Date}
 import java.text.SimpleDateFormat
+import net.liftweb.mapper._
+import java.util.Date
+import org.joda.time.DateTime
 
 /**
  * History snippet.
@@ -48,8 +47,8 @@ import java.text.SimpleDateFormat
 class HistoryOps {
 
   val dateFormat = new SimpleDateFormat("MM/dd/yyyy")
-  var fromDate: Date = today
-  var toDate: Date = today.rollDay(1)
+  var fromDate = new DateTime minusMonths 1 toDate
+  var toDate = new DateTime plusDays 1 toDate
   var userName: String =
     if (User.loggedIn_?)
       User.currentUser.open_! userName
