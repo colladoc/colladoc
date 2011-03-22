@@ -67,8 +67,8 @@ object ParseAndSearchMethodsTests  extends SpecificationWithJUnit
 
   def expect(q:String, totalResults:Int)
   {
-    val searchQuery = ScoogleParser.parse(q)
-    val luceneQuery = LuceneQuery.toLuceneQuery(searchQuery)
+    val searchQuery = QueryParser.parse(q)
+    val luceneQuery = LuceneQueryTranslator.toLuceneQuery(searchQuery)
     val collector = TopScoreDocCollector.create(100, true)
     new IndexSearcher(directory, true).search(luceneQuery, collector)
 

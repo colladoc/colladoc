@@ -73,22 +73,7 @@ function reinit(selector) {
     });
 };
 
-
-
-
-
 function copy(txt) {
-
-                var clip = new ZeroClipboard.Client();
-                //Glue the clipboard client to the link
-                clip.glue('linkURL');
-
-                //Grab the text from the url
-
-                clip.addEventListener('mouseup',function() {
-                    alert("Copied to clipboard text:\n\n" + txt);
-                    clip.setText(txt);
-
-                });
-            };
+    $('linkUrl').setAttribute('href', txt);
+};
 

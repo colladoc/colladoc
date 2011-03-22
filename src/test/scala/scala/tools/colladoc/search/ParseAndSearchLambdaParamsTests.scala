@@ -77,8 +77,8 @@ object ParseAndSearchLambdaParamsTests  extends SpecificationWithJUnit
   def expect(q:String, totalResults:Int)
   {
     val lambdified = "(" + q + ") => _"
-    val searchQuery = ScoogleParser.parse(lambdified)
-    val luceneQuery = LuceneQuery.toLuceneQuery(searchQuery)
+    val searchQuery = QueryParser.parse(lambdified)
+    val luceneQuery = LuceneQueryTranslator.toLuceneQuery(searchQuery)
     val collector = TopScoreDocCollector.create(100, true)
     new IndexSearcher(directory, true).search(luceneQuery, collector);
 

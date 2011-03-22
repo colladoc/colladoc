@@ -9,7 +9,12 @@ package scala.tools.colladoc.search
 import scala.util.parsing.combinator._
 import util.parsing.input.CharSequenceReader
 
-object  ScoogleParser extends RegexParsers{
+/**
+ * The QueryParser parses strings to produce a search-independent SearchQuery structure.
+ *
+ * Combinatorial Parsers are used to parse the user string.
+ */
+object QueryParser extends RegexParsers{
 
   final val EofCh = '\032'
 
@@ -24,15 +29,33 @@ object  ScoogleParser extends RegexParsers{
 
   def charExcept(cs: Char*) = elem("", ch => (cs forall (ch !=)))
 
-  // WARNING: Words containing dots (.) are allowed!
+  /**
+   * An identifier or a keyword can be anything that does not contain :)(][,"` which are terminal symbols. Please note
+   * that an identifier can contain a . which is not true in Scala.
+   */
   def identifierOrKeyword = """[^ :)(\[\],"`]+""".r
 
-  def identifier = notkeyword(identifierOrKeyword)
-
+  /**
+   * This identifier is is the same as the identifierOrKeyword but ends with an udnerscore. This is due to the greediness
+   * of the regular identifier. Only the last underscore of an identifier should be treated as wildcard.
+   *
+   * NOTE: There could be other ways to work around this problem.
+   */
   def startsWithIdentifier = """[^ :)(\[\],"`]+_""".r
 
+  /**
+   * An identifier is an identifier or a keyword which is not a keyword.
+   */
+  def identifier = notkeyword(identifierOrKeyword)
+
+  /**
+   * Matches any sequence of characters that does not contain an apostrophy.
+   */
   def nonApostrophy = "[^`]+".r
 
+  /**
+   * Matches a string literal. This definition is more than what is required, but ok.
+   */
   def stringLit = '\"' ~ rep( charExcept('\"', '\n', EofCh) ) ~ '\"' ^^ { case '\"' ~ chars ~ '\"' => (chars mkString "") }
 
   def word =  ( "`" ~> nonApostrophy <~ "`" ^^ {Word(_)}
@@ -99,6 +122,9 @@ object  ScoogleParser extends RegexParsers{
 
   def `def` = "def" ~> word ~ curriedParams ~ returnType ^^ {case i~p~r => Def(i, p, r)}
 
+  /**
+   * Returns a Def SearchQuery specified using the lambda syntax.
+   */
   def funcDef = curriedParams ~ ("=>" ~> `type`) ^^ {case p~r => Def(AnyWord(), p, Some(r))}
 
   def group:Parser[Group] = "(" ~> expr <~ ")" ^^ {Group(_)}
@@ -113,10 +139,20 @@ object  ScoogleParser extends RegexParsers{
 
   def expr:Parser[SearchQuery] = or | and  | term
 
+  /**
+   *  A search query is either a structured query or just a sequence of search terms:
+   */
   def query = phrase(expr) | manyWords
 
-  def parse(q:String) : SearchQuery = {
-      (phrase(query)(new CharSequenceReader(q.toLowerCase))) match {
+  /**
+   * Parses the given string to create a SearchQuery structure.
+   *
+   * @param q The search query string.
+   *
+   * @returns A SearchQuery representing the given string.
+   */
+  def parse(searchString:String) : SearchQuery = {
+      (phrase(query)(new CharSequenceReader(searchString.toLowerCase))) match {
       case Success(ord, _) => ord
       case Failure(msg, _) => SyntaxError(msg)
       case Error(msg, _) => SyntaxError(msg)

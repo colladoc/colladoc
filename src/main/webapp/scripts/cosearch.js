@@ -10,7 +10,6 @@ $(document).ready(function() {
 
      replaceImgNameToClass();
      updateSearchText();
-
 })
 
 // there is a bug in original ScalaDoc. they forgot to include "case class" icon,
@@ -24,35 +23,22 @@ function replaceImgNameToClass(){
         if ($(this).attr("src")=="lib/case class.png") {
            $(this).attr("src","lib/class.png");
         }
-
     });
-
-
 }
-
 
 function updateSearchText() {
 
-        var links = $(".nodecoration li").children();
+    var links = $(".nodecoration li").children();
 
-        links.each(function (i) {
+    links.each(function (i) {
 
-                    $(this).click( function() {
-
-                      var val=$(this).text();
-                    
-                      var elem = parent.window.document.getElementById("svalue");
-
-                      $(elem).attr("value", val);
-
-                    });
-
+        $(this).click( function() {
+              var val=$(this).text();
+              var elem = parent.window.document.getElementById("svalue");
+              $(elem).attr("value", val);
         });
-
+    });
 }
-
-
-
 
 function reloadSearchHeaders() {
     $(".extype").tooltip({
@@ -74,8 +60,8 @@ function reloadSearchHeaders() {
         }
     };
 
-   // iterate through the items and assign functionality for
-    // newly created ones by InfiniteScroll.. trick uses whether "pointer was assigned or not"
+    // iterate through the items and assign functionality for
+    // newly created ones by InfiniteScroll. trick uses whether "pointer was assigned or not"
     // done by Alex
 
     docSetSigs.each(function(i) {
@@ -92,8 +78,8 @@ function reloadSearchHeaders() {
         return $("+ div.fullcomment", $(this)).length > 0;
     });
 
-   // iterate through the items and assign functionality for
-    // newly created ones by InfiniteScroll.. trick uses whether "pointer was assigned or not"
+    // iterate through the items and assign functionality for
+    // newly created ones by InfiniteScroll. trick uses whether "pointer was assigned or not"
     // done by Alex
 
     docShowSigs.each(function(i) {
@@ -110,7 +96,6 @@ function reloadSearchHighlight() {
 
     var urlpart=$(location).attr("href").split("q=");
     if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight(urlpart[1])};
-
 }
 
 function infiniteScroll(){
@@ -147,8 +132,6 @@ function infiniteScroll(){
 
                         if (!noRes.length) {
 
-
-
                              // get the existing rec count from the view and update then
                             var recText = $("#recCount").text();
 
@@ -175,13 +158,9 @@ function infiniteScroll(){
 
 
                         }
-
                     }
-
                 }
             });
-
             }
-
         });
  }

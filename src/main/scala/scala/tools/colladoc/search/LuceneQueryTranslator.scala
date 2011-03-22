@@ -14,7 +14,12 @@ import collection.mutable.{ListBuffer, ArrayBuffer}
  * Time: 3:25 PM
  */
 
-object LuceneQuery
+/**
+ * The query translator converts a SearchQuerty to a Lucene Query object that can be executed on a Lucene index.
+ *
+ * The structure of the queries is closely related to the way classes are indexed. See SearchIndex for more information.
+ */
+object LuceneQueryTranslator
 {
   import SearchIndex._
 
@@ -37,8 +42,6 @@ object LuceneQuery
 
   def transform(syntaxQuery:SearchQuery):Query =
   {
-    // TODO: Categorize the queries!
-
     syntaxQuery match
     {
       case And(queries) => transformAnd(queries map transform)
@@ -62,6 +65,8 @@ object LuceneQuery
       case Var(id, ret) => transformVar(id, ret)
 
       case word:Identifier => transformRootWord(word)
+
+      case _ => null
     }
   }
 
@@ -87,16 +92,19 @@ object LuceneQuery
   /**
    * Returns a tuple - (Parameters Count Query, Parameters Query)
    *
-   * The case with no restrictions is by the caller.
+   * The case with no restrictions is handled by the caller.
    */
   def transformMethodParams(params:List[ParamType]):(Query, Query) =
   {
+    // A method search query is built as collection of lucene span queries.
+    // each AnyParams will produce a new spanQuery "block".
     val allBlocks = new ListBuffer[Query]
 
     var blockStart = 0
     var blockEnd = 0
     var block:ArrayBuffer[SpanQuery] = null;
 
+    // Minimum and maximum number of parameters is estimated and a nujmeric lucene query is produced.
     var minCount = 0;
     var maxCount = 0;
 
@@ -138,6 +146,7 @@ object LuceneQuery
 
     val countQuery = NumericRangeQuery.newIntRange(methodParamsCount, minCount, maxCount, true, true)
 
+    // Optimization when searching for methods that have no parameters or without wildcards.
     val paramsQuery = allBlocks.size match
     {
       case 0 => null
@@ -264,6 +273,9 @@ object LuceneQuery
     result
   }
 
+  /**
+   * Creates a boolean OR query from the non-null queries in the list.
+   */
   def transformOr(queries:List[Query]):Query =
   {
     val result = new BooleanQuery();
@@ -271,6 +283,9 @@ object LuceneQuery
     result
   }
 
+  /**
+   * Creates a boolean AND query from the non-null queries in the list.
+   */
   def transformAnd(queries:List[Query]):Query =
   {
     val result = new BooleanQuery();
@@ -280,8 +295,5 @@ object LuceneQuery
       case _ => result
     }
   }
-
-  // NOTE: All entities should contain their package:! Dotted packages (wow.test) are not separated)
-
 }
 

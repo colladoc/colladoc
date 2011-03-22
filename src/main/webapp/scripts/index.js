@@ -164,8 +164,6 @@ function doStuff() {
 
             var str= $("#textfilter input").attr("value");
            $("iframe").eq(0).attr("src","search?q="+escape(str));
-            //textFilter();
-
 }
 
 function retrieveUrl(){

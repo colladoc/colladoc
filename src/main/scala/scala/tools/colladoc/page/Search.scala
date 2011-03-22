@@ -16,12 +16,11 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
       <div id="definition">
             <img src="/images/search_big.png"/>
             <h1><search:count/> for: </h1><h1><span  id="searchValue" style="white-space:wrap;"><i>&laquo;<lift:SearchOps.sText/>&raquo;</i></span></h1>
-            <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;">Permanent link</a></p>
+            <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;" target="_blank">Permalink</a></p>
           </div>
 	       <search:header />
 
          <div style="bottom:0;display:block;position:absolute;width:100%;overflow:auto;top:180px;" id="searchPanel">
-
             <div id="template">
 
                    <search:results />
@@ -33,117 +32,121 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
 
  def bodyHeader(xhtml:NodeSeq):NodeSeq = {
 
-
-          <div id="mbrsel">
-          <div id='textfilter'><span class='pre'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>
-          {
-            <div id="symboltype">
-              <span class="filtertype">Symbol</span>
-              <ol>
-                <li class="package in">Package</li>
-                <li class="type in">Type</li>
-                <li class="object in">Object</li>
-                <li class="class in">Class</li>
-                <li class="trait in">Trait</li>
-                <li class="constructor in">Constructor</li>
-                <li class="def in">Def</li>
-                <li class="val in">Val</li>
-                <li class="var in">Var</li>
-              </ol>
-            </div>
-          }
-          {
-            <div id="visbl">
-              <span class="filtertype">Visibility</span>
-              <ol><li class="public out">Public</li><li class="all in">All</li></ol>
-            </div>
-          }
-          {
-            <div id="impl">
-              <span class="filtertype">Impl.</span>
-              <ol><li class="concrete in">Concrete</li><li class="abstract in">Abstract</li></ol>
-            </div>
-          }
-        </div>
+    <div id="mbrsel">
+    <div id='textfilter'><span class='pre'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>
+    {
+      <div id="symboltype">
+        <span class="filtertype">Symbol</span>
+        <ol>
+          <li class="package in">Package</li>
+          <li class="type in">Type</li>
+          <li class="object in">Object</li>
+          <li class="class in">Class</li>
+          <li class="trait in">Trait</li>
+          <li class="constructor in">Constructor</li>
+          <li class="def in">Def</li>
+          <li class="val in">Val</li>
+          <li class="var in">Var</li>
+        </ol>
+      </div>
+    }
+    {
+      <div id="visbl">
+        <span class="filtertype">Visibility</span>
+        <ol><li class="public out">Public</li><li class="all in">All</li></ol>
+      </div>
+    }
+    {
+      <div id="impl">
+        <span class="filtertype">Impl.</span>
+        <ol><li class="concrete in">Concrete</li><li class="abstract in">Abstract</li></ol>
+      </div>
+    }
+  </div>
 
 }
 
+  /**
+   * The search message is not displayed since it is never helpful.
+   * If the error messages of the QueryParser and the QueryTranslator improve, then they can be displayed.
+   */
  def bodyHelp(searchValue:String, errorMessage:String): NodeSeq = {
 
-          val updateTop = JsRaw("$('#searchPanel').css('top','80px');")
+    val updateTop = JsRaw("$('#searchPanel').css('top','80px');")
 
-          <script type="text/javascript">{ Unparsed(updateTop.toJsCmd) }</script>
+    <script type="text/javascript">{ Unparsed(updateTop.toJsCmd) }</script>
 
-         <div style="pagging: 3px; top: 0;" id="noResults">
-           <div style="margin: 0px 0px -45px 0px;">
-             <img src="/images/no_search_results.png" border="0" width="80px" heigh="80px"/>
-             <div style="margin: 0px 0px 0px 100px;position:relative; top: -40pt">
-               {errorMessage}
-              <img src="/images/wonderingFace.jpg" border="0" width="20px" heigh="20px"/>
-              <div style="text-align:left;margin-left: 120px;"><br><i>... but don't give up </i></br></div>
-             </div></div>
-           <div id = "helpTemplate">
-            <h3>Here are some sample queries to get you started:</h3>
-           </div>
-           <div style = "background-color: #E5E5E5" >
-             <ul style="margin: 0px 30px; padding: 4pt" class = "nodecoration">
-               <li style="margin: 10px 30px;"><a href="/search?q=any" >any</a>
-                searches for everything that has the word any in its name, definition or comment
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=any_">any_</a>
-                searches for everything that starts with any
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=//_any">//any</a>
-                searches for all comments that contain a word that end with any
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=class AnyRef">class AnyRef</a>
-                searches for all classes with name AnyRef
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=trait _">trait _</a>
-                searches for all traits
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=object _">object _</a>
-                searches for all objects
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=class A_ || class B_">class A_ || class B_</a>
-                searches for all classes that starts with A or B
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=class  _ extends _ with _">class  _ extends _ with _</a>
-                searches for all classes that extend a class and implement a trait
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=var _: Int">var _: Int</a>
-                searches for all values or variables of type Int, vars are displayed before the vals
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=val _: Int">val _: Int</a>
-                the same as above, but vals will be displayed before the vars
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=def toString">def toString</a>
-                searches for all methods with name toString
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=def toString : String">def toString : String</a>
-                searches for all methods with name toString and return type String
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=def _(_) : Boolean">def _(_) : Boolean</a>
-                searches for all methods with one argument and  returnType Boolean
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=def _(Int, _)">def _(Int, _)</a>
-                searches for all methods with arguments and the first is of type Int
-               </li>
-               <li style="margin: 10px 30px;"><a href="/search?q=def _(_, *)">def _(_, *)</a>
-                searches for all methods with one or more arguments
-               </li>
-             </ul>
-           <p style="padding: 10px 50px 10px;"> For more query syntax samples, please see the <a href="/syntax.html" onclick="window.open(this.href, 'newWindow', 'height=600, width=500, left=50, top=50, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no,'); return false">Syntax reference</a></p>
-             <FORM method="GET" action="http://www.google.com/search?q=123">
-               <div style="padding: 10px 50px 10px;">
-                    <span style="position:relative;top:2pt">Still nothing?... try with </span>
-                    <INPUT TYPE="hidden" name="q" value={"Scala " + searchValue}/>
-                    <INPUT TYPE="hidden" name="hl" value="en"/>
-                    <INPUT type="image" src="/images/google_logo.gif" height="30px" style="vertical-align:middle;"/>
-               </div>
-             </FORM>
+   <div style="pagging: 3px; top: 0;" id="noResults">
+     <div id = "helpTemplate">
+      <h3>Here are some sample queries to get you started:</h3>
+     </div>
+     <div style = "background-color: #E5E5E5" >
+       <ul style="margin: 0px 30px; padding: 4pt" class = "nodecoration">
+         <li style="margin: 10px 30px;"><a href="/search?q=any" >any</a>
+          searches for everything that has the word any in its name, definition or comment
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=any_">any_</a>
+          searches for everything that starts with any
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=//_any">//_any</a>
+          searches for all comments that contain a word that ends with any
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=class AnyRef">class AnyRef</a>
+          searches for all classes with name AnyRef
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=trait _">trait _</a>
+          searches for all traits
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=object _">object _</a>
+          searches for all objects
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=class A_ || class B_">class A_ || class B_</a>
+          searches for all classes that starts with A or B
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=class  _ extends _ with _">class  _ extends _ with _</a>
+          searches for all classes that extend a class and implement a trait
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=var _: Int">var _: Int</a>
+          searches for all values or variables of type Int, vars are displayed before the vals
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=def toString">def toString</a>
+          searches for all methods with name toString
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=def toString : String">def toString : String</a>
+          searches for all methods with name toString and return type String
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=def _(_) : Boolean">def _(_) : Boolean</a>
+          searches for all methods with one argument and  returnType Boolean
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=def _(Int, _)">def _(Int, _)</a>
+          searches for all methods with arguments and the first is of type Int
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=def _(_, *)">def _(_, *)</a>
+          searches for all methods with one or more arguments
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=def _(Iterable[_]):Int">def _(Iterable[_]):Int</a>
+          searches for all methods that take an Iterable and return Int
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=(Iterable[_]) %3D> Int">(Iterable[_]) =&gt; Int</a>
+          equvalent to the above, lambda syntax can also be used for searching for methods.
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=%3D> (_, _)">=&gt; (_, _)</a>
+          searches for all methods that return a tuple with two elements.
+         </li>
+         <li style="margin: 10px 30px;"><a href="/search?q=def _((_) %3D> _)">def _((_) =&gt; _)</a>
+          searches for all methods that have one as first parameter a method that takes and returns any value.
+         </li>
+       </ul>
+       <FORM method="GET" action="http://www.google.com/search">
+         <div style="padding: 10px 50px 10px;">
+              <span style="position:relative;top:2pt">Or search with </span>
+              <INPUT TYPE="hidden" name="q" value={"Scala " + searchValue}/>
+              <INPUT TYPE="hidden" name="hl" value="en"/>
+              <INPUT type="image" src="/images/google_logo.gif" height="30px" style="vertical-align:middle;"/>
          </div>
-         </div>
+       </FORM>
+   </div>
+   </div>
  }
   /**
    * Renders list of comments to its xhtml representation.

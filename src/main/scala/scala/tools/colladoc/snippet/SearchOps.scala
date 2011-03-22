@@ -35,8 +35,6 @@ class SearchOps {
   val resultsPerPage = 30
   var totalResultsPerquery = 0
 
-
-
   def sText (xhtml:NodeSeq): NodeSeq = {
     {Unparsed(searchValue)}
   }
@@ -67,29 +65,29 @@ class SearchOps {
 
   def search(query : String) :NodeSeq =
   {
-    println("Searching for: " + query)
+    // println("Searching for: " + query)
     if(query.trim ne "")
     {
-      ScoogleParser.parse(query) match
+      QueryParser.parse(query) match
       {
         case SyntaxError(msg) => errorToHtml(msg)
-        case searchQuery:SearchQuery => displayResults(LuceneQuery.toLuceneQuery(searchQuery))
+        case searchQuery:SearchQuery => displayResults(LuceneQueryTranslator.toLuceneQuery(searchQuery))
       }
     }
     else
     {
-	    errorToHtml("We dont like empty queries")
+	    errorToHtml("Empty queries are ")
     }
   }
 
   def displayResults(query:Query):NodeSeq =
   {
-    println("test")
     var searcher : IndexSearcher = null
     try {
 
       searcher = new IndexSearcher(index.vend.directory, true)
-      println("Lucene Query: " + query.toString)
+
+      // println("Lucene Query: " + query.toString)
       searchResults(searcher, query, pageNo)
     }
     finally {
@@ -97,28 +95,33 @@ class SearchOps {
     }
   }
   def searchResults(searcher : IndexSearcher, query : Query, pageNumber : Int)={
-    val totalHitsRef = new TotalHitsRef()
-		val paging = new IterablePaging(searcher, query, 1000)
-    val itemsPerPage = resultsPerPage
-    val skipPages = (pageNumber - 1)* itemsPerPage
 
-		val entityResults = paging.skipTo(skipPages).gather(itemsPerPage).
-                        totalHits(totalHitsRef).
-                        map((hit) => {
-        val doc = searcher.doc(hit.doc)
-        val entitylookupKey = Integer.parseInt(searcher.doc(hit.doc).
-                                      get(SearchIndex.entityLookupField))
-        val entityResult = index.vend.entityLookup.get(entitylookupKey)
+    if(query == null){
+      totalResultsPerquery = 0
+      resultsToHtml(Nil)
+    }
+    else{
 
-        entityResult
-      })
+      val totalHitsRef = new TotalHitsRef()
+      val paging = new IterablePaging(searcher, query, 1000)
+      val itemsPerPage = resultsPerPage
+      val skipPages = (pageNumber - 1)* itemsPerPage
 
-      println("Results: " + totalHitsRef.totalHits())
+      val entityResults = paging.skipTo(skipPages).gather(itemsPerPage).
+                          totalHits(totalHitsRef).
+                          map((hit) => {
+          val doc = searcher.doc(hit.doc)
+          val entitylookupKey = Integer.parseInt(searcher.doc(hit.doc).
+                                        get(SearchIndex.entityLookupField))
+          val entityResult = index.vend.entityLookup.get(entitylookupKey)
+
+          entityResult
+        })
 
       // return total records count. is used to show on screen
       totalResultsPerquery = totalHitsRef.totalHits()
       resultsToHtml(entityResults)
-
+    }
   }
 
   /** Render search results **/
@@ -140,9 +143,7 @@ class SearchOps {
   }
 
   def errorToHtml(msg : String) = {
-
-    var errorMessage = "Error with the syntax:" +  msg;
-    searchPage.bodyHelp(searchValue, errorMessage);
+    searchPage.bodyHelp(searchValue, msg);
   }
 }
 
