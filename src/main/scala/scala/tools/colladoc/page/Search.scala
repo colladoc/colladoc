@@ -3,7 +3,7 @@ package scala.tools.colladoc.page
 import net.liftweb.http.js.{JE, JsCmds, JsExp}
 import net.liftweb.http.js.JE._
 import xml._
-import collection.mutable.HashMap
+import collection.mutable.{HashSet, HashMap, Queue }
 import tools.nsc.doc.model._
 
 class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootPack) {
@@ -154,6 +154,13 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
    * @return xhtml comments representation
    */
   def resultsToHtml(results: Iterable[MemberEntity]): NodeSeq = {
+
+    // Get template templates:
+    def template(member:MemberEntity) = member match {
+          case tpl: DocTemplateEntity => tpl
+          case _ => member.inTemplate
+        }
+
     // Groups members by containing type.
     def aggregateMembers(mbrs: Iterable[MemberEntity]) = {
       val containingTypeMap = new HashMap[DocTemplateEntity, List[MemberEntity]] {
@@ -161,11 +168,7 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
       }
 
       for (mbr <- mbrs) {
-        val tpl = mbr match {
-          case tpl: DocTemplateEntity => tpl
-          case _ => mbr.inTemplate
-        }
-
+        val tpl = template(mbr)
         // Add this member to the current list of members for this type.
         containingTypeMap(tpl) = (mbr :: containingTypeMap(tpl))
       }
@@ -173,32 +176,43 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
       containingTypeMap
     }
 
-    <xml:group>
+    val aggregates = aggregateMembers(results)
+    val done = new HashSet[DocTemplateEntity]()
+    val render = new Queue[Node];
+
+    for(m <- results)
+    {
+      val containingType = template(m);
+      if(!done.contains(containingType))
       {
-        aggregateMembers(results) flatMap { case (containingType, mbrs) =>
+        done += containingType
+        val mbrs = aggregates(containingType)
 
-          <div class={"searchResult" +
-                    (if (containingType.isTrait || containingType.isClass) " type"
-                    else " value")
-                }>
-            <h4 class="definition">
-              <a href={ relativeLinkTo(containingType) }>
-                  <img src={ relativeLinkTo{List(kindToString(containingType) + ".png", "lib")} }/>
-              </a>
-              <span>
-                {
-                  if (containingType.isRootPackage) "root package"
-                  else containingType.qualifiedName }
-              </span>
-            </h4>
+        render.enqueue(
 
-            <div>
-              { membersToHtml(mbrs) }
-            </div>
+        <div class={"searchResult" +
+                  (if (containingType.isTrait || containingType.isClass) " type"
+                  else " value")
+              }>
+          <h4 class="definition">
+            <a href={ relativeLinkTo(containingType) }>
+                <img src={ relativeLinkTo{List(kindToString(containingType) + ".png", "lib")} }/>
+            </a>
+            <span>
+              {
+                if (containingType.isRootPackage) "root package"
+                else containingType.qualifiedName }
+            </span>
+          </h4>
+
+          <div>
+            { membersToHtml(mbrs) }
           </div>
-        }
+        </div> )
       }
-    </xml:group>
+    }
+
+    render
   }
 
   /**
