@@ -65,7 +65,7 @@ class SearchOps {
 
   def search(query : String) :NodeSeq =
   {
-    // println("Searching for: " + query)
+    println("Searching for: " + query)
     if(query.trim ne "")
     {
       QueryParser.parse(query) match
@@ -87,7 +87,7 @@ class SearchOps {
 
       searcher = new IndexSearcher(index.vend.directory, true)
 
-      // println("Lucene Query: " + query.toString)
+      println("Lucene Query: " + query.toString)
       searchResults(searcher, query, pageNo)
     }
     finally {
