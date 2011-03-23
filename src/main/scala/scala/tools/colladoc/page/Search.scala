@@ -142,7 +142,7 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
               <span style="position:relative;top:2pt">Or search with </span>
               <INPUT TYPE="hidden" name="q" value={"Scala " + searchValue}/>
               <INPUT TYPE="hidden" name="hl" value="en"/>
-              <INPUT type="image" src="/images/google_logo.gif" height="30px" style="vertical-align:middle;"/>
+              <INPUT type="image" src="/images/google_logo.png" height="20px" style="vertical-align:middle;"/>
          </div>
        </FORM>
    </div>

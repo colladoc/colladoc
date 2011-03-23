@@ -1,0 +1,66 @@
+.value #definition {
+  background-color: #333;
+}
+
+#mbrsel > div#date > ol > li.from {
+    width: 2em;
+}
+
+#mbrsel > div#date > ol > li.to {
+    width: 2em;
+}
+
+#mbrsel > div#date > ol > li input {
+    width: 5em;
+}
+
+#mbrsel > div#user > ol > li input {
+    width: 12em;
+}
+
+.filter > span {
+    background: url("lib/filter_box_left.png") no-repeat left top;
+    margin: 0 0 0 -8px;
+    padding: 2px 0 0 22px;
+}
+
+#template > h3 {
+    background-color: #333;
+    color: white;
+    font-weight: bold;
+    font-size: 12pt;
+    padding: 4px;
+}
+
+.definition {
+    color: white;
+    font-weight: bold;
+    font-size: 12pt;
+    padding: 4px;
+}
+
+.value .definition {
+    background-color: #7996AC;
+}
+
+.type .definition {
+    background-color: #799F5A;
+}
+
+#template .changeset > div > .signature {
+    margin: 0 0 4px 0;
+}
+
+#template .changeset > div > .shortcomment {
+    display: block;
+    margin: 0 0 4px 0;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+#template .changeset > div > .fullcomment  {
+    display: none;
+    margin: 0 0 4px 0;
+    padding-left: 8px;
+    padding-right: 8px;
+}
