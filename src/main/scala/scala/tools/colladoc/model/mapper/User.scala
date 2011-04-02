@@ -46,6 +46,11 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
     override val fieldId = Some(Text("txtFirstName"))
   }
 
+  object openId extends MappedString(this, 100) {
+    override def dbIndexed_? = true
+    override def validations = valUnique(S.??("unique.user.name")) _ :: super.validations
+  }
+
   def userNameDisplayName = S.??("user.name")
 
   /** User comment changes. */
@@ -96,9 +101,9 @@ object User extends User with KeyedMetaMapper[Long, User] {
     S.request.foreach(_.request.session.terminate)
   }
 
-  def createIfNew(username: String): User = {
-    find(By(User.userName, username)).openOr {
-      val newUser = User.create.userName(username)
+  def createIfNew(openid: String): User = {
+    find(By(User.openId, openid)).openOr {
+      val newUser = User.create.openId(openid)
       newUser.save()
       newUser
     }
@@ -123,6 +128,10 @@ object User extends User with KeyedMetaMapper[Long, User] {
         <p>
           <label for="password">Password:</label>
           <user:password class="text required ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="openid">OpenID:</label>
+          <user:openid class="text required ui-widget-content ui-corner-all" />
         </p>
         <user:submit />
       </fieldset>
@@ -154,6 +163,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
         }),
       "email" -%> SHtml.text(user.email.is, text => (), ("readonly", "readonly")),
       "password" -%> SHtml.password("", user.password(_)),
+      "openid" -%> SHtml.text(user.openId.is, text => (), ("readonly", "readonly")),
       "submit" -> SHtml.hidden(doSave _))
   }
 

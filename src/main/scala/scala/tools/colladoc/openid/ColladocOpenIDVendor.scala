@@ -56,15 +56,19 @@ object ColladocOpenIDVendor extends SimpleOpenIDVendor with Logger {
       case Full(id) =>
         val user = User.createIfNew(id.getIdentifier)
 
-//        import WellKnownAttributes._
-//        val attrs = WellKnownAttributes.attributeValues(res.getAuthResponse)
-//        attrs.get(Email) map {
-//          e => user.email(trace("Extracted email", e))
-//        }
-//        attrs.get(FullName) map {
-//          n => user.realName(trace("Extracted name", n))
-//        }
-//        user.save()
+        import WellKnownAttributes._
+        val attrs = WellKnownAttributes.attributeValues(res.getAuthResponse)
+        
+        attrs.get(Email) map { e => user.email(trace("Extracted email", e)) }
+        attrs.get(FirstName) map { n => user.firstName(trace("Extracted name", n)) }
+        attrs.get(LastName) map { n => user.lastName(trace("Extracted name", n)) }
+
+        if (user.userName isEmpty) {
+          user.userName(user.firstName + " " + user.lastName)
+        }
+        
+        user.save()
+
         User.logUserIn(user)
       case _ =>
         // TODO: response with error
