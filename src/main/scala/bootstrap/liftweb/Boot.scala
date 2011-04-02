@@ -38,6 +38,7 @@ import tools.colladoc.lib.sitemap.{HistoryStuff, SearchStuff, IndexStuff, Templa
 import tools.colladoc.model.mapper.{User, Comment}
 import tools.colladoc.lib.js.JqUI._
 import tools.colladoc.api.RestAPI
+import tools.colladoc.openid.ColladocOpenIDVendor
 
 import xml.{Text, NodeSeq}
 import tools.nsc.io.Streamable
@@ -83,6 +84,8 @@ class Boot {
    //     ParsePath(List("search", query), _,_, _), _, _) =>
    //     RewriteResponse("search" :: Nil, Map("q" -> query))
    // }
+
+    LiftRules.dispatch.append(ColladocOpenIDVendor.dispatchPF)
 
     LiftRules.setSiteMapFunc(sitemap)
     LiftRules.statelessDispatchTable.append(ExportService)

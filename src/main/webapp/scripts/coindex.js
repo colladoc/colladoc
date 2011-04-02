@@ -70,6 +70,26 @@ $(document).ready(function() {
         resizable: false
     });
     $(".login").validate();
+
+    $(".openid").dialog({
+        autoOpen: false,
+        title: 'OpenID Login',
+        buttons: {
+            'Login': function() {
+                if ($(".openid").valid()) {
+                    $(".openid").submit();
+                    $(this).dialog('close');
+                }
+            },
+            'Cancel': function() {
+                $(this).dialog('close');
+            }
+        },
+        modal: true,
+        draggable: false,
+        resizable: false
+    });
+    $(".openid").validate();
 })
 
 function resizeFilterBlock() {

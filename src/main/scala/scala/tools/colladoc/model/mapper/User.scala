@@ -96,6 +96,14 @@ object User extends User with KeyedMetaMapper[Long, User] {
     S.request.foreach(_.request.session.terminate)
   }
 
+  def createIfNew(username: String): User = {
+    find(By(User.userName, username)).openOr {
+      val newUser = User.create.userName(username)
+      newUser.save()
+      newUser
+    }
+  }
+
   /** Edit user form. */
   def userHtml =
     <lift:form class="user form">
@@ -216,6 +224,16 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "username" -%> SHtml.text("", username = _),
       "password" -%> SHtml.password("", password = _),
       "submit" -> SHtml.hidden(doLogin _))
+  }
+
+  def loginOpenIdHtml =
+    <form id="openid_form" class="openid" method="post" action="/openid/login">
+      <label for="openid_identifier">Enter your OpenID</label>
+      <input type="text" name="openid_identifier" class="text required ui-widget-content ui-corner-all" />
+    </form>
+
+  def loginOpenID = {
+    bind("user", loginOpenIdHtml)
   }
 
   /** Logout user. */
