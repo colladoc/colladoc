@@ -48,7 +48,6 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
 
   object openId extends MappedString(this, 100) {
     override def dbIndexed_? = true
-    override def validations = valUnique(S.??("unique.user.name")) _ :: super.validations
   }
 
   def userNameDisplayName = S.??("user.name")
@@ -131,7 +130,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
         </p>
         <p>
           <label for="openid">OpenID:</label>
-          <user:openid class="text required ui-widget-content ui-corner-all" />
+          <user:openid class="text ui-widget-content ui-corner-all" />
         </p>
         <user:submit />
       </fieldset>
@@ -195,24 +194,41 @@ object User extends User with KeyedMetaMapper[Long, User] {
         }),
       "email" -%> SHtml.text("", user.email(_)),
       "password" -%> SHtml.password("", user.password(_)),
+      "openid" -%> SHtml.text("", user.openId(_)),
       "submit" -> SHtml.hidden(doSignup _))
   }
 
   /** Login user form. */
   def loginHtml =
-    <lift:form class="login form">
-      <fieldset>
-        <p>
-          <label for="name">Username:</label>
-          <user:username class="text required ui-widget-content ui-corner-all" />
-        </p>
-        <p>
-          <label for="password">Password:</label>
-          <user:password class="text required ui-widget-content ui-corner-all" />
-        </p>
-        <user:submit />
-      </fieldset>
-    </lift:form>
+    <div class="login form">
+      <lift:form>
+        <fieldset>
+          <p>
+            <label for="name">Username:</label>
+            <user:username id="username" class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="password">Password:</label>
+            <user:password id="password" class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <user:submit />
+        </fieldset>
+      </lift:form>
+      <div>
+        <ul class="providers">
+          <li class="direct" title="Google">
+            <a href="javascript:void(0);" id="google"><img src="images/google.png" alt="Sign in with Google"/></a>
+          </li>
+          <li class="direct" title="Yahoo">
+            <a href="javascript:void(0);" id="yahoo"><img src="images/yahoo.png" alt="Sign in with Yahoo"/></a>
+          </li>
+        </ul>
+      </div>
+      <a href="javascript:void(0);" id="openid_switcher">more OpenID</a>
+      <form id="openid_form" class="hidden" method="post" action="/openid/login">
+        <input id="openid_identifier" type="text" name="openid_identifier" class="text required ui-widget-content ui-corner-all" />
+      </form>
+    </div>
 
   /** Login user dialog. */
   def login = {
@@ -234,16 +250,6 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "username" -%> SHtml.text("", username = _),
       "password" -%> SHtml.password("", password = _),
       "submit" -> SHtml.hidden(doLogin _))
-  }
-
-  def loginOpenIdHtml =
-    <form id="openid_form" class="openid" method="post" action="/openid/login">
-      <label for="openid_identifier">Enter your OpenID</label>
-      <input type="text" name="openid_identifier" class="text required ui-widget-content ui-corner-all" />
-    </form>
-
-  def loginOpenID = {
-    bind("user", loginOpenIdHtml)
   }
 
   /** Logout user. */

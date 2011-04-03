@@ -51,13 +51,20 @@ $(document).ready(function() {
     });
     $(".user").validate();
 
+    var user_form = $($(".login > form")[0]);
+    var openid_form = $("#openid_form");
+
     $(".login").dialog({
         autoOpen: false,
         title: 'User Login',
         buttons: {
             'Login': function() {
-                if ($(".login").valid()) {
-                    $(".login").submit();
+                if (!openid_form.is(':visible') && user_form.valid()) {
+                    user_form.submit();
+                    $(this).dialog('close');
+                }
+                if (openid_form.is(':visible') && openid_form.valid()) {
+                    openid_form.submit();
                     $(this).dialog('close');
                 }
             },
@@ -69,27 +76,48 @@ $(document).ready(function() {
         draggable: false,
         resizable: false
     });
-    $(".login").validate();
+  
+    user_form.validate();
+    openid_form.validate();
 
-    $(".openid").dialog({
-        autoOpen: false,
-        title: 'OpenID Login',
-        buttons: {
-            'Login': function() {
-                if ($(".openid").valid()) {
-                    $(".openid").submit();
-                    $(this).dialog('close');
-                }
-            },
-            'Cancel': function() {
-                $(this).dialog('close');
-            }
-        },
-        modal: true,
-        draggable: false,
-        resizable: false
+    $("#openid_switcher").live("click", function(){
+      var username = $("#username");
+      var password = $("#password");
+      var openid = $("#openid_identifier");
+      var openid_link = $("#openid_switcher");
+
+      var is_openid_form_open = openid_form.is(':visible');
+
+      openid_form.toggle();
+
+      if (!is_openid_form_open) {
+        username.attr('disabled', 'true');
+        password.attr('disabled', 'true');
+        openid_link.text("less OpenID");
+        openid.val('');
+        openid.focus();
+      } else {
+        username.removeAttr('disabled');
+        password.removeAttr('disabled');
+        openid_link.text("more OpenID");
+        username.focus();
+      }
     });
-    $(".openid").validate();
+
+    $(".direct a").live("click", function(){
+      var id = $(this).attr('id');
+      var link = '';
+      switch (id) {
+        case 'google':
+          link = "https://www.google.com/accounts/o8/id";
+          break;
+        case 'yahoo':
+          link = "http://yahoo.com/";
+        break;
+      }
+      $("#openid_identifier").val(link);
+      openid_form.submit();
+    });
 })
 
 function resizeFilterBlock() {

@@ -59,11 +59,9 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
         <li><a href="/history.html" target="template">History</a></li>
         <li>{ SHtml.a(Text("Signup"), Jq(Str(".user")) ~> OpenDialog()) }</li>
         <li>{ SHtml.a(Text("Login"), Jq(Str(".login")) ~> OpenDialog()) }</li>
-        <li>{ SHtml.a(Text("OpenID"), Jq(Str(".openid")) ~> OpenDialog()) }</li>
       </ul>
       { User.signup }
       { User.login }
-      { User.loginOpenID }
     </xml:group>
 
   /** Render user panel for logged in user. */

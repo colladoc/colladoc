@@ -69,3 +69,33 @@
     font-size: 8pt;
     padding-top: 0.2em;
 }
+
+.hidden {
+   display: none;
+}
+
+.providers {
+    list-style: none;
+}
+
+.direct {
+    float: left;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+#openid_form {
+    float: left;
+}
+
+#openid_switcher {
+    margin-left: 1px;
+}
+
+#openid_identifier {
+  background: url(images/openid.png) no-repeat;
+  background-color: #fff;
+  background-position: 0 50%;
+  /*color: #000; *//* there shouldn't be a space before the 0, but GitHub's parser tries to turn it into an issue link */
+  padding-left: 25px;
+}
