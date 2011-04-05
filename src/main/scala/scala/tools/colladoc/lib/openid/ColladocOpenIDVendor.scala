@@ -20,8 +20,9 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc {
-package openid {
+package scala.tools.colladoc
+package lib
+package openid
 
 import org.openid4java.consumer.VerificationResult
 import org.openid4java.message.AuthRequest
@@ -74,8 +75,4 @@ object ColladocOpenIDVendor extends SimpleOpenIDVendor with Logger {
         // TODO: response with error
     }
   }
-}
-
-}
-
 }

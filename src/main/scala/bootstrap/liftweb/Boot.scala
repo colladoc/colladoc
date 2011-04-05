@@ -38,7 +38,7 @@ import tools.colladoc.lib.sitemap.{HistoryStuff, SearchStuff, IndexStuff, Templa
 import tools.colladoc.model.mapper.{User, Comment}
 import tools.colladoc.lib.js.JqUI._
 import tools.colladoc.api.RestAPI
-import tools.colladoc.openid.ColladocOpenIDVendor
+import tools.colladoc.lib.openid.ColladocOpenIDVendor
 
 import xml.{Text, NodeSeq}
 import tools.nsc.io.Streamable
