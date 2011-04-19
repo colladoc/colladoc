@@ -111,7 +111,7 @@ object ExportService extends RestHelper {
         { if ((mbr.inheritedFrom.isEmpty || mbr.inheritedFrom.contains(mbr.inTemplate)) && mbr.comment.get.isUpdated) {
             <item>
               <type>{ mbr match {
-                case _ if mbr.isDef || mbr.isVal || mbr.isVar => "value"
+                case _ if mbr.isDef || mbr.isVal || mbr.isVar || mbr.isConstructor => "value" // TODO: fix constructor processing
                 case _ if mbr.isAbstractType || mbr.isAliasType => "type"
               }}</type>
               <filename>{ entityToFileName(mbr.inTemplate) }</filename>
