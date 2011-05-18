@@ -45,15 +45,10 @@ import org.joda.time.DateTime
  * @author Petr Hosek
  */
 class HistoryOps {
-
   val dateFormat = new SimpleDateFormat("MM/dd/yyyy")
   var fromDate = new DateTime minusMonths 1 toDate
   var toDate = new DateTime plusDays 1 toDate
-  var userName: String =
-    if (User.loggedIn_?)
-      User.currentUser.open_! userName
-    else
-      ""
+  var userName = ""
 
   lazy val history = new History(model.vend.rootPackage)
   import history._
