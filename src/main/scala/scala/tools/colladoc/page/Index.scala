@@ -52,6 +52,20 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       }
     </div>
 
+  override def body =
+    <body>
+      <div id="library">
+        <img class='class icon' width="13" height="13" src={ relativeLinkTo{List("class.png", "lib")} }/>
+        <img class='trait icon' width="13" height="13" src={ relativeLinkTo{List("trait.png", "lib")} }/>
+        <img class='object icon' width="13" height="13" src={ relativeLinkTo{List("object.png", "lib")} }/>
+        <img class='package icon' width="13" height="13" src={ relativeLinkTo{List("package.png", "lib")} }/>
+      </div>
+      { browser }
+      <div id="content" class="ui-layout-center">
+        <iframe name="template" src={ relativeLinkTo{List("history.html")} }/>
+      </div>
+    </body>
+
   /** Render user panel for logged out user. */
   private def loggedOut =
     <xml:group>
