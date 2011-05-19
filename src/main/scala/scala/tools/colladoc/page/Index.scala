@@ -24,7 +24,6 @@ package scala.tools.colladoc {
 package page {
 
 import lib.util.Helpers._
-import lib.js.JqUI._
 import model.mapper.User
 
 import net.liftweb.http.SHtml
@@ -36,6 +35,7 @@ import net.liftweb.widgets.gravatar.Gravatar
 
 import tools.nsc.doc.Universe
 import xml.Text
+import lib.js.JqUI._
 
 /**
  * Page containing index of all symbols and user panel.
@@ -72,7 +72,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       <ul class="usernav">
         <li><a href="/history.html" target="template">History</a></li>
         <li>{ SHtml.a(Text("Signup"), Jq(Str(".user")) ~> OpenDialog()) }</li>
-        <li>{ SHtml.a(Text("Login"), Jq(Str(".login")) ~> OpenDialog()) }</li>
+        <li>{ SHtml.a(Text("Login"), CmdPair(Jq(Str(".login")) ~> OpenDialog(), Focus("username"))) }</li>
       </ul>
       { User.signup }
       { User.login }

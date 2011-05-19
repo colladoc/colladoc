@@ -104,7 +104,13 @@ $(document).ready(function() {
       }
     });
 
-    $(".direct a").live("click", function(){
+    user_form.keypress(function(e) {
+      if (e.which == 13) {
+        user_form.submit();
+      }
+    });
+
+  $(".direct a").live("click", function(){
       var id = $(this).attr('id');
       var link = '';
       switch (id) {
