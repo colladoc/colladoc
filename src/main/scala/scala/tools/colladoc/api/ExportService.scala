@@ -50,7 +50,7 @@ object ExportService extends RestHelper {
       case AsBoolean(true) => true
       case _ => false
     }
-    val rev = req.param("rev").getOrElse(Long.MinValue.toString) match {
+    val rev = req.param("rev").getOrElse(0.toString) match {
       case AsLong(long) => long
       case _ => Long.MaxValue
     }
