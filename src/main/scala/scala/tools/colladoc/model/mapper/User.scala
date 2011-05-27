@@ -256,7 +256,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
           </li>
         </ul>
       </div>
-      <a href="javascript:void(0);" id="openid_switcher">more OpenID</a>
+      <a href="javascript:void(0);" id="openid_switcher" class="link">more OpenID</a>
       <form id="openid_form" class="hidden" method="post" action="/openid/login">
         <input id="openid_identifier" type="text" name="openid_identifier" class="text required ui-widget-content ui-corner-all" />
       </form>
