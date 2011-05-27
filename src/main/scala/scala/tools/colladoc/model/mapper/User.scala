@@ -108,6 +108,38 @@ object User extends User with KeyedMetaMapper[Long, User] {
     }
   }
 
+  /** Singup user form. */
+  def singupUserHtml =
+    <lift:form class="user form">
+      <fieldset>
+        <p>
+          <label for="name">Username:</label>
+          <user:username class="text required ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="name">Full Name:</label>
+          <user:fullname class="text ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="name">Email:</label>
+          <user:email class="text required email ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="password">Password:</label>
+          <user:password class="text required ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="openid">OpenID:</label>
+          <user:openid class="text ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          By singing up you acknowledge you have read and agree to the
+          <a href="http://www.scala-lang.org/sites/default/files/contributor_agreement.pdf" class="link">Contributor License Agreement</a>.
+        </p>
+        <user:submit />
+      </fieldset>
+    </lift:form>
+
   /** Edit user form. */
   def userHtml =
     <lift:form class="user form">
@@ -182,7 +214,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       }
     }
 
-    bind("user", userHtml,
+    bind("user", singupUserHtml,
       "username" -%> SHtml.text("", user.userName(_)),
       "fullname" -%> SHtml.text("", name => {
           val idx = name.indexOf(" ")
