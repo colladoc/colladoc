@@ -27,8 +27,8 @@ package mapper {
 import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
+import js.JsCmds._
 import net.liftweb.util.Helpers._
-import net.liftweb.http.js.JsCmds._
 import xml.Text
 
 /**
@@ -54,6 +54,25 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
 
   /** User comment changes. */
   object comments extends MappedOneToMany(Comment, Comment.user)
+
+  /** Table entry. */
+  def toTableRow = {
+    val row =
+      <tr>
+        <td>{userName}</td>
+        <td>{email}</td>
+        <td>{openId}</td>
+        <td><row:superuser /></td>
+      </tr>
+
+      bind("row", row,
+      "superuser" -%> SHtml.ajaxCheckbox(
+        superUser, bool => {
+          superUser(bool)
+          save
+          Noop
+        }))
+    }
 }
 
 /**
@@ -198,9 +217,29 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "submit" -> SHtml.hidden(doSave _))
   }
 
+  private def toTable(users: List[User]) = {
+    val rows = users.map(_.toTableRow)
+    <lift:UserListSortable />
+    <table id="user_list" class="tablesorter">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>OpenID</th>
+          <th>Superuser</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows}
+      </tbody>
+    </table>
+  }
+
   /** Admin user form. */
   def adminHtml =
     <lift:form class="admin">
+      <h4>Users:</h4>
+      {toTable(User.findAll(OrderBy(User.userName, Descending)))}
       <admin:submit />
     </lift:form>
 

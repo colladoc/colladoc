@@ -3711,6 +3711,11 @@
         <w>updatable</w>
       </words>
     </dictionary>
+    <dictionary name="ignatov">
+      <words>
+        <w>sergey</w>
+      </words>
+    </dictionary>
   </component>
   <component name="ProjectModuleManager">
     <modules>
