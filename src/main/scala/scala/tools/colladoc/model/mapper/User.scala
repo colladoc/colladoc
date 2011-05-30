@@ -198,6 +198,22 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "submit" -> SHtml.hidden(doSave _))
   }
 
+  /** Admin user form. */
+  def adminHtml =
+    <lift:form class="admin">
+      <admin:submit />
+    </lift:form>
+
+  /** Admin dialog for superuser. */
+  def adminForm = {
+    def doS() {
+      S.notice("Settings succesfully saved")
+    }
+
+    bind("admin", adminHtml,
+      "submit" -> SHtml.hidden(doS _))
+  }
+
   /** Signup user dialog. */
   def signup = {
     val user = create
