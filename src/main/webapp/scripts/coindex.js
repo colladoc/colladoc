@@ -43,7 +43,7 @@ $(document).ready(function() {
                 $(this).dialog('close');
             }
         },
-        width: 800,
+        width: 1000,
         modal: true,
         draggable: false,
         resizable: false
