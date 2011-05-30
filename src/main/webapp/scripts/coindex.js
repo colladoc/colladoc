@@ -30,6 +30,24 @@ $(document).ready(function() {
             $(input).removeClass("ui-state-error");
         }
     });
+
+  $(".admin").dialog({
+        autoOpen: false,
+        title: 'Admin Settings',
+        buttons: {
+            'Save': function() {
+                $(this).submit();
+                $(this).dialog('close');
+            },
+            'Close': function() {
+                $(this).dialog('close');
+            }
+        },
+        width: 800,
+        modal: true,
+        draggable: false,
+        resizable: false
+    });
     
     $(".user").dialog({
         autoOpen: false,

@@ -90,9 +90,13 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       <ul class="usernav">
         <li><a href="/history.html" target="template">History</a></li>
         <li>{ SHtml.a(Text("Settings"), Jq(Str(".user")) ~> OpenDialog()) }</li>
+        { if (User.currentUser.open_! superUser)
+            <li>{ SHtml.a(Text("Admin"), Jq(Str(".admin")) ~> OpenDialog()) }</li>
+        }
         <li>{ SHtml.a(() => {User.logout; JsCmds.Noop}, Text("Log Out")) }</li>
       </ul>
       { User.edit }
+      { if (User.currentUser.open_! superUser) User.adminForm }
     </xml:group>
 
 }
