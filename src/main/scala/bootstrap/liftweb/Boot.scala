@@ -64,6 +64,10 @@ class Boot {
 
     LiftRules.dispatch.prepend(scaladocResources)
 
+    ResourceServer.allow {
+      case "tablesorter" :: _ => true
+    }
+
     LiftRules.dispatch.prepend(RestAPI.dispatch)
 
     // Build SiteMap
