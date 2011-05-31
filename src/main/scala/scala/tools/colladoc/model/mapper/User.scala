@@ -237,21 +237,21 @@ object User extends User with KeyedMetaMapper[Long, User] {
 
   /** Admin user form. */
   def adminHtml =
-    <lift:form class="admin">
+    <div class="admin">
+      <h4>Work with source code:</h4>
+      {SHtml.a(() => {
+        S.notice("Model succesfully reloaded from source"); Noop  // TODO: add action
+      }, Text("Reload from source"), ("class", "link"))}
+      <br />
+      {SHtml.a(() => {
+        S.notice("Comments succesfully merged"); Noop // TODO: add action
+      }, Text("Merge comments"), ("class", "link"))}
       <h4>Users:</h4>
       {toTable(User.findAll(OrderBy(User.userName, Descending)))}
-      <admin:submit />
-    </lift:form>
+    </div>
 
   /** Admin dialog for superuser. */
-  def adminForm = {
-    def doS() {
-      S.notice("Settings succesfully saved")
-    }
-
-    bind("admin", adminHtml,
-      "submit" -> SHtml.hidden(doS _))
-  }
+  def adminForm = adminHtml
 
   /** Signup user dialog. */
   def signup = {

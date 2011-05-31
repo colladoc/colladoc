@@ -35,10 +35,6 @@ $(document).ready(function() {
         autoOpen: false,
         title: 'Admin Settings',
         buttons: {
-            'Save': function() {
-                $(this).submit();
-                $(this).dialog('close');
-            },
             'Close': function() {
                 $(this).dialog('close');
             }
