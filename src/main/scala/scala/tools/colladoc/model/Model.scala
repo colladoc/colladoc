@@ -90,7 +90,7 @@ object Model extends Logger {
   }
 
   /** Model factory used to construct the model. */
-  object factory extends ModelFactory(compiler, settings) with DynamicModelFactory with DynamicCommentFactory with TreeFactory {
+  class Factory extends ModelFactory(compiler, settings) with DynamicModelFactory with DynamicCommentFactory with TreeFactory {
     def construct(files: List[String]) = {
       (new compiler.Run()) compile files
       compiler.addSourceless
@@ -99,7 +99,13 @@ object Model extends Logger {
     }
   }
 
-  lazy val model = factory construct (getSources)
+  val factory = new Factory()
+
+  var model = factory construct (getSources)
+
+  def rebuild {
+    model = new Factory() construct (getSources)
+  }
 
   /**
    * Get list of sources located in sourcepath.
