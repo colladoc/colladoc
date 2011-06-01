@@ -240,7 +240,9 @@ object User extends User with KeyedMetaMapper[Long, User] {
     <div class="admin">
       <h4>Work with source code:</h4>
       {SHtml.a(() => {
-        S.notice("Model succesfully reloaded from source"); Noop  // TODO: add action
+        Model.rebuild
+        S.notice("Model succesfully reloaded from source")
+        Noop
       }, Text("Reload from source"), ("class", "link"))}
       <br />
       {SHtml.a(() => {
