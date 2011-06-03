@@ -103,8 +103,17 @@ object Model extends Logger {
 
   var model = factory construct (getSources)
 
+  /** Rebuild model. */
   def rebuild {
     model = new Factory() construct (getSources)
+  }
+
+  /** Update model path.
+   * @param path new model path
+   */
+  def updatePath(path: String) {
+    settings.sourcepath.value = path
+    rebuild
   }
 
   /**

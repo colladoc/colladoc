@@ -27,7 +27,9 @@ package mapper {
 import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
+import js.JsCmd
 import js.JsCmds._
+import js.JE.ValById
 import net.liftweb.util.Helpers._
 import xml.Text
 
@@ -235,9 +237,32 @@ object User extends User with KeyedMetaMapper[Long, User] {
     </table>
   }
 
+  /** Handler for path updating. */
+  private def updatePath(path: String): JsCmd = {
+    S.notice("Path successfully updated")
+    Model.updatePath(path)
+    Noop
+  }
+
   /** Admin user form. */
   def adminHtml =
     <div class="admin">
+      <h4>Settings:</h4>
+      <table>
+        <tr>
+          <td><label for="source_path">Source path:</label></td>
+          <td>
+            {SHtml.text(Model.settings.sourcepath.value,
+              text => (), ("id", "source_path"), ("class", "text ui-widget-content ui-corner-all"), ("size", "70"))
+            }
+          </td>
+          <td>
+            {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
+            <button type="button" onclick={SHtml.ajaxCall(ValById("source_path"), updatePath _)._2}>{S.?("Update")}</button>
+          </td>
+        </tr>
+      </table>
+      <br />
       <h4>Work with source code:</h4>
       {SHtml.a(() => {
         Model.rebuild
