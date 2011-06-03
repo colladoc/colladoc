@@ -196,7 +196,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
     def doSave() {
       user.validate match {
         case Nil =>
-          S.notice("User succesfully saved")
+          S.notice("User successfully saved")
           user.save()
         case n =>
           S.error(n)
@@ -266,12 +266,12 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <h4>Work with source code:</h4>
       {SHtml.a(() => {
         Model.rebuild
-        S.notice("Model succesfully reloaded from source")
+        S.notice("Model successfully reloaded from source")
         Noop
       }, Text("Reload from source"), ("class", "link"))}
       <br />
       {SHtml.a(() => {
-        S.notice("Comments succesfully merged"); Noop // TODO: add action
+        S.notice("Comments successfully merged"); Noop // TODO: add action
       }, Text("Merge comments"), ("class", "link"))}
       <h4>Users:</h4>
       {toTable(User.findAll(OrderBy(User.userName, Descending)))}
@@ -287,7 +287,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
     def doSignup() {
       user.validate match {
         case Nil =>
-          S.notice("User succesfully created")
+          S.notice("User successfully created")
           user.save()
           logUserIn(user)
           RedirectTo("/")
