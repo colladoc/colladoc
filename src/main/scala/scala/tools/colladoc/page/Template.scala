@@ -92,6 +92,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       { if (User.loggedIn_?)
           edit(mbr, isSelf)
       }
+      { if (User.superUser_?) delete(mbr, isSelf) }
       { export(mbr, isSelf) }
     </div>
 
@@ -143,6 +144,38 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     }
   }
 
+   /** Render delete button for member entity. */
+  private def delete(mbr: MemberEntity, isSelf: Boolean) = {
+    SHtml.a(doDelete(mbr, isSelf) _, Text("Delete"), ("class", "button"))
+  }
+
+  /** Provide delete button logic. */
+  private def doDelete(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
+    val revs = Comment.revisions(mbr.uniqueName) ::: ("source", "Source Comment") :: Nil
+
+    val currentId = (revs head)._1
+
+    Comment.find(currentId) match {
+      case Full(comment) => {
+        comment.valid(false)
+        comment.save
+
+        val previousId = (revs.tail.head)._1
+
+        val (cmt, c) = Comment.find(previousId) match {
+          case Full(c) => (Model.factory.parse(mbr, c.comment.is), c)
+          case _ => (mbr.comment.get.original.get, "source")
+        }
+
+        val m = Model.factory.copyMember(mbr, cmt)(c)
+
+        Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
+                (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
+      }
+      case _ => Noop
+    }
+  }
+
   /** Parse documentation string input to show comment preview. */
   private def parse(mbr: MemberEntity, isSelf: Boolean)(docStr: String) = {
     val cmt = Model.factory.parse(mbr, docStr)
@@ -177,7 +210,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     def doSave() = {
       val usr = User.currentUser.open_!
       val cmt = Comment.create.qualifiedName(mbr.uniqueName).comment(docStr).dateTime(now).user(usr)
-      Comment.findAll(By(Comment.qualifiedName, mbr.uniqueName), By(Comment.user, usr),
+      Comment.findAll(By(Comment.qualifiedName, mbr.uniqueName), By(Comment.user, usr), By(Comment.valid, true),
           OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
         case List(c: Comment, _*) if c.dateTime.is - cmt.dateTime.is < minutes(30) =>
           cmt.changeSet(c.changeSet.is)
