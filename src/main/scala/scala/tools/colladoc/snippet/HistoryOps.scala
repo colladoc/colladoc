@@ -100,11 +100,12 @@ class HistoryOps {
     <div id="history">
       { User.find(Like(User.userName, user)) match {
           case Full(u) =>
-            commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from), By_<(Comment.dateTime, to), By(Comment.user, u.id.is),
+            commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from), By_<(Comment.dateTime, to),
+              By(Comment.user, u.id.is), By(Comment.valid, true),
               OrderBy(Comment.dateTime, Descending)))
           case _ =>
             commentsToHtml(Comment.findAll(By_>(Comment.dateTime, from),
-              By_<(Comment.dateTime, to),
+              By_<(Comment.dateTime, to), By(Comment.valid, true),
               OrderBy(Comment.dateTime, Descending)))
         }
       }
