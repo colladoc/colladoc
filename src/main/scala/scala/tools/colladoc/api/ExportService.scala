@@ -65,7 +65,7 @@ object ExportService extends RestHelper {
 
     def construct(pack: Package, path: List[String]): NodeSeq = {
       val mbr = pathToMember(pack, path)
-      Comment.find(By(Comment.qualifiedName, mbr.uniqueName), By(Comment.dateTime, time(rev))) match {
+      Comment.find(By(Comment.qualifiedName, mbr.uniqueName), By(Comment.dateTime, time(rev)), By(Comment.valid, true)) match {
         case Full(c) =>
           val cmt = Model.factory.parse(mbr, c.comment.is)
           construct(Model.factory.copyMember(mbr, cmt)(c))

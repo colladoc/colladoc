@@ -108,6 +108,7 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
    */
   def latest(qualName: String) = {
     Comment.findAll(By(Comment.qualifiedName, qualName),
+      By(Comment.valid, true),
       OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
       case List(c: Comment, _*) => Some(c)
       case _ => None
@@ -126,7 +127,7 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
    * @return tuples of revisions' identifiers and date
    */
   def revisions(qualName: String) = {
-    val cmts = changeSets(findAll(By(qualifiedName, qualName), OrderBy(Comment.dateTime, Descending)))
+    val cmts = changeSets(findAll(By(qualifiedName, qualName), By(Comment.valid, true), OrderBy(Comment.dateTime, Descending)))
     cmts.map{ c => (c.id.is.toString, c.userNameDate) }
   }
 
@@ -169,7 +170,7 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
    * @param count amount of entries
    * @return list of comments
    */
-  def getLatestComments(count: Int) = Comment.findAll(OrderBy(Comment.dateTime, Descending), MaxRows(count))
+  def getLatestComments(count: Int) = Comment.findAll(By(Comment.valid, true), OrderBy(Comment.dateTime, Descending), MaxRows(count))
 }
 
 trait CommentToString{
