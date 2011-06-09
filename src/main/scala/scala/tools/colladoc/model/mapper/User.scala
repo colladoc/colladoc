@@ -219,19 +219,6 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "submit" -> SHtml.hidden(doSave _))
   }
 
-  private def toGrid(users: List[User]) = {
-    val rows = users.map(_.toGridRow)
-    <rows>
-      <page>1</page>
-      <total>1</total>
-      <records>{users.length}</records>
-      {rows}
-    </rows>
-  }
-
-  /** Get all user in grid view. */
-  def getAllUsers = toGrid(User.findAll(OrderBy(User.userName, Descending)))
-
   /** Handler for path updating. */
   private def updatePath(path: String): JsCmd = {
     S.notice("Path successfully updated")
