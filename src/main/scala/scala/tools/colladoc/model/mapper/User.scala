@@ -57,24 +57,24 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
   /** User comment changes. */
   object comments extends MappedOneToMany(Comment, Comment.user)
 
-  /** Table entry. */
-  def toTableRow = {
+  /** Grid entry. */
+  def toGridRow = {
     val row =
-      <tr>
-        <td>{userName}</td>
-        <td>{email}</td>
-        <td>{openId}</td>
-        <td><row:superuser /></td>
-      </tr>
+    <row id={id.toString}>
+      <cell>{userName}</cell>
+      <cell>{email}</cell>
+      <cell>{openId}</cell>
+      <cell><row:superuser /></cell>
+    </row>
 
-      bind("row", row,
-      "superuser" -%> SHtml.ajaxCheckbox(
+    bind("row", row,
+      "superuser" -> SHtml.ajaxCheckbox(
         superUser, bool => {
           superUser(bool)
           save
           Noop
-        }))
-    }
+        }).toString)
+  }
 }
 
 /**
@@ -219,23 +219,18 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "submit" -> SHtml.hidden(doSave _))
   }
 
-  private def toTable(users: List[User]) = {
-    val rows = users.map(_.toTableRow)
-    <lift:UserListSortable />
-    <table id="user_list" class="tablesorter">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>OpenID</th>
-          <th>Superuser</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows}
-      </tbody>
-    </table>
+  private def toGrid(users: List[User]) = {
+    val rows = users.map(_.toGridRow)
+    <rows>
+      <page>1</page>
+      <total>1</total>
+      <records>{users.length}</records>
+      {rows}
+    </rows>
   }
+
+  /** Get all user in grid view. */
+  def getAllUsers = toGrid(User.findAll(OrderBy(User.userName, Descending)))
 
   /** Handler for path updating. */
   private def updatePath(path: String): JsCmd = {
@@ -273,8 +268,10 @@ object User extends User with KeyedMetaMapper[Long, User] {
       {SHtml.a(() => {
         S.notice("Comments successfully merged"); Noop // TODO: add action
       }, Text("Merge comments"), ("class", "link"))}
-      <h4>Users:</h4>
-      {toTable(User.findAll(OrderBy(User.userName, Descending)))}
+      <br />
+      <br />
+      <table id="userlist" />
+      <div id="userpager"></div>
     </div>
 
   /** Admin dialog for superuser. */

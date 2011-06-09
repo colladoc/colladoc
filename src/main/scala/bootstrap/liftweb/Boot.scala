@@ -37,7 +37,7 @@ import tools.colladoc.api.ExportService
 import tools.colladoc.lib.sitemap.{HistoryStuff, SearchStuff, IndexStuff, TemplateStuff, SyntaxStuff}
 import tools.colladoc.model.mapper.{User, Comment}
 import tools.colladoc.lib.js.JqUI._
-import tools.colladoc.api.RestAPI
+import tools.colladoc.api.{GridAPI, RestAPI}
 import tools.colladoc.lib.openid.ColladocOpenIDVendor
 
 import xml.{Text, NodeSeq}
@@ -64,11 +64,9 @@ class Boot {
 
     LiftRules.dispatch.prepend(scaladocResources)
 
-    ResourceServer.allow {
-      case "tablesorter" :: _ => true
-    }
-
     LiftRules.dispatch.prepend(RestAPI.dispatch)
+
+    LiftRules.dispatch.prepend(GridAPI)
 
     // Build SiteMap
     def sitemap() = SiteMap(
