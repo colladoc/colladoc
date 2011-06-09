@@ -88,14 +88,39 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
             Jq(Str(".user")) ~> OpenDialog()) }
       </div>
       <ul class="usernav">
-        { if (User.currentUser.open_! superUser)
-            <li>{ SHtml.a(Text("Settings"), Jq(Str(".admin")) ~> OpenDialog()) }</li>
+        { if (User.superUser_?)
+            <li>
+              { SHtml.a(Text("Settings"),
+                  Jq(Str(".admin")) ~> OpenDialog() &
+                  JsRaw(
+                    """
+                      jQuery().ready(function () {
+                        jQuery("#userlist").jqGrid({
+                            url:'grid/users?',
+                            datatype: "xml",
+                            colNames:['Username', 'Email', 'OpenID', 'Superuser'],
+                            colModel:[
+                              {name:'name',index:'name'},
+                              {name:'email',index:'email'},
+                              {name:'openid',index:'openid', width:350},
+                              {name:'superuser',index:'superuser'}
+                            ],
+                            viewrecords: true,
+                            sortname: 'username',
+                            autowidth: true,
+                            caption: "Users"
+                          });
+                      });
+                    """)
+                )
+              }
+            </li>
         }
         <li><a href="/history.html" target="template">History</a></li>
         <li>{ SHtml.a(() => {User.logout; JsCmds.Noop}, Text("Log Out")) }</li>
       </ul>
       { User.edit }
-      { if (User.currentUser.open_! superUser) User.adminForm }
+      { if (User.superUser_?) User.adminForm }
     </xml:group>
 
 }
