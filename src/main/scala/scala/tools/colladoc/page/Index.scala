@@ -105,11 +105,14 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
                               {name:'openid',index:'openid', width:350},
                               {name:'superuser',index:'superuser'}
                             ],
+                            rowList:[5,10,20,30],
+                            pager: '#userpager',
                             viewrecords: true,
                             sortname: 'username',
+                            sortorder: 'desc',
                             autowidth: true,
-                            caption: "Users"
-                          });
+                            caption: 'Users'
+                          }).navGrid('#userpager',{edit:false,add:false,del:false});
                       });
                     """)
                 )

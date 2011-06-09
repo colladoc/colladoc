@@ -23,21 +23,70 @@
 package scala.tools.colladoc
 package api
 
-import net.liftweb.http.rest.RestHelper
-import net.liftweb.http.{GetRequest, NotFoundResponse, Req}
 import model.mapper.User
+import net.liftweb.http._
+import rest.RestHelper
+import net.liftweb.mapper.{OrderBy, Descending, Ascending}
 
 /**
  * Grid API helper.
  * @author Sergey Ignatov
  */
 object GridAPI extends RestHelper {
+
+
+
   serve {
-    case Req("grid" :: "users" :: Nil, "", GetRequest) => {
-      if (User.superUser_?)
-        User.getAllUsers
-      else
+    case "grid" :: "users" :: _ Get _ =>
+      if (User.superUser_?) {
+        for {
+          Spage <- S.param("page") ?~ "page parameter missing" ~> 400
+          Srows <- S.param("rows") ?~ "row parameter missing" ~> 400
+          Ssord <- S.param("sord") ?~ "sord parameter missing" ~> 400
+          Ssidx <- S.param("sidx") ?~ "sidx parameter missing" ~> 400
+        } yield {
+          var page = Spage.toInt
+          val rows = Srows.toInt
+          val count = User.count
+          val totalPages = if (count > 0) math.ceil(count / rows).toInt + 1 else 0
+          if (page > totalPages)
+            page = totalPages
+
+          println("page " + page)
+          println("rows " + rows)
+          println("count " + count)
+          println("total " + totalPages)
+
+          val order = Ssord match {
+            case "asc" => Ascending
+            case "desc" => Descending
+            case _ => Descending
+          }
+
+          val sortingCol = Ssidx match {
+            case "username" => OrderBy(User.userName, order)
+            case "email" => OrderBy(User.email, order)
+            case "openid" => OrderBy(User.openId, order)
+            case "superuser" => OrderBy(User.superUser, order)
+            case _ => OrderBy(User.userName, order)
+          }
+
+          val users = User.findAll(sortingCol).slice((page - 1)* rows, page * rows).map(_.toGridRow)
+
+          <rows>
+            <page>
+              {page}
+            </page>
+            <total>
+              {totalPages}
+            </total>
+            <records>
+              {count}
+            </records>
+            {users}
+          </rows>
+        }
+      } else
         NotFoundResponse()
-    }
   }
 }
