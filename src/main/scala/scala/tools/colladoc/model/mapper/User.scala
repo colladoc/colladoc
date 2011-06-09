@@ -240,7 +240,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
   }
 
   /** Admin user form. */
-  def adminHtml =
+  def adminForm =
     <div class="admin">
       <h4>Settings:</h4>
       <table>
@@ -273,9 +273,6 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <table id="userlist" />
       <div id="userpager"></div>
     </div>
-
-  /** Admin dialog for superuser. */
-  def adminForm = adminHtml
 
   /** Signup user dialog. */
   def signup = {
