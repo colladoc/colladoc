@@ -33,9 +33,6 @@ import net.liftweb.mapper.{OrderBy, Descending, Ascending}
  * @author Sergey Ignatov
  */
 object GridAPI extends RestHelper {
-
-
-
   serve {
     case "grid" :: "users" :: _ Get _ =>
       if (User.superUser_?) {
@@ -51,11 +48,6 @@ object GridAPI extends RestHelper {
           val totalPages = if (count > 0) math.ceil(count / rows).toInt + 1 else 0
           if (page > totalPages)
             page = totalPages
-
-          println("page " + page)
-          println("rows " + rows)
-          println("count " + count)
-          println("total " + totalPages)
 
           val order = Ssord match {
             case "asc" => Ascending
