@@ -39,6 +39,7 @@ import tools.colladoc.model.mapper.{User, Comment}
 import tools.colladoc.lib.js.JqUI._
 import tools.colladoc.api.{GridAPI, RestAPI}
 import tools.colladoc.lib.openid.ColladocOpenIDVendor
+import tools.colladoc.boot.ColladocBoot
 
 import xml.{Text, NodeSeq}
 import tools.nsc.io.Streamable
@@ -61,6 +62,8 @@ class Boot {
     // where to search snippet
     LiftRules.addToPackages("scala.tools.colladoc")
     Schemifier.schemify(true, Schemifier.infoF _, User, Comment)
+
+    ColladocBoot.boot
 
     LiftRules.dispatch.prepend(scaladocResources)
 
