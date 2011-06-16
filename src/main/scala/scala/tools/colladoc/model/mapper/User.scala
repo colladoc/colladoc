@@ -32,6 +32,7 @@ import js.JsCmds._
 import js.JE.ValById
 import net.liftweb.util.Helpers._
 import xml.Text
+import lib.js.JqUI.ReloadTable
 
 /**
  * Mapper for user table storing registered users.
@@ -65,6 +66,7 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
       <cell>{email}</cell>
       <cell>{openId}</cell>
       <cell><row:superuser /></cell>
+      <cell><row:delete /></cell>
     </row>
 
     bind("row", row,
@@ -73,7 +75,14 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
           superUser(bool)
           save
           Noop
-        }).toString)
+        }).toString,
+      "delete" -> SHtml.ajaxButton(
+        "Delete", () => {
+          delete_!
+          ReloadTable("#userlist")
+        },
+        ("class", "trash ui-icon-trash")).toString
+    )
   }
 }
 
