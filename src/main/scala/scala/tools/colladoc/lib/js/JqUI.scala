@@ -76,6 +76,9 @@ object JqUI {
             (if (title.nonEmpty) ", title: " + title.encJs else "") + ", hide: " + hide.toString + " });"
   }
 
+  case class ReloadTable(table: String) extends JsCmd {
+    override def toJsCmd = "$('" + table + "').trigger('reloadGrid', [{page: 1}]);"
+  }
 }
 
 }

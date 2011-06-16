@@ -98,12 +98,13 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
                         jQuery("#userlist").jqGrid({
                             url:'grid/users?',
                             datatype: "xml",
-                            colNames:['Username', 'Email', 'OpenID', 'Superuser'],
+                            colNames:['Username', 'Email', 'OpenID', 'Superuser', ''],
                             colModel:[
                               {name:'name',index:'name'},
                               {name:'email',index:'email'},
                               {name:'openid',index:'openid', width:350},
-                              {name:'superuser',index:'superuser'}
+                              {name:'superuser',index:'superuser'},
+                              {name:'delete', index:'delete', width: 18}
                             ],
                             rowList:[5,10,20,30],
                             pager: '#userpager',
