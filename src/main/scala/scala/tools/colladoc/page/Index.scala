@@ -112,7 +112,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
                             sortname: 'username',
                             sortorder: 'desc',
                             autowidth: true,
-                            caption: 'Users'
+                            caption: 'User list'
                           }).navGrid('#userpager',{edit:false,add:false,del:false});
                       });
                     """)

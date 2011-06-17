@@ -239,7 +239,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
   def adminForm =
     <div class="admin">
       <h4>Settings:</h4>
-      <table>
+      <table id="admin-settings-table">
         <tr>
           <td><label for="source_path">Source path:</label></td>
           <td>
@@ -249,23 +249,27 @@ object User extends User with KeyedMetaMapper[Long, User] {
           </td>
           <td>
             {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
-            <button type="button" onclick={SHtml.ajaxCall(ValById("source_path"), updatePath _)._2}>{S.?("Update")}</button>
+            <button type="button"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
+                    onclick={SHtml.ajaxCall(ValById("source_path"), updatePath _)._2}>{S.?("Update")}
+            </button>
           </td>
         </tr>
       </table>
-      <br />
       <h4>Work with source code:</h4>
-      {SHtml.a(() => {
-        Model.rebuild
-        S.notice("Model successfully reloaded from source")
-        Noop
-      }, Text("Reload from source"), ("class", "link"))}
+      {SHtml.ajaxButton("Reload from source",
+        () => {
+          Model.rebuild
+          S.notice("Model successfully reloaded from source")
+          Noop },
+        ("class", "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"))}
       <br />
-      {SHtml.a(() => {
-        S.notice("Comments successfully merged"); Noop // TODO: add action
-      }, Text("Merge comments"), ("class", "link"))}
-      <br />
-      <br />
+      {SHtml.ajaxButton("Merge comments",
+        () => {
+          S.notice("Comments successfully merged") // TODO: add action
+          Noop },
+        ("class", "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"))}
+      <h4>Work with users:</h4>
       <table id="userlist" />
       <div id="userpager"></div>
     </div>
