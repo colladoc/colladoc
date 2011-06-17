@@ -103,7 +103,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
                               {name:'name',index:'name'},
                               {name:'email',index:'email'},
                               {name:'openid',index:'openid', width:350},
-                              {name:'superuser',index:'superuser'},
+                              {name:'superuser',index:'superuser', width: 60},
                               {name:'delete', index:'delete', width: 18}
                             ],
                             rowList:[5,10,20,30],
