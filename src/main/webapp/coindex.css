@@ -119,3 +119,22 @@
   text-indent: -1000em;
   cursor: pointer; /* hand-shaped cursor */
 }
+
+.admin-button {
+    margin: 1px 0;
+    padding: 1px;
+}
+
+#admin-settings-table {
+    margin-top: -2px;
+    margin-bottom: -2px;
+    margin-left: -2px;
+}
+
+#gbox_userlist {
+    margin-top: 3px;
+}
+
+.admin > h4 {
+    margin-top: 2px;
+}
