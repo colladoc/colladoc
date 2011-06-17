@@ -44,6 +44,20 @@ $(document).ready(function() {
         draggable: false,
         resizable: false
     });
+
+    $(".help").dialog({
+        autoOpen: false,
+        title: 'Help',
+        buttons: {
+            'Close': function() {
+                $(this).dialog('close');
+            }
+        },
+        width: 1000,
+        modal: true,
+        draggable: false,
+        resizable: false
+    });
     
     $(".user").dialog({
         autoOpen: false,
