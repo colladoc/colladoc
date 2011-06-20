@@ -77,7 +77,14 @@ $(document).ready(function() {
         draggable: false,
         resizable: false
     });
-    $(".user").validate();
+    $(".user").validate({
+        rules: {
+          agree: "required"
+        },
+        messages: {
+          agree: "Please accept our agreement"
+        }
+      });
 
     var user_form = $($(".login > form")[0]);
     var openid_form = $("#openid_form");
