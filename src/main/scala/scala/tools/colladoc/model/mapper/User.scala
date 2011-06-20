@@ -163,8 +163,8 @@ object User extends User with KeyedMetaMapper[Long, User] {
           <user:openid class="text ui-widget-content ui-corner-all" />
         </p>
         <p>
-          By singing up you acknowledge you have read and agree to the
-          <a href="http://www.scala-lang.org/sites/default/files/contributor_agreement.pdf" class="link">Contributor License Agreement</a>.
+          <label for="agree">I agree to the <a href="http://www.scala-lang.org/sites/default/files/contributor_agreement.pdf" class="link">Contributor Agreement</a></label>
+          <input type="checkbox" value="false" class="required ui-widget-content ui-corner-all" name="agree" />
         </p>
         <user:submit />
       </fieldset>
