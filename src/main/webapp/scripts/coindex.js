@@ -165,3 +165,8 @@ function resizeFilterBlock() {
     $("#filter").css("top", $("#user").outerHeight(true));
     $("#tpl").css("top", $("#user").outerHeight(true) + $("#filter").outerHeight(true));
 }
+
+function confirmDelete(ajaxCall) {
+  if (confirm('Confirm delete'))
+    ajaxCall();
+}
