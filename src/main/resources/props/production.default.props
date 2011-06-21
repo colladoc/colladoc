@@ -1,9 +1,0 @@
-# Production settings
--doc-title=Colladoc
--doc-version=1.0-SNAPSHOT
--sourcepath=
--classpath=
-db.driver=org.postgresql.Driver
-db.url=jdbc:postgresql:DATABASENAME
-db.user=USERNAME
-db.password=PASSWORD

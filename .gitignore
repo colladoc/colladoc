@@ -1,13 +1,12 @@
+# SBT files
 target/
-lib_managed/
-src_managed/
 project/boot/
 lucene-index/
 
 # IDEA workspace files
 *.iws
 
-# H2 database files.
+# H2 database files
 *.db
 
 # The default.props file. We cannot commit this props file with useful values
