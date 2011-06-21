@@ -27,9 +27,9 @@ package mapper {
 import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
+import js.JE
 import js.JsCmd
 import js.JsCmds._
-import js.JE.ValById
 import net.liftweb.util.Helpers._
 import xml.Text
 import lib.js.JqUI.ReloadTable
@@ -77,7 +77,9 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
           Noop
         }).toString,
       "delete" -> SHtml.ajaxButton(
-        "Delete", () => {
+        "Delete",
+        JE.Call("confirmDelete"),
+        () => {
           delete_!
           ReloadTable("#userlist")
         },
@@ -251,7 +253,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
             {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
             <button type="button"
                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
-                    onclick={SHtml.ajaxCall(ValById("source_path"), updatePath _)._2}>{S.?("Update")}
+                    onclick={SHtml.ajaxCall(JE.ValById("source_path"), updatePath _)._2}>{S.?("Update")}
             </button>
           </td>
         </tr>
