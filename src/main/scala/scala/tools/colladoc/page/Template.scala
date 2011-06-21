@@ -115,7 +115,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       case id: String => Full(id)
       case _ => Empty
     }
-    SHtml.ajaxSelect(revs, dflt, replace _, ("class", "select"))
+    if (revs.length > 1)
+      SHtml.ajaxSelect(revs, dflt, replace _, ("class", "select"))
   }
 
   /** Render deleted comments for member entity. */
