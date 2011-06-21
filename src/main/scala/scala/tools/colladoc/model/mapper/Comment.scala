@@ -126,8 +126,8 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
    * @param qualName symbol qualified name
    * @return tuples of revisions' identifiers and date
    */
-  def revisions(qualName: String) = {
-    val cmts = changeSets(findAll(By(qualifiedName, qualName), By(Comment.valid, true), OrderBy(Comment.dateTime, Descending)))
+  def revisions(qualName: String, valid: Boolean = true) = {
+    val cmts = changeSets(findAll(By(qualifiedName, qualName), By(Comment.valid, valid), OrderBy(Comment.dateTime, Descending)))
     cmts.map{ c => (c.id.is.toString, c.userNameDate) }
   }
 

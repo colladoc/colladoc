@@ -93,6 +93,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           edit(mbr, isSelf)
       }
       { if (User.superUser_?) delete(mbr, isSelf) }
+      { if (User.superUser_?) revert(mbr, isSelf) }
       { export(mbr, isSelf) }
     </div>
 
@@ -115,6 +116,32 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       case _ => Empty
     }
     SHtml.ajaxSelect(revs, dflt, replace _, ("class", "select"))
+  }
+
+  /** Render deleted comments for member entity. */
+  private def revert(mbr: MemberEntity, isSelf: Boolean) = {
+    def revert(cid: String) = {
+      Comment.find(cid) match {
+        case Full(comment) =>
+          comment.valid(true)
+          comment.save
+          val (cmt, c) = (Model.factory.parse(mbr, comment.comment.is), comment)
+
+          val m = Model.factory.copyMember(mbr, cmt)(c)
+
+          Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
+                  (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
+        case _ => Noop
+      }
+    }
+    val revs = ("nothing", "Select to revert") :: Comment.revisions(mbr.uniqueName, valid = false)
+    val dflt = mbr.tag match {
+      case cmt: Comment => Full(cmt.id.is.toString)
+      case id: String => Full(id)
+      case _ => Empty
+    }
+    if (revs.length > 1)
+      SHtml.ajaxSelect(revs, dflt, revert _, ("class", "select"))
   }
 
   /** Render edit button for member entity. */
