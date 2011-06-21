@@ -97,6 +97,13 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       { export(mbr, isSelf) }
     </div>
 
+  /** Default value for select with changesets. */
+  private def defaultItem(tag: AnyRef) = tag match {
+    case cmt: Comment => Full(cmt.id.is.toString)
+    case id: String => Full(id)
+    case _ => Empty
+  }
+
   /** Render revision selection for member entity. */
   private def select(mbr: MemberEntity, isSelf: Boolean) = {
     def replace(cid: String) = {
@@ -110,13 +117,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
     }
     val revs = Comment.revisions(mbr.uniqueName) ::: ("source", "Source Comment") :: Nil
-    val dflt = mbr.tag match {
-      case cmt: Comment => Full(cmt.id.is.toString)
-      case id: String => Full(id)
-      case _ => Empty
-    }
     if (revs.length > 1)
-      SHtml.ajaxSelect(revs, dflt, replace _, ("class", "select"))
+      SHtml.ajaxSelect(revs, defaultItem(mbr.tag), replace _, ("class", "select"))
   }
 
   /** Render deleted comments for member entity. */
@@ -136,13 +138,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       }
     }
     val revs = ("nothing", "Select to revert") :: Comment.revisions(mbr.uniqueName, valid = false)
-    val dflt = mbr.tag match {
-      case cmt: Comment => Full(cmt.id.is.toString)
-      case id: String => Full(id)
-      case _ => Empty
-    }
     if (revs.length > 1)
-      SHtml.ajaxSelect(revs, dflt, revert _, ("class", "select"))
+      SHtml.ajaxSelect(revs, defaultItem(mbr.tag), revert _, ("class", "select"))
   }
 
   /** Render edit button for member entity. */
