@@ -8,6 +8,8 @@ organization := "scala.tools.colladoc"
 
 scalaHome := Some(file("scala/build/pack"))
 
+jettyScanDirs := Nil
+
 libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _ )
 
 libraryDependencies ++= {
