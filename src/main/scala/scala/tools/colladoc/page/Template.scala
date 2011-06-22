@@ -171,32 +171,29 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
    /** Render delete button for member entity. */
   private def delete(mbr: MemberEntity, isSelf: Boolean) = {
-    SHtml.a(doDelete(mbr, isSelf) _, Text("Delete"), ("class", "button"))
+    if (Comment.revisions(mbr.uniqueName).length > 0)
+      SHtml.a(doDelete(mbr, isSelf) _, Text("Delete"), ("class", "button"))
   }
 
   /** Provide delete button logic. */
   private def doDelete(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
-    val revs = Comment.revisions(mbr.uniqueName) ::: ("source", "Source Comment") :: Nil
+    def previousOrSource(qualName: String) = {
+     Comment.findAll(By(Comment.qualifiedName, qualName), By(Comment.valid, true),
+       OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
+       case List(c: Comment, _*) => (Model.factory.parse(mbr, c.comment.is), c)
+       case _ => (mbr.comment.get.original.get, "source")
+     }
+    }
 
-    val currentId = (revs head)._1
+    def replace = {
+      val (cmt, c) = previousOrSource(mbr.uniqueName)
+      val m = Model.factory.copyMember(mbr, cmt)(c)
+      Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
+      (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
+    }
 
-    Comment.find(currentId) match {
-      case Full(comment) => {
-        comment.valid(false)
-        comment.save
-
-        val previousId = (revs.tail.head)._1
-
-        val (cmt, c) = Comment.find(previousId) match {
-          case Full(c) => (Model.factory.parse(mbr, c.comment.is), c)
-          case _ => (mbr.comment.get.original.get, "source")
-        }
-
-        val m = Model.factory.copyMember(mbr, cmt)(c)
-
-        Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
-                (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
-      }
+    mbr.tag match {
+      case cmt: Comment => cmt.valid(false).save; replace
       case _ => Noop
     }
   }
