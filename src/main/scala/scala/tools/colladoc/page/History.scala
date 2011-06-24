@@ -28,6 +28,7 @@ import lib.util.NameUtils._
 import model.Model
 import model.Model.factory._
 import model.mapper.Comment
+import lib.DependencyFactory.model
 
 import net.liftweb.util.Helpers._
 
@@ -154,7 +155,7 @@ class History(rootPack: Package) extends Template(rootPack) {
    * @return member entity if found, none otherwise
    */
   def commentToMember(cmt: Comment) = {
-    nameToMember(Model.model.rootPackage, cmt.qualifiedName.is) match {
+    nameToMember(model.vend.rootPackage, cmt.qualifiedName.is) match {
       case Some(m) =>
         val c = Model.factory.parse(m, cmt.comment.is)
         Some(Model.factory.copyMember(m, c)(cmt))
