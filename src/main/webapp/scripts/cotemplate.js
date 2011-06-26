@@ -77,3 +77,7 @@ function copy(txt) {
     $('linkUrl').setAttribute('href', txt);
 };
 
+function confirmDelete(ajaxCall) {
+  if (confirm('Confirm delete'))
+    ajaxCall();
+}
