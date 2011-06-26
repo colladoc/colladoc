@@ -93,7 +93,6 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           edit(mbr, isSelf)
       }
       { if (User.superUser_?) delete(mbr, isSelf) }
-      { if (User.superUser_?) revert(mbr, isSelf) }
       { if (User.loggedIn_?) propagateToPredecessors(mbr) }
       { export(mbr, isSelf) }
     </div>
@@ -169,19 +168,6 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     SHtml.ajaxSelect(revs, defaultItem(mbr.tag), replace _, ("class", "select"))
   }
 
-  /** Render deleted comments for member entity. */
-  private def revert(mbr: MemberEntity, isSelf: Boolean) = {
-    def revert(cid: String) = {
-      Comment.find(cid) match {
-        case Full(c) => c.valid(true).save; replace(mbr, isSelf)
-        case _ => Noop
-      }
-    }
-    val revs = ("nothing", "Select to revert") :: Comment.revisions(mbr.uniqueName, valid = false)
-    if (revs.length > 1)
-      SHtml.ajaxSelect(revs, defaultItem(mbr.tag), revert _, ("class", "select"))
-  }
-
   /** Render edit button for member entity. */
   private def edit(mbr: MemberEntity, isSelf: Boolean) = {
     SHtml.a(doEdit(mbr, isSelf) _, Text("Edit"), ("class", "button"))
@@ -217,18 +203,17 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Provide delete button logic. */
   private def doDelete(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
+    def replace(mbr: MemberEntity, isSelf: Boolean) = {
+      val (cmt, c) = previousOrSource(mbr)
+      val m = Model.factory.copyMember(mbr, cmt)(c)
+      Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
+      (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
+    }
+
     mbr.tag match {
       case cmt: Comment => cmt.valid(false).save; replace(mbr, isSelf)
       case _ => Noop
     }
-  }
-
-  /** Replace logic for delete and revert operations. */
-  private def replace(mbr: MemberEntity, isSelf: Boolean) = {
-    val (cmt, c) = previousOrSource(mbr)
-    val m = Model.factory.copyMember(mbr, cmt)(c)
-    Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
-    (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
   }
 
   /** Get previous comment or comment from source. */
