@@ -32,7 +32,7 @@ import js.JsCmd
 import js.JsCmds._
 import net.liftweb.util.Helpers._
 import xml.Text
-import lib.js.JqUI.ReloadTable
+import lib.js.JqUI.{ColladocConfirm, ReloadTable}
 
 /**
  * Mapper for user table storing registered users.
@@ -78,7 +78,7 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
         }).toString,
       "delete" -> SHtml.ajaxButton(
         "Delete",
-        JE.Call("confirmDelete"),
+        ColladocConfirm("Confirm delete"),
         () => {
           delete_!
           ReloadTable("#userlist")
