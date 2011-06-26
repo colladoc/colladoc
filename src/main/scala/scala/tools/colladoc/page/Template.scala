@@ -129,7 +129,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         val defs = (".push", "Push to predecessor") ::
                 mbr.inDefinitionTemplates.filter(x => x != mbr.inTemplate).map(x => (x.qualifiedName, x.qualifiedName))
         if (defs.length > 1)
-          SHtml.ajaxSelect(defs, Full(mbr.qualifiedName), push _, ("class", "select"))
+          SHtml.ajaxSelect(defs, Full(mbr.qualifiedName), ColladocConfirm("Confirm propagate"), push _, ("class", "select"))
       case _ =>
     }
 
