@@ -166,8 +166,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
     }
     val revs = Comment.revisions(mbr.uniqueName) ::: ("source", "Source Comment") :: Nil
-    if (revs.length > 1)
-      SHtml.ajaxSelect(revs, defaultItem(mbr.tag), replace _, ("class", "select"))
+    SHtml.ajaxSelect(revs, defaultItem(mbr.tag), replace _, ("class", "select"))
   }
 
   /** Render deleted comments for member entity. */
