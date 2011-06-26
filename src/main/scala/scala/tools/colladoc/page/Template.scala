@@ -212,7 +212,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
    /** Render delete button for member entity. */
   private def delete(mbr: MemberEntity, isSelf: Boolean) = {
     if (Comment.revisions(mbr.uniqueName).length > 0)
-      SHtml.a(JE.Call("confirmDelete"), doDelete(mbr, isSelf) _, Text("Delete"), ("class", "button"))
+      SHtml.a(ColladocConfirm("Confirm delete"), doDelete(mbr, isSelf) _, Text("Delete"), ("class", "button"))
   }
 
   /** Provide delete button logic. */

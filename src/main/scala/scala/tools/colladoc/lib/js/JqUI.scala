@@ -26,6 +26,7 @@ package js {
 
 import net.liftweb.util.Helpers._
 import net.liftweb.http.js.{JsMember, JsExp, JsCmd}
+import net.liftweb.http.js.JE.{Call, Str}
 
 /**
  * Various jQuery UI commands.
@@ -79,6 +80,9 @@ object JqUI {
   case class ReloadTable(table: String) extends JsCmd {
     override def toJsCmd = "$('" + table + "').trigger('reloadGrid', [{page: 1}]);"
   }
+
+  /** Confirm dialog. */
+  def ColladocConfirm(what: String) = Call("confirm", Str(what))
 }
 
 }
