@@ -93,6 +93,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           edit(mbr, isSelf)
       }
       { if (User.superUser_?) delete(mbr, isSelf) }
+      { if (User.superUser_?) activate(mbr, isSelf) }
       { if (User.loggedIn_?) propagateToPredecessors(mbr) }
       { export(mbr, isSelf) }
     </div>
@@ -271,6 +272,29 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     }
     mbr.comment.get.update(docStr)
     if (!Model.reporter.hasWarnings) doSave
+  }
+
+  /** Render activate button for member entity. */
+  private def activate(mbr: MemberEntity, isSelf: Boolean) = {
+    SHtml.a(ColladocConfirm("Set as default value?"), doActivate(mbr, isSelf) _, Text("Set default"), ("class", "button"))
+  }
+
+  private def doActivate(mbr: MemberEntity, isSelf: Boolean)() = Model.synchronized {
+    Model.reporter.reset
+
+    def saveToDb(mbr: MemberEntity, cmt: Comment) = {
+      Comment.deactivateAll(mbr.uniqueName)
+      cmt.active(true).save
+      index.vend.reindexEntityComment(mbr)
+    }
+
+    mbr.tag match {
+      case cmt: Comment =>
+        mbr.comment.get.update(cmt.comment.is)
+        if (!Model.reporter.hasWarnings) saveToDb(mbr, cmt)
+      case _ => // If it is default tag, do nothing
+    }
+    Noop
   }
 
   /** Render export link for member entity. */
