@@ -138,8 +138,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
    */
   private def currentComment(mbr: MemberEntity): Box[String] = mbr.tag match {
     case comment: Comment => Some(comment.comment.is)
-    case _ => Comment.findAll(By(Comment.qualifiedName, mbr.qualifiedName), By(Comment.valid, true),
-      OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
+    case _ => Comment.latest(mbr.uniqueName) match {
       case List(c: Comment, _*) => Some(c.comment.is)
       case _ => Empty // TODO: add something like this: mbr.comment.get.original.get.toString
     }
