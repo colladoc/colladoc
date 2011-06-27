@@ -105,7 +105,7 @@ object Model extends Logger {
 
   /** Rebuild model. */
   def rebuild {
-    model = new Factory() construct (getSources)
+    model = factory construct (getSources)
   }
 
   /** Update model path.
