@@ -62,6 +62,10 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
     override def defaultValue = true
   }
 
+  object active extends MappedBoolean(this) {
+    override def defaultValue = false
+  }
+
   /** Get change author's username. */
   def userName: String = User.find(user.is) match {
     case Full(u) => u.userName
@@ -107,11 +111,20 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
    * @return latest change if exists, none otherwise
    */
   def latest(qualName: String) = {
-    Comment.findAll(By(Comment.qualifiedName, qualName),
+    val active = Comment.findAll(By(Comment.qualifiedName, qualName),
+      By(Comment.valid, true), By(Comment.active, true),
+      OrderBy(Comment.dateTime, Descending), MaxRows(1))
+
+    lazy val latest = Comment.findAll(By(Comment.qualifiedName, qualName),
       By(Comment.valid, true),
       OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
+        case List(c: Comment, _*) => Some(c)
+        case _ => None
+      }
+
+    active match {
       case List(c: Comment, _*) => Some(c)
-      case _ => None
+      case _ => latest
     }
   }
 
@@ -171,6 +184,10 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
    * @return list of comments
    */
   def getLatestComments(count: Int) = Comment.findAll(By(Comment.valid, true), OrderBy(Comment.dateTime, Descending), MaxRows(count))
+
+  def deactivateAll(qualName: String) {
+    Comment.findAll(By(Comment.qualifiedName, qualName), By(Comment.active, true)).foreach(c => c.active(false).save)
+  }
 }
 
 trait CommentToString{
