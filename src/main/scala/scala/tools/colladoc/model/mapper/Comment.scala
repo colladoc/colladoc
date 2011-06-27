@@ -110,22 +110,23 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
    * @param qualName symbol qualified name
    * @return latest change if exists, none otherwise
    */
-  def latest(qualName: String) = {
-    val active = Comment.findAll(By(Comment.qualifiedName, qualName),
-      By(Comment.valid, true), By(Comment.active, true),
-      OrderBy(Comment.dateTime, Descending), MaxRows(1))
+  def latest(qualName: String) = Comment.findAll(By(Comment.qualifiedName, qualName),
+    By(Comment.valid, true),
+    OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
+    case List(c: Comment, _*) => Some(c)
+    case _ => None
+  }
 
-    lazy val latest = Comment.findAll(By(Comment.qualifiedName, qualName),
-      By(Comment.valid, true),
-      OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
-        case List(c: Comment, _*) => Some(c)
-        case _ => None
-      }
-
-    active match {
-      case List(c: Comment, _*) => Some(c)
-      case _ => latest
-    }
+  /**
+   * Find default change for given symbol qualified name.
+   * @param qualName symbol qualified name
+   * @return default change if exists, none otherwise
+   */
+  def default(qualName: String) = Comment.findAll(By(Comment.qualifiedName, qualName),
+    By(Comment.valid, true), By(Comment.active, true),
+    OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
+    case List(c: Comment, _*) => Some(c)
+    case _ => None
   }
 
   def latestToString(member: MemberEntity) : Option[String] = {

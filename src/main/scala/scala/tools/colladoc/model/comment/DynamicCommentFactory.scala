@@ -44,7 +44,7 @@ trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFa
 
   override def comment(sym: global.Symbol, inTpl: => DocTemplateImpl) = {
     val cmt = super.comment(sym, inTpl)
-    latest(sym, inTpl) match {
+    defaultOrLatest(sym, inTpl) match {
       case Some(c) => Some(parse(sym, inTpl, c.comment.is))
       case None => Some(new CommentProxy(cmt.getOrElse(empty))(sym, inTpl))
     }
@@ -63,13 +63,17 @@ trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFa
   }
 
   /**
-   * Obtain latest comment for given symbol.
+   * Obtain default or latest comment for given symbol.
    * @param sym documented symbol
    * @param inTpl parent template
-   * @return latest comment if any exists
+   * @return default or latest comment if any exists
    */
-  private def latest(sym: global.Symbol, inTpl: => DocTemplateImpl) = makeMember(sym, inTpl) match {
-    case List(mbr: MemberEntity, _*) => model.mapper.Comment.latest(mbr.uniqueName)
+  private def defaultOrLatest(sym: global.Symbol, inTpl: => DocTemplateImpl) = makeMember(sym, inTpl) match {
+    case List(mbr: MemberEntity, _*) =>
+      model.mapper.Comment.default(mbr.uniqueName) match {
+        case None => model.mapper.Comment.latest(mbr.uniqueName)
+        case c => c
+      }
     case Nil => None
   }
 
@@ -127,7 +131,7 @@ trait DynamicCommentFactory extends CommentFactory { thisFactory: DynamicModelFa
      * @return true if comment has been already update
      */
     def isUpdated(): Boolean = cmt match {
-      case prx: CommentProxy => latest(prx.sym, prx.inTpl).isDefined
+      case prx: CommentProxy => defaultOrLatest(prx.sym, prx.inTpl).isDefined
       case _ => false
     }
 
