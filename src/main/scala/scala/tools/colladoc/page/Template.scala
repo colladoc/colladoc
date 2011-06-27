@@ -258,7 +258,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     Model.reporter.reset
     def doSave() = {
       val usr = User.currentUser.open_!
-      val cmt = Comment.create.qualifiedName(mbr.uniqueName).comment(docStr).dateTime(now).user(usr)
+      Comment.deactivateAll(mbr.uniqueName)
+      val cmt = Comment.create.qualifiedName(mbr.uniqueName).comment(docStr).dateTime(now).user(usr).active(true)
       Comment.findAll(By(Comment.qualifiedName, mbr.uniqueName), By(Comment.user, usr), By(Comment.valid, true),
           OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
         case List(c: Comment, _*) if c.dateTime.is - cmt.dateTime.is < minutes(30) =>
