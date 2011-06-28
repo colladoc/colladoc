@@ -93,7 +93,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           edit(mbr, isSelf)
       }
       { if (User.superUser_?) delete(mbr, isSelf) }
-      { if (User.superUser_?) activate(mbr, isSelf) }
+      { if (User.superUser_?) selectDefault(mbr, isSelf) }
       { if (User.loggedIn_?) propagateToPredecessors(mbr) }
       { export(mbr, isSelf) }
     </div>
@@ -166,6 +166,21 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     }
     val revs = Comment.revisions(mbr.uniqueName) ::: ("source", "Source Comment") :: Nil
     SHtml.ajaxSelect(revs, defaultItem(mbr.tag), replace _, ("class", "select"))
+  }
+
+    /** Render revision selection for member entity. */
+  private def selectDefault(mbr: MemberEntity, isSelf: Boolean) = {
+    def replace(cid: String) = {
+      Comment.find(cid) match {
+        case Full(c) => _activate(mbr, c)
+        case _ =>
+      }
+
+      Replace(id(mbr, "full"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')") &
+      (if (!isSelf) SetHtml(id(mbr, "short"), inlineToHtml(mbr.comment.get.short)) else JsCmds.Noop)
+    }
+    val revs = ("source", "Select default") :: Comment.revisions(mbr.uniqueName)
+    SHtml.ajaxSelect(revs, Empty, ColladocConfirm("Set as default value?"), replace _, ("class", "select"))
   }
 
   /** Render edit button for member entity. */
@@ -274,27 +289,15 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     if (!Model.reporter.hasWarnings) doSave
   }
 
-  /** Render activate button for member entity. */
-  private def activate(mbr: MemberEntity, isSelf: Boolean) = {
-    SHtml.a(ColladocConfirm("Set as default value?"), doActivate(mbr, isSelf) _, Text("Set default"), ("class", "button"))
-  }
-
-  private def doActivate(mbr: MemberEntity, isSelf: Boolean)() = Model.synchronized {
+  private def _activate(mbr: MemberEntity, cmt: Comment) = Model.synchronized {
     Model.reporter.reset
-
-    def saveToDb(mbr: MemberEntity, cmt: Comment) = {
+    def doSave() = {
       Comment.deactivateAll(mbr.uniqueName)
       cmt.active(true).save
       index.vend.reindexEntityComment(mbr)
     }
-
-    mbr.tag match {
-      case cmt: Comment =>
-        mbr.comment.get.update(cmt.comment.is)
-        if (!Model.reporter.hasWarnings) saveToDb(mbr, cmt)
-      case _ => // If it is default tag, do nothing
-    }
-    Noop
+    mbr.comment.get.update(cmt.comment.is)
+    if (!Model.reporter.hasWarnings) doSave
   }
 
   /** Render export link for member entity. */
