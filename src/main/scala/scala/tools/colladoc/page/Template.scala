@@ -100,7 +100,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Propagate comment from member through the hierarchy of predecessors. */
   private def propagateToPredecessors(mbr: MemberEntity) = currentComment(mbr) match { // TODO: add some AJAX
-      case Full(content) =>
+      case Some(content) =>
         def push(name: String) = {
           if (name != ".push") { // TODO: remove '.push' tag
             val newQualifiedName = mbr.qualifiedName.replace(mbr.inTemplate.qualifiedName, name)
@@ -137,11 +137,14 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
    * Current comment for member.
    * If tag is empty try to load data from database.
    */
-  private def currentComment(mbr: MemberEntity): Box[String] = mbr.tag match {
+  private def currentComment(mbr: MemberEntity): Option[String] = mbr.tag match {
     case comment: Comment => Some(comment.comment.is)
-    case _ => Comment.latest(mbr.uniqueName) match {
-      case List(c: Comment, _*) => Some(c.comment.is)
-      case _ => Empty // TODO: add something like this: mbr.comment.get.original.get.toString
+    case _ => Comment.default(mbr.uniqueName) match {
+      case Some(c) => Some(c.comment.is)
+      case None => Comment.latest(mbr.uniqueName) match {
+        case List(c: Comment, _*) => Some(c.comment.is)
+        case _ => None // TODO: add something like this: mbr.comment.get.original.get.toString
+      }
     }
   }
 
