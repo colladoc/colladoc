@@ -64,9 +64,9 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
   def toGridRow = {
     val row =
     <row id={id.toString}>
-      <cell>{userName}</cell>
-      <cell>{email}</cell>
-      <cell>{openId}</cell>
+      <cell>{SHtml.ajaxText(userName, t => {userName(t).save; Noop}).toString}</cell>
+      <cell>{SHtml.ajaxText(email, t => {email(t).save; Noop}).toString}</cell>
+      <cell>{SHtml.ajaxText(openId, t => {openId(t).save; Noop}).toString}</cell>
       <cell><row:superuser /></cell>
       <cell><row:delete /></cell>
     </row>
