@@ -172,7 +172,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def selectDefault(mbr: MemberEntity, isSelf: Boolean) = {
     def replace(cid: String) = {
       Comment.find(cid) match {
-        case Full(c) => _activate(mbr, c)
+        case Full(c) => activate(mbr, c)
         case _ =>
       }
 
@@ -289,7 +289,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     if (!Model.reporter.hasWarnings) doSave
   }
 
-  private def _activate(mbr: MemberEntity, cmt: Comment) = Model.synchronized {
+  /** Activate comment for member entity. */
+  private def activate(mbr: MemberEntity, cmt: Comment) = Model.synchronized {
     Model.reporter.reset
     def doSave() = {
       Comment.deactivateAll(mbr.uniqueName)
