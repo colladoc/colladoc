@@ -245,6 +245,10 @@ object User extends User with KeyedMetaMapper[Long, User] {
           <li><a href="#user_settings">User settings</a></li>
           <li><a href="#source_settings">Source code settings</a></li>
         </ul>
+        <div id="user_settings">
+          <table id="userlist"/>
+          <div id="userpager"></div>
+        </div>
         <div id="source_settings">
           <table id="admin-settings-table">
             <tr>
@@ -275,10 +279,6 @@ object User extends User with KeyedMetaMapper[Long, User] {
               S.notice("Comments successfully merged") // TODO: add action
               Noop },
             ("class", "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"))}
-        </div>
-        <div id="user_settings">
-          <table id="userlist"/>
-          <div id="userpager"></div>
         </div>
       </div>
     </div>
