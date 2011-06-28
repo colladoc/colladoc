@@ -86,6 +86,26 @@ $(document).ready(function() {
         }
       });
 
+    $(".create").dialog({
+        autoOpen: false,
+        title: 'Create new user',
+        buttons: {
+            'Save': function() {
+                if ($(".create").valid()) {
+                    $(".create").submit();
+                    $("#userlist").trigger('reloadGrid', [{page: 1}]);
+                    $(this).dialog('close');
+                }
+            },
+            'Cancel': function() {
+                $(this).dialog('close');
+            }
+        },
+        modal: true,
+        draggable: false,
+        resizable: false
+    });
+
     var user_form = $($(".login > form")[0]);
     var openid_form = $("#openid_form");
 

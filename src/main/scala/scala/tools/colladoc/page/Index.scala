@@ -129,6 +129,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       </ul>
       { User.edit }
       { if (User.superUser_?) User.adminForm }
+      { if (User.superUser_?) User.createUser }
       { HelpOps.help }
     </xml:group>
 

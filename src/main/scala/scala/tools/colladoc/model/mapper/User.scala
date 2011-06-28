@@ -28,11 +28,13 @@ import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
 import js.JE
+import js.JE.Str
+import js.jquery.JqJE.Jq
 import js.JsCmd
 import js.JsCmds._
 import net.liftweb.util.Helpers._
 import xml.Text
-import lib.js.JqUI.{ColladocConfirm, ReloadTable}
+import lib.js.JqUI.{ColladocConfirm, ReloadTable, OpenDialog}
 
 /**
  * Mapper for user table storing registered users.
@@ -248,6 +250,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
         <div id="user_settings">
           <table id="userlist"/>
           <div id="userpager"></div>
+          { SHtml.a(Text("Create new user"), Jq(Str(".create")) ~> OpenDialog(), ("class", "link")) }
         </div>
         <div id="source_settings">
           <table id="admin-settings-table">
@@ -372,6 +375,59 @@ object User extends User with KeyedMetaMapper[Long, User] {
   /** Logout user. */
   def logout = {
     logoutCurrentUser
+  }
+
+  /** Create user form. */
+  def createUserHtml =
+    <lift:form class="create form">
+      <fieldset>
+        <p>
+          <label for="name">Username:</label>
+          <user:username class="text required ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="name">Full Name:</label>
+          <user:fullname class="text ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="name">Email:</label>
+          <user:email class="text required email ui-widget-content ui-corner-all" />
+        </p>
+        <p>
+          <label for="password">Password:</label>
+          <user:password class="text required ui-widget-content ui-corner-all" />
+        </p>
+        <user:submit />
+      </fieldset>
+    </lift:form>
+
+  /** Signup user dialog. */
+  def createUser = {
+    val user = create
+
+    def doCreate() {
+      user.validate match {
+        case Nil =>
+          S.notice("User successfully created")
+          user.save()
+        case n =>
+          S.error(n)
+      }
+    }
+
+    bind("user", createUserHtml,
+      "username" -%> SHtml.text("", user.userName(_)),
+      "fullname" -%> SHtml.text("", name => {
+          val idx = name.indexOf(" ")
+          if (idx != -1) {
+            user.firstName(name.take(idx))
+            user.lastName(name.drop(idx + 1))
+          } else
+            user.firstName(name)
+        }),
+      "email" -%> SHtml.text("", user.email(_)),
+      "password" -%> SHtml.password("", user.password(_)),
+      "submit" -> SHtml.hidden(doCreate _))
   }
 
 }
