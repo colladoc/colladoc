@@ -159,6 +159,8 @@ $(document).ready(function() {
       $("#openid_identifier").val(link);
       openid_form.submit();
     });
+
+  $("#admin_tabs").tabs();
 })
 
 function resizeFilterBlock() {
