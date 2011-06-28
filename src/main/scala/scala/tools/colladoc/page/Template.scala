@@ -94,42 +94,29 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       }
       { if (User.superUser_?) delete(mbr, isSelf) }
       { if (User.superUser_?) selectDefault(mbr, isSelf) }
-      { if (User.loggedIn_?) propagateToPredecessors(mbr) }
+      { if (User.loggedIn_?) propagateToPredecessors(mbr, isSelf) }
       { export(mbr, isSelf) }
     </div>
 
   /** Propagate comment from member through the hierarchy of predecessors. */
-  private def propagateToPredecessors(mbr: MemberEntity) = currentComment(mbr) match { // TODO: add some AJAX
-      case Some(content) =>
-        def push(name: String) = {
+  private def propagateToPredecessors(mbr: MemberEntity, isSelf: Boolean) = currentComment(mbr) match {
+      case Some(comment) =>
+        def move(name: String) = {
           if (name != ".push") { // TODO: remove '.push' tag
             val newQualifiedName = mbr.qualifiedName.replace(mbr.inTemplate.qualifiedName, name)
             val usr = User.currentUser.open_!
-            val cmt = Comment.create.
-                    qualifiedName(newQualifiedName).
-                    comment(content).
-                    dateTime(now).
-                    changeSet(now).
-                    user(usr)
 
-            Comment.findAll(By(Comment.qualifiedName, mbr.uniqueName), By(Comment.user, usr), By(Comment.valid, true),
-              OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
-              case List(c: Comment, _*) if c.dateTime.is - cmt.dateTime.is < minutes(30) =>
-                cmt.changeSet(c.changeSet.is)
-              case _ =>
-                cmt.changeSet(now)
-            }
-
-            cmt.save
-
+            comment.qualifiedName(newQualifiedName).user(usr).dateTime(now).changeSet(now).save
             index.vend.reindexEntityComment(mbr)
           }
-          Noop
+          Replace(id(mbr, "full"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')") &
+          (if (!isSelf) SetHtml(id(mbr, "short"), inlineToHtml(mbr.comment.get.short)) else JsCmds.Noop)
+          // TODO: update mbr(qualifiedName)
         }
         val defs = (".push", "Push to predecessor") ::
                 mbr.inDefinitionTemplates.filter(x => x != mbr.inTemplate).map(x => (x.qualifiedName, x.qualifiedName))
         if (defs.length > 1)
-          SHtml.ajaxSelect(defs, Full(mbr.qualifiedName), ColladocConfirm("Confirm propagate"), push _, ("class", "select"))
+          SHtml.ajaxSelect(defs, Empty, ColladocConfirm("Confirm propagate"), move _, ("class", "select"))
       case _ =>
     }
 
@@ -137,14 +124,11 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
    * Current comment for member.
    * If tag is empty try to load data from database.
    */
-  private def currentComment(mbr: MemberEntity): Option[String] = mbr.tag match {
-    case comment: Comment => Some(comment.comment.is)
+  private def currentComment(mbr: MemberEntity): Option[Comment] = mbr.tag match {
+    case comment: Comment => Some(comment)
     case _ => Comment.default(mbr.uniqueName) match {
-      case Some(c) => Some(c.comment.is)
-      case None => Comment.latest(mbr.uniqueName) match {
-        case List(c: Comment, _*) => Some(c.comment.is)
-        case _ => None // TODO: add something like this: mbr.comment.get.original.get.toString
-      }
+      case None => Comment.latest(mbr.uniqueName)
+      case c => c
     }
   }
 
