@@ -142,3 +142,7 @@
 .help > p {
     margin-bottom: 7px;
 }
+
+.openid_input {
+    width: 350px;
+}

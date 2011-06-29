@@ -27,6 +27,7 @@ package mapper {
 import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
+import net.liftweb.http.SHtml.ElemAttr._
 import js.JE
 import js.JE.Str
 import js.jquery.JqJE.Jq
@@ -62,7 +63,7 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
 
   /** Grid entry. */
   def toGridRow = {
-    def ajaxField(field: MappedString[User]) = {
+    def ajaxField(field: MappedString[User], attrs: (String, String)*) = {
       SHtml.ajaxText(field,
         t => {
           field(t)
@@ -73,7 +74,8 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
             case n =>
               S.error(n)
           }
-          Noop}
+          Noop},
+        attrs: _*
       ).toString
     }
 
@@ -81,7 +83,7 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
     <row id={id.toString}>
       <cell>{ajaxField(userName)}</cell>
       <cell>{ajaxField(email)}</cell>
-      <cell>{ajaxField(openId)}</cell>
+      <cell>{ajaxField(openId, ("class", "openid_input"))}</cell>
       <cell><row:superuser /></cell>
       <cell><row:delete /></cell>
     </row>

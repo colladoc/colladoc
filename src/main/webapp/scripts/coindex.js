@@ -40,6 +40,7 @@ $(document).ready(function() {
             }
         },
         width: 1000,
+        minHeight: 500,
         modal: true,
         draggable: false,
         resizable: false
