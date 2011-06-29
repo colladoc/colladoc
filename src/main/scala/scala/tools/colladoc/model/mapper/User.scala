@@ -62,11 +62,26 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
 
   /** Grid entry. */
   def toGridRow = {
+    def ajaxField(field: MappedString[User]) = {
+      SHtml.ajaxText(field,
+        t => {
+          field(t)
+          validate match {
+            case Nil =>
+              S.notice("Data successfully saved")
+              save()
+            case n =>
+              S.error(n)
+          }
+          Noop}
+      ).toString
+    }
+
     val row =
     <row id={id.toString}>
-      <cell>{SHtml.ajaxText(userName, t => {userName(t).save; Noop}).toString}</cell>
-      <cell>{SHtml.ajaxText(email, t => {email(t).save; Noop}).toString}</cell>
-      <cell>{SHtml.ajaxText(openId, t => {openId(t).save; Noop}).toString}</cell>
+      <cell>{ajaxField(userName)}</cell>
+      <cell>{ajaxField(email)}</cell>
+      <cell>{ajaxField(openId)}</cell>
       <cell><row:superuser /></cell>
       <cell><row:delete /></cell>
     </row>
