@@ -39,3 +39,7 @@ libraryDependencies ++= Seq(
  )
 
 resolvers += ScalaToolsSnapshots
+
+resolvers += "Jetty Repo" at "http://repo1.maven.org/maven2/org/mortbay/jetty"
+
+libraryDependencies += "org.mortbay.jetty" % "jetty" % "6.1.22" % "test->default"
