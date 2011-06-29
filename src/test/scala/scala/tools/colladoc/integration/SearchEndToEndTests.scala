@@ -53,11 +53,11 @@ object SearchEndToEndTests extends Specification {
     // We want to share the same selenium objects throughout all examples.
     shareVariables
 
-    "be shown the root package page after navigating to Colladoc" in {
+    "be shown the history page after navigating to Colladoc" in {
       selenium.open("/")
       selenium.waitForPageToLoad(pageLoadTimeoutInMs)
 
-      selenium.getTitle() mustMatch "_root_"
+      selenium.getTitle() mustMatch "History"
     }
 
     "be taken to the results page after entering a search query [c1]" in {
@@ -83,7 +83,7 @@ object SearchEndToEndTests extends Specification {
       // There must be a more deterministic wait that we can do.
       Thread.sleep(3000)
 
-      selenium.getTitle() mustMatch "_root_"
+      selenium.getTitle() mustMatch "Search"
     }
   }
 
