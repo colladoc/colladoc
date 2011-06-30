@@ -269,7 +269,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
             {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
             <button type="button"
                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
-                    onclick={SHtml.ajaxCall(JE.ValById(key), updateProperty(key) _)._2}>Update
+                    onclick={JE.Call("confirm", Str("Update?"), JE.AnonFunc(SHtml.ajaxCall(JE.ValById(key), updateProperty(key) _)._2))}>Update
             </button>
           </td>
       </tr>
