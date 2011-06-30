@@ -125,7 +125,7 @@
     padding: 1px;
 }
 
-#admin-settings-table {
+.settings-table {
     margin-top: -2px;
     margin-bottom: -2px;
     margin-left: -2px;

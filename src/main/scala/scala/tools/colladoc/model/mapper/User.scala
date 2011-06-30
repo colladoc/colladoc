@@ -27,7 +27,6 @@ package mapper {
 import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
-import net.liftweb.http.SHtml.ElemAttr._
 import js.JE
 import js.JE.Str
 import js.jquery.JqJE.Jq
@@ -36,6 +35,8 @@ import js.JsCmds._
 import net.liftweb.util.Helpers._
 import xml.Text
 import lib.js.JqUI.{ColladocConfirm, ReloadTable, OpenDialog}
+import lib.DependencyFactory
+import net.liftweb.http.SHtml.ElemAttr._
 
 /**
  * Mapper for user table storing registered users.
@@ -256,12 +257,41 @@ object User extends User with KeyedMetaMapper[Long, User] {
     Noop
   }
 
+  /** Table with project properties. */
+  private def projectSettingsTable = {
+    def row(key: String, value: String) = {
+      <tr>
+        <td><label for={key}>{key}:</label></td>
+          <td>
+            {SHtml.text(value, text => (), ("id", key), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }
+          </td>
+          <td>
+            {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
+            <button type="button"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
+                    onclick={SHtml.ajaxCall(JE.ValById(key), updateProperty(key) _)._2}>Update
+            </button>
+          </td>
+      </tr>
+    }
+
+    def updateProperty(key: String)(value: String): JsCmd = {
+      S.notice(key + " successfully updated with value " + value)
+      Noop
+    }
+
+    <table class="settings-table">
+      { DependencyFactory.props.vend map { case (k, v) => row(k, v) } }
+    </table>
+  }
+
   /** Admin user form. */
   def adminForm =
     <div class="admin">
       <div id="admin_tabs">
         <ul>
           <li><a href="#user_settings">User settings</a></li>
+          <li><a href="#project_settings">Project settings</a></li>
           <li><a href="#source_settings">Source code settings</a></li>
         </ul>
         <div id="user_settings">
@@ -269,8 +299,11 @@ object User extends User with KeyedMetaMapper[Long, User] {
           <div id="userpager"></div>
           { SHtml.a(Text("Create new user"), Jq(Str(".create")) ~> OpenDialog(), ("class", "link")) }
         </div>
+        <div id="project_settings">
+          { projectSettingsTable }
+        </div>
         <div id="source_settings">
-          <table id="admin-settings-table">
+          <table class="settings-table">
             <tr>
               <td><label for="source_path">Source path:</label></td>
               <td>
