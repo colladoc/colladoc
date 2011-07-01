@@ -24,8 +24,9 @@ package scala.tools.colladoc {
 package page {
 
 import lib.util.Helpers._
-import model.mapper.User
+import model.mapper.{Properties, User}
 
+import net.liftweb.common.Full
 import net.liftweb.http.SHtml
 import net.liftweb.http.js.JsCmds._
 import net.liftweb.http.js._
@@ -44,7 +45,7 @@ import snippet.HelpOps
  */
 class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) {
 
- override def browser = super.browser \+
+  override def browser = super.browser \+
     <div id="user">
       { if (User.loggedIn_?)
           loggedIn
@@ -52,6 +53,17 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
           loggedOut
       }
     </div>
+
+  override def title = {
+    (Properties.doctitle match {
+      case Full(s) => s
+      case _ => ""
+    }) +
+    (Properties.docversion match {
+      case Full(s) => " " + s
+      case _ => ""
+    })
+  }
 
   override def body =
     <body>

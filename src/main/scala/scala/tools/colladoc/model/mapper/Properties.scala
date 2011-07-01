@@ -58,4 +58,8 @@ object Properties extends Property with LongKeyedMetaMapper[Property] {
             case Full(p) => p
             case _ => create.key(key)
           }).value(value).save
+
+  def doctitle = get("-doc-title")
+
+  def docversion = get("-doc-version")
 }
