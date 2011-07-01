@@ -54,7 +54,7 @@ object Properties extends Property with LongKeyedMetaMapper[Property] {
 
   /** Set property value. */
   def set(key: String, value: String) = (
-          find(key) match {
+          find(By(Properties.key, key)) match {
             case Full(p) => p
             case _ => create.key(key)
           }).value(value).save
