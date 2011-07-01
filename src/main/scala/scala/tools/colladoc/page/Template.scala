@@ -31,7 +31,6 @@ import lib.js.JqUI._
 import lib.widgets.Editor
 import model.Model
 import model.Model.factory._
-import model.SearchIndex._
 import model.mapper.{Comment, User}
 
 import net.liftweb.common._
