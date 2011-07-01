@@ -277,6 +277,9 @@ object User extends User with KeyedMetaMapper[Long, User] {
                     onclick={JE.Call("confirm", Str("Update?"), JE.AnonFunc(SHtml.ajaxCall(JE.ValById(keyId), updateProperty(key) _)._2))}>Update
             </button>
           </td>
+        <td>
+          {SHtml.a(() => {deleteProperty(key)}, Text("Delete"), ("class", "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"))}
+        </td>
       </tr>
     }
 
@@ -284,6 +287,14 @@ object User extends User with KeyedMetaMapper[Long, User] {
       Properties.set(key, value)
       S.notice(key + " successfully updated with value " + value)
       Noop
+    }
+
+    def deleteProperty(key: String): JsCmd = {
+      Properties.find(By(Properties.key, key)) match {
+        case Full(p) => p.delete_!; S.notice(key + " successfully deleted")
+        case _ =>
+      }
+      Replace("properties", projectSettingsTable)
     }
 
     def form = {
@@ -299,6 +310,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
                     onclick={JE.Call("confirm", Str("Add?"), JE.AnonFunc(SHtml.ajaxCall(JsArray(JE.ValById(keyId), JE.ValById(valueId)), addProperty _)._2))}>Add
             </button>
           </td>
+        <td></td>
       </tr>
     }
 
