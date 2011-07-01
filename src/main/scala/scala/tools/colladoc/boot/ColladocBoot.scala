@@ -22,7 +22,9 @@
  */
 package scala.tools.colladoc.boot
 
-import tools.colladoc.model.mapper.User
+import net.liftweb.util.Props
+import tools.colladoc.model.mapper.{Properties, User}
+import net.liftweb.common.Empty
 
 /**
  * Bootstrap class for Colladoc project.
@@ -31,6 +33,7 @@ import tools.colladoc.model.mapper.User
 object ColladocBoot {
   def boot {
     addDefaultAdmin
+    loadProperties
   }
 
   def addDefaultAdmin {
@@ -40,5 +43,15 @@ object ColladocBoot {
 
     if (User.count() == 0)
       User.create.userName(name).password(pass).superUser(isSuperUser).save
+  }
+
+  def loadProperties {
+    Props.props.foreach { case (k, v) =>
+      if (!k.startsWith("db."))
+        Properties.get(k) match {
+          case Empty => Properties.set(k, v)
+          case _ =>
+        }
+    }
   }
 }
