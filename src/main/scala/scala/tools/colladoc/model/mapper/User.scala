@@ -38,6 +38,7 @@ import lib.DependencyFactory
 import net.liftweb.http.SHtml.ElemAttr._
 import xml.{NodeSeq, Text}
 import lib.util.Helpers._
+import collection.immutable.SortedMap
 
 /**
  * Mapper for user table storing registered users.
@@ -328,7 +329,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
 
     <div id="properties">
       <table class="settings-table">
-        { Properties.props map { case (k, v) => row(k, v) } }
+        { SortedMap(Properties.props.toSeq:_*) map { case (k, v) => row(k, v) } }
         { form }
       </table>
     </div>
