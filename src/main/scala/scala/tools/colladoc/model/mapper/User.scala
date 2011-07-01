@@ -34,7 +34,6 @@ import js.JsCmd
 import js.JsCmds._
 import net.liftweb.util.Helpers._
 import lib.js.JqUI.{ColladocConfirm, ReloadTable, OpenDialog}
-import lib.DependencyFactory
 import net.liftweb.http.SHtml.ElemAttr._
 import xml.{NodeSeq, Text}
 import lib.util.Helpers._
@@ -265,9 +264,8 @@ object User extends User with KeyedMetaMapper[Long, User] {
 
     def row(key: String, value: String) = {
       val keyId = id(key)
-      val valueId = id(value)
       <tr>
-        <td><label for={keyId}>{key}:</label></td>
+        <td><label for={keyId}>{key}</label></td>
           <td>
             {SHtml.text(value, text => (), ("id", keyId), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }
           </td>
