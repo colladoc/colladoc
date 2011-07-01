@@ -266,16 +266,16 @@ object User extends User with KeyedMetaMapper[Long, User] {
       val keyId = id(key)
       <tr>
         <td><label for={keyId}>{key}</label></td>
-          <td>
-            {SHtml.text(value, text => (), ("id", keyId), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }
-          </td>
-          <td>
-            {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
-            <button type="button"
-                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
-                    onclick={JE.Call("confirm", Str("Update?"), JE.AnonFunc(SHtml.ajaxCall(JE.ValById(keyId), updateProperty(key) _)._2))}>Update
-            </button>
-          </td>
+        <td>
+          {SHtml.text(value, text => (), ("id", keyId), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }
+        </td>
+        <td>
+          {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
+          <button type="button"
+                  class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
+                  onclick={JE.Call("confirm", Str("Update?"), JE.AnonFunc(SHtml.ajaxCall(JE.ValById(keyId), updateProperty(key) _)._2))}>Update
+          </button>
+        </td>
         <td>
           {SHtml.a(() => {deleteProperty(key)}, Text("Delete"), ("class", "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"))}
         </td>
@@ -302,13 +302,13 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <tr>
         <td><label for={keyId} class="add_form_label">Key:</label>{SHtml.text("", text => (), ("id", keyId), ("class", "text ui-widget-content ui-corner-all"), ("size", "10")) }</td>
         <td><label for={valueId} class="add_form_label">Value:</label>{SHtml.text("", text => (), ("id", valueId), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }</td>
-          <td>
-            {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
-            <button type="button"
-                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
-                    onclick={JE.Call("confirm", Str("Add?"), JE.AnonFunc(SHtml.ajaxCall(JsArray(JE.ValById(keyId), JE.ValById(valueId)), addProperty _)._2))}>Add
-            </button>
-          </td>
+        <td>
+          {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
+          <button type="button"
+                  class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
+                  onclick={JE.Call("confirm", Str("Add?"), JE.AnonFunc(SHtml.ajaxCall(JsArray(JE.ValById(keyId), JE.ValById(valueId)), addProperty _)._2))}>Add
+          </button>
+        </td>
         <td></td>
       </tr>
     }
