@@ -44,6 +44,8 @@ class Property extends LongKeyedMapper[Property] {
 object Properties extends Property with LongKeyedMetaMapper[Property] {
   override def dbTableName = "properties"
 
+  override def dbIndexes = UniqueIndex(key) :: super.dbIndexes
+
   /** Get map with all properties. */
   def props: Map[String, String] = findAll() map {p => (p.key.is, p.value.is)} toMap
 
@@ -54,6 +56,6 @@ object Properties extends Property with LongKeyedMetaMapper[Property] {
   def set(key: String, value: String) = (
           find(key) match {
             case Full(p) => p
-            case _ => create
+            case _ => create.key(key)
           }).value(value).save
 }

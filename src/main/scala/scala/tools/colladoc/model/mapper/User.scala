@@ -28,15 +28,16 @@ import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
 import js.JE
-import js.JE.Str
+import js.JE.{JsArray, Str}
 import js.jquery.JqJE.Jq
 import js.JsCmd
 import js.JsCmds._
 import net.liftweb.util.Helpers._
-import xml.Text
 import lib.js.JqUI.{ColladocConfirm, ReloadTable, OpenDialog}
 import lib.DependencyFactory
 import net.liftweb.http.SHtml.ElemAttr._
+import xml.{NodeSeq, Text}
+import lib.util.Helpers._
 
 /**
  * Mapper for user table storing registered users.
@@ -258,31 +259,67 @@ object User extends User with KeyedMetaMapper[Long, User] {
   }
 
   /** Table with project properties. */
-  private def projectSettingsTable = {
+  private def projectSettingsTable: NodeSeq = {
+    def id(str: String) = idAttrEncode(hash(str))
+
     def row(key: String, value: String) = {
+      val keyId = id(key)
+      val valueId = id(value)
       <tr>
-        <td><label for={key}>{key}:</label></td>
+        <td><label for={keyId}>{key}:</label></td>
           <td>
-            {SHtml.text(value, text => (), ("id", key), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }
+            {SHtml.text(value, text => (), ("id", keyId), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }
           </td>
           <td>
             {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
             <button type="button"
                     class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
-                    onclick={JE.Call("confirm", Str("Update?"), JE.AnonFunc(SHtml.ajaxCall(JE.ValById(key), updateProperty(key) _)._2))}>Update
+                    onclick={JE.Call("confirm", Str("Update?"), JE.AnonFunc(SHtml.ajaxCall(JE.ValById(keyId), updateProperty(key) _)._2))}>Update
             </button>
           </td>
       </tr>
     }
 
     def updateProperty(key: String)(value: String): JsCmd = {
+      Properties.set(key, value)
       S.notice(key + " successfully updated with value " + value)
       Noop
     }
 
-    <table class="settings-table">
-      { DependencyFactory.props.vend map { case (k, v) => row(k, v) } }
-    </table>
+    def form = {
+      val keyId = id("key")
+      val valueId = id("value")
+      <tr>
+        <td><label for={keyId} class="add_form_label">Key:</label>{SHtml.text("", text => (), ("id", keyId), ("class", "text ui-widget-content ui-corner-all"), ("size", "10")) }</td>
+        <td><label for={valueId} class="add_form_label">Value:</label>{SHtml.text("", text => (), ("id", valueId), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }</td>
+          <td>
+            {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
+            <button type="button"
+                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
+                    onclick={JE.Call("confirm", Str("Add?"), JE.AnonFunc(SHtml.ajaxCall(JsArray(JE.ValById(keyId), JE.ValById(valueId)), addProperty _)._2))}>Add
+            </button>
+          </td>
+      </tr>
+    }
+
+    def addProperty(str: String): JsCmd = {
+      def split(str: String) ={
+        val a = str.split(",")
+        (a(0), a(1))
+      }
+
+      val (key, value) = split(str)
+      Properties.set(key, value)
+      S.notice(key + " successfully addeded with value " + value)
+      Replace("properties", projectSettingsTable)
+    }
+
+    <div id="properties">
+      <table class="settings-table">
+        { Properties.props map { case (k, v) => row(k, v) } }
+        { form }
+      </table>
+    </div>
   }
 
   /** Admin user form. */

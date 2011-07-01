@@ -146,3 +146,11 @@
 .openid_input {
     width: 350px;
 }
+
+.add_form_label {
+    float: left;
+    /*display: block;*/
+    clear: left;
+    text-align: left;
+    display: none;
+}
