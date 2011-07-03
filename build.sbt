@@ -11,12 +11,12 @@ scalaHome := Some(file("scala/build/pack"))
 libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _ )
 
 libraryDependencies ++= {
-  val liftVersion = "2.2"
+  val liftVersion = "2.4-M2"
   Seq(
-    "net.liftweb" % "lift-webkit_2.8.1" % liftVersion % "compile->default",
-    "net.liftweb" % "lift-mapper_2.8.1" % liftVersion % "compile->default",
-    "net.liftweb" % "lift-openid_2.8.1" % liftVersion % "compile->default",
-    "net.liftweb" % "lift-widgets_2.8.1" % liftVersion % "compile->default"
+    "net.liftweb" % "lift-webkit_2.9.0-1" % liftVersion % "compile->default",
+    "net.liftweb" % "lift-mapper_2.9.0-1" % liftVersion % "compile->default",
+    "net.liftweb" % "lift-openid_2.9.0-1" % liftVersion % "compile->default",
+    "net.liftweb" % "lift-widgets_2.9.0-1" % liftVersion % "compile->default"
   )
 }
 
