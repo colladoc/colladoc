@@ -131,6 +131,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     }
   }
 
+  /** Default value for select with changesets. */
   private def defaultComment(mbr: MemberEntity) = mbr.tag match {
     case cmt: Comment => Full(cmt.id.is.toString)
     case id: String => Full(id)
@@ -138,13 +139,6 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       case Some(c) => Full(c.id.is.toString)
       case None => Empty
     }
-  }
-
-  /** Default value for select with changesets. */
-  private def defaultItem(tag: AnyRef) = tag match {
-    case cmt: Comment => Full(cmt.id.is.toString)
-    case id: String => Full(id)
-    case _ => Empty
   }
 
   /** Render revision selection for member entity. */
