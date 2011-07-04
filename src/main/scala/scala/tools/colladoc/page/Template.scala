@@ -199,34 +199,38 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     }
   }
 
-   /** Render delete button for member entity. */
+  /** Render delete button for member entity. */
   private def delete(mbr: MemberEntity, isSelf: Boolean) = {
+    def doDelete(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
+      def replace(mbr: MemberEntity, isSelf: Boolean) = {
+        val (cmt, c) = defaultCommentFromDb(mbr) match {
+          case Some(cmt) =>
+            cmt.active(true).save
+            mbr.comment.get.update("" + cmt.comment.is)
+            (Model.factory.parse(mbr, cmt.comment.is), cmt)
+          case None =>
+            (mbr.comment.get.original.get, "source")
+            // TODO: mbr.comment.update(original)
+        }
+        val m = Model.factory.copyMember(mbr, cmt)(c)
+        Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
+        (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
+      }
+
+      currentComment(mbr) match {
+        case Some(cmt) => cmt.valid(false).active(false).save; replace(mbr, isSelf)
+        case None      => Noop
+      }
+    }
+
     if (Comment.revisions(mbr.uniqueName).length > 0)
       SHtml.a(ColladocConfirm("Confirm delete"), doDelete(mbr, isSelf) _, Text("Delete"), ("class", "button"))
   }
 
-  /** Provide delete button logic. */
-  private def doDelete(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
-    def replace(mbr: MemberEntity, isSelf: Boolean) = {
-      val (cmt, c) = previousOrSource(mbr)
-      val m = Model.factory.copyMember(mbr, cmt)(c)
-      Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
-      (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
-    }
-
-    mbr.tag match {
-      case cmt: Comment => cmt.valid(false).save; replace(mbr, isSelf)
-      case _ => Noop
-    }
-  }
-
-  /** Get previous comment or comment from source. */
-  private def previousOrSource(mbr: MemberEntity) = {
-    Comment.findAll(By(Comment.qualifiedName, mbr.qualifiedName), By(Comment.valid, true),
-      OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
-      case List(c: Comment, _*) => (Model.factory.parse(mbr, c.comment.is), c)
-      case _ => (mbr.comment.get.original.get, "source")
-    }
+  /** Get default comment from database. */
+  private def defaultCommentFromDb(mbr: MemberEntity) = Comment.default(mbr.uniqueName) match {
+    case None => Comment.latest(mbr.uniqueName)
+    case c => c
   }
 
   /** Parse documentation string input to show comment preview. */
