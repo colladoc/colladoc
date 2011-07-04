@@ -182,6 +182,7 @@ $(document).ready(function() {
     });
 
   $("#admin_tabs").tabs();
+  $("#help_tabs").tabs();
 })
 
 function resizeFilterBlock() {

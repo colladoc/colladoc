@@ -29,23 +29,36 @@ package scala.tools.colladoc.snippet
 object HelpOps {
   def help =
     <div class="help">
-      <h4>About:</h4>
-      <p>
-        Colladoc is web application allowing to edit Scala symbols documentation.
-      </p>
-      <h4>Mergedoc integration:</h4>
-      <p>
-        The Colladoc web application also provides REST interface which provide access to the collected comments. <br />
-        This allows to export the changes and merge them into original source code. <br />
-        Mergedoc sources you can find at <a href="https://github.com/collaborative-scaladoc/mergedoc" class="link">GitHub</a>.
-      </p>
-      <h4>Helpful links:</h4>
-      <p>
+      <div id="help_tabs">
         <ul>
-          <li><a href="http://collaborative-scaladoc.github.com/" class="link">Official cite</a></li>
-          <li><a href="http://collaborative-scaladoc.posterous.com/" class="link">Official blog</a></li>
-          <li><a href="https://github.com/collaborative-scaladoc/colladoc/wiki" class="link">Wiki</a></li>
+          <li><a href="#help_about">About</a></li>
+          <li><a href="#help_edit">Editing</a></li>
+          <li><a href="#help_search">Search</a></li>
         </ul>
-      </p>
+        <div id="help_about">
+          <h4>About:</h4>
+          <p>
+            Colladoc is web application allowing to edit Scala symbols documentation.
+          </p>
+          <h4>Mergedoc integration:</h4>
+          <p>
+            The Colladoc web application also provides REST interface which provide access to the collected comments. <br />
+            This allows to export the changes and merge them into original source code. <br />
+            Mergedoc sources you can find at <a href="https://github.com/collaborative-scaladoc/mergedoc" class="link">GitHub</a>.
+          </p>
+          <h4>Helpful links:</h4>
+          <p>
+            <ul>
+              <li><a href="http://collaborative-scaladoc.github.com/" class="link">Official cite</a></li>
+              <li><a href="http://collaborative-scaladoc.posterous.com/" class="link">Official blog</a></li>
+              <li><a href="https://github.com/collaborative-scaladoc/colladoc/wiki" class="link">Wiki</a></li>
+            </ul>
+          </p>
+        </div>
+        <div id="help_edit">
+        </div>
+        <div id="help_search">
+        </div>
+      </div>
     </div>
 }
