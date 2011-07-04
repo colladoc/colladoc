@@ -217,6 +217,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       def replace(mbr: MemberEntity, isSelf: Boolean) = {
         val (cmt, c) = defaultCommentFromDb(mbr) match {
           case Some(cmt) =>
+            Comment.deactivateAll(mbr.uniqueName)
             cmt.active(true).save
             mbr.comment.get.update("" + cmt.comment.is)
             (Model.factory.parse(mbr, cmt.comment.is), cmt)
