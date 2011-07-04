@@ -131,6 +131,15 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     }
   }
 
+  private def defaultComment(mbr: MemberEntity) = mbr.tag match {
+    case cmt: Comment => Full(cmt.id.is.toString)
+    case id: String => Full(id)
+    case _ => Comment.default(mbr.uniqueName) match {
+      case Some(c) => Full(c.id.is.toString)
+      case None => Empty
+    }
+  }
+
   /** Default value for select with changesets. */
   private def defaultItem(tag: AnyRef) = tag match {
     case cmt: Comment => Full(cmt.id.is.toString)
@@ -151,7 +160,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
     }
     val revs = Comment.revisions(mbr.uniqueName) ::: ("source", "Source Comment") :: Nil
-    SHtml.ajaxSelect(revs, defaultItem(mbr.tag), replace _, ("class", "select"))
+    SHtml.ajaxSelect(revs, defaultComment(mbr), replace _, ("class", "select"))
   }
 
     /** Render revision selection for member entity. */

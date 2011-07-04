@@ -123,7 +123,7 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
    * @return default change if exists, none otherwise
    */
   def default(qualName: String) = Comment.findAll(By(Comment.qualifiedName, qualName),
-    By(Comment.valid, true), By(Comment.active, true),
+    By(Comment.valid, true), NotNullRef(Comment.active), By(Comment.active, true),
     OrderBy(Comment.dateTime, Descending), MaxRows(1)) match {
     case List(c: Comment, _*) => Some(c)
     case _ => None
