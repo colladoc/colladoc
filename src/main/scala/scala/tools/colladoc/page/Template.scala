@@ -105,12 +105,24 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
             val newQualifiedName = mbr.qualifiedName.replace(mbr.inTemplate.qualifiedName, name)
             val usr = User.currentUser.open_!
 
-            comment.qualifiedName(newQualifiedName).user(usr).dateTime(now).changeSet(now).save
+            comment.qualifiedName(newQualifiedName).user(usr).dateTime(now).changeSet(now).active(false).save
+
+            val (cmt, c) = defaultCommentFromDb(mbr) match {
+              case Some(cmt) =>
+                Comment.deactivateAll(mbr.uniqueName)
+                cmt.active(true).save
+                mbr.comment.get.update("" + cmt.comment.is)
+                (Model.factory.parse(mbr, cmt.comment.is), cmt)
+              case None =>
+                (mbr.comment.get.original.get, "source")
+              // TODO: mbr.comment.update(original)
+            }
             index.vend.reindexEntityComment(mbr)
-          }
-          Replace(id(mbr, "full"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')") &
-          (if (!isSelf) SetHtml(id(mbr, "short"), inlineToHtml(mbr.comment.get.short)) else JsCmds.Noop)
-          // TODO: update mbr(qualifiedName)
+            val m = Model.factory.copyMember(mbr, cmt)(c)
+            Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
+            (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else Noop)
+          } else
+            Noop
         }
         val defs = (".push", "Push to predecessor") ::
                 mbr.inDefinitionTemplates.filter(x => x != mbr.inTemplate).map(x => (x.qualifiedName, x.qualifiedName))
