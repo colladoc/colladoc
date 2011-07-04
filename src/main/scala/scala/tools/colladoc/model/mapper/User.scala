@@ -27,6 +27,7 @@ package mapper {
 import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
+import net.liftweb.http.SHtml.ElemAttr
 import js.JE
 import js.JE.{JsArray, Str}
 import js.jquery.JqJE.Jq
@@ -67,7 +68,8 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
   def toGridRow = {
     def ajaxField(field: MappedString[User], attrs: (String, String)*) = {
       SHtml.ajaxText(field,
-        t => {
+        ColladocConfirm("Update user details?"),
+        (t: String) => {
           field(t)
           validate match {
             case Nil =>
@@ -77,7 +79,7 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
               S.error(n)
           }
           Noop},
-        attrs: _*
+        (attrs: Seq[ElemAttr]) :_*
       ).toString
     }
 
