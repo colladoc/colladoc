@@ -292,7 +292,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       cmt.active(true).save
       index.vend.reindexEntityComment(mbr)
     }
-    mbr.comment.get.update(cmt.comment.is)
+    mbr.comment.get.update("" + cmt.comment.is)
     if (!Model.reporter.hasWarnings) doSave
   }
 
