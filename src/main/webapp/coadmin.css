@@ -43,3 +43,7 @@
 .settings-table td {
     margin: 1px;
 }
+
+#admin_tabs { 
+    border: none;
+}
