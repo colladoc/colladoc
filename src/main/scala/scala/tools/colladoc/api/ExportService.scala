@@ -89,18 +89,22 @@ object ExportService extends RestHelper {
 
     protected def processTemplate(tpl: DocTemplateEntity): NodeSeq =
       <xml:group>
-        { if (tpl.comment.get.isUpdated) {
-            <item>
-              <type>{ tpl match {
-                case _ if tpl.isPackage => "package"
-                case _ if tpl.isTrait => "trait"
-                case _ if tpl.isClass => "class"
-                case _ if tpl.isObject => "object"
-              }}</type>
-              <filename>{ entityToFileName(tpl) }</filename>
-              <identifier>{ tpl.uniqueName }</identifier>
-              <newcomment>{ tpl.comment.get.source.get }</newcomment>
-            </item>
+        { tpl.comment match {
+            case Some(c) =>
+              if (c.isUpdated) {
+                <item>
+                  <type>{ tpl match {
+                    case _ if tpl.isPackage => "package"
+                    case _ if tpl.isTrait => "trait"
+                    case _ if tpl.isClass => "class"
+                    case _ if tpl.isObject => "object"
+                  }}</type>
+                  <filename>{ entityToFileName(tpl) }</filename>
+                  <identifier>{ tpl.uniqueName }</identifier>
+                  <newcomment>{ c.source.get }</newcomment>
+                </item>
+              }
+            case None =>
           }
         }
         { (tpl.values ++ tpl.abstractTypes ++ tpl.methods) map { processMember(_) } }

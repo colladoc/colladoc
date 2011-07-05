@@ -328,7 +328,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       case cmt: Comment => pars ::= "rev=%s" format(cmt.dateTime.is.getTime)
       case _ =>
     }
-    val path = memberToPath(mbr, isSelf) + ".xml" + pars.mkString("?", "&", "")
+    val abs = "/" + mbr.uniqueName.replace(".", "/").replace("#", "$")
+    val path = abs + ".xml" + pars.mkString("?", "&", "")
     JsRaw("window.open('%s', 'Export')" format (path))
   }
 }
