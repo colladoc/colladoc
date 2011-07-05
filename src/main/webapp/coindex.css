@@ -100,57 +100,11 @@
   padding-left: 25px;
 }
 
-.link {
-    text-decoration: underline;
-}
-
-#userpager {
-    height: 200%;
-}
-
-.trash {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background-image: url(scripts/ui/css/scaladoc/images/ui-icons_222222_256x240.png);
-  /*background: transparent url(SearchGoogle.gif) no-repeat center top;*/
-  text-indent: -1000em;
-  cursor: pointer; /* hand-shaped cursor */
-}
-
-.admin-button {
-    margin: 1px 0;
-    padding: 1px;
-}
-
-.settings-table {
-    margin-top: -2px;
-    margin-bottom: -2px;
-    margin-left: -2px;
-}
-
-#gbox_userlist {
-    margin-top: 3px;
-}
-
-.admin > h4 {
-    margin-top: 2px;
-}
-
 .help > p {
     margin-bottom: 7px;
 }
 
-.openid_input {
-    width: 350px;
+.link {
+    text-decoration: underline;
 }
 
-.add_form_label {
-    float: left;
-    /*display: block;*/
-    clear: left;
-    text-align: left;
-    display: none;
-}

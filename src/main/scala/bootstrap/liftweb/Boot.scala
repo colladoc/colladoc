@@ -34,7 +34,7 @@ import _root_.net.liftweb.sitemap._
 import _root_.net.liftweb.mapper.{DB, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 
 import tools.colladoc.api.ExportService
-import tools.colladoc.lib.sitemap.{HistoryStuff, SearchStuff, IndexStuff, TemplateStuff, SyntaxStuff}
+import tools.colladoc.lib.sitemap._
 import tools.colladoc.model.mapper.{User, Comment, Properties}
 import tools.colladoc.lib.js.JqUI._
 import tools.colladoc.api.{GridAPI, RestAPI}
@@ -76,7 +76,7 @@ class Boot {
       Menu(IndexStuff),
       Menu(HistoryStuff),
       Menu(SearchStuff),
-
+      Menu(AdminStuff),
       Menu(TemplateStuff),
       Menu(SyntaxStuff)
       )

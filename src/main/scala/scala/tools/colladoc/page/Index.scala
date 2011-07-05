@@ -104,47 +104,13 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       </div>
       <ul class="usernav">
         { if (User.superUser_?)
-            <li>
-              { SHtml.a(Text("Settings"),
-                  Jq(Str(".admin")) ~> OpenDialog() &
-                  JsRaw(
-                    """
-                      jQuery().ready(function () {
-                        jQuery("#userlist").jqGrid({
-                            url:'grid/users?',
-                            datatype: "xml",
-                            colNames:['Username', 'Email', 'OpenID', 'Superuser', ''],
-                            colModel:[
-                              {name:'name',index:'name'},
-                              {name:'email',index:'email'},
-                              {name:'openid',index:'openid', width:350},
-                              {name:'superuser',index:'superuser', width: 60},
-                              {name:'delete', index:'delete', width: 18}
-                            ],
-                            rowList:[5,10,20,30],
-                            pager: '#userpager',
-                            viewrecords: true,
-                            sortname: 'username',
-                            sortorder: 'desc',
-                            autowidth: true,
-                            height: 320,
-                            caption: 'User list'
-                          }).navGrid('#userpager',{edit:false,add:false,del:false});
-                        $('.ui-jqgrid-titlebar-close').remove();
-                        
-                      });
-                    """)
-                )
-              }
-            </li>
+            <li><a href="/admin.html" target="template">Settings</a></li>
         }
         <li><a href="/history.html" target="template">History</a></li>
         <li>{ SHtml.a(Text("Help"), Jq(Str(".help")) ~> OpenDialog()) }</li>
         <li>{ SHtml.a(() => {User.logout; JsCmds.Noop}, Text("Log Out")) }</li>
       </ul>
       { User.edit }
-      { if (User.superUser_?) User.adminForm }
-      { if (User.superUser_?) User.createUser }
       { HelpOps.help }
     </xml:group>
 

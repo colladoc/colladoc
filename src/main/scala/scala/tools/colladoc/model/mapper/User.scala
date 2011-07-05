@@ -501,15 +501,16 @@ object User extends User with KeyedMetaMapper[Long, User] {
       </fieldset>
     </lift:form>
 
-  /** Signup user dialog. */
+  /** User creation dialog. */
   def createUser = {
-    val user = create
+    var user = create
 
     def doCreate() {
       user.validate match {
         case Nil =>
           S.notice("User successfully created")
           user.save()
+          user = create
         case n =>
           S.error(n)
       }

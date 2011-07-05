@@ -31,21 +31,6 @@ $(document).ready(function() {
         }
     });
 
-  $(".admin").dialog({
-        autoOpen: false,
-        title: 'Admin Settings',
-        buttons: {
-            'Close': function() {
-                $(this).dialog('close');
-            }
-        },
-        width: 1000,
-        minHeight: 500,
-        modal: true,
-        draggable: false,
-        resizable: false
-    });
-
     $(".help").dialog({
         autoOpen: false,
         title: 'Help',
@@ -87,25 +72,6 @@ $(document).ready(function() {
         }
       });
 
-    $(".create").dialog({
-        autoOpen: false,
-        title: 'Create new user',
-        buttons: {
-            'Save': function() {
-                if ($(".create").valid()) {
-                    $(".create").submit();
-                    $("#userlist").trigger('reloadGrid', [{page: 1}]);
-                    $(this).dialog('close');
-                }
-            },
-            'Cancel': function() {
-                $(this).dialog('close');
-            }
-        },
-        modal: true,
-        draggable: false,
-        resizable: false
-    });
 
     var user_form = $($(".login > form")[0]);
     var openid_form = $("#openid_form");
@@ -181,7 +147,7 @@ $(document).ready(function() {
       openid_form.submit();
     });
 
-  $("#admin_tabs").tabs();
+
   $("#help_tabs").tabs();
 })
 
