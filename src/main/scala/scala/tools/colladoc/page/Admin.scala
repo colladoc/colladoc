@@ -31,15 +31,15 @@ import tools.colladoc.model.mapper.User
  */
 class Admin(rootPack: Package) extends scala.tools.colladoc.page.Template(rootPack) {
   /**Page title. */
-  override val title = "Admin settings"
+  override val title = "Settings"
 
   /** Page body. */
   override val body =
     <body class="admin">
       { if (User.superUser_?) {
           <div id="definition">
-            <img src="images/history_big.png" />
-            <h1>Admin Settings</h1>
+            <img src="images/settings_big.png" />
+            <h1>Settings</h1>
           </div>
           <div id="template">
             { User.adminForm }
