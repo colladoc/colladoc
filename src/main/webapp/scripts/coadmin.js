@@ -18,7 +18,7 @@ $(document).ready(function() {
     sortname: 'username',
     sortorder: 'desc',
     autowidth: true,
-    height: "100%",
+    height: 500,
     caption: 'User list'
   }).navGrid('#userpager', {edit:false,add:false,del:false});
   $('.ui-jqgrid-titlebar-close').remove();
