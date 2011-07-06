@@ -20,31 +20,25 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc.page
+package scala.tools.colladoc
+package snippet
 
-import tools.nsc.doc.model._
-import tools.colladoc.model.mapper.User
+import lib.DependencyFactory._
+import page.Settings
+import net.liftweb.util.BindHelpers._
+import xml.{Text, NodeSeq}
 
 /**
- * Admin settings page.
+ * Settings snippet.
  * @author Sergey Ignatov
  */
-class Admin(rootPack: Package) extends scala.tools.colladoc.page.Template(rootPack) {
-  /**Page title. */
-  override val title = "Settings"
+class SettingsOps {
+  lazy val settings = new Settings(model.vend.rootPackage)
 
-  /** Page body. */
-  override val body =
-    <body class="admin">
-      { if (User.superUser_?) {
-          <div id="definition">
-            <img src="images/settings_big.png" />
-            <h1>Settings</h1>
-          </div>
-          <div id="template">
-            { User.adminForm }
-            { User.createUser }
-          </div>
-      }}
-    </body>
+  def title(xhtml: NodeSeq): NodeSeq =
+    Text(settings.title)
+
+  /** Return history body. */
+  def body(xhtml: NodeSeq): NodeSeq =
+    bind("settings", settings.body)
 }

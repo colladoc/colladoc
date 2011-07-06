@@ -1,14 +1,14 @@
 <lift:surround with="default" at="content">
   <head>
-    <title><lift:adminOps.title /></title>
+    <title><lift:settingsOps.title /></title>
      <lift:with-resource-id>
        <script src="/lib/jquery.layout.js" type="text/javascript" />
        <script src="/scripts/cotemplate.js" type="text/javascript" />
-       <script src="/scripts/coadmin.js" type="text/javascript" />
+       <script src="/scripts/cosettings.js" type="text/javascript" />
        <link href="/lib/template.css" media="screen" type="text/css" rel="stylesheet" />
        <link href="/cotemplate.css"  media="screen" type="text/css" rel="stylesheet"/>
-       <link href="/coadmin.css"  media="screen" type="text/css" rel="stylesheet" />
+       <link href="/cosettings.css"  media="screen" type="text/css" rel="stylesheet" />
      </lift:with-resource-id>
   </head>
-  <lift:adminOps.body />
+  <lift:settingsOps.body />
 </lift:surround>

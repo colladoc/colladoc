@@ -1,4 +1,4 @@
-.admin #definition {
+.settings #definition {
   background-color: #333;
 }
 
@@ -24,7 +24,7 @@
     margin-top: 3px;
 }
 
-.admin > h4 {
+.settings > h4 {
     margin-top: 2px;
 }
 
@@ -44,7 +44,7 @@
     margin: 1px;
 }
 
-#admin_tabs { 
+#settings_tab {
     border: none;
 }
 

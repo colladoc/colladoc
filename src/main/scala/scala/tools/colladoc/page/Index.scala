@@ -104,7 +104,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       </div>
       <ul class="usernav">
         { if (User.superUser_?)
-            <li><a href="/admin.html" target="template">Settings</a></li>
+            <li><a href="/settings" target="template">Settings</a></li>
         }
         <li><a href="/history.html" target="template">History</a></li>
         <li>{ SHtml.a(Text("Help"), Jq(Str(".help")) ~> OpenDialog()) }</li>

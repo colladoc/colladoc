@@ -30,31 +30,31 @@ import net.liftweb.util.NamedPF
 import xml.Text
 import net.liftweb.common.Full
 
-/** Admin location parameter. */
-case class AdminLoc()
+/** Settings location parameter. */
+case class SettingsLoc()
 
 /**
- * Admin sitemap location.
+ * Settings sitemap location.
  */
-object AdminStuff extends Loc[AdminLoc] {
+object SettingsStuff extends Loc[SettingsLoc] {
   /** The name of the page. */
-  def name = "admin"
+  def name = "settings"
 
   /** The default parameters (used for generating the menu listing). */
-  def defaultValue = Full(AdminLoc())
+  def defaultValue = Full(SettingsLoc())
 
   /** Parameters. */
   def params = List.empty
 
   /** Text of the link. */
-  val text = new Loc.LinkText((loc: AdminLoc) => Text("Admin"))
+  val text = new Loc.LinkText((loc: SettingsLoc) => Text("Settings"))
 
   /** Generate a link based on the current page. */
-  val link = new Loc.Link[AdminLoc](List("admin"))
+  val link = new Loc.Link[SettingsLoc](List("settings"))
 
   /** Rewrite location. */
-  override val rewrite: LocRewrite = Full(NamedPF("Admin Rewrite") {
-    case RewriteRequest(ParsePath("admin" :: Nil, "html", _, _), _, _) =>
-      (RewriteResponse("admin" :: Nil), AdminLoc())
+  override val rewrite: LocRewrite = Full(NamedPF("Settings Rewrite") {
+    case RewriteRequest(ParsePath("settings" :: Nil, "html", _, _), _, _) =>
+      (RewriteResponse("settings" :: Nil), SettingsLoc())
   })
 }

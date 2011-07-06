@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  $("#admin_tabs").tabs();
+  $("#settings_tab").tabs();
 
   $("#userlist").jqGrid({
     url:'grid/users?',
