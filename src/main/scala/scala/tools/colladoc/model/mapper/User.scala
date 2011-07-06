@@ -264,74 +264,28 @@ object User extends User with KeyedMetaMapper[Long, User] {
   private def projectSettingsTable: NodeSeq = {
     def id(str: String) = idAttrEncode(hash(str))
 
-    def row(key: String, value: String) = {
+    def row(title: String, key: String, value: String) = {
       val keyId = id(key)
-      <tr>
-        <td><label for={keyId}>{key}</label></td>
-        <td>
-          {SHtml.text(value, text => (), ("id", keyId), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }
-        </td>
-        <td>
-          {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
-          <button type="button"
-                  class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
-                  onclick={JE.Call("confirm", Str("Update?"), JE.AnonFunc(SHtml.ajaxCall(JE.ValById(keyId), updateProperty(key) _)._2))}>Update
-          </button>
-        </td>
-        <td>
-          {SHtml.a(() => {deleteProperty(key)}, Text("Delete"), ("class", "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"))}
-        </td>
-      </tr>
+      <p class="property_form">
+        <label for={keyId}>{title}</label>
+        {SHtml.text(value, text => (), ("id", keyId), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }
+        {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
+        <button type="button"
+                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
+                onclick={JE.Call("confirm", Str("Save the new value?"), JE.AnonFunc(SHtml.ajaxCall(JE.ValById(keyId), updateProperty(key, title) _)._2))}>Save
+        </button>
+      </p>
     }
 
-    def updateProperty(key: String)(value: String): JsCmd = {
+    def updateProperty(key: String, title: String)(value: String): JsCmd = {
       Properties.set(key, value)
-      S.notice(key + " successfully updated with value " + value)
+      S.notice(title + " successfully updated with value " + value)
       Noop
     }
 
-    def deleteProperty(key: String): JsCmd = {
-      Properties.find(By(Properties.key, key)) match {
-        case Full(p) => p.delete_!; S.notice(key + " successfully deleted")
-        case _ =>
-      }
-      Replace("properties", projectSettingsTable)
-    }
-
-    def form = {
-      val keyId = id("key")
-      val valueId = id("value")
-      <tr>
-        <td><label for={keyId} class="add_form_label">Key:</label>{SHtml.text("", text => (), ("id", keyId), ("class", "text ui-widget-content ui-corner-all"), ("size", "10")) }</td>
-        <td><label for={valueId} class="add_form_label">Value:</label>{SHtml.text("", text => (), ("id", valueId), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }</td>
-        <td>
-          {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
-          <button type="button"
-                  class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
-                  onclick={JE.Call("confirm", Str("Add?"), JE.AnonFunc(SHtml.ajaxCall(JsArray(JE.ValById(keyId), JE.ValById(valueId)), addProperty _)._2))}>Add
-          </button>
-        </td>
-        <td></td>
-      </tr>
-    }
-
-    def addProperty(str: String): JsCmd = {
-      def split(str: String) ={
-        val a = str.split(",")
-        (a(0), a(1))
-      }
-
-      val (key, value) = split(str)
-      Properties.set(key, value)
-      S.notice(key + " successfully addeded with value " + value)
-      Replace("properties", projectSettingsTable)
-    }
-
     <div id="properties">
-      <table class="settings-table">
-        { SortedMap(Properties.props.toSeq:_*) map { case (k, v) => row(k, v) } }
-        { form }
-      </table>
+      {row("Title", "-doc-title", Properties.get("-doc-title").getOrElse(""))}
+      {row("Version", "-doc-version", Properties.get("-doc-version").getOrElse(""))}
     </div>
   }
 

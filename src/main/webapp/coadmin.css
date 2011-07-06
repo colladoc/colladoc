@@ -47,3 +47,8 @@
 #admin_tabs { 
     border: none;
 }
+
+.property_form label {
+    display: block;
+    font-weight: bolder;
+}
