@@ -47,7 +47,7 @@ object ColladocBoot {
 
   def loadProperties {
     Props.props.foreach { case (k, v) =>
-      if (!k.startsWith("db."))
+      if (k.startsWith("-doc"))
         Properties.get(k) match {
           case Empty => Properties.set(k, v)
           case _ =>
