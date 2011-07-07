@@ -108,12 +108,12 @@
     text-decoration: underline;
 }
 
-.search_example_list a {
+.help a {
     color: #3366ff;
     text-decoration: underline;
 }
 
-.search_example_list li {
+.help li {
     list-style: disc;
     list-style-position: inside;
     margin: 3px 3px;
