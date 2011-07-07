@@ -295,7 +295,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <ul>
         <li><a href="#user_settings">User settings</a></li>
         <li><a href="#project_settings">Project settings</a></li>
-        <li><a href="#source_settings">Source code settings</a></li>
+        <!--<li><a href="#source_settings">Source code settings</a></li>-->
       </ul>
       <div id="user_settings">
         <table id="userlist"/>
@@ -305,7 +305,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <div id="project_settings">
         { projectSettingsTable }
       </div>
-      <div id="source_settings">
+      <!--<div id="source_settings">
         <table class="settings-table">
           <tr>
             <td><label for="source_path">Source path:</label></td>
@@ -335,7 +335,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
             S.notice("Comments successfully merged") // TODO: add action
             Noop },
           ("class", "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"))}
-      </div>
+      </div>-->
     </div>
 
   /** Signup user dialog. */
