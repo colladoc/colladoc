@@ -58,6 +58,65 @@ object HelpOps {
         <div id="help_edit">
         </div>
         <div id="help_search">
+          <h3>Here are some sample queries to get you started:</h3>
+          <div>
+            <ul class="search_example_list">
+              <li><a target="template" href="/search?q=any" >any</a>
+                searches for everything that has the word any in its name, definition or comment
+              </li>
+              <li><a target="template" href="/search?q=any_">any_</a>
+                searches for everything that starts with any
+              </li>
+              <li><a target="template" href="/search?q=//_any">//_any</a>
+                searches for all comments that contain a word that ends with any
+              </li>
+              <li><a target="template" href="/search?q=class AnyRef">class AnyRef</a>
+                searches for all classes with name AnyRef
+              </li>
+              <li><a target="template" href="/search?q=trait _">trait _</a>
+                searches for all traits
+              </li>
+              <li><a target="template" href="/search?q=object _">object _</a>
+                searches for all objects
+              </li>
+              <li><a target="template" href="/search?q=class A_ || class B_">class A_ || class B_</a>
+                searches for all classes that starts with A or B
+              </li>
+              <li><a target="template" href="/search?q=class  _ extends _ with _">class  _ extends _ with _</a>
+                searches for all classes that extend a class and implement a trait
+              </li>
+              <li><a target="template" href="/search?q=var _: Int">var _: Int</a>
+                searches for all values or variables of type Int, vars are displayed before the vals
+              </li>
+              <li><a target="template" href="/search?q=def toString">def toString</a>
+                searches for all methods with name toString
+              </li>
+              <li><a target="template" href="/search?q=def toString : String">def toString : String</a>
+                searches for all methods with name toString and return type String
+              </li>
+              <li><a target="template" href="/search?q=def _(_) : Boolean">def _(_) : Boolean</a>
+                searches for all methods with one argument and  returnType Boolean
+              </li>
+              <li><a target="template" href="/search?q=def _(Int, _)">def _(Int, _)</a>
+                searches for all methods with arguments and the first is of type Int
+              </li>
+              <li><a target="template" href="/search?q=def _(_, *)">def _(_, *)</a>
+                searches for all methods with one or more arguments
+              </li>
+              <li><a target="template" href="/search?q=def _(Iterable[_]):Int">def _(Iterable[_]):Int</a>
+                searches for all methods that take an Iterable and return Int
+              </li>
+              <li><a target="template" href="/search?q=(Iterable[_]) %3D> Int">(Iterable[_]) =&gt; Int</a>
+                equvalent to the above, lambda syntax can also be used for searching for methods.
+              </li>
+              <li><a target="template" href="/search?q=%3D> (_, _)">=&gt; (_, _)</a>
+                searches for all methods that return a tuple with two elements.
+              </li>
+              <li><a target="template" href="/search?q=def _((_) %3D> _)">def _((_) =&gt; _)</a>
+                searches for all methods that have one as first parameter a method that takes and returns any value.
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>

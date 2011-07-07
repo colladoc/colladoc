@@ -147,6 +147,9 @@ $(document).ready(function() {
       openid_form.submit();
     });
 
+  $("#help_search a").live("click", function() {
+    $(".help").dialog('close');
+  });
 
   $("#help_tabs").tabs();
 })
