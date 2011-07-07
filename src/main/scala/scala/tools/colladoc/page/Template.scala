@@ -93,7 +93,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       }
       { if (User.superUser_?) delete(mbr, isSelf) }
       { if (User.superUser_?) selectDefault(mbr, isSelf) }
-      { if (User.loggedIn_?) propagateToPredecessors(mbr, isSelf) }
+      { if (User.superUser_?) propagateToPredecessors(mbr, isSelf) }
       { export(mbr, isSelf) }
     </div>
 

@@ -56,6 +56,20 @@ object HelpOps {
           </p>
         </div>
         <div id="help_edit">
+          <h3>Regular users</h3>
+          <p>
+            Colladoc allows registered users edit comments for existing entities.
+          </p>
+          <h3>Superusers</h3>
+          <p>
+            Colladoc allows superusers:
+            <ul>
+              <li>Edit comments for existing entities.</li>
+              <li>Delete comments for existing entities.</li>
+              <li>Propagate comments in hierarchy.</li>
+              <li>Select the default comment from the comment list.</li>
+            </ul>
+          </p>
         </div>
         <div id="help_search">
           <h3>Here are some sample queries to get you started:</h3>

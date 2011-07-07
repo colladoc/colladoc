@@ -118,3 +118,7 @@
     list-style-position: inside;
     margin: 3px 3px;
 }
+
+.help p {
+    margin-bottom: 7px;
+}
