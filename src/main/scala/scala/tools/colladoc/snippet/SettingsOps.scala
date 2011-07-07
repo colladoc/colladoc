@@ -38,7 +38,7 @@ class SettingsOps {
   def title(xhtml: NodeSeq): NodeSeq =
     Text(settings.title)
 
-  /** Return history body. */
+  /** Return settings body. */
   def body(xhtml: NodeSeq): NodeSeq =
     bind("settings", settings.body)
 }
