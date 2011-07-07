@@ -1,0 +1,26 @@
+.help #definition {
+  background-color: #333;
+}
+
+.help a {
+    color: #3366ff;
+    text-decoration: underline;
+}
+
+.help li {
+    list-style: disc;
+    list-style-position: inside;
+    margin: 3px 3px;
+}
+
+.help p {
+    margin-bottom: 7px;
+}
+
+.help h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+}
+
+#help_tabs {
+    border: none;
+}

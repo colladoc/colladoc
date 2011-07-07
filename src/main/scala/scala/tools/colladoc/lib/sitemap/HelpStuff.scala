@@ -20,22 +20,41 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc.snippet
+package scala.tools.colladoc
+package lib
+package sitemap
 
-import xml.{NodeSeq, Text}
-import tools.colladoc.lib.DependencyFactory.model
-import tools.colladoc.page.Help
+import net.liftweb.sitemap.Loc
+import net.liftweb.http.{RewriteResponse, ParsePath, RewriteRequest}
+import net.liftweb.util.NamedPF
+import xml.Text
+import net.liftweb.common.Full
+
+/** Help location parameter. */
+case class HelpLoc()
 
 /**
- * Snippet for help page.
- * @author Sergey Ignatov
+ * Help sitemap location.
  */
-class HelpOps {
-  lazy val help = new Help(model.vend.rootPackage)
+object HelpStuff extends Loc[HelpLoc] {
+  /** The name of the page. */
+  def name = "help"
 
-  /** Return help title. */
-  def title(xhtml: NodeSeq): NodeSeq = Text(help.title)
+  /** The default parameters (used for generating the menu listing). */
+  def defaultValue = Full(HelpLoc())
 
-  /** Return history body. */
-  def body=  help.body
+  /** Parameters. */
+  def params = List.empty
+
+  /** Text of the link. */
+  val text = new Loc.LinkText((loc: HelpLoc) => Text("Help"))
+
+  /** Generate a link based on the current page. */
+  val link = new Loc.Link[HelpLoc](List("help"))
+
+  /** Rewrite location. */
+  override val rewrite: LocRewrite = Full(NamedPF("Help Rewrite") {
+    case RewriteRequest(ParsePath("help" :: Nil, "html", _, _), _, _) =>
+      (RewriteResponse("help" :: Nil), HelpLoc())
+  })
 }

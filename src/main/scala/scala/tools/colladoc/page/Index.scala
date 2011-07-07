@@ -37,7 +37,6 @@ import net.liftweb.widgets.gravatar.Gravatar
 import tools.nsc.doc.Universe
 import xml.Text
 import lib.js.JqUI._
-import snippet.HelpOps
 
 /**
  * Page containing index of all symbols and user panel.
@@ -85,12 +84,11 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
       <ul class="usernav">
         <li><a href="/history.html" target="template">History</a></li>
         <li>{ SHtml.a(Text("Signup"), Jq(Str(".user")) ~> OpenDialog()) }</li>
-        <li>{ SHtml.a(Text("Help"), Jq(Str(".help")) ~> OpenDialog()) }</li>
+        <li><a href="/help" target="template">Help</a></li>
         <li>{ SHtml.a(Text("Login"), CmdPair(Jq(Str(".login")) ~> OpenDialog(), Focus("username"))) }</li>
       </ul>
       { User.signup }
       { User.login }
-      { HelpOps.help }
     </xml:group>
 
   /** Render user panel for logged in user. */
@@ -107,11 +105,10 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
             <li><a href="/settings" target="template">Settings</a></li>
         }
         <li><a href="/history.html" target="template">History</a></li>
-        <li>{ SHtml.a(Text("Help"), Jq(Str(".help")) ~> OpenDialog()) }</li>
+        <li><a href="/help" target="template">Help</a></li>
         <li>{ SHtml.a(() => {User.logout; JsCmds.Noop}, Text("Log Out")) }</li>
       </ul>
       { User.edit }
-      { HelpOps.help }
     </xml:group>
 
 }

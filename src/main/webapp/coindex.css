@@ -108,17 +108,3 @@
     text-decoration: underline;
 }
 
-.help a {
-    color: #3366ff;
-    text-decoration: underline;
-}
-
-.help li {
-    list-style: disc;
-    list-style-position: inside;
-    margin: 3px 3px;
-}
-
-.help p {
-    margin-bottom: 7px;
-}

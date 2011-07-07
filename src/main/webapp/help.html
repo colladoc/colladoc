@@ -1,0 +1,14 @@
+<lift:surround with="default" at="content">
+  <head>
+    <title><lift:helpOps.title /></title>
+     <lift:with-resource-id>
+       <script src="/lib/jquery.layout.js" type="text/javascript" />
+       <script src="/scripts/cotemplate.js" type="text/javascript" />
+       <script src="/scripts/cohelp.js" type="text/javascript" />
+       <link href="/lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+       <link href="/cotemplate.css"  media="screen" type="text/css" rel="stylesheet"/>
+       <link href="/cohelp.css"  media="screen" type="text/css" rel="stylesheet" />
+     </lift:with-resource-id>
+  </head>
+  <lift:helpOps.body />
+</lift:surround>

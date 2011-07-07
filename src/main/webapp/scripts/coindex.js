@@ -30,20 +30,6 @@ $(document).ready(function() {
             $(input).removeClass("ui-state-error");
         }
     });
-
-    $(".help").dialog({
-        autoOpen: false,
-        title: 'Help',
-        buttons: {
-            'Close': function() {
-                $(this).dialog('close');
-            }
-        },
-        width: 1000,
-        modal: true,
-        draggable: false,
-        resizable: false
-    });
     
     $(".user").dialog({
         autoOpen: false,
@@ -63,6 +49,7 @@ $(document).ready(function() {
         draggable: false,
         resizable: false
     });
+
     $(".user").validate({
         rules: {
           agree: "required"
@@ -71,7 +58,6 @@ $(document).ready(function() {
           agree: "Please accept our agreement"
         }
       });
-
 
     var user_form = $($(".login > form")[0]);
     var openid_form = $("#openid_form");
@@ -146,13 +132,7 @@ $(document).ready(function() {
       $("#openid_identifier").val(link);
       openid_form.submit();
     });
-
-  $("#help_search a").live("click", function() {
-    $(".help").dialog('close');
-  });
-
-  $("#help_tabs").tabs();
-})
+});
 
 function resizeFilterBlock() {
     $("#filter").css("top", $("#user").outerHeight(true));

@@ -20,22 +20,7 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc.snippet
 
-import xml.{NodeSeq, Text}
-import tools.colladoc.lib.DependencyFactory.model
-import tools.colladoc.page.Help
-
-/**
- * Snippet for help page.
- * @author Sergey Ignatov
- */
-class HelpOps {
-  lazy val help = new Help(model.vend.rootPackage)
-
-  /** Return help title. */
-  def title(xhtml: NodeSeq): NodeSeq = Text(help.title)
-
-  /** Return history body. */
-  def body=  help.body
-}
+$(document).ready(function() {
+    $("#help_tabs").tabs();
+});
