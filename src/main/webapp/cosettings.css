@@ -52,3 +52,39 @@
     display: block;
     font-weight: bolder;
 }
+
+.form {
+    display: none;
+}
+
+.form fieldset {
+    padding: 0;
+    border: 0;
+    margin-top: 8px;
+}
+
+.form p {
+    margin-bottom: 12px;
+}
+
+.form input[readonly] {
+    background: #DDD;
+}
+
+.form input.text {
+    width: 95%;
+    padding: .4em;
+}
+
+.form .error {
+    color: #666666;
+    display: block;
+    font-size: 8pt;
+    padding-top: 0.2em;
+}
+
+.ui-pg-input {
+    color: #555;
+    width: 65px;
+    text-align: left;
+}
