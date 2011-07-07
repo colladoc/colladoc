@@ -49,7 +49,7 @@ object HelpOps {
           <h4>Helpful links:</h4>
           <p>
             <ul>
-              <li><a href="http://collaborative-scaladoc.github.com/" class="link">Official cite</a></li>
+              <li><a href="http://collaborative-scaladoc.github.com/" class="link">Official site</a></li>
               <li><a href="http://collaborative-scaladoc.posterous.com/" class="link">Official blog</a></li>
               <li><a href="https://github.com/collaborative-scaladoc/colladoc/wiki" class="link">Wiki</a></li>
             </ul>
