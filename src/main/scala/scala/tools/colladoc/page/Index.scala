@@ -82,7 +82,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
   private def loggedOut =
     <xml:group>
       <ul class="usernav">
-        <li><a href="/history.html" target="template">History</a></li>
+        <li><a href="/history" target="template">History</a></li>
         <li>{ SHtml.a(Text("Signup"), Jq(Str(".user")) ~> OpenDialog()) }</li>
         <li><a href="/help" target="template">Help</a></li>
         <li>{ SHtml.a(Text("Login"), CmdPair(Jq(Str(".login")) ~> OpenDialog(), Focus("username"))) }</li>
@@ -104,7 +104,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
         { if (User.superUser_?)
             <li><a href="/settings" target="template">Settings</a></li>
         }
-        <li><a href="/history.html" target="template">History</a></li>
+        <li><a href="/history" target="template">History</a></li>
         <li><a href="/help" target="template">Help</a></li>
         <li>{ SHtml.a(() => {User.logout; JsCmds.Noop}, Text("Log Out")) }</li>
       </ul>
