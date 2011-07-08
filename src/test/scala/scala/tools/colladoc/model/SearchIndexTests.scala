@@ -86,7 +86,7 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock wit
       docs(1).get(SearchIndex.entityLookupField) mustEqual mockEntity.hashCode.toString
     }
 
-    "Index class:  visibility, parentClass, Traits that extends  " in {
+    "Index class: visibility, parentClass, traits that extends" in {
       expect {
         defaultExpectationsForPackage()
         one(mockPackage).members.willReturn(List[MemberEntity](mockClass))
@@ -104,7 +104,7 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock wit
       docs(1).get(SearchIndex.typeField) mustEqual SearchIndex.classField
     }
 
-    "Index trait:  visibility, parentClass, Traits that extends  " in {
+    "Index trait: visibility, parentClass, traits that extends" in {
       expect {
         defaultExpectationsForPackage()
         one(mockPackage).members.willReturn(List[MemberEntity](mockTrait))
@@ -122,7 +122,7 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock wit
       docs(1).get(SearchIndex.typeField) mustEqual SearchIndex.traitField
     }
 
-    "Index Object:  visibility, parentClass, Traits that extends  " in {
+    "Index object: visibility, parentClass, traits that extends" in {
       expect {
         defaultExpectationsForPackage()
         one(mockPackage).members.willReturn(List[MemberEntity](mockObject))
