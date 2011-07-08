@@ -27,18 +27,15 @@ package mapper {
 import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
+import js.JE.Str
 import net.liftweb.http.SHtml.ElemAttr
-import js.JE
-import js.JE.{JsArray, Str}
 import js.jquery.JqJE.Jq
 import js.JsCmd
 import js.JsCmds._
 import net.liftweb.util.Helpers._
-import lib.js.JqUI.{ColladocConfirm, ReloadTable, OpenDialog}
 import net.liftweb.http.SHtml.ElemAttr._
 import xml.{NodeSeq, Text}
-import lib.util.Helpers._
-import collection.immutable.SortedMap
+import lib.js.JqUI.{SubmitForm, ColladocConfirm, ReloadTable, OpenDialog}
 
 /**
  * Mapper for user table storing registered users.
@@ -284,13 +281,17 @@ object User extends User with KeyedMetaMapper[Long, User] {
             <settings:version class="text required ui-widget-content ui-corner-all" />
           </p>
           <settings:submit />
+          <settings:save />
+          <settings:reset />
         </fieldset>
       </lift:form>
 
     bind("settings", form,
-      "title" -%> SHtml.text(title, title = _),
-      "version" -%> SHtml.text(version, version = _),
-      "submit" -> (SHtml.submit("Save", () => {}, ("class", "submit")) ++ SHtml.hidden(doSave))
+      "title" -%> SHtml.text(title, title = _, ("id", "title")),
+      "version" -%> SHtml.text(version, version = _, ("id", "version")),
+      "submit" -> SHtml.hidden(doSave _),
+      "save" -> SHtml.a(Text("Save"), SubmitForm(".properties"), ("class", "button")),
+      "reset" -> SHtml.a(Text("Reset"), SetValById("title", Str(title)) & SetValById("version", Str(version)), ("class", "button"))
     )
   }
 

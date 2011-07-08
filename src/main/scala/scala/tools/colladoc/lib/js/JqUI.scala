@@ -81,6 +81,11 @@ object JqUI {
     override def toJsCmd = "$('" + table + "').trigger('reloadGrid', [{page: 1}]);"
   }
 
+  /** Submit form */
+  case class SubmitForm(jqId: String) extends JsCmd with JsMember {
+    override def toJsCmd = "$('" + jqId +"').submit();"
+  }
+
   /** Confirm dialog. */
   def ColladocConfirm(what: String) = Call("confirm", Str(what))
 }
