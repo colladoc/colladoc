@@ -130,3 +130,7 @@
     font-size: 8pt;
     padding-top: 0.2em;
 }
+
+#settings_tab {
+    padding: 0;
+}
