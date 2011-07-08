@@ -260,33 +260,38 @@ object User extends User with KeyedMetaMapper[Long, User] {
     Noop
   }
 
-  /** Table with project properties. */
-  private def projectSettingsTable: NodeSeq = {
-    def id(str: String) = idAttrEncode(hash(str))
+  /** Form with project properties. */
+  private def projectSettings: NodeSeq = {
+    var title = Properties.get("-doc-title").getOrElse("")
+    var version = Properties.get("-doc-version").getOrElse("")
 
-    def row(title: String, key: String, value: String) = {
-      val keyId = id(key)
-      <p class="property_form">
-        <label for={keyId}>{title}</label>
-        {SHtml.text(value, text => (), ("id", keyId), ("class", "text ui-widget-content ui-corner-all"), ("size", "70")) }
-        {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
-        <button type="button"
-                class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
-                onclick={JE.Call("confirm", Str("Save the new value?"), JE.AnonFunc(SHtml.ajaxCall(JE.ValById(keyId), updateProperty(key, title) _)._2))}>Save
-        </button>
-      </p>
-    }
-
-    def updateProperty(key: String, title: String)(value: String): JsCmd = {
-      Properties.set(key, value)
-      S.notice(title + " successfully updated with value " + value)
+    def doSave(): JsCmd = {
+      Properties.set("-doc-title", title)
+      Properties.set("-doc-version", version)
+      S.notice("Project settings successfully saved.")
       Noop
     }
 
-    <div id="properties">
-      {row("Title", "-doc-title", Properties.get("-doc-title").getOrElse(""))}
-      {row("Version", "-doc-version", Properties.get("-doc-version").getOrElse(""))}
-    </div>
+    val form =
+      <lift:form class="properties">
+        <fieldset>
+          <p>
+            <label for="title">Title:</label>
+            <settings:title class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="version">Version:</label>
+            <settings:version class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <settings:submit />
+        </fieldset>
+      </lift:form>
+
+    bind("settings", form,
+      "title" -%> SHtml.text(title, title = _),
+      "version" -%> SHtml.text(version, version = _),
+      "submit" -> (SHtml.submit("Save", () => {}, ("class", "submit")) ++ SHtml.hidden(doSave))
+    )
   }
 
   /** Admin user form. */
@@ -303,7 +308,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
         { SHtml.a(Text("Create new user"), Jq(Str(".create")) ~> OpenDialog(), ("class", "link")) }
       </div>
       <div id="project_settings">
-        { projectSettingsTable }
+        { projectSettings }
       </div>
       <!--<div id="source_settings">
         <table class="settings-table">
