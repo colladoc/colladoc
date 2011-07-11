@@ -78,6 +78,7 @@ class Boot {
       Menu(SearchStuff),
       Menu(SettingsStuff),
       Menu(HelpStuff),
+      Menu(ProfileStuff),
       Menu(TemplateStuff),
       Menu(SyntaxStuff)
       )
