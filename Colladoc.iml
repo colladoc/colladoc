@@ -4,358 +4,111 @@
     <facet type="scala" name="Scala">
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
-        <option name="compilerLibraryName" value="buildScala" />
+        <option name="compilerLibraryName" value="scala-2.8.2.r0-b20110705173541" />
       </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
-    <output url="file://$MODULE_DIR$/target/scala_2.8.1-local/classes" />
-    <output-test url="file://$MODULE_DIR$/target/scala_2.8.1-local/test-classes" />
+    <output url="file://$MODULE_DIR$/target/scala-2.8.2.r0-b20110705173541/classes" />
+    <output-test url="file://$MODULE_DIR$/target/scala-2.8.2.r0-b20110705173541/test-classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/scala" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="buildScala" level="project" />
-    <orderEntry type="module" module-name="Colladoc" />
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/mail-1.4.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="" scope="TEST">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/test/servlet-api-2.5-20081211.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/activation-1.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="" scope="TEST">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/test/jetty-6.1.24.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="" scope="TEST">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/test/junit-4.8.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="" scope="TEST">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/test/jetty-util-6.1.24.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/commons-codec-1.4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/paranamer-2.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="" scope="TEST">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/test/specs_2.8.1-1.6.6.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/lift-common_2.8.1-2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/lift-actor_2.8.1-2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/lift-webkit_2.8.1-2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/lift-widgets_2.8.1-2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/lift-proto_2.8.1-2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/lift-util_2.8.1-2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/lift-json_2.8.1-2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/lift-mapper_2.8.1-2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/slf4j-api-1.6.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/joda-time-1.6.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/postgresql-8.4-701.jdbc4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/commons-fileupload-1.2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/htmlparser-1.2.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/test/selenium-2.0b1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/test/jmock-junit4-2.5.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/test/jmock-2.5.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/lucene-core-4.0-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/lucene-analyzers-common-4.0-SNAPSHOT.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/newlucene.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/test/selenium-server-2.0b1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/jcl-over-slf4j-1.6.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/commons-httpclient-3.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/nekohtml-1.9.7.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/lift-openid_2.8.1-2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/openid4java-nodeps-0.9.5.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/openid4java-consumer-0.9.5.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/xml-apis-1.3.03.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1-local/compile/xercesImpl-2.8.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" exported="" name="org.scala-lang_scala-library_2.8.1" level="project" />
+    <orderEntry type="library" name="org.scala-lang_scala-compiler_2.8.1" level="project" />
+    <orderEntry type="library" name="net.liftweb_lift-webkit_2.8.1_2.2" level="project" />
+    <orderEntry type="library" name="net.liftweb_lift-util_2.8.1_2.2" level="project" />
+    <orderEntry type="library" name="net.liftweb_lift-actor_2.8.1_2.2" level="project" />
+    <orderEntry type="library" name="net.liftweb_lift-common_2.8.1_2.2" level="project" />
+    <orderEntry type="library" name="org.slf4j_slf4j-api_1.6.1" level="project" />
+    <orderEntry type="library" name="net.liftweb_lift-json_2.8.1_2.2" level="project" />
+    <orderEntry type="library" exported="" name="com.thoughtworks.paranamer_paranamer_2.0" level="project" />
+    <orderEntry type="library" exported="" name="javax.mail_mail_1.4.1" level="project" />
+    <orderEntry type="library" name="javax.activation_activation_1.1" level="project" />
+    <orderEntry type="library" name="commons-codec_commons-codec_1.4" level="project" />
+    <orderEntry type="library" name="joda-time_joda-time_1.6.2" level="project" />
+    <orderEntry type="library" name="nu.validator.htmlparser_htmlparser_1.2.1" level="project" />
+    <orderEntry type="library" name="commons-fileupload_commons-fileupload_1.2.2" level="project" />
+    <orderEntry type="library" name="net.liftweb_lift-mapper_2.8.1_2.2" level="project" />
+    <orderEntry type="library" name="net.liftweb_lift-proto_2.8.1_2.2" level="project" />
+    <orderEntry type="library" name="net.liftweb_lift-openid_2.8.1_2.2" level="project" />
+    <orderEntry type="library" name="org.openid4java_openid4java-consumer_0.9.5" level="project" />
+    <orderEntry type="library" name="org.openid4java_openid4java-nodeps_0.9.5" level="project" />
+    <orderEntry type="library" name="commons-httpclient_commons-httpclient_3.1" level="project" />
+    <orderEntry type="library" name="org.slf4j_jcl-over-slf4j_1.6.1" level="project" />
+    <orderEntry type="library" name="net.liftweb_lift-widgets_2.8.1_2.2" level="project" />
+    <orderEntry type="library" name="ch.qos.logback_logback-classic_0.9.26" level="project" />
+    <orderEntry type="library" name="ch.qos.logback_logback-core_0.9.26" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="com.h2database_h2_1.2.144" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="postgresql_postgresql_8.4-701.jdbc4" level="project" />
+    <orderEntry type="library" scope="TEST" name="junit_junit_4.8.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.jmock_jmock-junit4_2.5.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.jmock_jmock_2.5.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.hamcrest_hamcrest-core_1.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.hamcrest_hamcrest-library_1.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="junit_junit-dep_4.4" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.jmock_jmock-legacy_2.5.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.objenesis_objenesis_1.0" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="cglib_cglib-nodep_2.1_3" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="cglib_cglib_2.1_3" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="asm_asm_1.5.3" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.scala-tools.testing_specs_2.8.1_1.6.6" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.seleniumhq.selenium_selenium_2.0b1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.testng_testng_5.14.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.beanshell_bsh_2.0b4" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="com.google.inject_guice_2.0" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="aopalliance_aopalliance_1.0" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="com.beust_jcommander_1.7" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.seleniumhq.selenium_selenium-chrome-driver_2.0b1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.seleniumhq.selenium_selenium-remote-client_2.0b1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.seleniumhq.selenium_selenium-remote-common_2.0b1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.seleniumhq.selenium_selenium-common_2.0b1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.json_json_20080701" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="com.google.guava_guava_r07" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.apache.httpcomponents_httpclient_4.0.2" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.apache.httpcomponents_httpcore_4.0.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="commons-logging_commons-logging_1.1.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.seleniumhq.selenium_selenium-htmlunit-driver_2.0b1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="net.sourceforge.htmlunit_htmlunit_2.8" level="project" />
+    <orderEntry type="library" scope="TEST" name="xalan_xalan_2.7.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="xalan_serializer_2.7.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="xml-apis_xml-apis_1.3.04" level="project" />
+    <orderEntry type="library" scope="TEST" name="commons-collections_commons-collections_3.2.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="commons-lang_commons-lang_2.4" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.apache.httpcomponents_httpmime_4.0.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.apache.james_apache-mime4j_0.6" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="net.sourceforge.htmlunit_htmlunit-core-js_2.8" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="xerces_xercesImpl_2.9.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="net.sourceforge.nekohtml_nekohtml_1.9.14" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="net.sourceforge.cssparser_cssparser_0.9.5" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.w3c.css_sac_1.3" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="commons-io_commons-io_1.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-firefox-driver_2.0b1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.seleniumhq.selenium_selenium-ie-driver_2.0b1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="net.java.dev.jna_jna_3.2.2" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.seleniumhq.selenium_selenium-iphone-driver_2.0b1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.seleniumhq.selenium_selenium-support_2.0b1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.hamcrest_hamcrest-all_1.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.seleniumhq.selenium_selenium-server_2.0b1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="ant_ant_1.6.5" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="bouncycastle_bcprov-jdk15_135" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="mx4j_mx4j-tools_3.0.1" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.mortbay.jetty_servlet-api-2.5_6.1.9" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.mortbay.jetty_jetty_6.1.22" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.mortbay.jetty_jetty-util_6.1.22" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="org.mortbay.jetty_servlet-api_2.5-20081211" level="project" />
+    <orderEntry type="library" exported="" name="newlucene.jar" level="project" />
+    <orderEntry type="library" exported="" name="lucene-analyzers-common-4.0-SNAPSHOT.jar" level="project" />
+    <orderEntry type="library" exported="" name="lucene-core-4.0-SNAPSHOT.jar" level="project" />
   </component>
 </module>
 

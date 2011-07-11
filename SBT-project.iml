@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="scala" name="Scala">
+      <configuration>
+        <option name="compilerLibraryLevel" value="Project" />
+        <option name="compilerLibraryName" value="scala-2.8.1" />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/project/target/scala_2.8.1" />
+    <output-test url="file://$MODULE_DIR$/project/target/scala_2.8.1" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/project">
+      <sourceFolder url="file://$MODULE_DIR$/project" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/project/plugins" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/project/boot" />
+      <excludeFolder url="file://$MODULE_DIR$/project/build" />
+      <excludeFolder url="file://$MODULE_DIR$/project/extra-install-files" />
+      <excludeFolder url="file://$MODULE_DIR$/project/plugins/lib" />
+      <excludeFolder url="file://$MODULE_DIR$/project/plugins/project" />
+      <excludeFolder url="file://$MODULE_DIR$/project/plugins/target" />
+      <excludeFolder url="file://$MODULE_DIR$/project/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="sbt-and-plugins">
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/project/boot/scala-2.8.1/org.scala-tools.sbt/sbt/0.10.0" />
+          <root url="jar://$MODULE_DIR$/project/boot/scala-2.8.1/org.scala-tools.sbt/sbt/0.10.0/xsbti/interface-0.10.0.jar!/" />
+          <root url="file://$USER_HOME$/.sbt/plugins/target/scala-2.8.1.final/classes" />
+          <root url="file://$MODULE_DIR$/project/target/scala_2.8.1" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/task-system_2.8.1/jars/task-system_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/cache_2.8.1/jars/cache_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/main_2.8.1/jars/main_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.github.mpeltonen/sbt-idea_2.8.1/jars/sbt-idea_2.8.1-0.10.0-SNAPSHOT.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/api_2.8.1/jars/api_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/sbt_2.8.1/jars/sbt_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/process_2.8.1/jars/process_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/interface/jars/interface-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/jline/jline/jars/jline-0.9.94.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/discovery_2.8.1/jars/discovery_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/project/boot/scala-2.8.1/lib/scala-compiler.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/compiler-interface/jars/compiler-interface-src-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/compile_2.8.1/jars/compile_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.jcraft/jsch/jars/jsch-0.1.31.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/classpath_2.8.1/jars/classpath_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/actions_2.8.1/jars/actions_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.github.siasia/xsbt-proguard-plugin_2.8.1/jars/xsbt-proguard-plugin_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/classfile_2.8.1/jars/classfile_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.github.siasia.sbt/web-app_2.8.1/jars/web-app_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/tasks_2.8.1/jars/tasks_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/tracking_2.8.1/jars/tracking_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/run_2.8.1/jars/run_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.github.siasia/xsbt-web-plugin_2.8.1/jars/xsbt-web-plugin_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/incremental-compiler_2.8.1/jars/incremental-compiler_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/control_2.8.1/jars/control_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/junit/junit/jars/junit-3.8.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.testing/test-interface/jars/test-interface-0.5.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/launcher-interface/jars/launcher-interface-0.10.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/project/boot/scala-2.8.1/lib/scala-library.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.apache.ivy/ivy/jars/ivy-2.2.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/ivy_2.8.1/jars/ivy_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbinary/sbinary_2.8.1/jars/sbinary_2.8.1-0.4.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/persist_2.8.1/jars/persist_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/project/boot/scala-2.8.1/lib/jline.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/compiler-interface/jars/compiler-interface-bin-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/net.sf.proguard/proguard/jars/proguard-4.6.jar!/" />
+          <root url="jar://$MODULE_DIR$/project/boot/scala-2.8.1/lib/junit.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/completion_2.8.1/jars/completion_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/io_2.8.1/jars/io_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/testing_2.8.1/jars/testing_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/logging_2.8.1/jars/logging_2.8.1-0.10.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-tools.sbt/collections_2.8.1/jars/collections_2.8.1-0.10.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="scala-2.8.1" level="project" />
+  </component>
+</module>
+
