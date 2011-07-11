@@ -169,7 +169,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     SHtml.ajaxSelect(revs, defaultComment(mbr), replace _, ("class", "select"))
   }
 
-    /** Render revision selection for member entity. */
+  /** Render revision selection for member entity. */
   private def selectDefault(mbr: MemberEntity, isSelf: Boolean) = {
     def replace(cid: String) = {
       Comment.find(cid) match {
