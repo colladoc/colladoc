@@ -36,7 +36,7 @@ class Profile(rootPack: Package) extends scala.tools.colladoc.page.Template(root
   override val body =
     <body class="profile">
       <div id="definition">
-        <img src="/images/profile_big.png" />
+        <profile:gravatar />
         <h1><profile:fullname /></h1>
       </div>
       <div id="template">

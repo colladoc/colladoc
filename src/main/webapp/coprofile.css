@@ -7,16 +7,15 @@
     text-decoration: underline;
 }
 
-.profile li {
-    list-style: disc;
-    list-style-position: inside;
-    margin: 3px 3px;
+.profile #gravatar_wrapper, #gravatar_image {
+    display: inline-block;
 }
 
-.profile p {
-    margin-bottom: 7px;
+.profile #definition {
+    float: left;
+    width: 100%;
 }
 
-.profile h1, h2, h3, h4, h5, h6 {
-    font-weight: bold;
+.profile #definition * {
+    float: left;
 }

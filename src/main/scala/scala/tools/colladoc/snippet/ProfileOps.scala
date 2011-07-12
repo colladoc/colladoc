@@ -31,6 +31,7 @@ import net.liftweb.util.BindHelpers._
 import net.liftweb.http.{SHtml, S, RequestVar}
 import net.liftweb.mapper.{By, MaxRows}
 import net.liftweb.common.{Box, Full}
+import net.liftweb.widgets.gravatar.Gravatar
 
 /**
  * User profile snippet.
@@ -41,19 +42,17 @@ class ProfileOps {
 
   lazy val profile = new Profile(model.vend.rootPackage)
 
-  def title(xhtml: NodeSeq): NodeSeq = Text(profile.title)
+  def title(xhtml: NodeSeq): NodeSeq = Text(getUser.userName.is)
+
+  def getUser = User.find(By(User.userName, username)).open_!
 
   def body(xhtml: NodeSeq): NodeSeq = {
-    val maybeUser: Box[User] = User.find(By(User.userName, username))
+    val user = getUser
 
-    val fullname = maybeUser match {
-      case Full(u) => u.userName.is
-      case _ => ""
-    }
+    val fullname = user.userName.is
 
-    val comments = maybeUser match {
-      case Full(u) =>
-        val cmts = Comment.findAll(By(Comment.user, u), By(Comment.valid, true))
+    val cmts = Comment.findAll(By(Comment.user, user), By(Comment.valid, true))
+    val comments =
         if (cmts.length == 0)
           <span>No comments from this user.</span>
         else
@@ -67,12 +66,9 @@ class ProfileOps {
                 })
             }
           </ul>
-      case _ => <span></span>
-    }
 
-
-    bind("profile",
-      profile.body,
+    bind("profile", profile.body,
+      "gravatar" -> Gravatar(user.email, 60),
       "fullname" -> Text(fullname),
       "comments" -> comments
     )
