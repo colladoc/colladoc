@@ -80,6 +80,8 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
       ).toString
     }
 
+    val link = <a target="template" href={"/profile/" + urlEncode(userName)}>{userName}</a>
+
     val row =
     <row id={id.toString}>
       <cell>{ajaxField(userName)}</cell>
@@ -87,6 +89,7 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
       <cell>{ajaxField(openId, ("class", "openid_input"))}</cell>
       <cell><row:superuser /></cell>
       <cell><row:delete /></cell>
+      <cell>{link.toString}</cell>
     </row>
 
     bind("row", row,
