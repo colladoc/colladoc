@@ -28,6 +28,7 @@ import org.openid4java.consumer.VerificationResult
 import org.openid4java.message.AuthRequest
 import org.openid4java.discovery.{DiscoveryInformation, Identifier}
 import net.liftweb.openid._
+import net.liftweb.openid.WellKnownAttributes._
 import net.liftweb.common.{Logger, Full, Box}
 import model.mapper.User
 
@@ -40,7 +41,6 @@ object ColladocOpenIDVendor extends SimpleOpenIDVendor with Logger {
   override def createAConsumer = new AnyRef with OpenIDConsumer[UserType] {
 
     def addParams(di: DiscoveryInformation, authReq: AuthRequest) {
-      import WellKnownAttributes._
       WellKnownEndpoints.findEndpoint(di) map {
         ep =>
           ep.makeAttributeExtension(List(Email, FullName, FirstName, LastName)) foreach {
@@ -57,17 +57,17 @@ object ColladocOpenIDVendor extends SimpleOpenIDVendor with Logger {
       case Full(id) =>
         val user = User.createIfNew(id.getIdentifier)
 
-        import WellKnownAttributes._
         val attrs = WellKnownAttributes.attributeValues(res.getAuthResponse)
-        
         attrs.get(Email) map { e => user.email(trace("Extracted email", e)) }
         attrs.get(FirstName) map { n => user.firstName(trace("Extracted name", n)) }
         attrs.get(LastName) map { n => user.lastName(trace("Extracted name", n)) }
 
-        if (user.userName isEmpty) {
+        if (user.userName.is.trim isEmpty)
           user.userName(user.firstName + " " + user.lastName)
-        }
-        
+
+        if (user.userName.is.trim isEmpty)
+          user.userName(id.getIdentifier)
+
         user.save()
 
         User.logUserIn(user)
