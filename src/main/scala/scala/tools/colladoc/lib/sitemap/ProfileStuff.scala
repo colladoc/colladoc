@@ -24,11 +24,13 @@ package scala.tools.colladoc
 package lib
 package sitemap
 
+import xml.Text
 import net.liftweb.sitemap.Loc
 import net.liftweb.http.{RewriteResponse, ParsePath, RewriteRequest}
 import net.liftweb.util.NamedPF
-import xml.Text
 import net.liftweb.common.Full
+import net.liftweb.mapper.By
+import model.mapper.User
 
 /** Profile location parameter. */
 case class ProfileLoc()
@@ -54,7 +56,8 @@ object ProfileStuff extends Loc[ProfileLoc] {
 
   /** Rewrite location. */
   override val rewrite: LocRewrite = Full(NamedPF("Profile Rewrite") {
-    case RewriteRequest(ParsePath("profile" :: username :: Nil, _, _, _), _, _) =>
+    case RewriteRequest(ParsePath("profile" :: username :: Nil, _, _, _), _, _)
+      if (!User.find(By(User.userName, username)).isEmpty) =>
        (RewriteResponse("profile" :: Nil, Map("username" -> username)), ProfileLoc())
   })
 }
