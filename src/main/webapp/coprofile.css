@@ -74,3 +74,12 @@
     font-size: 8pt;
     padding-top: 0.2em;
 }
+
+.profile h2, h3, h4, h5, h6 {
+    font-weight: bold;
+}
+
+.datetime {
+    color: #666;
+    font-size: 80%;
+}

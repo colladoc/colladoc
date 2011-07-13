@@ -28,6 +28,7 @@ import lib.DependencyFactory._
 import page.Profile
 import xml.{NodeSeq, Text}
 import net.liftweb.util.BindHelpers._
+import net.liftweb.util.DefaultDateTimeConverter._
 import net.liftweb.http.{SHtml, S, RequestVar}
 import net.liftweb.mapper.By
 import net.liftweb.widgets.gravatar.Gravatar
@@ -120,21 +121,26 @@ class ProfileOps {
 
     val fullname = user.userName.is
 
-    val cmts = Comment.findAll(By(Comment.user, user), By(Comment.valid, true))
+    val cmts: List[Comment] = Comment.findAll(By(Comment.user, user), By(Comment.valid, true))
     val comments =
         if (cmts.length == 0)
-          <span>No comments from this user.</span>
+          <h3>No comments by user.</h3>
         else
-          <ul>
-            { cmts.map(c =>
-                {
-                  val abs = "/" + c.qualifiedName.is.replace(".", "/").replace("#", "$") + ".html"
-                  <li>
-                    <a href={abs}>{c.qualifiedName.is}</a>: {c.comment.is}
-                  </li>
-                })
-            }
-          </ul>
+          <xml:group>
+            <h3>Comments by user</h3>
+            <ul>
+              { cmts.sortBy(c => c.qualifiedName.is).map(c =>
+                  {
+                    val abs = "/" + c.qualifiedName.is.replace(".", "/").replace("#", "$") + ".html"
+                    <li>
+                      <a href={abs}>{c.qualifiedName.is}</a>:
+                      <span class="comment">{c.comment.is}</span>
+                      <span class="datetime" title={Comment.atomDateFormatter(c.dateTime)}>{formatDate(c.dateTime)}</span>
+                    </li>
+                  })
+              }
+            </ul>
+          </xml:group>
 
     bind("profile", profile.body,
       "form"     -> userForm(user),
