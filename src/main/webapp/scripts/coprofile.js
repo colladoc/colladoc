@@ -20,38 +20,8 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc.page
 
-import tools.nsc.doc.model._
-
-/**
- * Profile profile page.
- * @author Sergey Ignatov
- */
-class Profile(rootPack: Package) extends scala.tools.colladoc.page.Template(rootPack) {
-  /**Page title. */
-  override val title = "User"
-
-  /** Page body. */
-  override val body =
-    <body class="profile">
-      <div id="definition">
-        <profile:gravatar />
-        <h1>User profile: <profile:fullname /></h1>
-      </div>
-      <div id="template">
-        <div id="profile_tabs">
-          <ul>
-            <li><a href="#profile_tab">Profile</a></li>
-            <li><a href="#comments_tab">Comments</a></li>
-          </ul>
-          <div id="profile_tab">
-            <profile:form />
-          </div>
-          <div id="comments_tab">
-            <profile:comments />
-          </div>
-        </div>
-      </div>
-    </body>
-}
+$(document).ready(function() {
+    $("#profile_tabs").tabs();
+    $(".profile_form").validate();
+});

@@ -23,15 +23,20 @@
 package scala.tools.colladoc
 package snippet
 
-import model.mapper.{Comment, User}
+import model.mapper.{Properties, Comment, User}
+import lib.util.Helpers._
 import lib.DependencyFactory._
 import page.Profile
 import xml.{NodeSeq, Text}
 import net.liftweb.util.BindHelpers._
+import net.liftweb.util.SecurityHelpers._
 import net.liftweb.http.{SHtml, S, RequestVar}
-import net.liftweb.mapper.{By, MaxRows}
-import net.liftweb.common.{Box, Full}
+import net.liftweb.mapper.By
 import net.liftweb.widgets.gravatar.Gravatar
+import lib.js.JqUI.SubmitFormWithValidation
+import net.liftweb.http.js.JsCmds.SetValById
+import net.liftweb.http.js.JE.Str
+import net.liftweb.http.js.{JsCmds, JsCmd}
 
 /**
  * User profile snippet.
@@ -45,6 +50,77 @@ class ProfileOps {
   def title(xhtml: NodeSeq): NodeSeq = Text(getUser.userName.is)
 
   def getUser = User.find(By(User.userName, username)).open_!
+
+  private def userForm(user: User): NodeSeq = {
+    val id = idAttrEncode(hash(user.userName))
+
+    var title = Properties.get("-doc-title").getOrElse("")
+    var version = Properties.get("-doc-version").getOrElse("")
+
+    def doSave(): JsCmd = {
+      user.validate match {
+        case Nil =>
+          S.notice("User successfully saved")
+          user.save()
+        case n =>
+          S.error(n)
+      }
+      JsCmds.Noop
+    }
+
+    val form =
+      <lift:form class="profile_form">
+        <fieldset>
+          <p>
+            <label for="username">Username</label>
+            <user:username class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="fullname">Full Name</label>
+            <user:fullname class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="version">E-mail</label>
+            <user:email class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="password">Password</label>
+            <user:password class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="openid">OpenID</label>
+            <user:openid class="text ui-widget-content ui-corner-all" />
+          </p>
+          <user:submit />
+          <user:save />
+          <user:reset />
+        </fieldset>
+      </lift:form>
+
+    bind("user", form,
+      "username" -%> SHtml.text(user.userName.is, user.userName(_), ("id", "username")),
+      "fullname" -%> SHtml.text(user.shortName, name => {
+          val idx = name.indexOf(" ")
+          if (idx != -1) {
+            user.firstName(name.take(idx))
+            user.lastName(name.drop(idx + 1))
+          } else
+            user.firstName(name)
+        }, ("id", "fullname")),
+      "email" -%> SHtml.text(user.email.is, user.email(_), ("id", "email")),
+      "password" -%> SHtml.password("", user.password(_), ("id", "password")),
+      "openid" -%> SHtml.text(user.openId.is, user.openId(_), ("id", "openid")),
+      "submit" -> SHtml.hidden(doSave _),
+      "save" -> SHtml.a(Text("Save"), SubmitFormWithValidation(".profile_form"), ("class", "button")),
+      "reset" -> SHtml.a(Text("Reset"),
+        SetValById("username", Str(user.userName.is)) &
+        SetValById("fullname", Str(user.shortName)) &
+        SetValById("email", Str(user.email.is)) &
+        SetValById("password", Str("")) &
+        SetValById("openid", Str(user.openId.is)),
+        ("class", "button"))
+    )
+  }
 
   def body(xhtml: NodeSeq): NodeSeq = {
     val user = getUser
@@ -68,6 +144,7 @@ class ProfileOps {
           </ul>
 
     bind("profile", profile.body,
+      "form"     -> userForm(user),
       "gravatar" -> Gravatar(user.email, 60),
       "fullname" -> Text(fullname),
       "comments" -> comments

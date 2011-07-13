@@ -86,6 +86,11 @@ object JqUI {
     override def toJsCmd = "$('" + jqId +"').submit();"
   }
 
+  /** Submit form */
+  case class SubmitFormWithValidation(jqId: String) extends JsCmd with JsMember {
+    override def toJsCmd = "if ($('" + jqId +"').valid()) " + "$('" + jqId + "').submit();"
+  }
+
   /** Confirm dialog. */
   def ColladocConfirm(what: String) = Call("confirm", Str(what))
 }
