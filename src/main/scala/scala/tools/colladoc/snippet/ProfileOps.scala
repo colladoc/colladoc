@@ -23,13 +23,11 @@
 package scala.tools.colladoc
 package snippet
 
-import model.mapper.{Properties, Comment, User}
-import lib.util.Helpers._
+import model.mapper.{Comment, User}
 import lib.DependencyFactory._
 import page.Profile
 import xml.{NodeSeq, Text}
 import net.liftweb.util.BindHelpers._
-import net.liftweb.util.SecurityHelpers._
 import net.liftweb.http.{SHtml, S, RequestVar}
 import net.liftweb.mapper.By
 import net.liftweb.widgets.gravatar.Gravatar
@@ -52,11 +50,6 @@ class ProfileOps {
   def getUser = User.find(By(User.userName, username)).open_!
 
   private def userForm(user: User): NodeSeq = {
-    val id = idAttrEncode(hash(user.userName))
-
-    var title = Properties.get("-doc-title").getOrElse("")
-    var version = Properties.get("-doc-version").getOrElse("")
-
     def doSave(): JsCmd = {
       user.validate match {
         case Nil =>
