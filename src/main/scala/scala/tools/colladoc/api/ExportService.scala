@@ -26,6 +26,7 @@ package api {
 import model.Model
 import model.Model.factory._
 import model.mapper.Comment
+import lib.DependencyFactory.model
 import lib.util.NameUtils._
 import lib.util.PathUtils._
 
@@ -55,7 +56,7 @@ object ExportService extends RestHelper {
       case _ => Long.MaxValue
     }
     <scaladoc>
-      { new Traversal(rec, rev) construct(Model.model.rootPackage, path) }
+      { new Traversal(rec, rev) construct(model.vend.rootPackage, path) }
     </scaladoc>
   }
 

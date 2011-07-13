@@ -101,6 +101,7 @@ trait DynamicModelFactory extends ModelFactory { thisFactory: ModelFactory with 
     def isAbstractType = mbr.isAbstractType
     def isTemplate = mbr.isTemplate
     def universe = mbr.universe
+    def annotations = mbr.annotations
     override def equals(other: Any) = other match {
       case that: MemberEntityProxy => mbr.equals(that.mbr)
       case _ => mbr.equals(other)

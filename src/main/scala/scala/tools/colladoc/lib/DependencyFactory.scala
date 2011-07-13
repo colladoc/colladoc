@@ -23,17 +23,22 @@
 package scala.tools.colladoc {
 package lib {
 
-import net.liftweb._
-import http._
+import net.liftweb.http._
 import model.mapper.{CommentToString, Comment}
 import model.{SearchIndex, Model}
 import net.liftweb.util.Props
+  
+import tools.nsc.doc.Universe
+import tools.nsc.doc.doclet.{Indexer, Universer, Generator}
+import tools.nsc.doc.html.Doclet
+import tools.nsc.doc.model.IndexModelFactory
 
 /**
  * Factory providing various dependencies.
  * @author Petr Hosek
  */
 object DependencyFactory extends Factory {
+  implicit object doclet extends FactoryMaker(getDoclet _)
   implicit object model extends FactoryMaker(getModel _)
   implicit object index extends FactoryMaker(getIndex _)
   implicit object path extends FactoryMaker(getPath _)
@@ -48,17 +53,33 @@ object DependencyFactory extends Factory {
   private def getProps =
     Props.props
 
+  private lazy val getDoclet = {
+    val doclet = new Doclet
+
+    doclet match {
+      case universer: Universer =>
+        universer setUniverse getModel
+        doclet match {
+          case indexer: Indexer => indexer setIndex IndexModelFactory.makeIndex(getModel)
+          case _ => ()
+        }
+      case _ => ()
+    }
+
+    doclet
+  }
+
   // Note: Lazy eval is necessary here to give us an opportunity to do DI of
   // dependencies required by the model and the index.
-  private lazy val getModel = {
+  private lazy val getModel: Universe = {
     // Make sure that we index the model when it is created.
     getIndex
 
-    Model.model
+    Model.model.get // TODO: use safe solution
   }
 
   private lazy val getIndex =
-    new SearchIndex(Model.model.rootPackage, getComment)
+    new SearchIndex(Model.model.get.rootPackage, getComment) // TODO: use safe solution
 }
 }
 
