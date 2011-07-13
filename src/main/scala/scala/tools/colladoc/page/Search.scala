@@ -269,10 +269,10 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
       def constructorParam0(vl: ValueParam): NodeSeq =
         // notice the }{ in the next lines, they are necessary to avoid a undesired withspace in output
         <span name={ vl.name }>{ Text(vl.name + ": ") }{ typeToHtml(vl.resultType, hasLinks) }{
-          if(!vl.defaultValue.isEmpty) {
-            defaultValueToHtml(vl.defaultValue.get);
-          }
-          else NodeSeq.Empty
+          if(!vl.defaultValue.isEmpty)
+            treeToHtml(vl.defaultValue.get)
+          else
+            NodeSeq.Empty
         }</span>
       def constructorParams0(vlss: List[ValueParam]): NodeSeq = vlss match {
         case Nil => NodeSeq.Empty

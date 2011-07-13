@@ -23,12 +23,12 @@
 package scala.tools.colladoc {
 package page {
 
-import lib.util.Helpers._
-import lib.util.NameUtils._
 import model.Model
 import model.Model.factory._
 import model.mapper.Comment
 import lib.DependencyFactory.model
+import lib.util.Helpers._
+import lib.util.NameUtils._
 
 import net.liftweb.util.Helpers._
 

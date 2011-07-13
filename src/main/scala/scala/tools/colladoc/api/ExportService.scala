@@ -26,6 +26,7 @@ package api {
 import model.Model
 import model.Model.factory._
 import model.mapper.Comment
+import lib.DependencyFactory.model
 import lib.util.NameUtils._
 import lib.util.PathUtils._
 import lib.DependencyFactory.model
