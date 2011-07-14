@@ -144,7 +144,6 @@ class ProfileOps {
 
     bind("profile", profile.body,
       "form"     -> userForm(user),
-      "gravatar" -> Gravatar(user.email, 60),
       "fullname" -> Text(fullname),
       "comments" -> comments
     )

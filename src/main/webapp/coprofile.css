@@ -12,11 +12,6 @@
     text-decoration: underline;
 }
 
-.profile #gravatar_wrapper, #gravatar_image {
-    display: inline-block;
-    float: left;
-}
-
 .profile a {
     color: #3366ff;
     text-decoration: underline;
