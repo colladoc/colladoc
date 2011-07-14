@@ -57,7 +57,7 @@ object ProfileStuff extends Loc[ProfileLoc] {
   /** Rewrite location. */
   override val rewrite: LocRewrite = Full(NamedPF("Profile Rewrite") {
     case RewriteRequest(ParsePath("profile" :: username :: Nil, _, _, _), _, _)
-      if (!User.find(By(User.userName, username)).isEmpty) =>
+      if (User.superUser_? && !User.find(By(User.userName, username)).isEmpty) =>
        (RewriteResponse("profile" :: Nil, Map("username" -> username)), ProfileLoc())
   })
 }
