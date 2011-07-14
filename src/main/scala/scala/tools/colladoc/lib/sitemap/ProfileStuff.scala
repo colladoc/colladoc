@@ -59,5 +59,7 @@ object ProfileStuff extends Loc[ProfileLoc] {
     case RewriteRequest(ParsePath("profile" :: username :: Nil, _, _, _), _, _)
       if (User.superUser_? && !User.find(By(User.userName, username)).isEmpty) =>
        (RewriteResponse("profile" :: Nil, Map("username" -> username)), ProfileLoc())
+    case RewriteRequest(ParsePath("profile" :: Nil, _, _, _), _, _) if (!User.loggedIn_?) =>
+      (RewriteResponse("" :: Nil), ProfileLoc())
   })
 }

@@ -42,7 +42,7 @@ import net.liftweb.http.js.{JsCmds, JsCmd}
  * @author Sergey Ignatov
  */
 class ProfileOps {
-  object username extends RequestVar[String](S.param("username") openOr "")
+  object username extends RequestVar[String](S.param("username") openOr (User.currentUser.map(_.userName.is) openOr ""))
 
   lazy val profile = new Profile(model.vend.rootPackage)
 
