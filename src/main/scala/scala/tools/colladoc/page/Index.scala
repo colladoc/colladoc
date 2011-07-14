@@ -95,10 +95,9 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
   private def loggedIn =
     <xml:group>
       <div class="avatar">
-        { SHtml.a(
-            Gravatar(User.currentUser.open_! email, 16) ++
-            SHtml.span(Text(User.currentUser.open_! userName), Noop, ("class", "name")),
-            Jq(Str(".user")) ~> OpenDialog()) }
+        <a href="/profile" target="template">
+          { Gravatar(User.currentUser.open_! email, 16) ++ SHtml.span(Text(User.currentUser.open_! userName), Noop)}
+        </a>
       </div>
       <ul class="usernav">
         { if (User.superUser_?)
