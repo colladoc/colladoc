@@ -120,7 +120,10 @@ function reload() {
 }
 
 function filter() {
-    var query = $("#textfilter input").attr("value").toLowerCase();
+    var value = $("#textfilter input").attr("value");
+    var query = "";
+    if (value)
+        query = value.toLowerCase();
     var queryRegExp = new RegExp(query, "i");
     $(".members > ol > li").each(function(){
         var qualName1 = $(this).attr("name");
