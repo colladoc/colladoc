@@ -7,26 +7,6 @@
     border: none;
 }
 
-.profile a {
-    color: #3366ff;
-    text-decoration: underline;
-}
-
-.profile a {
-    color: #3366ff;
-    text-decoration: underline;
-}
-
-.profile li {
-    list-style: disc;
-    list-style-position: inside;
-    margin: 3px 3px;
-}
-
-.profile p {
-    margin-bottom: 7px;
-}
-
 .form {
     width: 400px;
 }
@@ -77,4 +57,12 @@
 .datetime {
     color: #666;
     font-size: 80%;
+}
+
+#comments_tab > h3 {
+    background-color: #333;
+    color: white;
+    font-weight: bold;
+    font-size: 12pt;
+    padding: 4px;
 }

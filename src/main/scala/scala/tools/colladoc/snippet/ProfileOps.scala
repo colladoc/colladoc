@@ -25,7 +25,6 @@ package snippet
 
 import model.mapper.{Comment, User}
 import lib.DependencyFactory._
-import page.Profile
 import xml.{NodeSeq, Text}
 import net.liftweb.util.BindHelpers._
 import net.liftweb.util.DefaultDateTimeConverter._
@@ -35,6 +34,7 @@ import lib.js.JqUI.SubmitFormWithValidation
 import net.liftweb.http.js.JsCmds.SetValById
 import net.liftweb.http.js.JE.Str
 import net.liftweb.http.js.{JsCmds, JsCmd}
+import page.{History, Profile}
 
 /**
  * User profile snippet.
@@ -174,25 +174,7 @@ class ProfileOps {
     val fullname = user.userName.is
 
     val cmts: List[Comment] = Comment.findAll(By(Comment.user, user), By(Comment.valid, true))
-    val comments =
-        if (cmts.length == 0)
-          <h3>No comments by user.</h3>
-        else
-          <xml:group>
-            <h3>Comments by user</h3>
-            <ul>
-              { cmts.sortBy(c => c.qualifiedName.is).map(c =>
-                  {
-                    val abs = "/" + c.qualifiedName.is.replace(".", "/").replace("#", "$") + ".html"
-                    <li>
-                      <a href={abs}>{c.qualifiedName.is}</a>:
-                      <span class="comment">{c.comment.is}</span>
-                      <span class="datetime" title={Comment.atomDateFormatter(c.dateTime)}>{formatDate(c.dateTime)}</span>
-                    </li>
-                  })
-              }
-            </ul>
-          </xml:group>
+    val comments = new History(model.vend.rootPackage).commentsToHtml(cmts)
 
     bind("profile", profile.body,
       "form"     -> userForm(user),

@@ -118,7 +118,7 @@ function confirm(message, callback, options) {
     dialogClass: 'modal-shadow'
   };
 
-  $confirm = $.getOrCreateDialog('confirm');
+  $confirm = $.getOrCreateDialog('colladoc_confirm');
   // set message
   $("p", $confirm).html(message);
   // init dialog
