@@ -63,33 +63,13 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
 
   /** Grid entry. */
   def toGridRow = {
-    def ajaxField(field: MappedString[User], attrs: (String, String)*) = {
-      SHtml.ajaxText(field,
-        ColladocConfirm("Update user details?"),
-        (t: String) => {
-          field(t)
-          validate match {
-            case Nil =>
-              S.notice("Data successfully saved")
-              save()
-            case n =>
-              S.error(n)
-          }
-          Noop},
-        (attrs: Seq[ElemAttr]) :_*
-      ).toString
-    }
-
     val link = <a target="template" href={"/profile/" + urlEncode(userName)}>{userName}</a>
 
     val row =
     <row id={id.toString}>
-      <cell>{ajaxField(userName)}</cell>
-      <cell>{ajaxField(email)}</cell>
-      <cell>{ajaxField(openId, ("class", "openid_input"))}</cell>
+      <cell>{link.toString}</cell>
       <cell><row:superuser /></cell>
       <cell><row:delete /></cell>
-      <cell>{link.toString}</cell>
     </row>
 
     bind("row", row,
