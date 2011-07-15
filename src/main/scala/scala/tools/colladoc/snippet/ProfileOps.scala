@@ -77,10 +77,6 @@ class ProfileOps {
             <user:email class="text required ui-widget-content ui-corner-all" />
           </p>
           <p>
-            <label for="password">Password</label>
-            <user:password class="text required ui-widget-content ui-corner-all" />
-          </p>
-          <p>
             <label for="openid">OpenID</label>
             <user:openid class="text ui-widget-content ui-corner-all" />
           </p>
@@ -101,7 +97,6 @@ class ProfileOps {
             user.firstName(name)
         }, ("id", "fullname")),
       "email" -%> SHtml.text(user.email.is, user.email(_), ("id", "email")),
-      "password" -%> SHtml.password("", user.password(_), ("id", "password")),
       "openid" -%> SHtml.text(user.openId.is, user.openId(_), ("id", "openid")),
       "submit" -> SHtml.hidden(doSave _),
       "save" -> SHtml.a(Text("Save"), SubmitFormWithValidation(".profile_form"), ("class", "button")),
