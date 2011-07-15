@@ -42,11 +42,15 @@ class Profile(rootPack: Package) extends scala.tools.colladoc.page.Template(root
       <div id="template">
         <div id="profile_tabs">
           <ul>
-            <li><a href="#profile_tab">Profile</a></li>
+            <li><a href="#profile_tab">Public Profile</a></li>
+            <li><a href="#account_admin_tab">Account Admin</a></li>
             <li><a href="#comments_tab">Comments</a></li>
           </ul>
           <div id="profile_tab">
             <profile:form />
+          </div>
+          <div id="account_admin_tab">
+              <profile:change_password />
           </div>
           <div id="comments_tab">
             <profile:comments />

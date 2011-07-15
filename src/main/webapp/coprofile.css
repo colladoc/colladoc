@@ -27,34 +27,34 @@
     margin-bottom: 7px;
 }
 
-.profile_form {
+.form {
     width: 400px;
 }
 
-.profile_form label {
+.form label {
     display: block;
     font-weight: bold;
 }
 
-.profile_form input {
+.form input {
     display: block;
 }
 
-.profile_form fieldset {
+.form fieldset {
     padding: 0;
     border: 0;
     margin-top: 8px;
 }
 
-.profile_form p {
+.form p {
     margin-bottom: 12px;
 }
 
-.profile_form input[readonly] {
+.form input[readonly] {
     background: #DDD;
 }
 
-.profile_form input.text {
+.form input.text {
     width: 95%;
     padding: .4em;
 }
@@ -63,7 +63,7 @@
     padding: 4px 10px;
 }
 
-.profile_form .error {
+.form .error {
     color: #666666;
     display: block;
     font-size: 8pt;

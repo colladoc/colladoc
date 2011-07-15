@@ -31,7 +31,6 @@ import net.liftweb.util.BindHelpers._
 import net.liftweb.util.DefaultDateTimeConverter._
 import net.liftweb.http.{SHtml, S, RequestVar}
 import net.liftweb.mapper.By
-import net.liftweb.widgets.gravatar.Gravatar
 import lib.js.JqUI.SubmitFormWithValidation
 import net.liftweb.http.js.JsCmds.SetValById
 import net.liftweb.http.js.JE.Str
@@ -63,7 +62,7 @@ class ProfileOps {
     }
 
     val form =
-      <lift:form class="profile_form">
+      <lift:form class="form profile_form">
         <fieldset>
           <p>
             <label for="username">Username</label>
@@ -116,6 +115,64 @@ class ProfileOps {
     )
   }
 
+  def changePasswordForm(user: User) = {
+    var oldPass, newPass, confirm: String = ""
+
+    def doSave(): JsCmd = {
+      if (user.password.match_?(oldPass)) {
+        if (newPass == confirm) {
+          user.password(newPass)
+          user.validate match {
+            case Nil =>
+              S.notice("User successfully saved")
+              user.save()
+            case n =>
+              S.error(n)
+          }
+        } else {
+          S.error("Password doesn't match the confirmation")
+        }
+      } else {
+        S.error("Old password isn't valid")
+      }
+      JsCmds.Noop
+    }
+
+    val form =
+      <lift:form class="form change_password_form">
+        <fieldset>
+          <p>
+            <label for="old">Enter your old password:</label>
+            <change:old class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="new">Enter your new password:</label>
+            <change:new class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="confirm">Confirm it:</label>
+            <change:confirm class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <change:submit />
+          <change:save />
+          <change:reset />
+        </fieldset>
+      </lift:form>
+
+    bind("change", form,
+      "old"     -%> SHtml.password("", oldPass = _, ("id", "old")),
+      "new"     -%> SHtml.password("", newPass = _, ("id", "new")),
+      "confirm" -%> SHtml.password("", confirm = _, ("id", "confirm")),
+      "submit"   -> SHtml.hidden(doSave _),
+      "save"     -> SHtml.a(Text("Save"), SubmitFormWithValidation(".change_password_form"), ("class", "button")),
+      "reset"    -> SHtml.a(Text("Reset"),
+        SetValById("old", Str(oldPass)) &
+        SetValById("new", Str(newPass)) &
+        SetValById("confirm", Str(confirm)),
+        ("class", "button"))
+    )
+  }
+
   def body(xhtml: NodeSeq): NodeSeq = {
     val user = getUser
 
@@ -144,6 +201,7 @@ class ProfileOps {
 
     bind("profile", profile.body,
       "form"     -> userForm(user),
+      "change_password" -> changePasswordForm(user),
       "fullname" -> Text(fullname),
       "comments" -> comments
     )

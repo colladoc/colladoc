@@ -24,5 +24,6 @@
 $(document).ready(function() {
     $("#profile_tabs").tabs();
     $(".profile_form").validate();
+    $(".change_password_form").validate();
     $(".datetime").prettyDate();
 });
