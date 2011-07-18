@@ -124,3 +124,7 @@ function confirm(message, callback, options) {
   // init dialog
   $confirm.dialog($.extend({}, defaults, options));
 }
+
+$("#discussion").live("click", function(){
+  $("#discussion_thread").slideToggle(100);
+});

@@ -75,10 +75,28 @@ margin: 250px 0px 0px 0px;
 background-color: #E5E5E5;
 }
 
-#helpTemplate > h3 {
-  color: white;
-  padding: 4px;
-  background-color: #7996AC;
-  font-size: 12pt;
-  font-weight: bold;
-}}}}}
+#helpTemplate > h3 {
+
+  color: white;
+
+  padding: 4px;
+
+  background-color: #7996AC;
+
+  font-size: 12pt;
+
+  font-weight: bold;
+
+}
+
+#discussion h3 {
+    color: white;
+    padding: 4px;
+    background-color: #2070AD;
+    font-size: 12pt;
+    font-weight: bold;
+}
+
+#discussion_thread {
+    display: none;
+}

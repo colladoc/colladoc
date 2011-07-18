@@ -31,7 +31,7 @@ import lib.js.JqUI._
 import lib.widgets.Editor
 import model.Model
 import model.Model.factory._
-import model.mapper.{Comment, User}
+import model.mapper.{Discussion, Comment, User}
 
 import net.liftweb.common._
 import net.liftweb.http.SHtml
@@ -59,6 +59,117 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
    */
   private def id(mbr: MemberEntity, pos: String) =
     idAttrEncode(hash(mbr.identifier + System.identityHashCode(mbr) + pos))
+
+  override def body =
+    <body class={ if (tpl.isTrait || tpl.isClass || tpl.qualifiedName == "scala.AnyRef") "type" else "value" } onload="windowTitle();">
+
+      { if (tpl.isRootPackage || tpl.inTemplate.isRootPackage)
+          NodeSeq.Empty
+        else
+          <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, xml.Text(".")) }</p>
+      }
+
+      <div id="definition">
+        <img src={ relativeLinkTo(List(docEntityKindToBigImage(tpl), "lib")) }/>
+        <h1>{ if (tpl.isRootPackage) "root package" else tpl.name }</h1>
+      </div>
+
+      { signature(tpl, true) }
+      { memberToCommentHtml(tpl, true) }
+
+      <div id="template">
+
+        <div id="mbrsel">
+          <div id='textfilter'><span class='pre'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>
+          { if (tpl.linearization.isEmpty) NodeSeq.Empty else
+              <div id="order">
+                <span class="filtertype">Ordering</span>
+                <ol><li class="alpha in">Alphabetic</li><li class="inherit out">By inheritance</li></ol>
+              </div>
+          }
+          { if (tpl.linearization.isEmpty) NodeSeq.Empty else
+              <div id="ancestors">
+                <span class="filtertype">Inherited</span>
+                <ol><li class="hideall">Hide All</li><li class="showall">Show all</li></ol>
+                <ol id="linearization">{ (tpl :: tpl.linearizationTemplates) map { wte => <li class="in" name={ wte.qualifiedName }>{ wte.name }</li> } }</ol>
+              </div>
+          }
+          {
+            <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in">Public</li><li class="all out">All</li></ol>
+            </div>
+          }
+          {
+            <div id="impl">
+              <span class="filtertype">Impl.</span>
+              <ol><li class="concrete in">Concrete</li><li class="abstract in">Abstract</li></ol>
+            </div>
+          }
+        </div>
+
+        <div id="discussion">
+          <h3>Discussion ({discussionCommentsCount})</h3>
+          <ol id="discussion_thread">
+            {discussionComments map (d => discussionToHtml(d))}
+          </ol>
+        </div>
+
+        { if (constructors.isEmpty) NodeSeq.Empty else
+            <div id="constructors" class="members">
+              <h3>Instance constructors</h3>
+              <ol>{ constructors map (memberToHtml(_)) }</ol>
+            </div>
+        }
+
+        { if (typeMembers.isEmpty) NodeSeq.Empty else
+            <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol>{ typeMembers map (memberToHtml(_)) }</ol>
+            </div>
+        }
+
+        { if (valueMembers.isEmpty) NodeSeq.Empty else
+            <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol>{ valueMembers map (memberToHtml(_)) }</ol>
+            </div>
+        }
+
+        {
+          NodeSeq fromSeq (for ((superTpl, superType) <- tpl.linearization) yield
+            <div class="parent" name={ superTpl.qualifiedName }>
+              <h3>Inherited from {
+                if (tpl.universe.settings.useStupidTypes.value)
+                  superTpl match {
+                    case dtpl: DocTemplateEntity =>
+                      val sig = signature(dtpl, false, true) \ "_"
+                      sig
+                    case tpl: TemplateEntity =>
+                      tpl.name
+                  }
+                else
+                  typeToHtml(superType, true)
+              }</h3>
+            </div>
+          )
+        }
+
+      </div>
+
+      <div id="tooltip" ></div>
+
+    </body>
+
+  def discussionComments = Discussion.findAll(By(Discussion.qualifiedName, tpl.qualifiedName), By(Discussion.valid, true))
+
+  def discussionCommentsCount = discussionComments.length
+
+  def discussionToHtml(d: Discussion) =
+    <li class="discussion_comment">
+      <span class="comment">{d.comment.is}</span>
+      <span class="info">{d.userNameDate}</span>
+    </li>
 
   override def memberToHtml(mbr: MemberEntity): NodeSeq =
     super.memberToHtml(mbr) \% Map("data-istype" -> (mbr.isAbstractType || mbr.isAliasType).toString)
