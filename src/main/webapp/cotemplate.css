@@ -97,6 +97,7 @@ background-color: #E5E5E5;
     font-weight: bold;
 }
 
-#discussion_thread {
+#discussion_wrapper {
     display: none;
+    padding: 4px;
 }

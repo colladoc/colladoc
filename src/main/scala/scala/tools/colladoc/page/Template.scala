@@ -108,12 +108,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           }
         </div>
 
-        <div id="discussion">
-          <h3>Discussion ({discussionCommentsCount})</h3>
-          <ol id="discussion_thread">
-            {discussionComments map (d => discussionToHtml(d))}
-          </ol>
-        </div>
+        { discussion }
 
         { if (constructors.isEmpty) NodeSeq.Empty else
             <div id="constructors" class="members">
@@ -161,15 +156,63 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
     </body>
 
-  def discussionComments = Discussion.findAll(By(Discussion.qualifiedName, tpl.qualifiedName), By(Discussion.valid, true))
+  /** Render discussion block. */
+  private def discussion =
+    <div id="discussion">
+      <h3 id="discussion_header">Discussion ({discussionCommentsCount})</h3>
+      <div id="discussion_wrapper">
+        <ol id="discussion_thread">
+          {discussionComments map (d => discussionToHtml(d))}
+        </ol>
+        { discussionCommentAddButton }
+      </div>
+    </div>
 
-  def discussionCommentsCount = discussionComments.length
+  /** Get discussion comments for current template. */
+  private def discussionComments = Discussion.findAll(By(Discussion.qualifiedName, tpl.qualifiedName), By(Discussion.valid, true))
 
-  def discussionToHtml(d: Discussion) =
+  /** Get discussion comments count for current template. */
+  private def discussionCommentsCount = discussionComments.length
+
+  /** Render discussion comment. */
+  private def discussionToHtml(d: Discussion) =
     <li class="discussion_comment">
       <span class="comment">{d.comment.is}</span>
       <span class="info">{d.userNameDate}</span>
     </li>
+
+  /** Render add comment button. */
+  private def discussionCommentAddButton = {
+    SHtml.ajaxButton(Text("Add comment"), discussionEditor _, ("class", "button"), ("id", "add_discussion_button"))
+  }
+
+  /** Render editor. */
+  private def discussionEditor: JsCmd = {
+    Editor.editorObj("", text => NodeSeq.Empty, saveDiscussionComment _) match {
+      case (n, j) =>
+        Replace("add_discussion_button",
+          <form id="discussion_form" class="edit" method="GET">
+            <div class="editor">
+              { n }
+              <div class="buttons">
+                { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("discussion_form", () => reloadDiscussion)) }
+                { SHtml.a(Text("Cancel"), Replace("discussion_form", discussionCommentAddButton) & Jq(Str("button")) ~> Button(), ("class", "button")) }
+              </div>
+            </div>
+          </form>) & j & Jq(Str("button")) ~> Button()
+      case _ => JsCmds.Noop
+    }
+  }
+
+  /** Reload discussion block after new comment adding. */
+  private def reloadDiscussion = Replace("discussion", discussion) &
+          JsRaw("$('#discussion_wrapper').toggle();") &
+          Jq(Str("button")) ~> Button()
+
+  /** Save discussion comment to database. */
+  private def saveDiscussionComment(text: String) {
+    Discussion.create.qualifiedName(tpl.qualifiedName).comment(text).dateTime(now).user(User.currentUser.open_!).valid(true).save
+  }
 
   override def memberToHtml(mbr: MemberEntity): NodeSeq =
     super.memberToHtml(mbr) \% Map("data-istype" -> (mbr.isAbstractType || mbr.isAliasType).toString)
