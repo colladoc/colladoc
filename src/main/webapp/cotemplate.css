@@ -101,3 +101,17 @@ background-color: #E5E5E5;
     display: none;
     padding: 4px;
 }
+
+.discussion_comment {
+    margin: 7px 0;
+    list-style: none;
+}
+
+.discussion_content {
+    display: block;
+}
+
+.discussion_info {
+    display: block;
+    color: #999999;
+}

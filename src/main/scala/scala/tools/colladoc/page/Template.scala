@@ -162,15 +162,18 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     <div id="discussion">
       <h3 id="discussion_header">Discussion ({discussionCommentsCount})</h3>
       <div id="discussion_wrapper">
-        <ol id="discussion_thread">
+        <ul id="discussion_thread">
           {discussionComments map (d => discussionToHtml(d))}
-        </ol>
+        </ul>
         { discussionCommentAddButton }
       </div>
     </div>
 
   /** Get discussion comments for current template. */
-  private def discussionComments = Discussion.findAll(By(Discussion.qualifiedName, tpl.qualifiedName), By(Discussion.valid, true))
+  private def discussionComments = Discussion.findAll(
+    By(Discussion.qualifiedName, tpl.qualifiedName),
+    By(Discussion.valid, true),
+    OrderBy(Discussion.dateTime, Ascending))
 
   /** Get discussion comments count for current template. */
   private def discussionCommentsCount = discussionComments.length
@@ -178,8 +181,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Render discussion comment. */
   private def discussionToHtml(d: Discussion) =
     <li class="discussion_comment">
-      <span class="comment">{bodyToHtml(parseWiki(d.comment.is, NoPosition))}</span>
-      <span class="info">{d.userNameDate}</span>
+      <span class="discussion_content">{bodyToHtml(parseWiki(d.comment.is, NoPosition))}</span>
+      <span class="discussion_info">{d.userNameDate}</span>
     </li>
 
   /** Render add comment button. */
