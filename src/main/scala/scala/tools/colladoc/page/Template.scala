@@ -45,6 +45,7 @@ import net.liftweb.util.Helpers._
 import tools.nsc.doc.model._
 import xml.{NodeSeq, Text}
 import lib.DependencyFactory._
+import tools.nsc.util.NoPosition
 
 /**
  * Page containing template entity documentation and user controls.
@@ -177,7 +178,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Render discussion comment. */
   private def discussionToHtml(d: Discussion) =
     <li class="discussion_comment">
-      <span class="comment">{d.comment.is}</span>
+      <span class="comment">{bodyToHtml(parseWiki(d.comment.is, NoPosition))}</span>
       <span class="info">{d.userNameDate}</span>
     </li>
 
@@ -188,7 +189,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Render editor. */
   private def discussionEditor: JsCmd = {
-    Editor.editorObj("", text => NodeSeq.Empty, saveDiscussionComment _) match {
+    Editor.editorObj("", preview _, saveDiscussionComment _) match {
       case (n, j) =>
         Replace("add_discussion_button",
           <form id="discussion_form" class="edit" method="GET">
@@ -212,6 +213,21 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Save discussion comment to database. */
   private def saveDiscussionComment(text: String) {
     Discussion.create.qualifiedName(tpl.qualifiedName).comment(text).dateTime(now).user(User.currentUser.open_!).valid(true).save
+  }
+
+  /** Parse input string to show comment preview. */
+  private def preview(text: String) = {
+    <html>
+      <head>
+        <link href="/lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+        <link href="/copreview.css" media="screen" type="text/css" rel="stylesheet" />
+      </head>
+      <body>
+        <div id="preview">
+          { bodyToHtml(parseWiki(text, NoPosition)) }
+        </div>
+      </body>
+    </html>
   }
 
   override def memberToHtml(mbr: MemberEntity): NodeSeq =
