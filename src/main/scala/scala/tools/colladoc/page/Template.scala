@@ -109,7 +109,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           }
         </div>
 
-        { discussion }
+        { if (User.loggedIn_?) discussion }
 
         { if (constructors.isEmpty) NodeSeq.Empty else
             <div id="constructors" class="members">
