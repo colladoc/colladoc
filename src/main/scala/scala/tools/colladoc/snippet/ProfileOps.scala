@@ -23,18 +23,18 @@
 package scala.tools.colladoc
 package snippet
 
-import model.mapper.{Comment, User}
+import model.mapper.{Discussion,Comment, User}
 import lib.DependencyFactory._
 import xml.{NodeSeq, Text}
 import net.liftweb.util.BindHelpers._
 import net.liftweb.util.DefaultDateTimeConverter._
 import net.liftweb.http.{SHtml, S, RequestVar}
-import net.liftweb.mapper.By
+import net.liftweb.mapper.{Ascending, By, OrderBy}
 import lib.js.JqUI.SubmitFormWithValidation
 import net.liftweb.http.js.JsCmds.SetValById
 import net.liftweb.http.js.JE.Str
 import net.liftweb.http.js.{JsCmds, JsCmd}
-import page.{History, Profile}
+import page.{Template, History, Profile}
 
 /**
  * User profile snippet.
@@ -176,11 +176,26 @@ class ProfileOps {
     val cmts: List[Comment] = Comment.findAll(By(Comment.user, user), By(Comment.valid, true))
     val comments = new History(model.vend.rootPackage).commentsToHtml(cmts)
 
+    val template: Template = new Template(model.vend.rootPackage)
+    val dscs = Discussion.findAll(By(Discussion.user, user), By(Discussion.valid, true), OrderBy(Discussion.dateTime, Ascending))
+    def dToHtml(d: Discussion) = {
+      val abs = "/" + d.qualifiedName.is.replace(".", "/").replace("#", "$") + ".html"
+      bind("discussion_comment", template.discussionToHtml(d),
+        "link" -> <xml:group>on <a href={abs}>{d.qualifiedName.is}</a></xml:group>
+      )
+    }
+
+    val discussionComments =
+      <ul>
+        {dscs map dToHtml _}
+      </ul>
+
     bind("profile", profile.body,
       "form"     -> userForm(user),
       "change_password" -> changePasswordForm(user),
       "fullname" -> Text(fullname),
-      "comments" -> comments
+      "comments" -> comments,
+      "discussion_comments" -> discussionComments
     )
   }
 }

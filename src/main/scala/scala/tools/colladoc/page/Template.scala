@@ -163,7 +163,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       <h3 id="discussion_header">Discussion ({discussionCommentsCount})</h3>
       <div id="discussion_wrapper">
         <ul id="discussion_thread">
-          {discussionComments map (d => discussionToHtml(d))}
+          {discussionComments map (d => discussionToHtmlWithActions(d))}
         </ul>
         { discussionCommentAddButton }
       </div>
@@ -179,17 +179,24 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def discussionCommentsCount = discussionComments.length
 
   /** Render discussion comment. */
-  private def discussionToHtml(d: Discussion) =
+  def discussionToHtml(d: Discussion) =
     <li id={"discussion_comment_" + d.id} class="discussion_comment">
       <div class="discussion_content">{bodyToHtml(parseWiki(d.comment.is, NoPosition))}</div>
       <div class="discussion_info">
         <span class="datetime" title={d.atomDateTime}>{d.humanDateTime}</span>
         by
         <span class="author">{d.userName}</span>
-        { if (User.superUser_?) deleteDiscussionButton(d) }
-        { if (User.superUser_?) editDiscussionButton(d) }
+        <discussion_comment:link />
+        <discussion_comment:edit />
+        <discussion_comment:delete />
       </div>
     </li>
+
+  /** Render discussion comment with actions. */
+  private def discussionToHtmlWithActions(d: Discussion) = bind("discussion_comment", discussionToHtml(d),
+    "edit"   -> {if (User.superUser_?) { editDiscussionButton(d)    } else NodeSeq.Empty},
+    "delete" -> {if (User.superUser_?) { deleteDiscussionButton(d)  } else NodeSeq.Empty}
+  )
 
   /** Render add comment button. */
   private def discussionCommentAddButton = {
@@ -208,7 +215,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
                   { n }
                   <div class="buttons">
                     { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("edit_form_" + d.id, () => reloadDiscussion)) }
-                    { SHtml.a(Text("Cancel"), Replace("edit_form_" + d.id, discussionToHtml(d)) & Jq(Str("button")) ~> Button(), ("class", "button")) }
+                    { SHtml.a(Text("Cancel"), Replace("edit_form_" + d.id, discussionToHtmlWithActions(d)) & Jq(Str("button")) ~> Button(), ("class", "button")) }
                   </div>
                 </div>
               </form>) & j & Jq(Str("button")) ~> Button()
