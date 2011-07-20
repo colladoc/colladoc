@@ -20,49 +20,19 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc
-package model.mapper
+package scala.tools.colladoc.lib.util
 
-import net.liftweb.mapper._
-import net.liftweb.common.Full
-import lib.util.DateUtils.dateFormatter
+import java.util.Date
+import java.text.SimpleDateFormat
 
 /**
- * Comment of discussion thread.
+ * Date utilities.
  * @author Sergey Ignatov
  */
-class Discussion extends LongKeyedMapper[Discussion] with IdPK {
-  def getSingleton = Discussion
+object DateUtils {
+  def dateFormatter(d: Date) = new SimpleDateFormat("HH:mm:ss dd MMMM yyyy").format(d)
 
-  /** Qualified name of symbol this comment belongs to. */
-  object qualifiedName extends MappedString(this, 255) {
-    override def dbIndexed_? = true
-  }
+  def atomDateFormatter(d: Date) = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(d)
 
-  /** Changed comment content. */
-  object comment extends MappedString(this, 4000)
-
-  /** Changed comment author. */
-  object user extends LongMappedMapper(this, User)
-
-  /** Change date and time. */
-  object dateTime extends MappedDateTime(this)
-
-  /** Whether this change is still valid. */
-  object valid extends MappedBoolean(this) {
-    override def defaultValue = true
-  }
-
-  /** Get change author's username. */
-  def userName: String = User.find(user.is) match {
-    case Full(u) => u.userName
-    case _ => ""
-  }
-
-  /** Get change author's username and date. */
-  def userNameDate: String = "%s by %s".format(dateFormatter(dateTime.is), userName)
-}
-
-object Discussion extends Discussion with LongKeyedMetaMapper[Discussion] {
-  override def dbTableName = "discussions"
+  def iso8601Formatter(d: Date) = new SimpleDateFormat("yyyy-MM-dd").format(d)
 }

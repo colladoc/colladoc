@@ -23,17 +23,18 @@
 package scala.tools.colladoc {
 package model {
 package mapper {
-import lib.util.Helpers._
+
+import java.util.Date
+
 import lib.util.NameUtils._
+import lib.util.Helpers._
+import lib.util.DateUtils.{atomDateFormatter, dateFormatter, iso8601Formatter}
 
 import net.liftweb.common._
 import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
 import tools.nsc.doc.model.MemberEntity
-
-import java.text.SimpleDateFormat
-import java.util.Date
 
 /**
  * Mapper for comment table storing documentation changes.
@@ -71,12 +72,6 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
     case Full(u) => u.userName
     case _ => ""
   }
-
-  def dateFormatter(d: Date) = new SimpleDateFormat("HH:mm:ss dd MMMM yyyy").format(d)
-
-  def atomDateFormatter(d: Date) = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(d)
-
-  def iso8601Formatter(d: Date) = new SimpleDateFormat("yyyy-MM-dd").format(d)
 
   /** Get change author's username and date. */
   def userNameDate: String =
