@@ -129,7 +129,15 @@ $("#discussion_header").live("click", function(){
   $("#discussion_wrapper").slideToggle(100);
 });
 
-$(document).ready(function() {
+$("#content_header").live("click", function(){
+  $("#content_wrapper").slideToggle(100);
+});
+
+function prettyDate() {
   if (jQuery.prettyDate)
     $(".datetime").prettyDate();
+}
+
+$(document).ready(function() {
+  prettyDate();
 });

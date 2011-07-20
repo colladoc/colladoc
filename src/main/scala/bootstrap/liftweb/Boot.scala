@@ -35,7 +35,7 @@ import _root_.net.liftweb.mapper.{DB, Schemifier, DefaultConnectionIdentifier, S
 
 import tools.colladoc.api.ExportService
 import tools.colladoc.lib.sitemap._
-import tools.colladoc.model.mapper.{User, Comment, Properties, Discussion}
+import tools.colladoc.model.mapper.{User, Comment, Content, Properties, Discussion}
 import tools.colladoc.lib.js.JqUI._
 import tools.colladoc.api.{GridAPI, RestAPI}
 import tools.colladoc.lib.openid.ColladocOpenIDVendor
@@ -61,7 +61,7 @@ class Boot {
 
     // where to search snippet
     LiftRules.addToPackages("scala.tools.colladoc")
-    Schemifier.schemify(true, Schemifier.infoF _, User, Comment, Properties, Discussion)
+    Schemifier.schemify(true, Schemifier.infoF _, User, Comment, Content, Properties, Discussion)
 
     ColladocBoot.boot
 

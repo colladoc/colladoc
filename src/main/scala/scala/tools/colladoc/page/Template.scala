@@ -31,7 +31,7 @@ import lib.js.JqUI._
 import lib.widgets.Editor
 import model.Model
 import model.Model.factory._
-import model.mapper.{Discussion, Comment, User}
+import model.mapper.{Discussion, Comment, Content, User}
 
 import net.liftweb.common._
 import net.liftweb.http.SHtml
@@ -109,6 +109,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           }
         </div>
 
+        { content }
+        
         { if (User.loggedIn_?) discussion }
 
         { if (constructors.isEmpty) NodeSeq.Empty else
@@ -242,6 +244,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Reload discussion block after new comment adding. */
   private def reloadDiscussion = Replace("discussion", discussion) &
           JsRaw("$('#discussion_wrapper').toggle();") &
+          JsRaw("prettyDate();") &
           Jq(Str("button")) ~> Button()
 
   /** Save discussion comment to database. */
@@ -276,6 +279,111 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     d.comment(text).save
   }
 
+  /** Render content block. */
+  private def content: NodeSeq =
+    <div id="content">
+      <h3 id="content_header">Content ({contentCommentsCount})</h3>
+      <div id="content_wrapper">
+        <ul id="content_thread">
+          {contentComments map (d => contentToHtmlWithActions(d))}
+        </ul>
+        { if (User.loggedIn_?) contentCommentAddButton }
+      </div>
+    </div>
+
+  /** Get content comments for current template. */
+  private def contentComments = Content.findAll(
+    By(Content.qualifiedName, tpl.qualifiedName),
+    By(Content.valid, true),
+    OrderBy(Content.dateTime, Ascending))
+
+  /** Get content comments count for current template. */
+  private def contentCommentsCount = contentComments.length
+
+  /** Render content comment. */
+  def contentToHtml(c: Content) =
+    <li id={"content_comment_" + c.id} class="content_comment">
+      <div class="content_content">{bodyToHtml(parseWiki(c.comment.is, NoPosition))}</div>
+      <div class="content_info">
+        <span class="datetime" title={c.atomDateTime}>{c.humanDateTime}</span>
+        by
+        <span class="author">{c.userName}</span>
+        <content_comment:link />
+        <content_comment:edit />
+        <content_comment:delete />
+      </div>
+    </li>
+
+  /** Render content comment with actions. */
+  private def contentToHtmlWithActions(d: Content) = bind("content_comment", contentToHtml(d),
+    "edit"   -> {if (User.superUser_?) { editContentButton(d)    } else NodeSeq.Empty},
+    "delete" -> {if (User.superUser_?) { deleteContentButton(d)  } else NodeSeq.Empty}
+  )
+  
+  /** Render add comment button. */
+  private def contentCommentAddButton = {
+    SHtml.ajaxButton(Text("Add comment"), contentEditor(None) _, ("class", "button"), ("id", "add_content_button"))
+  }
+  
+  /** Render editor. */
+  private def contentEditor(maybe: Option[Content] = None)(): JsCmd = {
+    maybe match {
+      case Some(d) =>
+        Editor.editorObj(d.comment.is, preview _, updateContentComment(d) _) match {
+          case (n, j) =>
+            Replace("content_comment_" + d.id,
+              <form id={"edit_form_" + d.id} class="edit" method="GET">
+                <div class="editor">
+                  { n }
+                  <div class="buttons">
+                    { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("edit_form_" + d.id, () => reloadContent)) }
+                    { SHtml.a(Text("Cancel"), Replace("edit_form_" + d.id, contentToHtmlWithActions(d)) & Jq(Str("button")) ~> Button(), ("class", "button")) }
+                  </div>
+                </div>
+              </form>) & j & Jq(Str("button")) ~> Button()
+          case _ => JsCmds.Noop
+      }
+      case None =>
+        Editor.editorObj("", preview _, saveContentComment _) match {
+          case (n, j) =>
+            Replace("add_content_button",
+              <form id="content_form" class="edit" method="GET">
+                <div class="editor">
+                  { n }
+                  <div class="buttons">
+                    { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("content_form", () => reloadContent)) }
+                    { SHtml.a(Text("Cancel"), Replace("content_form", contentCommentAddButton) & Jq(Str("button")) ~> Button(), ("class", "button")) }
+                  </div>
+                </div>
+              </form>) & j & Jq(Str("button")) ~> Button()
+          case _ => JsCmds.Noop
+      }
+    }
+  }
+  
+  /** Reload content block after new comment adding. */
+  private def reloadContent = Replace("content", content) &
+          JsRaw("$('#content_wrapper').toggle();") &
+          JsRaw("prettyDate();") &
+          Jq(Str("button")) ~> Button()
+
+  /** Save content comment to database. */
+  private def saveContentComment(text: String) {
+    Content.create.qualifiedName(tpl.qualifiedName).comment(text).dateTime(now).user(User.currentUser.open_!).valid(true).save
+  }
+  
+  /** Render delete button for content comment. */
+  def deleteContentButton(d: Content) = SHtml.a(
+    ColladocConfirm("Confirm delete"), () => {d.valid(false).save; reloadContent}, Text("Delete"))
+
+  /** Render delete button for content comment. */
+  def editContentButton(d: Content) = SHtml.a(contentEditor(Some(d)) _, Text("Edit"))
+
+  /** Update content comment record in database. */
+  private def updateContentComment(d: Content)(text: String) {
+    d.comment(text).save
+  }
+  
   override def memberToHtml(mbr: MemberEntity): NodeSeq =
     super.memberToHtml(mbr) \% Map("data-istype" -> (mbr.isAbstractType || mbr.isAliasType).toString)
 

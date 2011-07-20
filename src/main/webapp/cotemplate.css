@@ -110,3 +110,25 @@ background-color: #E5E5E5;
 .discussion_info {
     color: #999999;
 }
+
+#content h3 {
+    color: white;
+    padding: 4px;
+    background-color: #8EAD20;
+    font-size: 12pt;
+    font-weight: bold;
+}
+
+#content_wrapper {
+    display: none;
+    padding: 4px;
+}
+
+.content_comment {
+    margin: 7px 0;
+    list-style: none;
+}
+
+.content_info {
+    color: #999999;
+}
