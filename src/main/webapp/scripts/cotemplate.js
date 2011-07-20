@@ -130,5 +130,6 @@ $("#discussion_header").live("click", function(){
 });
 
 $(document).ready(function() {
+  if (jQuery.prettyDate)
     $(".datetime").prettyDate();
 });
