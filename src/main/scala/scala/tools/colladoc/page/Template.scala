@@ -158,7 +158,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     </body>
 
   /** Render discussion block. */
-  private def discussion =
+  private def discussion: NodeSeq =
     <div id="discussion">
       <h3 id="discussion_header">Discussion ({discussionCommentsCount})</h3>
       <div id="discussion_wrapper">
@@ -186,6 +186,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         <span class="datetime" title={d.atomDateTime}>{d.humanDateTime}</span>
         by
         <span class="author">{d.userName}</span>
+        { if (User.superUser_?) deleteDiscussionButton(d) }
       </div>
     </li>
 
@@ -236,6 +237,10 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       </body>
     </html>
   }
+
+  /** Render delete button for discussion comment. */
+  def deleteDiscussionButton(d: Discussion) = SHtml.a(
+    ColladocConfirm("Confirm delete"), () => {d.valid(false).save; reloadDiscussion}, Text("Delete"))
 
   override def memberToHtml(mbr: MemberEntity): NodeSeq =
     super.memberToHtml(mbr) \% Map("data-istype" -> (mbr.isAbstractType || mbr.isAliasType).toString)
