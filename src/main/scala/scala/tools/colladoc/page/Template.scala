@@ -180,36 +180,55 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Render discussion comment. */
   private def discussionToHtml(d: Discussion) =
-    <li class="discussion_comment">
+    <li id={"discussion_comment_" + d.id} class="discussion_comment">
       <div class="discussion_content">{bodyToHtml(parseWiki(d.comment.is, NoPosition))}</div>
       <div class="discussion_info">
         <span class="datetime" title={d.atomDateTime}>{d.humanDateTime}</span>
         by
         <span class="author">{d.userName}</span>
         { if (User.superUser_?) deleteDiscussionButton(d) }
+        { if (User.superUser_?) editDiscussionButton(d) }
       </div>
     </li>
 
   /** Render add comment button. */
   private def discussionCommentAddButton = {
-    SHtml.ajaxButton(Text("Add comment"), discussionEditor _, ("class", "button"), ("id", "add_discussion_button"))
+    SHtml.ajaxButton(Text("Add comment"), discussionEditor(None) _, ("class", "button"), ("id", "add_discussion_button"))
   }
 
   /** Render editor. */
-  private def discussionEditor: JsCmd = {
-    Editor.editorObj("", preview _, saveDiscussionComment _) match {
-      case (n, j) =>
-        Replace("add_discussion_button",
-          <form id="discussion_form" class="edit" method="GET">
-            <div class="editor">
-              { n }
-              <div class="buttons">
-                { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("discussion_form", () => reloadDiscussion)) }
-                { SHtml.a(Text("Cancel"), Replace("discussion_form", discussionCommentAddButton) & Jq(Str("button")) ~> Button(), ("class", "button")) }
-              </div>
-            </div>
-          </form>) & j & Jq(Str("button")) ~> Button()
-      case _ => JsCmds.Noop
+  private def discussionEditor(maybe: Option[Discussion] = None)(): JsCmd = {
+    maybe match {
+      case Some(d) =>
+        Editor.editorObj(d.comment.is, preview _, updateDiscussionComment(d) _) match {
+          case (n, j) =>
+            Replace("discussion_comment_" + d.id,
+              <form id={"edit_form_" + d.id} class="edit" method="GET">
+                <div class="editor">
+                  { n }
+                  <div class="buttons">
+                    { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("edit_form_" + d.id, () => reloadDiscussion)) }
+                    { SHtml.a(Text("Cancel"), Replace("edit_form_" + d.id, discussionToHtml(d)) & Jq(Str("button")) ~> Button(), ("class", "button")) }
+                  </div>
+                </div>
+              </form>) & j & Jq(Str("button")) ~> Button()
+          case _ => JsCmds.Noop
+      }
+      case None =>
+        Editor.editorObj("", preview _, saveDiscussionComment _) match {
+          case (n, j) =>
+            Replace("add_discussion_button",
+              <form id="discussion_form" class="edit" method="GET">
+                <div class="editor">
+                  { n }
+                  <div class="buttons">
+                    { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("discussion_form", () => reloadDiscussion)) }
+                    { SHtml.a(Text("Cancel"), Replace("discussion_form", discussionCommentAddButton) & Jq(Str("button")) ~> Button(), ("class", "button")) }
+                  </div>
+                </div>
+              </form>) & j & Jq(Str("button")) ~> Button()
+          case _ => JsCmds.Noop
+      }
     }
   }
 
@@ -241,6 +260,14 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Render delete button for discussion comment. */
   def deleteDiscussionButton(d: Discussion) = SHtml.a(
     ColladocConfirm("Confirm delete"), () => {d.valid(false).save; reloadDiscussion}, Text("Delete"))
+
+  /** Render delete button for discussion comment. */
+  def editDiscussionButton(d: Discussion) = SHtml.a(discussionEditor(Some(d)) _, Text("Edit"))
+
+  /** Update discussion comment record in database. */
+  private def updateDiscussionComment(d: Discussion)(text: String) {
+    d.comment(text).save
+  }
 
   override def memberToHtml(mbr: MemberEntity): NodeSeq =
     super.memberToHtml(mbr) \% Map("data-istype" -> (mbr.isAbstractType || mbr.isAliasType).toString)
