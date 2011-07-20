@@ -181,8 +181,12 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Render discussion comment. */
   private def discussionToHtml(d: Discussion) =
     <li class="discussion_comment">
-      <span class="discussion_content">{bodyToHtml(parseWiki(d.comment.is, NoPosition))}</span>
-      <span class="discussion_info">{d.userNameDate}</span>
+      <div class="discussion_content">{bodyToHtml(parseWiki(d.comment.is, NoPosition))}</div>
+      <div class="discussion_info">
+        <span class="datetime" title={d.atomDateTime}>{d.humanDateTime}</span>
+        by
+        <span class="author">{d.userName}</span>
+      </div>
     </li>
 
   /** Render add comment button. */

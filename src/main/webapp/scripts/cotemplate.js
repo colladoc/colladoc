@@ -128,3 +128,7 @@ function confirm(message, callback, options) {
 $("#discussion_header").live("click", function(){
   $("#discussion_wrapper").slideToggle(100);
 });
+
+$(document).ready(function() {
+    $(".datetime").prettyDate();
+});

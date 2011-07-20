@@ -25,7 +25,7 @@ package model.mapper
 
 import net.liftweb.mapper._
 import net.liftweb.common.Full
-import lib.util.DateUtils.dateFormatter
+import lib.util.DateUtils.{atomDateFormatter, dateFormatter}
 
 /**
  * Comment of discussion thread.
@@ -61,6 +61,10 @@ class Discussion extends LongKeyedMapper[Discussion] with IdPK {
 
   /** Get change author's username and date. */
   def userNameDate: String = "%s by %s".format(dateFormatter(dateTime.is), userName)
+
+  def atomDateTime: String = atomDateFormatter(dateTime.is).toString
+
+  def humanDateTime: String = dateFormatter(dateTime.is).toString
 }
 
 object Discussion extends Discussion with LongKeyedMetaMapper[Discussion] {

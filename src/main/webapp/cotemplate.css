@@ -107,11 +107,6 @@ background-color: #E5E5E5;
     list-style: none;
 }
 
-.discussion_content {
-    display: block;
-}
-
 .discussion_info {
-    display: block;
     color: #999999;
 }
