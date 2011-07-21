@@ -27,11 +27,10 @@ import model.mapper.{Discussion,Comment, User}
 import lib.DependencyFactory._
 import xml.{NodeSeq, Text}
 import net.liftweb.util.BindHelpers._
-import net.liftweb.util.DefaultDateTimeConverter._
 import net.liftweb.http.{SHtml, S, RequestVar}
 import net.liftweb.mapper.{Ascending, By, OrderBy}
-import lib.js.JqUI.SubmitFormWithValidation
-import net.liftweb.http.js.JsCmds.SetValById
+import lib.js.JqUI.{ColladocConfirm, SubmitFormWithValidation}
+import net.liftweb.http.js.JsCmds.{Noop, RedirectTo, SetValById}
 import net.liftweb.http.js.JE.Str
 import net.liftweb.http.js.{JsCmds, JsCmd}
 import page.{Template, History, Profile}
@@ -168,6 +167,28 @@ class ProfileOps {
     )
   }
 
+  def deleteProfile(user: User) = {
+    <div id="delete_account">
+    <h2>Delete account</h2>
+      {
+        SHtml.ajaxButton(
+          "Delete",
+          ColladocConfirm("Confirm delete"),
+          () => {
+            user.deleted(true).save
+            S.notice("Account " + user.userName + " successfully deleted")
+            if (User.currentUser.open_! == user) {
+              User.logout
+              RedirectTo("/")
+            } else {
+              Noop
+            }
+          },
+          ("class", "button"))
+      }
+      </div>
+  }
+
   def body(xhtml: NodeSeq): NodeSeq = {
     val user = getUser
 
@@ -193,6 +214,7 @@ class ProfileOps {
     bind("profile", profile.body,
       "form"     -> userForm(user),
       "change_password" -> changePasswordForm(user),
+      "delete_profile" -> deleteProfile(user),
       "fullname" -> Text(fullname),
       "comments" -> comments,
       "discussion_comments" -> discussionComments

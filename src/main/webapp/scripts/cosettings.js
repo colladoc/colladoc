@@ -27,11 +27,11 @@ $(document).ready(function() {
   $("#userlist").jqGrid({
     url:'grid/users?',
     datatype: "xml",
-    colNames:['Username', 'Superuser', ''],
+    colNames:['Username', 'Superuser', 'Deleted'],
     colModel:[
       {name: 'profile', index: 'profile'},
       {name: 'superuser', index: 'superuser', width: 60},
-      {name: 'delete', index: 'delete', width: 18}
+      {name: 'delete', index: 'delete', width: 60}
     ],
     rowList:[5,10,20,30],
     pager: '#userpager',

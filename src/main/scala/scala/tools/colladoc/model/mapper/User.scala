@@ -56,7 +56,13 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
     override def dbIndexed_? = true
   }
 
+  object deleted extends MappedBoolean(this) {
+    override def defaultValue = false
+  }
+
   def userNameDisplayName = S.??("user.name")
+
+  def deleted_? = deleted.is == true
 
   /** User comment changes. */
   object comments extends MappedOneToMany(Comment, Comment.user)
@@ -79,14 +85,12 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
           save
           Noop
         }).toString,
-      "delete" -> SHtml.ajaxButton(
-        "Delete",
-        ColladocConfirm("Confirm delete"),
-        () => {
-          delete_!
-          ReloadTable("#userlist")
-        },
-        ("class", "trash ui-icon-trash")).toString
+      "delete" -> SHtml.ajaxCheckbox(
+        deleted_?, bool => {
+          deleted(bool).save
+          save
+          Noop
+        }).toString
     )
   }
 }
@@ -398,7 +402,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
 
     def doLogin = {
       find(By(userName, username)) match {
-        case Full(user) if user.password.match_?(password) =>
+        case Full(user) if !user.deleted_? && user.password.match_?(password) =>
           S.notice("User logged in")
           logUserIn(user)
           RedirectTo("/")
