@@ -38,7 +38,7 @@ object GridAPI extends RestHelper {
       if (User.superUser_?) {
         for {
           Spage <- S.param("page") ?~ "page parameter missing" ~> 400
-          Srows <- S.param("rows") ?~ "row parameter missing" ~> 400
+          Srows <- S.param("rows") ?~ "rows parameter missing" ~> 400
           Ssord <- S.param("sord") ?~ "sord parameter missing" ~> 400
           Ssidx <- S.param("sidx") ?~ "sidx parameter missing" ~> 400
         } yield {
