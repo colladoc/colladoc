@@ -23,6 +23,7 @@
 package scala.tools.colladoc
 package model.mapper
 
+import xml.NodeSeq
 import net.liftweb.mapper._
 import net.liftweb.common.Full
 import lib.util.DateUtils.{atomDateFormatter, dateFormatter}
@@ -57,6 +58,12 @@ class Discussion extends LongKeyedMapper[Discussion] with IdPK {
   def userName: String = User.find(user.is) match {
     case Full(u) => u.userName
     case _ => ""
+  }
+
+  /** Link to user's profile. */
+  def authorProfileHyperlink = User.find(user.is) match {
+    case Full(u) => u.profileHyperlink
+    case _ => NodeSeq.Empty
   }
 
   /** Get change author's username and date. */

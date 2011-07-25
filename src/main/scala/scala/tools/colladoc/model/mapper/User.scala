@@ -67,13 +67,17 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
   /** User comment changes. */
   object comments extends MappedOneToMany(Comment, Comment.user)
 
+  /** Url to user's profile. */
+  def profileUrl = "/profile/" + urlEncode(userName)
+
+  /** Hyperlink to user's profile. */
+  def profileHyperlink = <a target="template" href={profileUrl}>{userName}</a>
+
   /** Grid entry. */
   def toGridRow = {
-    val link = <a target="template" href={"/profile/" + urlEncode(userName)}>{userName}</a>
-
     val row =
     <row id={id.toString}>
-      <cell>{link.toString}</cell>
+      <cell>{profileHyperlink.toString}</cell>
       <cell><row:superuser /></cell>
       <cell><row:delete /></cell>
     </row>

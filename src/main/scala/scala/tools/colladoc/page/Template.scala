@@ -187,7 +187,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       <div class="discussion_info">
         <span class="datetime" title={d.atomDateTime}>{d.humanDateTime}</span>
         by
-        <span class="author">{d.userName}</span>
+        <span class="author">{d.authorProfileHyperlink}</span>
         <discussion_comment:link />
         <discussion_comment:edit />
         <discussion_comment:delete />
@@ -317,7 +317,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       <div class="content_info">
         <span class="datetime" title={c.atomDateTime}>{c.humanDateTime}</span>
         by
-        <span class="author">{c.userName}</span>
+        <span class="author">{c.authorProfileHyperlink}</span>
         <content_comment:link />
         <content_comment:edit />
         <content_comment:delete />
