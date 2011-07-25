@@ -90,9 +90,9 @@ background-color: #E5E5E5;
 }
 
 #discussion h3 {
-    color: white;
+    color: black;
     padding: 4px;
-    background-color: #2070AD;
+    background-color: #E5E5E5;
     font-size: 12pt;
     font-weight: bold;
 }
@@ -112,9 +112,9 @@ background-color: #E5E5E5;
 }
 
 #content h3 {
-    color: white;
+    color: black;
     padding: 4px;
-    background-color: #8EAD20;
+    background-color: #E5E5E5;
     font-size: 12pt;
     font-weight: bold;
 }
