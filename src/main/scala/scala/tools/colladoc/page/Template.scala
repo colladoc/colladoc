@@ -190,15 +190,18 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         by
         <span class="author">{d.authorProfileHyperlink}</span>
         <discussion_comment:link />
+        <discussion_comment:reply />
         <discussion_comment:edit />
         <discussion_comment:delete />
       </div>
+      <div id={"reply_for_" + d.id} />
     </li>
 
   /** Render discussion comment with actions. */
   private def discussionToHtmlWithActions(d: Discussion) = bind("discussion_comment", discussionToHtml(d),
     "edit"   -> {if (User.superUser_?) { editDiscussionButton(d)    } else NodeSeq.Empty},
-    "delete" -> {if (User.superUser_?) { deleteDiscussionButton(d)  } else NodeSeq.Empty}
+    "delete" -> {if (User.superUser_?) { deleteDiscussionButton(d)  } else NodeSeq.Empty},
+    "reply"  -> { replyDiscussionButton(d) }
   )
 
   /** Render add comment button. */
@@ -230,7 +233,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           case _ => JsCmds.Noop
       }
       case None =>
-        Editor.editorObj("", preview _, saveDiscussionComment _) match {
+        Editor.editorObj("", preview _, saveDiscussionComment(_)) match {
           case (n, j) =>
             Replace("add_discussion_button",
               <form id="discussion_form" class="edit" method="GET">
@@ -259,8 +262,13 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           Jq(Str("button")) ~> Button()
 
   /** Save discussion comment to database. */
-  private def saveDiscussionComment(text: String) {
-    Discussion.create.qualifiedName(tpl.qualifiedName).comment(text).dateTime(now).user(User.currentUser.open_!).valid(true).save
+  private def saveDiscussionComment(text: String, parent: Option[Discussion] = None) {
+    val d = Discussion.create.qualifiedName(tpl.qualifiedName).comment(text).dateTime(now).user(User.currentUser.open_!).valid(true)
+    parent match {
+      case Some(p) => d.parent(p)
+      case _ =>
+    }
+    d.save
   }
 
   /** Parse input string to show comment preview. */
@@ -284,6 +292,30 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Render delete button for discussion comment. */
   def editDiscussionButton(d: Discussion) = SHtml.a(discussionEditor(Some(d)) _, Text("Edit"))
+
+  /** Render reply button for discussion comment. */
+  def replyDiscussionButton(d: Discussion) = SHtml.a(replyEditor(d) _, Text("Reply"))
+
+  def replyEditor(parent: Discussion)() =
+    Editor.editorObj("", preview _, text => { saveDiscussionComment(text, Some(parent)) }) match {
+      case (n, j) =>
+        Replace("reply_for_" + parent.id,
+          <form id={"reply_form_for_" + parent.id} class="edit" method="GET">
+            <div class="editor">
+              { n }
+              <div class="buttons">
+              { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("reply_form_for_" + parent.id, () => reloadDiscussion)) }
+              { SHtml.a(Text("Cancel"),
+                  Replace("reply_form_for_" + parent.id, <div id={"reply_for_" + parent.id} />) &
+                  PrettyDate &
+                  Jq(Str("button")) ~> Button(),
+                  ("class", "button"))
+              }
+            </div>
+            </div>
+          </form>) & j & Jq(Str("button")) ~> Button()
+      case _ => JsCmds.Noop
+    }
 
   /** Update discussion comment record in database. */
   private def updateDiscussionComment(d: Discussion)(text: String) {
