@@ -40,6 +40,9 @@ class Discussion extends LongKeyedMapper[Discussion] with IdPK {
     override def dbIndexed_? = true
   }
 
+  /** Parent in the hierarchy. */
+  object parent extends LongMappedMapper(this, Discussion)
+
   /** Changed comment content. */
   object comment extends MappedString(this, 4000)
 
