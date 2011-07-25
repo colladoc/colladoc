@@ -66,6 +66,12 @@ class Content extends LongKeyedMapper[Content] with IdPK {
     case _ => NodeSeq.Empty
   }
 
+  /** Author's email. */
+  def authorEmail = User.find(user.is) match {
+    case Full(u) => u.email.is
+    case _ => ""
+  }
+
   /** Get change author's username and date. */
   def userNameDate: String = "%s by %s".format(dateFormatter(dateTime.is), userName)
 

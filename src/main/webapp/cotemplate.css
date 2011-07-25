@@ -125,10 +125,28 @@ background-color: #E5E5E5;
 }
 
 .content_comment {
-    margin: 7px 0;
+    margin: 20px 20px 20px 0;
     list-style: none;
+}
+
+.content_content {
+    margin-left: 30px;
+}
+
+#add_content_button {
+    margin-left: 20px;
+}
+
+#content_thread {
+    margin-left: 20px;
 }
 
 .content_info {
     color: #999999;
+    margin-top: 10px;
+    margin-left: 30px;
+}
+
+.content_avatar {
+    float: left;
 }

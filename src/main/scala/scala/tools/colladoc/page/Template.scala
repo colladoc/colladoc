@@ -46,6 +46,7 @@ import tools.nsc.doc.model._
 import xml.{NodeSeq, Text}
 import lib.DependencyFactory._
 import tools.nsc.util.NoPosition
+import net.liftweb.widgets.gravatar.Gravatar
 
 /**
  * Page containing template entity documentation and user controls.
@@ -313,6 +314,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Render content comment. */
   def contentToHtml(c: Content) =
     <li id={"content_comment_" + c.id} class="content_comment">
+      <div class="content_avatar">{Gravatar(c.authorEmail, 20)}</div>
       <div class="content_content">{bodyToHtml(parseWiki(c.comment.is, NoPosition))}</div>
       <div class="content_info">
         <span class="datetime" title={c.atomDateTime}>{c.humanDateTime}</span>
