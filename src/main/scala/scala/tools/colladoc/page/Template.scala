@@ -217,7 +217,12 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
                   { n }
                   <div class="buttons">
                     { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("edit_form_" + d.id, () => reloadDiscussion)) }
-                    { SHtml.a(Text("Cancel"), Replace("edit_form_" + d.id, discussionToHtmlWithActions(d)) & Jq(Str("button")) ~> Button(), ("class", "button")) }
+                    { SHtml.a(Text("Cancel"),
+                        Replace("edit_form_" + d.id, discussionToHtmlWithActions(d)) &
+                        PrettyDate &
+                        Jq(Str("button")) ~> Button(),
+                        ("class", "button"))
+                    }
                   </div>
                 </div>
               </form>) & j & Jq(Str("button")) ~> Button()
@@ -232,7 +237,12 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
                   { n }
                   <div class="buttons">
                     { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("discussion_form", () => reloadDiscussion)) }
-                    { SHtml.a(Text("Cancel"), Replace("discussion_form", discussionCommentAddButton) & Jq(Str("button")) ~> Button(), ("class", "button")) }
+                    { SHtml.a(Text("Cancel"),
+                        Replace("discussion_form", discussionCommentAddButton) &
+                        PrettyDate &
+                        Jq(Str("button")) ~> Button(),
+                        ("class", "button"))
+                    }
                   </div>
                 </div>
               </form>) & j & Jq(Str("button")) ~> Button()
@@ -244,7 +254,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Reload discussion block after new comment adding. */
   private def reloadDiscussion = Replace("discussion", discussion) &
           JsRaw("$('#discussion_wrapper').toggle();") &
-          JsRaw("prettyDate();") &
+          PrettyDate &
           Jq(Str("button")) ~> Button()
 
   /** Save discussion comment to database. */
@@ -337,7 +347,13 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
                   { n }
                   <div class="buttons">
                     { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("edit_form_" + d.id, () => reloadContent)) }
-                    { SHtml.a(Text("Cancel"), Replace("edit_form_" + d.id, contentToHtmlWithActions(d)) & Jq(Str("button")) ~> Button(), ("class", "button")) }
+                    { SHtml.a(Text("Cancel"),
+                        Replace("edit_form_" + d.id,
+                        contentToHtmlWithActions(d)) &
+                        PrettyDate &
+                        Jq(Str("button")) ~> Button(),
+                        ("class", "button"))
+                    }
                   </div>
                 </div>
               </form>) & j & Jq(Str("button")) ~> Button()
@@ -352,7 +368,12 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
                   { n }
                   <div class="buttons">
                     { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("content_form", () => reloadContent)) }
-                    { SHtml.a(Text("Cancel"), Replace("content_form", contentCommentAddButton) & Jq(Str("button")) ~> Button(), ("class", "button")) }
+                    { SHtml.a(Text("Cancel"),
+                        Replace("content_form", contentCommentAddButton) &
+                        PrettyDate &
+                        Jq(Str("button")) ~> Button(),
+                        ("class", "button"))
+                    }
                   </div>
                 </div>
               </form>) & j & Jq(Str("button")) ~> Button()
@@ -364,7 +385,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Reload content block after new comment adding. */
   private def reloadContent = Replace("content", content) &
           JsRaw("$('#content_wrapper').toggle();") &
-          JsRaw("prettyDate();") &
+          PrettyDate &
           Jq(Str("button")) ~> Button()
 
   /** Save content comment to database. */

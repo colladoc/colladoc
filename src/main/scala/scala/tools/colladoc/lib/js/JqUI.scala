@@ -93,6 +93,11 @@ object JqUI {
 
   /** Confirm dialog. */
   def ColladocConfirm(what: String) = Call("confirm", Str(what))
+
+  /** Run prettyDate function. */
+  case object PrettyDate extends JsExp with JsMember {
+    override def toJsCmd = "prettyDate();"
+  }
 }
 
 }
