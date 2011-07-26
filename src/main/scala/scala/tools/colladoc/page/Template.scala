@@ -175,39 +175,51 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Get discussion comments for current template. */
   private def discussionComments = Discussion.findAll(
     By(Discussion.qualifiedName, tpl.qualifiedName),
-    By(Discussion.valid, true),
     NullRef(Discussion.parent),
     OrderBy(Discussion.dateTime, Ascending))
 
   /** Get discussion comments count for current template. */
-  private def discussionCommentsCount = discussionComments.length
+  private def discussionCommentsCount = Discussion.count(
+    By(Discussion.qualifiedName, tpl.qualifiedName),
+    By(Discussion.valid, true))
 
   /** Render discussion comment. */
-  def discussionToHtml(d: Discussion, level: Int = 0) = <xml:group>
-    <li id={"discussion_comment_" + d.id} class={"discussion_comment discussion_level_" + level}>
-      <div class="discussion_avatar">{Gravatar(d.authorEmail, 20)}</div>
-      <div class="discussion_content">{bodyToHtml(parseWiki(d.comment.is, NoPosition))}</div>
-      <div class="discussion_info">
-        <span class="datetime" title={d.atomDateTime}>{d.humanDateTime}</span>
-        by
-        <span class="author">{d.authorProfileHyperlink}</span>
-        <discussion_comment:link />
-        <discussion_comment:reply />
-        <discussion_comment:edit />
-        <discussion_comment:delete />
-      </div>
-      <div id={"reply_for_" + d.id} />
-    </li>
-    {
-      Discussion.findAll(
-        By(Discussion.qualifiedName, tpl.qualifiedName),
-        By(Discussion.valid, true),
-        NotNullRef(Discussion.parent),
-        By(Discussion.parent, d),
-        OrderBy(Discussion.dateTime, Ascending))
-          .map(d => discussionToHtmlWithActions(d, if (level < 3) level + 1 else 4))
-    }
+  def discussionToHtml(d: Discussion, level: Int = 0) = {
+    val replies: List[Discussion] = Discussion.findAll(
+      By(Discussion.qualifiedName, tpl.qualifiedName),
+      NotNullRef(Discussion.parent),
+      By(Discussion.parent, d),
+      OrderBy(Discussion.dateTime, Ascending))
+
+    <xml:group>
+      {
+        if (d.valid) {
+          <li id={"discussion_comment_" + d.id} class={"discussion_comment discussion_level_" + level}>
+            <div class="discussion_avatar">{Gravatar(d.authorEmail, 20)}</div>
+            <div class="discussion_content">{bodyToHtml(parseWiki(d.comment.is, NoPosition))}</div>
+            <div class="discussion_info">
+              <span class="datetime" title={d.atomDateTime}>{d.humanDateTime}</span>
+              by
+              <span class="author">{d.authorProfileHyperlink}</span>
+              <discussion_comment:link />
+              <discussion_comment:reply />
+              <discussion_comment:edit />
+              <discussion_comment:delete />
+            </div>
+            <div id={"reply_for_" + d.id} />
+
+          </li>
+        } else
+          if(replies.length > 0)
+            <li class={"discussion_comment discussion_level_" + level}>
+              <div class="discussion_content discussion_deleted">Comment deleted</div>
+            </li>
+      }
+      {
+        replies.map(d => discussionToHtmlWithActions(d, if (level < 3) level + 1 else 4))
+      }
     </xml:group>
+  }
 
   /** Render discussion comment with actions. */
   private def discussionToHtmlWithActions(d: Discussion, level: Int = 0): NodeSeq = bind("discussion_comment",

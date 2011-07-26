@@ -130,6 +130,11 @@ background-color: #E5E5E5;
     float: left;
 }
 
+.discussion_deleted {
+    color: #999999;
+}
+
+
 #content h3 {
     color: black;
     padding: 4px;
