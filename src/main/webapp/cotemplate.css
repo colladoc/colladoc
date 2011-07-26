@@ -102,7 +102,7 @@ background-color: #E5E5E5;
     padding: 4px;
 }
 
-#discussion_thread {
+#discussion_wrapper {
     margin-left: 20px;
 }
 
@@ -134,7 +134,6 @@ background-color: #E5E5E5;
     color: #999999;
 }
 
-
 #content h3 {
     color: black;
     padding: 4px;
@@ -157,11 +156,7 @@ background-color: #E5E5E5;
     margin-left: 30px;
 }
 
-#add_content_button {
-    margin-left: 20px;
-}
-
-#content_thread {
+#content_wrapper {
     margin-left: 20px;
 }
 
