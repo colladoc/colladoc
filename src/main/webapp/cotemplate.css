@@ -136,6 +136,16 @@ background-color: #E5E5E5;
     color: #999999;
 }
 
+.discussion_comment_actions > a {
+    color: #000000;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.discussion_comment_actions > a:hover {
+    text-decoration: underline;
+}
+
 #content h3 {
     color: black;
     padding: 4px;
@@ -173,4 +183,14 @@ background-color: #E5E5E5;
 
 .content_avatar {
     float: left;
+}
+
+.content_comment_actions > a {
+    color: #000000;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.content_comment_actions > a:hover {
+    text-decoration: underline;
 }
