@@ -26,11 +26,11 @@ package sitemap
 
 import xml.Text
 import net.liftweb.sitemap.Loc
-import net.liftweb.http.{RewriteResponse, ParsePath, RewriteRequest}
 import net.liftweb.util.NamedPF
 import net.liftweb.common.Full
 import net.liftweb.mapper.By
 import model.mapper.User
+import net.liftweb.http.{NotFoundResponse, RewriteResponse, ParsePath, RewriteRequest}
 
 /** Profile location parameter. */
 case class ProfileLoc()
@@ -57,9 +57,7 @@ object ProfileStuff extends Loc[ProfileLoc] {
   /** Rewrite location. */
   override val rewrite: LocRewrite = Full(NamedPF("Profile Rewrite") {
     case RewriteRequest(ParsePath("profile" :: username :: Nil, _, _, _), _, _)
-      if (User.superUser_? && !User.find(By(User.userName, username)).isEmpty) =>
+      if (!User.find(By(User.userName, username)).isEmpty) =>
        (RewriteResponse("profile" :: Nil, Map("username" -> username)), ProfileLoc())
-    case RewriteRequest(ParsePath("profile" :: Nil, _, _, _), _, _) if (!User.loggedIn_?) =>
-      (RewriteResponse("" :: Nil), ProfileLoc())
   })
 }

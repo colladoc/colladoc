@@ -22,7 +22,13 @@
  */
 
 $(document).ready(function() {
-    $("#profile_tabs").tabs();
-    $(".profile_form").validate();
-    $(".change_password_form").validate();
+  if ($("#account_admin_tab").children().length == 0)
+    $("#account_href").remove();
+
+  if ($("#discussion_comments_tab").children().length == 0)
+    $("#discussion_href").remove();
+
+  $("#profile_tabs").tabs();
+  $(".profile_form").validate();
+  $(".change_password_form").validate();
 });

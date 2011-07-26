@@ -34,6 +34,7 @@ import net.liftweb.http.js.JsCmds.{Noop, RedirectTo, SetValById}
 import net.liftweb.http.js.JE.Str
 import net.liftweb.http.js.{JsCmds, JsCmd}
 import page.{Template, History, Profile}
+import net.liftweb.common.Full
 
 /**
  * User profile snippet.
@@ -46,7 +47,26 @@ class ProfileOps {
 
   def title(xhtml: NodeSeq): NodeSeq = Text(getUser.userName.is)
 
-  def getUser = User.find(By(User.userName, username)).open_!
+  def getUser = {
+    val maybeUser = User.find(By(User.userName, username))
+    if (maybeUser.isEmpty)
+      S.redirectTo("/")
+    maybeUser.open_!
+  }
+
+  def public_?(): Boolean = {
+    if (!User.loggedIn_?)
+      return true
+    if (User.superUser_?)
+      return false
+    User.currentUser match {
+      case Full(u) =>
+        if (u == getUser)
+          return false
+        true
+      case _ => true
+    }
+  }
 
   private def userForm(user: User): NodeSeq = {
     def doSave(): JsCmd = {
@@ -107,6 +127,21 @@ class ProfileOps {
         SetValById("openid", Str(user.openId.is)),
         ("class", "button"))
     )
+  }
+
+  def publicProfile(user: User) = {
+    <lift:form class="form profile_form">
+      <fieldset>
+        <p>
+          <label>Username</label>
+          <span>{user.userName}</span>
+        </p>
+        <p>
+          <label>Full Name</label>
+          <span>{user.shortName}</span>
+        </p>
+      </fieldset>
+    </lift:form>
   }
 
   def changePasswordForm(user: User) = {
@@ -211,13 +246,14 @@ class ProfileOps {
         {dscs map dToHtml _}
       </ul>
 
-    bind("profile", profile.body,
-      "form"     -> userForm(user),
-      "change_password" -> changePasswordForm(user),
-      "delete_profile" -> deleteProfile(user),
-      "fullname" -> Text(fullname),
-      "comments" -> comments,
-      "discussion_comments" -> discussionComments
+    bind("profile",
+      profile.body,
+      "form"                -> { if (!public_?) userForm(user) else publicProfile(user) },
+      "change_password"     -> { if (!public_?) changePasswordForm(user) else NodeSeq.Empty },
+      "delete_profile"      -> { if (!public_?) deleteProfile(user) else NodeSeq.Empty },
+      "discussion_comments" -> { if (!public_?) discussionComments else NodeSeq.Empty },
+      "fullname"            -> Text(fullname),
+      "comments"            -> comments
     )
   }
 }
