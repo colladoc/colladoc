@@ -102,13 +102,32 @@ background-color: #E5E5E5;
     padding: 4px;
 }
 
+#discussion_thread {
+    margin-left: 20px;
+}
+
 .discussion_comment {
-    margin: 7px 0;
+    margin: 20px 20px 20px 0;
     list-style: none;
+}
+
+.discussion_level_1 { margin-left: 20px; }
+.discussion_level_2 { margin-left: 40px; }
+.discussion_level_3 { margin-left: 60px; }
+.discussion_level_4 { margin-left: 80px; }
+
+.discussion_content {
+    margin-left: 30px;
 }
 
 .discussion_info {
     color: #999999;
+    margin-top: 10px;
+    margin-left: 30px;
+}
+
+.discussion_avatar {
+    float: left;
 }
 
 #content h3 {

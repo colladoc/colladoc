@@ -166,7 +166,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       <h3 id="discussion_header">Discussion ({discussionCommentsCount})</h3>
       <div id="discussion_wrapper">
         <ul id="discussion_thread">
-          {discussionComments map (d => discussionToHtmlWithActions(d))}
+          {discussionComments map (d => discussionToHtmlWithActions(d, 0))}
         </ul>
         { discussionCommentAddButton }
       </div>
@@ -176,14 +176,16 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def discussionComments = Discussion.findAll(
     By(Discussion.qualifiedName, tpl.qualifiedName),
     By(Discussion.valid, true),
+    NullRef(Discussion.parent),
     OrderBy(Discussion.dateTime, Ascending))
 
   /** Get discussion comments count for current template. */
   private def discussionCommentsCount = discussionComments.length
 
   /** Render discussion comment. */
-  def discussionToHtml(d: Discussion) =
-    <li id={"discussion_comment_" + d.id} class="discussion_comment">
+  def discussionToHtml(d: Discussion, level: Int = 0) = <xml:group>
+    <li id={"discussion_comment_" + d.id} class={"discussion_comment discussion_level_" + level}>
+      <div class="discussion_avatar">{Gravatar(d.authorEmail, 20)}</div>
       <div class="discussion_content">{bodyToHtml(parseWiki(d.comment.is, NoPosition))}</div>
       <div class="discussion_info">
         <span class="datetime" title={d.atomDateTime}>{d.humanDateTime}</span>
@@ -196,9 +198,20 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       </div>
       <div id={"reply_for_" + d.id} />
     </li>
+    {
+      Discussion.findAll(
+        By(Discussion.qualifiedName, tpl.qualifiedName),
+        By(Discussion.valid, true),
+        NotNullRef(Discussion.parent),
+        By(Discussion.parent, d),
+        OrderBy(Discussion.dateTime, Ascending))
+          .map(d => discussionToHtmlWithActions(d, if (level < 3) level + 1 else 4))
+    }
+    </xml:group>
 
   /** Render discussion comment with actions. */
-  private def discussionToHtmlWithActions(d: Discussion) = bind("discussion_comment", discussionToHtml(d),
+  private def discussionToHtmlWithActions(d: Discussion, level: Int = 0): NodeSeq = bind("discussion_comment",
+    discussionToHtml(d, level),
     "edit"   -> {if (User.superUser_?) { editDiscussionButton(d)    } else NodeSeq.Empty},
     "delete" -> {if (User.superUser_?) { deleteDiscussionButton(d)  } else NodeSeq.Empty},
     "reply"  -> { replyDiscussionButton(d) }
