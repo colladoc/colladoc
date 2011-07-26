@@ -202,9 +202,11 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
               by
               <span class="author">{d.authorProfileHyperlink}</span>
               <discussion_comment:link />
-              <discussion_comment:reply />
-              <discussion_comment:edit />
-              <discussion_comment:delete />
+              <div class="discussion_comment_actions">
+                <discussion_comment:reply />
+                <discussion_comment:edit />
+                <discussion_comment:delete />
+              </div>
             </div>
             <div id={"reply_for_" + d.id} />
 
@@ -378,8 +380,10 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         by
         <span class="author">{c.authorProfileHyperlink}</span>
         <content_comment:link />
-        <content_comment:edit />
-        <content_comment:delete />
+        <div class="content_comment_actions">
+          <content_comment:edit />
+          <content_comment:delete />
+        </div>
       </div>
     </li>
 

@@ -99,16 +99,18 @@ background-color: #E5E5E5;
 
 #discussion_wrapper {
     display: none;
-    padding: 4px;
-}
-
-#discussion_wrapper {
     margin-left: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .discussion_comment {
     margin: 20px 20px 20px 0;
     list-style: none;
+}
+
+.discussion_comment_actions {
+    margin-top: 5px;
 }
 
 .discussion_level_1 { margin-left: 20px; }
@@ -122,7 +124,7 @@ background-color: #E5E5E5;
 
 .discussion_info {
     color: #999999;
-    margin-top: 10px;
+    margin-top: 5px;
     margin-left: 30px;
 }
 
@@ -144,7 +146,9 @@ background-color: #E5E5E5;
 
 #content_wrapper {
     display: none;
-    padding: 4px;
+    margin-left: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .content_comment {
@@ -152,17 +156,18 @@ background-color: #E5E5E5;
     list-style: none;
 }
 
+.content_comment_actions {
+    margin-top: 5px;
+}
+
 .content_content {
     margin-left: 30px;
 }
 
-#content_wrapper {
-    margin-left: 20px;
-}
 
 .content_info {
     color: #999999;
-    margin-top: 10px;
+    margin-top: 5px;
     margin-left: 30px;
 }
 
