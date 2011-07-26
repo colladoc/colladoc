@@ -92,7 +92,7 @@ class ProfileOps {
             <user:fullname class="text required ui-widget-content ui-corner-all" />
           </p>
           <p>
-            <label for="version">E-mail</label>
+            <label for="email">E-mail</label>
             <user:email class="text required ui-widget-content ui-corner-all" />
           </p>
           <p>
