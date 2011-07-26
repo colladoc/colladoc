@@ -140,6 +140,7 @@ background-color: #E5E5E5;
     color: #000000;
     font-weight: bold;
     text-decoration: none;
+    margin-right: 2px;
 }
 
 .discussion_comment_actions > a:hover {
@@ -174,7 +175,6 @@ background-color: #E5E5E5;
     margin-left: 30px;
 }
 
-
 .content_info {
     color: #999999;
     margin-top: 5px;
@@ -189,6 +189,7 @@ background-color: #E5E5E5;
     color: #000000;
     font-weight: bold;
     text-decoration: none;
+    margin-right: 2px;
 }
 
 .content_comment_actions > a:hover {
