@@ -31,6 +31,7 @@ import net.liftweb.openid._
 import net.liftweb.openid.WellKnownAttributes._
 import net.liftweb.common.{Logger, Full, Box}
 import model.mapper.User
+import net.liftweb.http.S
 
 /**
  * Manages OpenID logins - creating a new entry in the database on login for a user who hasn't been seen before.
@@ -57,20 +58,24 @@ object ColladocOpenIDVendor extends SimpleOpenIDVendor with Logger {
       case Full(id) =>
         val user = User.createIfNew(id.getIdentifier)
 
-        val attrs = WellKnownAttributes.attributeValues(res.getAuthResponse)
-        attrs.get(Email) map { e => user.email(trace("Extracted email", e)) }
-        attrs.get(FirstName) map { n => user.firstName(trace("Extracted name", n)) }
-        attrs.get(LastName) map { n => user.lastName(trace("Extracted name", n)) }
+        if (user.deleted_?) {
+          S.error("Invalid user credentials or user deleted")
+        } else {
+          val attrs = WellKnownAttributes.attributeValues(res.getAuthResponse)
+          attrs.get(Email) map { e => user.email(trace("Extracted email", e)) }
+          attrs.get(FirstName) map { n => user.firstName(trace("Extracted name", n)) }
+          attrs.get(LastName) map { n => user.lastName(trace("Extracted name", n)) }
 
-        if (user.userName.is.trim isEmpty)
-          user.userName(user.firstName + " " + user.lastName)
+          if (user.userName.is.trim isEmpty)
+            user.userName(user.firstName + " " + user.lastName)
 
-        if (user.userName.is.trim isEmpty)
-          user.userName(id.getIdentifier)
+          if (user.userName.is.trim isEmpty)
+            user.userName(id.getIdentifier)
 
-        user.save()
+          user.save()
 
-        User.logUserIn(user)
+          User.logUserIn(user)
+        }
       case _ =>
         // TODO: response with error
     }
