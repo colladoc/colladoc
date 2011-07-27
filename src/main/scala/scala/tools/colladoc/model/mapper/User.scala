@@ -28,14 +28,13 @@ import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.http._
 import js.JE.Str
-import net.liftweb.http.SHtml.ElemAttr
 import js.jquery.JqJE.Jq
 import js.JsCmd
 import js.JsCmds._
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml.ElemAttr._
 import xml.{NodeSeq, Text}
-import lib.js.JqUI.{SubmitForm, ColladocConfirm, ReloadTable, OpenDialog}
+import lib.js.JqUI.{SubmitForm, OpenDialog}
 
 /**
  * Mapper for user table storing registered users.
