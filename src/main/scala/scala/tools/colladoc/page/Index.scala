@@ -100,7 +100,7 @@ class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) 
         </a>
       </div>
       <ul class="usernav">
-        { if (User.superUser_?)
+        { if (User.validSuperUser_?)
             <li><a href="/settings" target="template">Settings</a></li>
         }
         <li><a href="/history" target="template">History</a></li>

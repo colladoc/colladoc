@@ -167,7 +167,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         <ul id="discussion_thread">
           {discussionComments map (d => discussionToHtmlWithActions(d, 0))}
         </ul>
-        { discussionCommentAddButton }
+        { if (!User.banned_?) discussionCommentAddButton }
       </div>
     </div>
 
@@ -225,9 +225,9 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Render discussion comment with actions. */
   private def discussionToHtmlWithActions(d: Discussion, level: Int = 0): NodeSeq = bind("discussion_comment",
     discussionToHtml(d, level),
-    "edit"   -> {if (User.superUser_?) { editDiscussionButton(d)    } else NodeSeq.Empty},
-    "delete" -> {if (User.superUser_?) { deleteDiscussionButton(d)  } else NodeSeq.Empty},
-    "reply"  -> { replyDiscussionButton(d) }
+    "edit"   -> { if (User.validSuperUser_?) editDiscussionButton(d)   else NodeSeq.Empty },
+    "delete" -> { if (User.validSuperUser_?) deleteDiscussionButton(d) else NodeSeq.Empty },
+    "reply"  -> { if (!User.banned_?)   replyDiscussionButton(d)  else NodeSeq.Empty }
   )
 
   /** Render add comment button. */
@@ -357,7 +357,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           {contentComments map (d => contentToHtmlWithActions(d))}
         </ul>
         {
-          if (User.loggedIn_?)
+          if (User.loggedIn_? && !User.banned_?)
             contentCommentAddButton
           else
             contentCommentAddButtonForAnonymous
@@ -393,8 +393,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Render content comment with actions. */
   private def contentToHtmlWithActions(d: Content) = bind("content_comment", contentToHtml(d),
-    "edit"   -> {if (User.superUser_?) { editContentButton(d)    } else NodeSeq.Empty},
-    "delete" -> {if (User.superUser_?) { deleteContentButton(d)  } else NodeSeq.Empty}
+    "edit"   -> {if (User.validSuperUser_?) { editContentButton(d)    } else NodeSeq.Empty},
+    "delete" -> {if (User.validSuperUser_?) { deleteContentButton(d)  } else NodeSeq.Empty}
   )
   
   /** Render add comment button. */
@@ -567,12 +567,12 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def controls(mbr: MemberEntity, isSelf: Boolean) =
     <div class="controls">
       { select(mbr, isSelf) }
-      { if (User.loggedIn_?)
+      { if (User.validSuperUser_?)
           edit(mbr, isSelf)
       }
-      { if (User.superUser_?) delete(mbr, isSelf) }
-      { if (User.superUser_?) selectDefault(mbr, isSelf) }
-      { if (User.superUser_?) propagateToPredecessors(mbr, isSelf) }
+      { if (User.validSuperUser_?) delete(mbr, isSelf) }
+      { if (User.validSuperUser_?) selectDefault(mbr, isSelf) }
+      { if (User.validSuperUser_?) propagateToPredecessors(mbr, isSelf) }
       { export(mbr, isSelf) }
     </div>
 

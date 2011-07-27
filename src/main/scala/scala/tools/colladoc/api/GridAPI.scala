@@ -35,7 +35,7 @@ import net.liftweb.mapper.{OrderBy, Descending, Ascending}
 object GridAPI extends RestHelper {
   serve {
     case "grid" :: "users" :: _ Get _ =>
-      if (User.superUser_?) {
+      if (User.validSuperUser_?) {
         for {
           Spage <- S.param("page") ?~ "page parameter missing" ~> 400
           Srows <- S.param("rows") ?~ "rows parameter missing" ~> 400

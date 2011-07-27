@@ -57,7 +57,7 @@ class ProfileOps {
   def public_?(): Boolean = {
     if (!User.loggedIn_?)
       return true
-    if (User.superUser_?)
+    if (User.validSuperUser_?)
       return false
     User.currentUser match {
       case Full(u) =>

@@ -59,9 +59,15 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
     override def defaultValue = false
   }
 
+  object banned extends MappedBoolean(this) {
+    override def defaultValue = false
+  }
+
   def userNameDisplayName = S.??("user.name")
 
   def deleted_? = deleted.is == true
+
+
 
   /** User comment changes. */
   object comments extends MappedOneToMany(Comment, Comment.user)
@@ -79,6 +85,7 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
       <cell>{profileHyperlink.toString}</cell>
       <cell><row:superuser /></cell>
       <cell><row:delete /></cell>
+      <cell><row:banned /></cell>
     </row>
 
     bind("row", row,
@@ -90,7 +97,13 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
         }).toString,
       "delete" -> SHtml.ajaxCheckbox(
         deleted_?, bool => {
-          deleted(bool).save
+          deleted(bool)
+          save
+          Noop
+        }).toString,
+      "banned" -> SHtml.ajaxCheckbox(
+        banned, bool => {
+          banned(bool)
           save
           Noop
         }).toString
@@ -119,6 +132,10 @@ object User extends User with KeyedMetaMapper[Long, User] {
 
   /** Whether currently logged in user is superuser */
   def superUser_? : Boolean = currentUser.map(_.superUser.is) openOr false
+
+  def banned_? = currentUser.map(_.banned.is) openOr true
+
+  def validSuperUser_? = superUser_? && !User.banned_?
 
   /** Whether any user is logged in. */
   def loggedIn_? = currentUserId.isDefined

@@ -36,7 +36,7 @@ class Settings(rootPack: Package) extends scala.tools.colladoc.page.Template(roo
   /** Page body. */
   override val body =
     <body class="settings">
-      { if (User.superUser_?) {
+      { if (User.validSuperUser_?) {
           <div id="definition">
             <img src="images/settings_big.png" />
             <h1>Settings</h1>
