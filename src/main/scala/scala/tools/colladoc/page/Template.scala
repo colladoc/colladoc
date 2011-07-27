@@ -25,7 +25,6 @@ package page {
 
 import lib.util.Helpers._
 import lib.util.NameUtils._
-import lib.util.PathUtils._
 import lib.js.JqJsCmds._
 import lib.js.JqUI._
 import lib.widgets.Editor
@@ -34,7 +33,7 @@ import model.Model.factory._
 import model.mapper.{Discussion, Comment, Content, User}
 
 import net.liftweb.common._
-import net.liftweb.http.SHtml
+import net.liftweb.http.{S, SHtml}
 import net.liftweb.http.js._
 import net.liftweb.http.js.jquery.JqJE._
 import net.liftweb.http.js.JE._
@@ -43,7 +42,7 @@ import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
 import tools.nsc.doc.model._
-import xml.{NodeSeq, Text}
+import xml.{Elem, NodeSeq, Text}
 import lib.DependencyFactory._
 import tools.nsc.util.NoPosition
 import net.liftweb.widgets.gravatar.Gravatar
@@ -357,7 +356,12 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         <ul id="content_thread">
           {contentComments map (d => contentToHtmlWithActions(d))}
         </ul>
-        { if (User.loggedIn_?) contentCommentAddButton }
+        {
+          if (User.loggedIn_?)
+            contentCommentAddButton
+          else
+            contentCommentAddButtonForAnonymous
+        }
       </div>
     </div>
 
@@ -396,6 +400,11 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Render add comment button. */
   private def contentCommentAddButton = {
     SHtml.ajaxButton(Text("Add comment"), contentEditor(None) _, ("class", "button"), ("id", "add_content_button"))
+  }
+
+    /** Render add comment button. */
+  private def contentCommentAddButtonForAnonymous = {
+    SHtml.ajaxButton(Text("Add comment"), () => contentEditorForAnonymous, ("class", "button"), ("id", "add_content_button"))
   }
   
   /** Render editor. */
@@ -455,7 +464,69 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def saveContentComment(text: String) {
     Content.create.qualifiedName(tpl.qualifiedName).comment(text).dateTime(now).user(User.currentUser.open_!).valid(true).save
   }
-  
+
+  def contentEditorForAnonymous: JsCmd = {
+    var name, email, text = ""
+
+    def form(n: Elem) =
+      <lift:form class="edit content_form" method="GET">
+        <fieldset>
+          <div>
+            <label for="name">Name</label>
+            {
+              SHtml.text(name, (s: String) => {name = s},
+                ("id", "name"),
+                ("class", "text required ui-widget-content ui-corner-all"))
+            }
+          </div>
+          <div>
+            <label for="content_anonymous_email">Email</label>
+            {
+              SHtml.email(email, (s: String) => {email = s},
+                ("id", "content_anonymous_email"),
+                ("class", "email required ui-widget-content ui-corner-all"))
+            }
+          </div>
+          <div class="editor">
+            <label>Comment
+            { n }
+            </label>
+            <div class="buttons">
+              <content:save />
+              {
+                SHtml.a(Text("Cancel"),
+                  reloadContent,
+                  ("class", "button"))
+              }
+            </div>
+          </div>
+          <content:submit />
+        </fieldset>
+      </lift:form>
+
+    def bindedForm(n: Elem) = bind("content", form(n),
+      "submit" -> SHtml.hidden(() => saveContentWithEmail(text, name, email)),
+      "save"   -> SHtml.a(Text("Save"), SubmitFormWithValidation(".content_form"), ("class", "button "))
+    )
+
+    Editor.editorObj("", preview _, text = _) match {
+      case (n, j) =>
+        Replace("add_content_button", bindedForm(n)) & j & Jq(Str(".button")) ~> Button()
+      case _ => JsCmds.Noop
+    }
+  }
+
+  def saveContentWithEmail(text: String, name: String, email: String) = {
+    val c = Content.create.qualifiedName(tpl.qualifiedName).comment(text).dateTime(now).name(name).email(email).valid(true)
+    c.validate match {
+      case Nil =>
+        c.save
+      case n =>
+        S.error(n)
+    }
+    reloadContent
+  }
+
   /** Render delete button for content comment. */
   def deleteContentButton(d: Content) = SHtml.a(
     ColladocConfirm("Confirm delete"), () => {d.valid(false).save; reloadContent}, Text("Delete"))

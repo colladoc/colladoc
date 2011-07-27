@@ -54,22 +54,28 @@ class Content extends LongKeyedMapper[Content] with IdPK {
     override def defaultValue = true
   }
 
+  /** Changed comment user name email if author is null. */
+  object name extends MappedString(this, 255)
+
+  /** Changed comment email if author is null. */
+  object email extends MappedEmail(this, 255)
+
   /** Get change author's username. */
   def userName: String = User.find(user.is) match {
     case Full(u) => u.userName
-    case _ => ""
+    case _ => name.is
   }
 
   /** Link to user's profile. */
   def authorProfileHyperlink = User.find(user.is) match {
     case Full(u) => u.profileHyperlink
-    case _ => NodeSeq.Empty
+    case _ => <span>{name.is}</span>
   }
 
-  /** Author's email. */
+  /**Author's email. */
   def authorEmail = User.find(user.is) match {
     case Full(u) => u.email.is
-    case _ => ""
+    case _ => email.is
   }
 
   /** Get change author's username and date. */

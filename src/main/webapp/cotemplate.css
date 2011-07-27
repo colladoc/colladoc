@@ -195,3 +195,36 @@ background-color: #E5E5E5;
 .content_comment_actions > a:hover {
     text-decoration: underline;
 }
+
+.content_form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.content_form input {
+    display: block;
+    border: 1px solid gray;
+}
+
+.content_form div {
+    margin-bottom: 5px;
+}
+
+form.edit div.buttons > a {
+    font-weight: normal;
+    color: #555;
+}
+
+#content_form fieldset {
+    padding: 0;
+    border: 0;
+    margin-top: 8px;
+}
+
+.content_form .error {
+    color: #666666;
+    display: block;
+    /*font-size: 8pt;*/
+    padding-top: 0.2em;
+}
