@@ -234,17 +234,23 @@ class ProfileOps {
 
     val template: Template = new Template(model.vend.rootPackage)
     val dscs = Discussion.findAll(By(Discussion.user, user), By(Discussion.valid, true), OrderBy(Discussion.dateTime, Ascending))
-    def dToHtml(d: Discussion) = {
-      val abs = "/" + d.qualifiedName.is.replace(".", "/").replace("#", "$") + ".html"
-      bind("discussion_comment", template.discussionToHtml(d),
-        "link" -> <xml:group>on <a href={abs}>{d.qualifiedName.is}</a></xml:group>
-      )
+
+    val entities = dscs.map(d => (d.qualifiedName.is, d)).groupBy(p => p._1)
+
+    lazy val x = entities map { case (qualifiedName, value) =>
+      <xml:group>
+        <h3><a href={abs(qualifiedName)}>{qualifiedName}</a></h3>
+        <ul>{value map { case (q, d) => dToHtml(d) } }</ul>
+      </xml:group>
     }
 
-    val discussionComments =
-      <ul>
-        {dscs map dToHtml _}
-      </ul>
+    def abs(qualifiedName: String) = "/" + qualifiedName.replace(".", "/").replace("#", "$") + ".html"
+
+    def dToHtml(d: Discussion) = {
+      bind("discussion_comment", template.discussionToHtml(d))
+    }
+
+    val discussionComments = <xml:group>{x map (y => y)}</xml:group>
 
     bind("profile",
       profile.body,
