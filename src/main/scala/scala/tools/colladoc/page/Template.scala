@@ -160,33 +160,21 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Render discussion block. */
   private def discussion: NodeSeq =
     <div id="discussion">
-      <h3 id="discussion_header">Discussion ({discussionCommentsCount})</h3>
+      <h3 id="discussion_header">Discussion ({ Discussion.count(tpl.qualifiedName) })</h3>
       <div id="discussion_wrapper">
         <ul id="discussion_thread">
-          {discussionComments map (d => discussionToHtmlWithActions(d, 0))}
+          { 
+            Discussion.topLevelComments(tpl.qualifiedName) map {
+              d => discussionToHtmlWithActions(d, 0) }
+          }
         </ul>
         { if (!User.banned_?) discussionCommentAddButton }
       </div>
     </div>
 
-  /** Get discussion comments for current template. */
-  private def discussionComments = Discussion.findAll(
-    By(Discussion.qualifiedName, tpl.qualifiedName),
-    NullRef(Discussion.parent),
-    OrderBy(Discussion.dateTime, Ascending))
-
-  /** Get discussion comments count for current template. */
-  private def discussionCommentsCount = Discussion.count(
-    By(Discussion.qualifiedName, tpl.qualifiedName),
-    By(Discussion.valid, true))
-
   /** Render discussion comment. */
   def discussionToHtml(d: Discussion, level: Int = 0) = {
-    val replies: List[Discussion] = Discussion.findAll(
-      By(Discussion.qualifiedName, tpl.qualifiedName),
-      NotNullRef(Discussion.parent),
-      By(Discussion.parent, d),
-      OrderBy(Discussion.dateTime, Ascending))
+    val replies = Discussion.replies(d)
 
     <xml:group>
       {

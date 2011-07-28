@@ -85,4 +85,22 @@ class Discussion extends LongKeyedMapper[Discussion] with IdPK {
 
 object Discussion extends Discussion with LongKeyedMetaMapper[Discussion] {
   override def dbTableName = "discussions"
+
+  /** Get discussion top level comments for template. */
+  def topLevelComments(qualifiedName: String) = findAll(
+    By(Discussion.qualifiedName, qualifiedName),
+    NullRef(Discussion.parent),
+    OrderBy(Discussion.dateTime, Ascending))
+
+  /** Get discussion comments count for template. */
+  def count(qualifiedName: String): Long = count(
+    By(Discussion.qualifiedName, qualifiedName),
+    By(Discussion.valid, true))
+
+  /** Get replies for discussion current comment. */
+  def replies(d: Discussion) = Discussion.findAll(
+      By(Discussion.qualifiedName, d.qualifiedName.is),
+      NotNullRef(Discussion.parent),
+      By(Discussion.parent, d),
+      OrderBy(Discussion.dateTime, Ascending))
 }
