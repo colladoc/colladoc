@@ -90,20 +90,23 @@ object Discussion extends Discussion with LongKeyedMetaMapper[Discussion] {
   override def dbTableName = "discussions"
 
   /** Get discussion top level comments for template. */
-  def topLevelComments(qualifiedName: String) = findAll(
+  def topLevelComments(category: Category, qualifiedName: String) = findAll(
+    By(Discussion.category, category),
     By(Discussion.qualifiedName, qualifiedName),
     NullRef(Discussion.parent),
     OrderBy(Discussion.dateTime, Ascending))
 
   /** Get discussion comments count for template. */
-  def count(qualifiedName: String): Long = count(
+  def count(category: Category, qualifiedName: String): Long = count(
+    By(Discussion.category, category),
     By(Discussion.qualifiedName, qualifiedName),
     By(Discussion.valid, true))
 
   /** Get replies for discussion current comment. */
-  def replies(d: Discussion) = Discussion.findAll(
-      By(Discussion.qualifiedName, d.qualifiedName.is),
-      NotNullRef(Discussion.parent),
-      By(Discussion.parent, d),
-      OrderBy(Discussion.dateTime, Ascending))
+  def replies(category: Category, d: Discussion) = Discussion.findAll(
+    By(Discussion.category, category),
+    By(Discussion.qualifiedName, d.qualifiedName.is),
+    NotNullRef(Discussion.parent),
+    By(Discussion.parent, d),
+    OrderBy(Discussion.dateTime, Ascending))
 }

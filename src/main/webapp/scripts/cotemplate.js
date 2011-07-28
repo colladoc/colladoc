@@ -125,14 +125,6 @@ function confirm(message, callback, options) {
   $confirm.dialog($.extend({}, defaults, options));
 }
 
-$("#discussion_header").live("click", function(){
-  $("#discussion_wrapper").slideToggle(100);
-});
-
-$("#content_header").live("click", function(){
-  $("#content_wrapper").slideToggle(100);
-});
-
 function prettyDate() {
   if (jQuery.prettyDate)
     $(".datetime").prettyDate();

@@ -318,7 +318,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <div id="categories_list">
         <h3>Categories list</h3>
         <ul>
-          { Category.findAll map categoryToHtml _ }
+          { Category.all map categoryToHtml _ }
         </ul>
       </div>
 

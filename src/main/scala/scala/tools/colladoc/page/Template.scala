@@ -30,7 +30,7 @@ import lib.js.JqUI._
 import lib.widgets.Editor
 import model.Model
 import model.Model.factory._
-import model.mapper.{Discussion, Comment, User}
+import model.mapper._
 
 import net.liftweb.common._
 import net.liftweb.http.{S, SHtml}
@@ -60,6 +60,14 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
    */
   private def id(mbr: MemberEntity, pos: String) =
     idAttrEncode(hash(mbr.identifier + System.identityHashCode(mbr) + pos))
+
+  /**
+   * Create unique identifier for given name.
+   * @param name identifier position
+   * @return unique positional identifier
+   */
+  private def id(name: String) =
+    idAttrEncode(hash(name))
 
   override def body =
     <body class={ if (tpl.isTrait || tpl.isClass || tpl.qualifiedName == "scala.AnyRef") "type" else "value" } onload="windowTitle();">
@@ -109,7 +117,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           }
         </div>
 
-        { if (User.loggedIn_?) discussion }
+        { categories }
 
         { if (constructors.isEmpty) NodeSeq.Empty else
             <div id="constructors" class="members">
@@ -158,23 +166,44 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     </body>
 
   /** Render discussion block. */
-  private def discussion: NodeSeq =
-    <div id="discussion">
-      <h3 id="discussion_header">Discussion ({ Discussion.count(tpl.qualifiedName) })</h3>
-      <div id="discussion_wrapper">
-        <ul id="discussion_thread">
-          { 
-            Discussion.topLevelComments(tpl.qualifiedName) map {
-              d => discussionToHtmlWithActions(d, 0) }
-          }
-        </ul>
-        { if (!User.banned_?) discussionCommentAddButton }
+  private def categories: NodeSeq =
+    Category.all map categoryToHtmlWithToggle _
+
+  private def categoryToHtmlWithToggle(c: Category) = {
+    val toggle =
+      """
+        $(document).ready(function() {
+          $('#%s').live('click', function(){
+            $('#%s').slideToggle(100);
+          });
+        });
+      """ format (id(c.name.is + "header"), id(c.name.is + "discussion_wrapper"))
+
+    <xml:group>
+      { categoryToHtml(c) }
+      <script type="text/javascript">
+        { toggle }
+      </script>
+    </xml:group>
+  }
+
+  private def categoryToHtml(c: Category) =
+    <div id={ id(c.name.is) } class="category">
+      <h3 id={ id(c.name.is + "header") } class="header">{ c.name }</h3>
+      <div id={ id(c.name.is + "discussion_wrapper") } class="discussion_wrapper">
+        <ul class="discussion_thread">
+        {
+          Discussion.topLevelComments(c, tpl.qualifiedName) map {
+            d => discussionToHtmlWithActions(d, 0) }
+        }
+      </ul>
+        { if (!User.banned_?) discussionCommentAddButton(c) }
       </div>
     </div>
 
   /** Render discussion comment. */
   def discussionToHtml(d: Discussion, level: Int = 0, withReplies: Boolean = false) = {
-    val replies = Discussion.replies(d)
+    val replies = Discussion.replies(Category.get(d), d)
 
     <xml:group>
       {
@@ -197,7 +226,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
           </li>
         } else
-          if (replies.length > 0)
+          if (replies.filter(d => d.valid).length > 0)
             <li class={"discussion_comment discussion_level_" + level}>
               <div class="discussion_content discussion_deleted">Comment deleted</div>
             </li>
@@ -218,12 +247,12 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   )
 
   /** Render add comment button. */
-  private def discussionCommentAddButton = {
-    SHtml.ajaxButton(Text("Add comment"), discussionEditor(None) _, ("class", "button"), ("id", "add_discussion_button"))
+  private def discussionCommentAddButton(category: Category) = {
+    SHtml.ajaxButton(Text("Add comment"), discussionEditor(category, None) _, ("class", "button"), ("id", id(category.name.is + "add_discussion_button")))
   }
 
   /** Render editor. */
-  private def discussionEditor(maybe: Option[Discussion] = None)(): JsCmd = {
+  private def discussionEditor(category: Category, maybe: Option[Discussion] = None)(): JsCmd = {
     maybe match {
       case Some(d) =>
         Editor.editorObj(d.comment.is, preview _, updateDiscussionComment(d) _) match {
@@ -233,7 +262,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
                 <div class="editor">
                   { n }
                   <div class="buttons">
-                    { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("edit_form_" + d.id, () => reloadDiscussion)) }
+                    { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("edit_form_" + d.id, () => reloadDiscussion(category))) }
                     { SHtml.a(Text("Cancel"),
                         Replace("edit_form_" + d.id, discussionToHtmlWithActions(d)) &
                         PrettyDate &
@@ -246,16 +275,17 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           case _ => JsCmds.Noop
       }
       case None =>
-        Editor.editorObj("", preview _, saveDiscussionComment(_)) match {
+        Editor.editorObj("", preview _, text => saveDiscussionComment(category, text)) match {
           case (n, j) =>
-            Replace("add_discussion_button",
-              <form id="discussion_form" class="edit" method="GET">
+            val formId = id(category.name.is + "discussion_form")
+            Replace(id(category.name.is + "add_discussion_button"),
+              <form id={ formId } class="edit" method="GET">
                 <div class="editor">
                   { n }
                   <div class="buttons">
-                    { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("discussion_form", () => reloadDiscussion)) }
+                    { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm(formId, () => reloadDiscussion(category))) }
                     { SHtml.a(Text("Cancel"),
-                        Replace("discussion_form", discussionCommentAddButton) &
+                        Replace(formId, discussionCommentAddButton(category)) &
                         PrettyDate &
                         Jq(Str("button")) ~> Button(),
                         ("class", "button"))
@@ -269,14 +299,15 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   }
 
   /** Reload discussion block after new comment adding. */
-  private def reloadDiscussion = Replace("discussion", discussion) &
-          JsRaw("$('#discussion_wrapper').toggle();") &
-          PrettyDate &
-          Jq(Str("button")) ~> Button()
+  private def reloadDiscussion(category: Category) =
+    Replace(id(category.name.is), categoryToHtml(category)) &
+    JsRaw("$('#" + id(category.name.is + "discussion_wrapper") + "').toggle();") &
+    PrettyDate &
+    Jq(Str("button")) ~> Button()
 
   /** Save discussion comment to database. */
-  private def saveDiscussionComment(text: String, parent: Option[Discussion] = None) {
-    val d = Discussion.create.qualifiedName(tpl.qualifiedName).comment(text).dateTime(now).user(User.currentUser.open_!).valid(true)
+  private def saveDiscussionComment(category: Category, text: String, parent: Option[Discussion] = None) {
+    val d = Discussion.create.category(category).qualifiedName(tpl.qualifiedName).comment(text).dateTime(now).user(User.currentUser.open_!).valid(true)
     parent match {
       case Some(p) => d.parent(p)
       case _ =>
@@ -301,23 +332,23 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Render delete button for discussion comment. */
   def deleteDiscussionButton(d: Discussion) = SHtml.a(
-    ColladocConfirm("Confirm delete"), () => {d.valid(false).save; reloadDiscussion}, Text("Delete"))
+    ColladocConfirm("Confirm delete"), () => {d.valid(false).save; reloadDiscussion(Category.get(d))}, Text("Delete"))
 
   /** Render delete button for discussion comment. */
-  def editDiscussionButton(d: Discussion) = SHtml.a(discussionEditor(Some(d)) _, Text("Edit"))
+  def editDiscussionButton(d: Discussion) = SHtml.a(discussionEditor(Category.get(d), Some(d)) _, Text("Edit"))
 
   /** Render reply button for discussion comment. */
   def replyDiscussionButton(d: Discussion) = SHtml.a(replyEditor(d) _, Text("Reply"))
 
   def replyEditor(parent: Discussion)() =
-    Editor.editorObj("", preview _, text => { saveDiscussionComment(text, Some(parent)) }) match {
+    Editor.editorObj("", preview _, text => { saveDiscussionComment(Category.get(parent), text, Some(parent)) }) match {
       case (n, j) =>
         Replace("reply_for_" + parent.id,
           <form id={"reply_form_for_" + parent.id} class="edit" method="GET">
             <div class="editor">
               { n }
               <div class="buttons">
-              { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("reply_form_for_" + parent.id, () => reloadDiscussion)) }
+              { SHtml.ajaxButton(Text("Save"), () => SHtml.submitAjaxForm("reply_form_for_" + parent.id, () => reloadDiscussion(Category.get(parent)))) }
               { SHtml.a(Text("Cancel"),
                   Replace("reply_form_for_" + parent.id, <div id={"reply_for_" + parent.id} />) &
                   PrettyDate &

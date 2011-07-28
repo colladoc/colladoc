@@ -56,4 +56,9 @@ class Category extends LongKeyedMapper[Category] with IdPK {
 
 object Category extends Category with LongKeyedMetaMapper[Category] {
   override def dbTableName = "categories"
+
+  /** Get all categories with non empty names. */
+  def all = findAll filter { c => c.name.is.trim.length > 0 }
+
+  def get(d: Discussion) = Category.find(d.category).open_!
 }
