@@ -35,6 +35,9 @@ import lib.util.DateUtils.{atomDateFormatter, dateFormatter}
 class Discussion extends LongKeyedMapper[Discussion] with IdPK {
   def getSingleton = Discussion
 
+  /** Category of this discussion. */
+  object category extends LongMappedMapper(this, Category)
+
   /** Qualified name of symbol this comment belongs to. */
   object qualifiedName extends MappedString(this, 255) {
     override def dbIndexed_? = true
