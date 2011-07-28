@@ -34,7 +34,7 @@ import js.JsCmds._
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml.ElemAttr._
 import xml.{NodeSeq, Text}
-import lib.js.JqUI.{SubmitForm, OpenDialog}
+import lib.js.JqUI.{SubmitFormWithValidation, SubmitForm, OpenDialog}
 
 /**
  * Mapper for user table storing registered users.
@@ -302,12 +302,57 @@ object User extends User with KeyedMetaMapper[Long, User] {
     )
   }
 
+  /** Categories properties. */
+  private def categoriesSettings: NodeSeq = {
+    var name = ""
+
+    def doSave(): JsCmd = {
+      Category.create.name(name).save
+      S.notice("Category " + name + " successfully created.")
+      Replace("categories_list", categoriesList)
+    }
+
+    def categoryToHtml(c: Category) = <li>{ c.name }</li>
+
+    def categoriesList =
+      <div id="categories_list">
+        <h3>Categories list</h3>
+        <ul>
+          { Category.findAll map categoryToHtml _ }
+        </ul>
+      </div>
+
+    val form =
+      <xml:group>
+        { categoriesList }
+        <h3>Add new</h3>
+        <lift:form class="category">
+          <fieldset>
+            <p>
+              <label for="name">Name</label>
+              <category:name class="text required ui-widget-content ui-corner-all" />
+            </p>
+            <category:submit />
+            <category:save />
+          </fieldset>
+        </lift:form>
+      </xml:group>
+
+
+    bind("category", form,
+      "name" -%> SHtml.text(name, name = _),
+      "submit" -> SHtml.hidden(doSave _),
+      "save" -> SHtml.a(Text("Add"), SubmitFormWithValidation(".category"), ("class", "button"))
+    )
+  }
+  
   /** Admin user form. */
   def adminForm =
     <div id="settings_tab">
       <ul>
         <li><a href="#user_settings">User settings</a></li>
         <li><a href="#project_settings">Project settings</a></li>
+        <li><a href="#categories_settings">Categories</a></li>
         <!--<li><a href="#source_settings">Source code settings</a></li>-->
       </ul>
       <div id="user_settings">
@@ -317,6 +362,9 @@ object User extends User with KeyedMetaMapper[Long, User] {
       </div>
       <div id="project_settings">
         { projectSettings }
+      </div>
+      <div id="categories_settings">
+        { categoriesSettings }
       </div>
       <!--<div id="source_settings">
         <table class="settings-table">
