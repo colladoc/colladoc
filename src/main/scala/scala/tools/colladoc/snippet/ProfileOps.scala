@@ -257,7 +257,7 @@ class ProfileOps {
       "form"                -> { if (!public_?) userForm(user) else publicProfile(user) },
       "change_password"     -> { if (!public_?) changePasswordForm(user) else NodeSeq.Empty },
       "delete_profile"      -> { if (!public_?) deleteProfile(user) else NodeSeq.Empty },
-      "discussion_comments" -> { if (!public_?) discussionComments else NodeSeq.Empty },
+      "discussion_comments" -> { if (User.loggedIn_?) discussionComments else NodeSeq.Empty },
       "fullname"            -> Text(fullname),
       "comments"            -> comments
     )

@@ -173,7 +173,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     </div>
 
   /** Render discussion comment. */
-  def discussionToHtml(d: Discussion, level: Int = 0) = {
+  def discussionToHtml(d: Discussion, level: Int = 0, withReplies: Boolean = false) = {
     val replies = Discussion.replies(d)
 
     <xml:group>
@@ -197,20 +197,21 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
           </li>
         } else
-          if(replies.length > 0)
+          if (replies.length > 0)
             <li class={"discussion_comment discussion_level_" + level}>
               <div class="discussion_content discussion_deleted">Comment deleted</div>
             </li>
       }
       {
-        replies.map(d => discussionToHtmlWithActions(d, if (level < 3) level + 1 else 4))
+        if (withReplies)
+          replies.map(d => discussionToHtmlWithActions(d, if (level < 3) level + 1 else 4))
       }
     </xml:group>
   }
 
   /** Render discussion comment with actions. */
   private def discussionToHtmlWithActions(d: Discussion, level: Int = 0): NodeSeq = bind("discussion_comment",
-    discussionToHtml(d, level),
+    discussionToHtml(d, level, true),
     "edit"   -> { if (User.validSuperUser_?) editDiscussionButton(d)   else NodeSeq.Empty },
     "delete" -> { if (User.validSuperUser_?) deleteDiscussionButton(d) else NodeSeq.Empty },
     "reply"  -> { if (!User.banned_?)   replyDiscussionButton(d)  else NodeSeq.Empty }
