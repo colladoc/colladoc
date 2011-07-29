@@ -352,7 +352,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <ul>
         <li><a href="#user_settings">User settings</a></li>
         <li><a href="#project_settings">Project settings</a></li>
-        <li><a href="#categories_settings">Categories</a></li>
+        <li><a href="#discussions_settings">Discussions</a></li>
         <!--<li><a href="#source_settings">Source code settings</a></li>-->
       </ul>
       <div id="user_settings">
@@ -363,7 +363,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <div id="project_settings">
         { projectSettings }
       </div>
-      <div id="categories_settings">
+      <div id="discussions_settings">
         { categoriesSettings }
       </div>
       <!--<div id="source_settings">
