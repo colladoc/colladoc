@@ -30,7 +30,7 @@ import java.text.SimpleDateFormat
  * @author Sergey Ignatov
  */
 object DateUtils {
-  def dateFormatter(d: Date) = new SimpleDateFormat("HH:mm:ss dd MMMM yyyy").format(d)
+  def dateFormatter(d: Date) = new SimpleDateFormat("HH:mm dd MMMM yyyy").format(d)
 
   def atomDateFormatter(d: Date) = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(d)
 

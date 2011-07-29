@@ -102,14 +102,17 @@ background-color: #E5E5E5;
     display: none;
 }
 
-.category h3 {
+.header {
     color: black;
     padding: 4px 4px 4px 16px;
-    border-top: 1px dotted #555;
     background-color: #E5E5E5;
+    cursor: pointer;
+}
+
+.category h3 {
     font-size: 12pt;
     font-weight: bold;
-    cursor: pointer;
+    display: inline;
 }
 
 .wrapper {

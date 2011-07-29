@@ -103,10 +103,20 @@ object Discussion extends Discussion with LongKeyedMetaMapper[Discussion] {
     By(Discussion.valid, true))
 
   /** Get replies for discussion current comment. */
-  def replies(category: Category, d: Discussion) = Discussion.findAll(
+  def replies(category: Category, d: Discussion) = findAll(
     By(Discussion.category, category),
     By(Discussion.qualifiedName, d.qualifiedName.is),
     NotNullRef(Discussion.parent),
     By(Discussion.parent, d),
     OrderBy(Discussion.dateTime, Ascending))
+
+  /** Get the latest valid comment for entity and category. */
+  def latest(category: Category, qualifiedName: String) = findAll(
+    By(Discussion.category, category),
+    By(Discussion.qualifiedName, qualifiedName),
+    By(Discussion.valid, true),
+    OrderBy(Discussion.dateTime, Descending), MaxRows(1)) match {
+    case List(d: Discussion, _*) => Some(d)
+    case _ => None
+  }
 }

@@ -197,7 +197,19 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   private def categoryToHtml(c: Category) =
     <div id={ id(c.name.is) } class="category">
-      <h3 id={ id(c.name.is + "header") } class="header">{ c.name }</h3>
+      <div id={ id(c.name.is + "header") } class="header">
+        <h3>{ c.name } ({ Discussion.count(c, tpl.qualifiedName) })</h3>
+        {
+          Discussion.latest(c, tpl.qualifiedName) match {
+            case Some(d) =>
+              <xml:group>
+                <span>updated</span>
+                <span class="datetime" title={d.atomDateTime}>{d.humanDateTime}</span>
+              </xml:group>
+            case _ => NodeSeq.Empty
+          }
+        }
+      </div>
       <div id={ id(c.name.is + "wrapper") } class="wrapper">
         <ul class="discussion_thread">
         {
