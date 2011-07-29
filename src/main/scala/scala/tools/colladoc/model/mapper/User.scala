@@ -353,7 +353,6 @@ object User extends User with KeyedMetaMapper[Long, User] {
         <li><a href="#user_settings">User settings</a></li>
         <li><a href="#project_settings">Project settings</a></li>
         <li><a href="#discussions_settings">Discussions</a></li>
-        <!--<li><a href="#source_settings">Source code settings</a></li>-->
       </ul>
       <div id="user_settings">
         <table id="userlist"/>
@@ -366,37 +365,6 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <div id="discussions_settings">
         { categoriesSettings }
       </div>
-      <!--<div id="source_settings">
-        <table class="settings-table">
-          <tr>
-            <td><label for="source_path">Source path:</label></td>
-            <td>
-              {SHtml.text(Model.settings.sourcepath.value,
-                text => (), ("id", "source_path"), ("class", "text ui-widget-content ui-corner-all"), ("size", "70"))
-              }
-            </td>
-            <td>
-              {SHtml.a(() => Noop, Text("Update"), ("style", "display: none;")) /* TODO: remove this magic */}
-              <button type="button"
-                      class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"
-                      onclick={SHtml.ajaxCall(JE.ValById("source_path"), updatePath _)._2}>{S.?("Update")}
-              </button>
-            </td>
-          </tr>
-        </table>
-        {SHtml.ajaxButton("Reload from source",
-          () => {
-            Model.rebuild
-            S.notice("Model successfully reloaded from source")
-            Noop },
-          ("class", "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"))}
-        <br />
-        {SHtml.ajaxButton("Merge comments",
-          () => {
-            S.notice("Comments successfully merged") // TODO: add action
-            Noop },
-          ("class", "ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only admin-button"))}
-      </div>-->
     </div>
 
   /** Signup user dialog. */
