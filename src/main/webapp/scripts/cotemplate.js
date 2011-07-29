@@ -133,3 +133,9 @@ function prettyDate() {
 $(document).ready(function() {
   prettyDate();
 });
+
+$(document).ready(function() {
+  $('#discussions_header').live('click', function(){
+    $('#discussions_wrapper').slideToggle(100);
+  });
+});

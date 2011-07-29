@@ -117,7 +117,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           }
         </div>
 
-        { categories }
+        { discussions }
 
         { if (constructors.isEmpty) NodeSeq.Empty else
             <div id="constructors" class="members">
@@ -165,6 +165,14 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
     </body>
 
+  private def discussions =
+    <div id="discussions">
+      <h3 id="discussions_header" class="header">Discussions</h3>
+      <div id="discussions_wrapper">
+        { categories }
+      </div>
+    </div>
+
   /** Render discussion block. */
   private def categories: NodeSeq =
     Category.all map categoryToHtmlWithToggle _
@@ -177,7 +185,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
             $('#%s').slideToggle(100);
           });
         });
-      """ format (id(c.name.is + "header"), id(c.name.is + "discussion_wrapper"))
+      """ format (id(c.name.is + "header"), id(c.name.is + "wrapper"))
 
     <xml:group>
       { categoryToHtml(c) }
@@ -190,7 +198,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def categoryToHtml(c: Category) =
     <div id={ id(c.name.is) } class="category">
       <h3 id={ id(c.name.is + "header") } class="header">{ c.name }</h3>
-      <div id={ id(c.name.is + "discussion_wrapper") } class="discussion_wrapper">
+      <div id={ id(c.name.is + "wrapper") } class="wrapper">
         <ul class="discussion_thread">
         {
           Discussion.topLevelComments(c, tpl.qualifiedName) map {
@@ -301,7 +309,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Reload discussion block after new comment adding. */
   private def reloadDiscussion(category: Category) =
     Replace(id(category.name.is), categoryToHtml(category)) &
-    JsRaw("$('#" + id(category.name.is + "discussion_wrapper") + "').toggle();") &
+    JsRaw("$('#" + id(category.name.is + "wrapper") + "').toggle();") &
     PrettyDate &
     Jq(Str("button")) ~> Button()
 

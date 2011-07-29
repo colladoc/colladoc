@@ -89,15 +89,30 @@ background-color: #E5E5E5;
 
 }
 
-.category h3 {
+#discussions_header {
     color: black;
     padding: 4px;
     background-color: #E5E5E5;
     font-size: 12pt;
     font-weight: bold;
+    cursor: pointer;
 }
 
-.discussion_wrapper {
+#discussions_wrapper {
+    display: none;
+}
+
+.category h3 {
+    color: black;
+    padding: 4px 4px 4px 16px;
+    border-top: 1px dotted #555;
+    background-color: #E5E5E5;
+    font-size: 12pt;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.wrapper {
     display: none;
     margin-left: 20px;
     margin-top: 10px;
