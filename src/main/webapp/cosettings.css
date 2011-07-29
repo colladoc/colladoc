@@ -175,10 +175,21 @@
     padding-top: 0.2em;
 }
 
-#discussions_settings li {
-    list-style: none;
-    margin: 5px;
+#categories_table td {
+    border-bottom: 1px solid #E5E5E5;
+    padding: 10px;
 }
+
+#categories_table th {
+    font-weight: bold;
+    padding: 10px;
+}
+
+#categories_table tr {
+    margin: 50px;
+}
+
+.test {margin: 5px;}
 
 #discussions_settings h3 {
     font-weight: bold;

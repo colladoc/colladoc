@@ -312,14 +312,50 @@ object User extends User with KeyedMetaMapper[Long, User] {
       Replace("categories_list", categoriesList)
     }
 
-    def categoryToHtml(c: Category) = <li>{ c.name }</li>
+    def categoryToHtml(c: Category) =
+      <tr>
+        <td>
+          {
+            SHtml.ajaxText(
+              c.name.is,
+              text => {
+                if (c.name.is != text )
+                  c.name(text).save
+                Noop
+              }
+            )
+          
+          }
+        </td>
+        <td>
+          {
+            SHtml.ajaxCheckbox(
+              c.anonymousView,
+              bool => { c.anonymousView(bool).save; Noop }
+            )
+          }
+        </td>
+        <td>
+          {
+            SHtml.ajaxCheckbox(
+              c.anonymousPost,
+              bool => { c.anonymousPost(bool).save; Noop }
+            )
+          }
+        </td>
+      </tr>
 
     def categoriesList =
-      <div id="categories_list">
+      <div id="categories_table">
         <h3>Categories list</h3>
-        <ul>
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Allowed to view for anonymous</th>
+            <th>Allowed to post for anonymous</th>
+          </tr>
           { Category.all map categoryToHtml _ }
-        </ul>
+        </table>
       </div>
 
     val form =
