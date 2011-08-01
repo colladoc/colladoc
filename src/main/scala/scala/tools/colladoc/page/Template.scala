@@ -175,7 +175,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Render discussion block. */
   private def categories: NodeSeq =
-    Category.all map categoryToHtmlWithToggle _
+    Category.findAll(By(Category.valid, true)) map categoryToHtmlWithToggle _
 
   private def categoryToHtmlWithToggle(c: Category) = {
     val toggle =

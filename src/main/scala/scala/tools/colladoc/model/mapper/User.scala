@@ -324,7 +324,6 @@ object User extends User with KeyedMetaMapper[Long, User] {
                 Noop
               }
             )
-          
           }
         </td>
         <td>
@@ -343,6 +342,14 @@ object User extends User with KeyedMetaMapper[Long, User] {
             )
           }
         </td>
+        <td>
+          {
+            SHtml.ajaxCheckbox(
+              c.valid,
+              bool => { c.valid(bool).save; Noop }
+            )
+          }
+        </td>
       </tr>
 
     def categoriesList =
@@ -353,6 +360,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
             <th>Name</th>
             <th>Allowed to view for anonymous</th>
             <th>Allowed to post for anonymous</th>
+            <th>Valid</th>
           </tr>
           { Category.all map categoryToHtml _ }
         </table>
