@@ -309,7 +309,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
     def doSave(): JsCmd = {
       Category.create.name(name).save
       S.notice("Category " + name + " successfully created.")
-      Replace("categories_list", categoriesList)
+      Replace("categories_table", categoriesList)
     }
 
     def categoryToHtml(c: Category) =
