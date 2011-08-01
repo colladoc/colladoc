@@ -73,7 +73,7 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
   object comments extends MappedOneToMany(Comment, Comment.user)
 
   /** Url to user's profile. */
-  def profileUrl = "/profile/" + urlEncode(userName)
+  def profileUrl = "profile/" + urlEncode(userName)
 
   /** Hyperlink to user's profile. */
   def profileHyperlink = <a target="template" href={profileUrl}>{userName}</a>
