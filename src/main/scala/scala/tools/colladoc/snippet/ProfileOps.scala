@@ -184,7 +184,6 @@ class ProfileOps {
           </p>
           <change:submit />
           <change:save />
-          <change:reset />
         </fieldset>
       </lift:form>
 
@@ -193,12 +192,7 @@ class ProfileOps {
       "new"     -%> SHtml.password("", newPass = _, ("id", "new")),
       "confirm" -%> SHtml.password("", confirm = _, ("id", "confirm")),
       "submit"   -> SHtml.hidden(doSave _),
-      "save"     -> SHtml.a(Text("Save"), SubmitFormWithValidation(".change_password_form"), ("class", "button")),
-      "reset"    -> SHtml.a(Text("Reset"),
-        SetValById("old", Str(oldPass)) &
-        SetValById("new", Str(newPass)) &
-        SetValById("confirm", Str(confirm)),
-        ("class", "button"))
+      "save"     -> SHtml.a(Text("Save"), SubmitFormWithValidation(".change_password_form"), ("class", "button"))
     )
   }
 
