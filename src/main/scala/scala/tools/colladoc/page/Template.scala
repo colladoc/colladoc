@@ -414,7 +414,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def controls(mbr: MemberEntity, isSelf: Boolean) =
     <div class="controls">
       { select(mbr, isSelf) }
-      { if (User.validSuperUser_?)
+      { if (!User.banned_?)
           edit(mbr, isSelf)
       }
       { if (User.validSuperUser_?) delete(mbr, isSelf) }
