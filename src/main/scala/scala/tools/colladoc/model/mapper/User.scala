@@ -358,8 +358,8 @@ object User extends User with KeyedMetaMapper[Long, User] {
         <table>
           <tr>
             <th>Name</th>
-            <th>Allowed to view for anonymous</th>
-            <th>Allowed to post for anonymous</th>
+            <th>Anonymous viewable</th>
+            <th>Anonymous postable</th>
             <th>Valid</th>
           </tr>
           { Category.all map categoryToHtml _ }
