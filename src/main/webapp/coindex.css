@@ -108,3 +108,10 @@
     text-decoration: underline;
 }
 
+#agree_label {
+    display: inline;
+}
+
+#agree_input {
+    display: inline;
+}
