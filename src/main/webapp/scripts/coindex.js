@@ -55,7 +55,7 @@ $(document).ready(function() {
           agree: "required"
         },
         messages: {
-          agree: "Please accept our agreement"
+          agree: "You need to accept the agreement to sign up"
         }
       });
 
