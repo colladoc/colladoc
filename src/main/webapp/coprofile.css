@@ -75,3 +75,11 @@
 #recover_account > a {
     font-weight: bold;
 }
+
+#superuser_wrapper {
+    margin-top: 8px;
+}
+
+#superuser_wrapper > label {
+    font-weight: bold;
+}

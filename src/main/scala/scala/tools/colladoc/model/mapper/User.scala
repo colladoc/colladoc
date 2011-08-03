@@ -83,17 +83,10 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
     val row =
     <row id={id.toString}>
       <cell>{profileHyperlink.toString}</cell>
-      <cell><row:superuser /></cell>
       <cell><row:banned /></cell>
     </row>
 
     bind("row", row,
-      "superuser" -> SHtml.ajaxCheckbox(
-        superUser, bool => {
-          superUser(bool)
-          save
-          Noop
-        }).toString,
       "banned" -> SHtml.ajaxCheckbox(
         banned, bool => {
           banned(bool)

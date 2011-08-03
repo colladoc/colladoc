@@ -232,6 +232,19 @@ class ProfileOps {
       NodeSeq.Empty
   }
 
+  def superuser(user: User) = {
+    <div id="superuser_wrapper">
+      <label for="superuser">Superuser</label>
+      {
+        SHtml.ajaxCheckbox(
+          user.superUser, bool => {
+            user.superUser(bool).save
+            Noop
+          }, ("id", "superuser"))
+      }
+    </div>
+  }
+
   def body(xhtml: NodeSeq): NodeSeq = {
     val user = getUser
 
@@ -265,6 +278,7 @@ class ProfileOps {
       "form"                -> { if (!public_?) userForm(user) else publicProfile(user) },
       "change_password"     -> { if (!public_?) changePasswordForm(user) else NodeSeq.Empty },
       "delete_profile"      -> { if (!public_?) deleteProfile(user) else NodeSeq.Empty },
+      "superuser"           -> { if (User.validSuperUser_?) superuser(user) else NodeSeq.Empty },
       "discussion_comments" -> { if (User.loggedIn_?) discussionComments else NodeSeq.Empty },
       "fullname"            -> Text(fullname),
       "comments"            -> comments
