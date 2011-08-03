@@ -34,7 +34,7 @@ import js.JsCmds._
 import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml.ElemAttr._
 import xml.{NodeSeq, Text}
-import lib.js.JqUI.{SubmitFormWithValidation, SubmitForm, OpenDialog}
+import lib.js.JqUI._
 
 /**
  * Mapper for user table storing registered users.
@@ -281,9 +281,15 @@ object User extends User with KeyedMetaMapper[Long, User] {
     var name = ""
 
     def doSave(): JsCmd = {
-      Category.create.name(name).save
-      S.notice("Category " + name + " successfully created.")
-      Replace("categories_table", categoriesList)
+      Category.find(By(Category.name, name)) match {
+        case Full(c) =>
+          S.notice("Category " + name + " already exists.")
+          Noop
+        case _ =>
+          Category.create.name(name).save
+          S.notice("Category " + name + " successfully created.")
+          Replace("categories_table", categoriesList) & Jq(Str(".button")) ~> Button()
+      }
     }
 
     def categoryToHtml(c: Category) =
@@ -318,15 +324,17 @@ object User extends User with KeyedMetaMapper[Long, User] {
         </td>
         <td>
           {
-            SHtml.ajaxCheckbox(
-              c.valid,
-              bool => { c.valid(bool).save; Noop }
+            SHtml.a(
+              ColladocConfirm("Confirm delete"),
+              () => { c.valid(false).save; Replace("categories_table", categoriesList) & Jq(Str(".button")) ~> Button() },
+              Text("Delete"),
+              ("class", "button")
             )
           }
         </td>
       </tr>
 
-    def categoriesList =
+    def categoriesList: NodeSeq =
       <div id="categories_table">
         <h3>Categories list</h3>
         <table>
@@ -334,7 +342,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
             <th>Name</th>
             <th>Anonymous viewable</th>
             <th>Anonymous postable</th>
-            <th>Valid</th>
+            <th></th>
           </tr>
           { Category.all map categoryToHtml _ }
         </table>
