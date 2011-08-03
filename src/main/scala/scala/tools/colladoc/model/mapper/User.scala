@@ -369,15 +369,13 @@ object User extends User with KeyedMetaMapper[Long, User] {
     val form =
       <xml:group>
         { categoriesList }
-        <h3>Add new</h3>
         <lift:form class="category">
           <fieldset>
             <p>
-              <label for="name">Name</label>
               <category:name class="text required ui-widget-content ui-corner-all" />
             </p>
-            <category:submit />
             <category:save />
+            <category:submit />
           </fieldset>
         </lift:form>
       </xml:group>
