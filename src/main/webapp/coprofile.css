@@ -95,3 +95,16 @@
 #edit_info_button {
     margin-top: 8px;
 }
+
+#discussion_comments_tab {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.definition > a {
+    text-decoration: none;
+}
+
+.discussion_wrapper {
+    margin-left: 20px;
+}

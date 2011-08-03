@@ -40,6 +40,8 @@ import lib.widgets.Editor
 import net.liftweb.http.js.jquery.JqJE.Jq
 import lib.js.JqUI.Button
 import net.liftweb.http.js.JsCmds._
+import tools.nsc.doc.model.{DocTemplateEntity, MemberEntity}
+import lib.util.PathUtils._
 
 /**
  * User profile snippet.
@@ -306,6 +308,21 @@ class ProfileOps {
     </div>
   }
 
+  private def tmpl(member: MemberEntity) = member match {
+    case tpl: DocTemplateEntity => tpl
+    case _ => member.inTemplate
+  }
+
+  def path(qualifiedName: String) = qualifiedName.split('.').toList
+
+  def fixedPath(qualifiedName: String) = {
+    val p = path(qualifiedName)
+    if (p.length == 1)
+      p ::: List("package")
+    else
+      p
+  }
+
   def body(xhtml: NodeSeq): NodeSeq = {
     val user = getUser
 
@@ -319,14 +336,28 @@ class ProfileOps {
 
     val entities = dscs.map(d => (d.qualifiedName.is, d)).groupBy(p => p._1)
 
-    lazy val x = entities map { case (qualifiedName, value) =>
-      <xml:group>
-        <h3><a href={abs(qualifiedName)}>{qualifiedName}</a></h3>
-        <ul>{value map { case (q, d) => dToHtml(d) } }</ul>
-      </xml:group>
+    lazy val x = entities map { case (qualifiedName, value) => {
+      val m = pathToTemplate(model.vend.rootPackage, fixedPath(qualifiedName))
+
+      val containingType = tmpl(m);
+
+      <div class={if (containingType.isTrait || containingType.isClass) " type" else " value"}>
+        <h4 class="definition">
+          <a href={ abs(qualifiedName) }>
+            <img src={ profile.relativeLinkTo{List(profile.kindToString(containingType) + ".png", "lib")} }/>
+          </a>
+          <span>{ qualifiedName }</span>
+        </h4>
+        <div class="discussion_wrapper">
+          <ul>
+            {value map { case (q, d) => dToHtml(d) } }
+          </ul>
+        </div>
+      </div>
+      }
     }
 
-    def abs(qualifiedName: String) = "/" + qualifiedName.replace(".", "/").replace("#", "$") + ".html"
+    def abs(qualifiedName: String) = "/" + fixedPath(qualifiedName).mkString("/") + ".html"
 
     def dToHtml(d: Discussion) = {
       bind("discussion_comment", template.discussionToHtml(d))
