@@ -91,3 +91,7 @@
 #available_wrapper > label {
     font-weight: bold;
 }
+
+#edit_info_button {
+    margin-top: 8px;
+}

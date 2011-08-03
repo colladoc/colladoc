@@ -63,6 +63,10 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
     override def defaultValue = false
   }
 
+  object info extends MappedText(this) {
+    override def defaultValue = ""
+  }
+
   def userNameDisplayName = S.??("user.name")
 
   def deleted_? = deleted.is == true
