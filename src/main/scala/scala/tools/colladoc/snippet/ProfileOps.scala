@@ -215,7 +215,7 @@ class ProfileOps {
             Text("Delete account"))
         }
       </div>
-    else if (User.superUser_? && user.deleted_?)
+    else if (User.validSuperUser_? && user.deleted_?)
       <div id="recover_account">
         {
           SHtml.a(
