@@ -67,21 +67,25 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
 
   def deleted_? = deleted.is == true
 
-
-
   /** User comment changes. */
   object comments extends MappedOneToMany(Comment, Comment.user)
 
   /** Url to user's profile. */
-  def profileUrl = "profile/" + urlEncode(userName)
+  def profileUrl = "/profile/" + urlEncode(userName)
 
   /** Hyperlink to user's profile. */
   def profileHyperlink = <a target="template" href={profileUrl}>{userName}</a>
 
+  /** Non absolute url to user's profile. */
+  private def profileUrlLocal = "profile/" + urlEncode(userName)
+
+  /** Non absolute hyperlink to user's profile. */
+  private def profileHyperlinkLocal = <a target="template" href={profileUrlLocal}>{userName}</a>
+
   /** Grid entry. */
   def toGridRow =
     <row id={id.toString}>
-      <cell>{profileHyperlink.toString}</cell>
+      <cell>{profileHyperlinkLocal.toString}</cell>
     </row>
 }
 
