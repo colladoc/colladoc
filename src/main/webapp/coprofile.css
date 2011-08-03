@@ -68,6 +68,10 @@
     color: #993300;
 }
 
-#delete_account button {
-    margin-left: 0;
+#recover_account {
+    margin-top: 8px;
+}
+
+#recover_account > a {
+    font-weight: bold;
 }

@@ -197,23 +197,39 @@ class ProfileOps {
   }
 
   def deleteProfile(user: User) = {
-    <div id="delete_account">
-      {
-        SHtml.a(
-          ColladocConfirm("Confirm delete"),
-          () => {
-            user.deleted(true).save
-            S.notice("Account " + user.userName + " successfully deleted")
-            if (User.currentUser.open_! == user) {
-              User.logout
-              RedirectTo("/")
-            } else {
-              Noop
-            }
-          },
-          Text("Delete account"))
-      }
+    if (!user.deleted_?)
+      <div id="delete_account">
+        {
+          SHtml.a(
+            ColladocConfirm("Confirm delete"),
+            () => {
+              user.deleted(true).save
+              S.notice("Account " + user.userName + " successfully deleted")
+              if (User.currentUser.open_! == user) {
+                User.logout
+                RedirectTo("/")
+              } else {
+                Noop
+              }
+            },
+            Text("Delete account"))
+        }
       </div>
+    else if (User.superUser_? && user.deleted_?)
+      <div id="recover_account">
+        {
+          SHtml.a(
+            ColladocConfirm("Confirm recover"),
+            () => {
+              user.deleted(false).save
+              S.notice("Account " + user.userName + " successfully recovered")
+              Noop
+            },
+            Text("Recover account"))
+        }
+      </div>
+    else
+      NodeSeq.Empty
   }
 
   def body(xhtml: NodeSeq): NodeSeq = {

@@ -84,7 +84,6 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
     <row id={id.toString}>
       <cell>{profileHyperlink.toString}</cell>
       <cell><row:superuser /></cell>
-      <cell><row:delete /></cell>
       <cell><row:banned /></cell>
     </row>
 
@@ -92,12 +91,6 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
       "superuser" -> SHtml.ajaxCheckbox(
         superUser, bool => {
           superUser(bool)
-          save
-          Noop
-        }).toString,
-      "delete" -> SHtml.ajaxCheckbox(
-        deleted_?, bool => {
-          deleted(bool)
           save
           Noop
         }).toString,
