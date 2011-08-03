@@ -40,7 +40,7 @@ object JqUI {
   }
 
   /** Convert selected element to select menu. */
-  case class SelectMenu(width: Int = 300) extends JsExp with JsMember {
+  case class SelectMenu(width: Int = 225) extends JsExp with JsMember {
     override def toJsCmd = "selectmenu({ width: " + width.toString + " })"
   }
 

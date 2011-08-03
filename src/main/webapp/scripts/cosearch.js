@@ -142,7 +142,7 @@ function infiniteScroll(){
                             $("#recCount").text(parseInt(recText) + newNum);
 
                             var combos=$(result).find("select");
-                            combos.selectmenu({width:300});
+                            combos.selectmenu({width:225});
 
                             // append new elements to results page
                             $("#searchResults").append(result.children());
