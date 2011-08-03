@@ -27,10 +27,9 @@ $(document).ready(function() {
   $("#userlist").jqGrid({
     url:'grid/users?',
     datatype: "xml",
-    colNames:['Username', 'Banned'],
+    colNames:['Username'],
     colModel:[
-      {name: 'profile', index: 'profile'},
-      {name: 'banned', index: 'banned', width: 60}
+      {name: 'profile', index: 'profile'}
     ],
     rowList:[5,10,20,30],
     pager: '#userpager',

@@ -245,6 +245,19 @@ class ProfileOps {
     </div>
   }
 
+  def available(user: User) = {
+    <div id="available_wrapper">
+      <label for="available">Available</label>
+      {
+        SHtml.ajaxCheckbox(
+          !user.banned.is, bool => {
+            user.banned(!bool).save
+            Noop
+          }, ("id", "available"))
+      }
+    </div>
+  }
+
   def body(xhtml: NodeSeq): NodeSeq = {
     val user = getUser
 
@@ -279,6 +292,7 @@ class ProfileOps {
       "change_password"     -> { if (!public_?) changePasswordForm(user) else NodeSeq.Empty },
       "delete_profile"      -> { if (!public_?) deleteProfile(user) else NodeSeq.Empty },
       "superuser"           -> { if (User.validSuperUser_?) superuser(user) else NodeSeq.Empty },
+      "available"           -> { if (User.validSuperUser_?) available(user) else NodeSeq.Empty },
       "discussion_comments" -> { if (User.loggedIn_?) discussionComments else NodeSeq.Empty },
       "fullname"            -> Text(fullname),
       "comments"            -> comments

@@ -79,22 +79,10 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
   def profileHyperlink = <a target="template" href={profileUrl}>{userName}</a>
 
   /** Grid entry. */
-  def toGridRow = {
-    val row =
+  def toGridRow =
     <row id={id.toString}>
       <cell>{profileHyperlink.toString}</cell>
-      <cell><row:banned /></cell>
     </row>
-
-    bind("row", row,
-      "banned" -> SHtml.ajaxCheckbox(
-        banned, bool => {
-          banned(bool)
-          save
-          Noop
-        }).toString
-    )
-  }
 }
 
 /**

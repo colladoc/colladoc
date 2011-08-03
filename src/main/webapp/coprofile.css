@@ -83,3 +83,11 @@
 #superuser_wrapper > label {
     font-weight: bold;
 }
+
+#available_wrapper {
+    margin-top: 8px;
+}
+
+#available_wrapper > label {
+    font-weight: bold;
+}

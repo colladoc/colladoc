@@ -54,6 +54,7 @@ class Profile(rootPack: Package) extends scala.tools.colladoc.page.Template(root
               <profile:change_password />
               <profile:delete_profile />
               <profile:superuser />
+              <profile:available />
           </div>
           <div id="comments_tab">
             <profile:comments />
