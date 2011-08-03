@@ -61,6 +61,10 @@
 
 #delete_account {
     margin-top: 8px;
+}
+
+#delete_account > a {
+    font-weight: bold;
     color: #993300;
 }
 

@@ -31,10 +31,10 @@ import net.liftweb.http.{SHtml, S, RequestVar}
 import net.liftweb.mapper.{Ascending, By, OrderBy}
 import lib.js.JqUI.{ColladocConfirm, SubmitFormWithValidation}
 import net.liftweb.http.js.JsCmds.{Noop, RedirectTo, SetValById}
-import net.liftweb.http.js.JE.Str
-import net.liftweb.http.js.{JsCmds, JsCmd}
+import net.liftweb.http.js.JE.{Str, JsRaw, AnonFunc}
 import page.{Template, History, Profile}
 import net.liftweb.common.Full
+import net.liftweb.http.js.{JsCmds, JsCommands, JsCmd}
 
 /**
  * User profile snippet.
@@ -198,10 +198,8 @@ class ProfileOps {
 
   def deleteProfile(user: User) = {
     <div id="delete_account">
-    <h2>Delete account</h2>
       {
-        SHtml.ajaxButton(
-          "Delete",
+        SHtml.a(
           ColladocConfirm("Confirm delete"),
           () => {
             user.deleted(true).save
@@ -213,7 +211,7 @@ class ProfileOps {
               Noop
             }
           },
-          ("class", "button"))
+          Text("Delete account"))
       }
       </div>
   }
