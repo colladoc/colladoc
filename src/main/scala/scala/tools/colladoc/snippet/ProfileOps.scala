@@ -100,11 +100,23 @@ class ProfileOps {
           </p>
           <p>
             <label for="email">E-mail</label>
-            <user:email class="email required ui-widget-content ui-corner-all" />
+            <user:email class="text required ui-widget-content ui-corner-all" />
           </p>
           <p>
             <label for="openid">OpenID</label>
             <user:openid class="text ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="site">Website/Blog</label>
+            <user:site class="text ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="company">Company</label>
+            <user:company class="text ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="location">Location</label>
+            <user:location class="text ui-widget-content ui-corner-all" />
           </p>
           <user:submit />
           <user:save />
@@ -124,6 +136,9 @@ class ProfileOps {
         }, ("id", "fullname")),
       "email" -%> SHtml.text(user.email.is, user.email(_), ("id", "email")),
       "openid" -%> SHtml.text(user.openId.is, user.openId(_), ("id", "openid")),
+      "site" -%> SHtml.text(user.site.is, user.site(_), ("id", "site")),
+      "company" -%> SHtml.text(user.company.is, user.company(_), ("id", "company")),
+      "location" -%> SHtml.text(user.location.is, user.location(_), ("id", "location")),
       "submit" -> SHtml.hidden(doSave _),
       "save" -> SHtml.a(Text("Save"), SubmitFormWithValidation(".profile_form"), ("class", "button")),
       "reset" -> SHtml.a(Text("Reset"),
@@ -131,12 +146,22 @@ class ProfileOps {
         SetValById("fullname", Str(user.shortName)) &
         SetValById("email", Str(user.email.is)) &
         SetValById("password", Str("")) &
-        SetValById("openid", Str(user.openId.is)),
+        SetValById("openid", Str(user.openId.is)) &
+        SetValById("site", Str(user.site.is)) &
+        SetValById("location", Str(user.location.is)) &
+        SetValById("company", Str(user.company.is)),
         ("class", "button"))
     )
   }
 
-  def publicProfile(user: User) = {
+  def fixLink(href: String) = {
+    if (href.startsWith("http://") || href.startsWith("https://"))
+      href
+    else
+      "http://" + href
+  }
+
+  def publicProfile(user: User) =
     <lift:form class="form profile_form">
       <fieldset>
         <p>
@@ -147,9 +172,29 @@ class ProfileOps {
           <label>Full Name</label>
           <span>{user.shortName}</span>
         </p>
+        {
+          if (user.site.is.trim.length > 0)
+            <p>
+              <label>Website/blog</label>
+              <a href={fixLink(user.site.is)}>{fixLink(user.site.is)}</a>
+            </p>
+        }
+        {
+          if (user.company.is.trim.length > 0)
+            <p>
+              <label>Company</label>
+              <span>{user.company.is}</span>
+            </p>
+        }
+        {
+          if (user.location.is.trim.length > 0)
+            <p>
+              <label>Location</label>
+              <span>{user.location.is}</span>
+            </p>
+        }
       </fieldset>
     </lift:form>
-  }
 
   def info(user: User): NodeSeq = {
     <div id="public_info">

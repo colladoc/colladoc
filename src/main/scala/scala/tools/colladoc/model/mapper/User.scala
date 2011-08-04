@@ -67,6 +67,18 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
     override def defaultValue = ""
   }
 
+  object site extends MappedString(this, 255) {
+    override def defaultValue = ""
+  }
+
+  object location extends MappedString(this, 255) {
+    override def defaultValue = ""
+  }
+
+  object company extends MappedString(this, 255) {
+    override def defaultValue = ""
+  }
+
   def userNameDisplayName = S.??("user.name")
 
   def deleted_? = deleted.is == true
