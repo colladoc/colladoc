@@ -377,19 +377,32 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "save" -> SHtml.a(Text("Add"), SubmitFormWithValidation(".category"), ("class", "button"))
     )
   }
-  
+
+  private def userList =
+    <div id="user_list">
+      <ul>
+        {
+          User.findAll(OrderBy(User.userName, Ascending)) map { u =>
+            <li class={if (u.deleted_?) "deleted" else if (u.banned.is) "banned" else ""}>
+              { u.profileHyperlinkLocal }
+            </li>
+          }
+        }
+      </ul>
+    </div>
+
   /** Admin user form. */
   def adminForm =
     <div id="settings_tab">
       <ul>
-        <li><a href="#user_settings">User settings</a></li>
+        <li><a href="#user_settings">User list</a></li>
         <li><a href="#project_settings">Project settings</a></li>
         <li><a href="#discussions_settings">Discussions</a></li>
       </ul>
       <div id="user_settings">
-        <table id="userlist"/>
-        <div id="userpager"></div>
-        { SHtml.a(Text("Create new user"), Jq(Str(".create")) ~> OpenDialog(), ("class", "link")) }
+        <input id="user_filter" class="text ui-widget-content ui-corner-all"/>
+        { userList }
+        { SHtml.a(Text("Create new user"), Jq(Str(".create")) ~> OpenDialog(), ("class", "button")) }
       </div>
       <div id="project_settings">
         { projectSettings }
@@ -518,14 +531,16 @@ object User extends User with KeyedMetaMapper[Long, User] {
   def createUser = {
     var user = create
 
-    def doCreate() {
+    def doCreate(): JsCmd = {
       user.validate match {
         case Nil =>
           S.notice("User successfully created")
           user.save()
           user = create
+          Replace("user_list", userList)
         case n =>
           S.error(n)
+          Noop
       }
     }
 

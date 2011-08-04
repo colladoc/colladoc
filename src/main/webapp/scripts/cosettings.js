@@ -24,23 +24,7 @@
 $(document).ready(function() {
   $("#settings_tab").tabs();
 
-  $("#userlist").jqGrid({
-    url:'grid/users?',
-    datatype: "xml",
-    colNames:['Username'],
-    colModel:[
-      {name: 'profile', index: 'profile'}
-    ],
-    rowList:[5,10,20,30],
-    pager: '#userpager',
-    viewrecords: true,
-    sortname: 'username',
-    sortorder: 'desc',
-    autowidth: true,
-    height: 500,
-    caption: 'User list'
-  }).navGrid('#userpager', {edit:false,add:false,del:false});
-  $('.ui-jqgrid-titlebar-close').remove();
+  $("#user_filter").focus().livefilter({selector:'#user_list > ul > li'});
 
   $(".create").dialog({
     autoOpen: false,
@@ -49,13 +33,7 @@ $(document).ready(function() {
       'Save': function() {
         if ($(".create").valid()) {
           $(".create").submit();
-          setTimeout(function() {
-            $("#userlist").trigger('reloadGrid', [
-              {page: 1}
-            ]);
-          }, 2000);
           $(this).dialog('close');
-
         }
       },
       'Cancel': function() {

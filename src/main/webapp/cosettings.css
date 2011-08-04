@@ -200,3 +200,35 @@
 #settings_tab {
     padding: 0;
 }
+
+#user_settings {
+    width: 600px;
+}
+
+#user_list {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 400px;
+    margin: 10px 0;
+}
+
+#user_list li {
+    padding: 5px 0;
+}
+
+.deleted > a {
+    color: #AAAAAA;
+}
+
+.banned > a {
+    color: #993300;
+}
+
+#user_settings input {
+    display: block;
+}
+
+#user_settings input.text {
+    width: 588px;
+    padding: 5px;
+}
