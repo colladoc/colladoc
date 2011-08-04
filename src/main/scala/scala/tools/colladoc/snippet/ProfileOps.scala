@@ -100,7 +100,7 @@ class ProfileOps {
           </p>
           <p>
             <label for="email">E-mail</label>
-            <user:email class="text required ui-widget-content ui-corner-all" />
+            <user:email class="email required ui-widget-content ui-corner-all" />
           </p>
           <p>
             <label for="openid">OpenID</label>
