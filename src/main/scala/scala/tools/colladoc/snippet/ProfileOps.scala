@@ -23,7 +23,6 @@
 package scala.tools.colladoc
 package snippet
 
-import model.Model.factory._
 import model.mapper.{Discussion,Comment, User}
 import lib.DependencyFactory._
 import xml.{NodeSeq, Text}
@@ -35,10 +34,6 @@ import net.liftweb.http.js.JE.Str
 import page.{Template, History, Profile}
 import net.liftweb.common.Full
 import net.liftweb.http.js.{JsCmds, JsCmd}
-import tools.nsc.util.NoPosition
-import lib.widgets.Editor
-import net.liftweb.http.js.jquery.JqJE.Jq
-import lib.js.JqUI.Button
 import net.liftweb.http.js.JsCmds._
 import tools.nsc.doc.model.{DocTemplateEntity, MemberEntity}
 import lib.util.PathUtils._
@@ -195,49 +190,6 @@ class ProfileOps {
         }
       </fieldset>
     </lift:form>
-
-  def info(user: User): NodeSeq = {
-    <div id="public_info">
-      <div id="info_render">
-        { profile.bodyToHtml(parseWiki(user.info.is, NoPosition)) }
-      </div>
-      { if (!public_?) {
-          SHtml.a(editor(user) _, Text("Edit"), ("class", "button"), ("id", "edit_info_button"))
-        } }
-    </div>
-  }
-
-  def editor(user: User)(): JsCmd = Editor.editorObj(user.info.is, preview _, user.info(_).save) match {
-    case (n, j) =>
-      Replace("public_info",
-        <form id="public_info" class="edit" method="GET">
-          <div class="editor">
-            { n }
-            <div class="buttons">
-            { SHtml.ajaxButton(Text("Save"),
-                () => SHtml.submitAjaxForm("public_info",
-                  () => Replace("public_info", info(user)) & Jq(Str(".button")) ~> Button())) }
-            { SHtml.a(Text("Cancel"),
-              Replace("public_info", info(user)) & Jq(Str(".button")) ~> Button(),
-              ("class", "button")) }
-          </div>
-          </div>
-        </form>) & j & Jq(Str("button")) ~> Button()
-    case _ => JsCmds.Noop
-  }
-
-  private def preview(text: String) =
-    <html>
-      <head>
-        <link href="/lib/template.css" media="screen" type="text/css" rel="stylesheet" />
-        <link href="/copreview.css" media="screen" type="text/css" rel="stylesheet" />
-      </head>
-      <body>
-        <div id="preview">
-          { profile.bodyToHtml(parseWiki(text, NoPosition)) }
-        </div>
-      </body>
-    </html>
 
   def changePasswordForm(user: User) = {
     var oldPass, newPass, confirm: String = ""
@@ -413,7 +365,6 @@ class ProfileOps {
     bind("profile",
       profile.body,
       "form"                -> { if (!public_?) userForm(user) else publicProfile(user) },
-      "info"                -> info(user),
       "change_password"     -> { if (!public_?) changePasswordForm(user) else NodeSeq.Empty },
       "delete_profile"      -> { if (!public_?) deleteProfile(user) else NodeSeq.Empty },
       "superuser"           -> { if (User.validSuperUser_?) superuser(user) else NodeSeq.Empty },

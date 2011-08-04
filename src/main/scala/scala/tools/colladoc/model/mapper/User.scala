@@ -63,10 +63,6 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
     override def defaultValue = false
   }
 
-  object info extends MappedText(this) {
-    override def defaultValue = ""
-  }
-
   object site extends MappedString(this, 255) {
     override def defaultValue = ""
   }
