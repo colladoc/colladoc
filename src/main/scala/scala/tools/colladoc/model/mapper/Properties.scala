@@ -34,9 +34,7 @@ class Property extends LongKeyedMapper[Property] {
 
   def primaryKeyField = id
   object id extends MappedLongIndex(this)
-  object key extends MappedString(this, 255) {
-     override def dbIndexed_? = true
-  }
+  object key extends MappedString(this, 255)
   object value extends MappedText(this)
 }
 
