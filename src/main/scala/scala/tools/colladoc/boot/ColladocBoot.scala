@@ -31,21 +31,29 @@ import net.liftweb.common.Empty
  * @author Sergey Ignatov
  */
 object ColladocBoot {
-  def boot {
-    addDefaultAdmin
-    loadProperties
+  def boot() {
+    addDefaultAdmin()
+    loadProperties()
   }
 
-  def addDefaultAdmin {
-    val name = "colladoc"
-    val pass = "colladoc"
+  def addDefaultAdmin() {
+    val userName = "colladoc"
+    val password = "colladoc"
+    val firstName = "Colladoc"
+    val email = "colladoc@scala-webapps.epfl.ch"
     val isSuperUser = true
 
     if (User.count() == 0)
-      User.create.userName(name).password(pass).superUser(isSuperUser).save
+      User.create.
+        userName(userName).
+        password(password).
+        firstName(firstName).
+        email(email).
+        superUser(isSuperUser).
+        save
   }
 
-  def loadProperties {
+  def loadProperties() {
     Props.props.foreach { case (k, v) =>
       if (k.startsWith("-doc"))
         Properties.get(k) match {
