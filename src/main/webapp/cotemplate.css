@@ -109,8 +109,13 @@ background-color: #E5E5E5;
     cursor: pointer;
 }
 
+.header > span {
+    font-size: 8pt;
+    color: #222222;
+}
+
 .category h3 {
-    font-size: 12pt;
+    font-size: 10pt;
     font-weight: bold;
     display: inline;
 }
