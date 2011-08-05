@@ -46,4 +46,6 @@ $(document).ready(function() {
   });
 
   $(".create").validate();
+
+  $("#categories_table > tbody > tr:last > td").css({'border': 'none'});
 });

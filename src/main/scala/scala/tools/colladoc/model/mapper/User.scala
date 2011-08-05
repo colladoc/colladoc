@@ -302,9 +302,9 @@ object User extends User with KeyedMetaMapper[Long, User] {
           S.notice("Category " + name + " already exists.")
           Noop
         case _ =>
-          Category.create.name(name).save
+          Category.create.name(name).save()
           S.notice("Category " + name + " successfully created.")
-          Replace("categories_table", categoriesList) & Jq(Str(".button")) ~> Button()
+          Replace("categories_form", categoriesSettings) & Jq(Str(".button")) ~> Button()
       }
     }
 
@@ -316,7 +316,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
               c.name.is,
               text => {
                 if (c.name.is != text )
-                  c.name(text).save
+                  c.name(text).save()
                 Noop
               }
             )
@@ -326,7 +326,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
           {
             SHtml.ajaxCheckbox(
               c.anonymousView,
-              bool => { c.anonymousView(bool).save; Noop }
+              bool => { c.anonymousView(bool).save(); Noop }
             )
           }
         </td>
@@ -334,7 +334,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
           {
             SHtml.ajaxCheckbox(
               c.anonymousPost,
-              bool => { c.anonymousPost(bool).save; Noop }
+              bool => { c.anonymousPost(bool).save(); Noop }
             )
           }
         </td>
@@ -342,55 +342,43 @@ object User extends User with KeyedMetaMapper[Long, User] {
           {
             SHtml.a(
               ColladocConfirm("Confirm delete"),
-              () => { c.valid(false).save; Replace("categories_table", categoriesList) & Jq(Str(".button")) ~> Button() },
-              Text("Delete"),
+              () => { c.valid(false).save(); Replace("categories_form", categoriesSettings) & Jq(Str(".button")) ~> Button() },
+              SHtml.span(NodeSeq.Empty, Noop, ("class", "ui-icon ui-icon-trash")),
               ("class", "button")
             )
           }
         </td>
       </tr>
 
-    def categoriesList: NodeSeq =
-      <div id="categories_table">
-        <h3>Categories</h3>
-        <table>
-          <tr>
-            <th>Name</th>
-            <th>Anonymous viewable</th>
-            <th>Anonymous postable</th>
-            <th></th>
-          </tr>
-          { Category.all map categoryToHtml _ }
-        </table>
-      </div>
-
     val form =
-      <xml:group>
-        { categoriesList }
+      <div id="categories_form">
         <lift:form class="category">
-          <fieldset>
-            <p>
-              <table id="category_add_line">
-                <tr>
-                  <td>
-                    <category:name class="text required ui-widget-content ui-corner-all" />
-                  </td>
-                  <td>
-                    <category:save />
-                  </td>
-                </tr>
-              </table>
-            </p>
-            <category:submit />
-          </fieldset>
+          <h3>Categories</h3>
+          <table id="categories_table">
+            <tr>
+              <th>Name</th>
+              <th>Anonymous viewable</th>
+              <th>Anonymous postable</th>
+              <th></th>
+            </tr>
+            { Category.all map categoryToHtml _ }
+            <tr>
+              <td colspan="3">
+                <category:name class="text required ui-widget-content ui-corner-all" />
+              </td>
+              <td>
+                <category:save />
+              </td>
+            </tr>
+          </table>
+          <category:submit />
         </lift:form>
-      </xml:group>
-
+      </div>
 
     bind("category", form,
       "name" -%> SHtml.text(name, name = _),
       "submit" -> SHtml.hidden(doSave _),
-      "save" -> SHtml.a(Text("Add"), SubmitFormWithValidation(".category"), ("class", "button"))
+      "save" -> SHtml.a(SHtml.span(NodeSeq.Empty, Noop, ("class", "ui-icon ui-icon-plus")), SubmitFormWithValidation(".category"), ("class", "button"))
     )
   }
 

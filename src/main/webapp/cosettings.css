@@ -175,34 +175,22 @@
     padding-top: 0.2em;
 }
 
+#categories_table {
+    width: 600px;
+}
+
 #categories_table td {
     border-bottom: 1px solid #E5E5E5;
     padding: 10px;
 }
 
 #categories_table th {
+    border-bottom: 1px solid #E5E5E5;
     font-weight: bold;
     padding: 10px;
 }
 
 #categories_table tr {
-    margin: 50px;
-}
-
-#category_add_line {
-    width: 652px;
-}
-
-#category_add_line td {
-    padding: 10px;
-}
-
-#category_add_line th {
-    font-weight: bold;
-    padding: 10px;
-}
-
-#category_add_line tr {
     margin: 50px;
 }
 
