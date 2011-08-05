@@ -211,7 +211,7 @@
 }
 
 #user_list {
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     height: 400px;
     margin: 10px 0;
@@ -227,6 +227,16 @@
 
 .banned > a {
     color: #993300;
+}
+
+li.ui-selectee {
+    border: 1px solid #E5E5E5;
+    margin: 1px;
+    padding-left: 5px;
+}
+
+.ui-selectee > a {
+    padding: 2px 8px;
 }
 
 #user_settings input {

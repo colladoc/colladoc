@@ -387,7 +387,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <ul>
         {
           User.findAll(OrderBy(User.userName, Ascending)) map { u =>
-            <li class={if (u.deleted_?) "deleted" else if (u.banned.is) "banned" else ""}>
+            <li class={"ui-selectee" + (if (u.deleted_?) " deleted" else if (u.banned.is) " banned" else "")}>
               { u.profileHyperlinkLocal }
             </li>
           }
