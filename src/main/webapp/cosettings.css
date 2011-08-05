@@ -161,7 +161,7 @@
 
 .category input.text {
     width: 95%;
-    padding: .4em;
+    padding: 5px;
 }
 
 .submit {
@@ -186,6 +186,23 @@
 }
 
 #categories_table tr {
+    margin: 50px;
+}
+
+#category_add_line {
+    width: 652px;
+}
+
+#category_add_line td {
+    padding: 10px;
+}
+
+#category_add_line th {
+    font-weight: bold;
+    padding: 10px;
+}
+
+#category_add_line tr {
     margin: 50px;
 }
 

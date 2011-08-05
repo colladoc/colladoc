@@ -370,9 +370,17 @@ object User extends User with KeyedMetaMapper[Long, User] {
         <lift:form class="category">
           <fieldset>
             <p>
-              <category:name class="text required ui-widget-content ui-corner-all" />
+              <table id="category_add_line">
+                <tr>
+                  <td>
+                    <category:name class="text required ui-widget-content ui-corner-all" />
+                  </td>
+                  <td>
+                    <category:save />
+                  </td>
+                </tr>
+              </table>
             </p>
-            <category:save />
             <category:submit />
           </fieldset>
         </lift:form>
