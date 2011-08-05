@@ -352,7 +352,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
 
     def categoriesList: NodeSeq =
       <div id="categories_table">
-        <h3>Categories list</h3>
+        <h3>Categories</h3>
         <table>
           <tr>
             <th>Name</th>
