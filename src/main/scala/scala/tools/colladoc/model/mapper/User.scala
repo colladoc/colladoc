@@ -182,8 +182,8 @@ object User extends User with KeyedMetaMapper[Long, User] {
           <user:openid class="text ui-widget-content ui-corner-all" />
         </p>
         <p>
-          <label for="agree" id="agree_label">I agree to the <a href="http://www.scala-lang.org/sites/default/files/contributor_agreement.pdf" class="link">Contributor Agreement</a></label>
           <input type="checkbox" value="false" id="agree_input" class="required ui-widget-content ui-corner-all" name="agree" />
+          <label for="agree" id="agree_label">I agree to the <a href="http://www.scala-lang.org/sites/default/files/contributor_agreement.pdf" class="link">Contributor Agreement</a></label>
         </p>
         <user:submit />
       </fieldset>
