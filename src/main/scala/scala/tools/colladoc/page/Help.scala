@@ -55,14 +55,14 @@ class Help(rootPack: Package) extends scala.tools.colladoc.page.Template(rootPac
             <p>
               The Colladoc web application also provides REST interface which provide access to the collected comments. <br />
               This allows to export the changes and merge them into original source code. <br />
-              Mergedoc sources you can find at <a href="https://github.com/collaborative-scaladoc/mergedoc" class="link">GitHub</a>.
+              Mergedoc sources you can find at <a href="https://github.com/colladoc/mergedoc" class="link">GitHub</a>.
             </p>
             <h4>Helpful links:</h4>
             <p>
               <ul>
-                <li><a href="http://collaborative-scaladoc.github.com/" class="link">Official site</a></li>
-                <li><a href="http://collaborative-scaladoc.posterous.com/" class="link">Official blog</a></li>
-                <li><a href="https://github.com/collaborative-scaladoc/colladoc/wiki" class="link">Wiki</a></li>
+                <li><a href="http://colladoc.github.com/" class="link">Official site</a></li>
+                <li><a href="http://colladoc.posterous.com/" class="link">Official blog</a></li>
+                <li><a href="https://github.com/colladoc/colladoc/wiki" class="link">Wiki</a></li>
               </ul>
             </p>
           </div>
