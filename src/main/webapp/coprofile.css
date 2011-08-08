@@ -105,6 +105,10 @@
     text-decoration: none;
 }
 
+.definition {
+    cursor: pointer;
+}
+
 .discussion_wrapper {
     margin-left: 20px;
 }

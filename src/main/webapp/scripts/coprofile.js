@@ -36,6 +36,10 @@ $(document).ready(function() {
   replaceIcon("trait");
   replaceIcon("object");
   replaceIcon("package");
+
+  $("#discussion_comments_tab > div > h4.definition").live("click", function(){
+    $(this).next('.discussion_wrapper').slideToggle(100)
+  });
 });
 
 function replaceIcon(type) {
