@@ -406,7 +406,6 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <div id="user_settings">
         <input id="user_filter" class="text ui-widget-content ui-corner-all"/>
         { userList }
-        { SHtml.a(Text("Create new user"), Jq(Str(".create")) ~> OpenDialog(), ("class", "button")) }
       </div>
       <div id="project_settings">
         { projectSettings }
@@ -506,63 +505,6 @@ object User extends User with KeyedMetaMapper[Long, User] {
   def logout = {
     logoutCurrentUser
   }
-
-  /** Create user form. */
-  def createUserHtml =
-    <lift:form class="create form">
-      <fieldset>
-        <p>
-          <label for="name">Username:</label>
-          <user:username class="text required ui-widget-content ui-corner-all" />
-        </p>
-        <p>
-          <label for="name">Full Name:</label>
-          <user:fullname class="text ui-widget-content ui-corner-all" />
-        </p>
-        <p>
-          <label for="name">Email:</label>
-          <user:email class="text required email ui-widget-content ui-corner-all" />
-        </p>
-        <p>
-          <label for="password">Password:</label>
-          <user:password class="text required ui-widget-content ui-corner-all" />
-        </p>
-        <user:submit />
-      </fieldset>
-    </lift:form>
-
-  /** User creation dialog. */
-  def createUser = {
-    var user = create
-
-    def doCreate(): JsCmd = {
-      user.validate match {
-        case Nil =>
-          S.notice("User successfully created")
-          user.save()
-          user = create
-          Replace("user_list", userList)
-        case n =>
-          S.error(n)
-          Noop
-      }
-    }
-
-    bind("user", createUserHtml,
-      "username" -%> SHtml.text("", user.userName(_)),
-      "fullname" -%> SHtml.text("", name => {
-          val idx = name.indexOf(" ")
-          if (idx != -1) {
-            user.firstName(name.take(idx))
-            user.lastName(name.drop(idx + 1))
-          } else
-            user.firstName(name)
-        }),
-      "email" -%> SHtml.text("", user.email(_)),
-      "password" -%> SHtml.password("", user.password(_)),
-      "submit" -> SHtml.hidden(doCreate _))
-  }
-
 }
 
 }

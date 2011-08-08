@@ -43,7 +43,6 @@ class Settings(rootPack: Package) extends scala.tools.colladoc.page.Template(roo
           </div>
           <div id="template">
             { User.adminForm }
-            { User.createUser }
           </div>
       }}
     </body>
