@@ -218,7 +218,17 @@
 }
 
 #user_list li {
-    padding: 5px 0;
+    padding: 5px;
+}
+
+#user_list a {
+    padding-left: 5px;
+}
+
+.ui-icon {
+    display: inline-block;
+    vertical-align: middle;
+    padding-top: 2px;
 }
 
 .deleted > a {
@@ -232,11 +242,19 @@
 li.ui-selectee {
     border: 1px solid #E5E5E5;
     margin: 1px;
-    padding-left: 5px;
+    padding: 1px 0 1px 5px;
 }
 
-.ui-selectee > a {
-    padding: 2px 8px;
+.profile_link {
+    padding: 1px;
+}
+
+.ui-selectee div {
+    display: inline;
+}
+
+.ui-selectee img {
+    vertical-align: middle;
 }
 
 #user_settings input {

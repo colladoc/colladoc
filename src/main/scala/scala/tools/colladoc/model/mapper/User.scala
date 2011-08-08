@@ -35,6 +35,7 @@ import net.liftweb.util.Helpers._
 import net.liftweb.http.SHtml.ElemAttr._
 import xml.{NodeSeq, Text}
 import lib.js.JqUI._
+import net.liftweb.widgets.gravatar.Gravatar
 
 /**
  * Mapper for user table storing registered users.
@@ -388,7 +389,13 @@ object User extends User with KeyedMetaMapper[Long, User] {
         {
           User.findAll(OrderBy(User.userName, Ascending)) map { u =>
             <li class={"ui-selectee" + (if (u.deleted_?) " deleted" else if (u.banned.is) " banned" else "")}>
-              { u.profileHyperlinkLocal }
+              <div class="profile_link">
+                {
+                  Gravatar(u.email, 16) ++
+                  u.profileHyperlinkLocal ++
+                  (if (u.superUser.is) SHtml.span(NodeSeq.Empty, Noop, ("class", "ui-icon ui-icon-lightbulb")) else NodeSeq.Empty)
+                }
+              </div>
             </li>
           }
         }
