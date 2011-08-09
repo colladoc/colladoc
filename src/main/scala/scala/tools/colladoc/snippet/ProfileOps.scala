@@ -294,7 +294,7 @@ class ProfileOps {
 
   def available(user: User) = {
     <div id="available_wrapper">
-      <label for="available">Available</label>
+      <label for="available">Active</label>
       {
         SHtml.ajaxCheckbox(
           !user.banned.is, bool => {
