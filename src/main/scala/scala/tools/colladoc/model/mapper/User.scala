@@ -94,12 +94,6 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
 
   /** Non absolute hyperlink to user's profile. */
   private def profileHyperlinkLocal = <a target="template" href={profileUrlLocal}>{userName}</a>
-
-  /** Grid entry. */
-  def toGridRow =
-    <row id={id.toString}>
-      <cell>{profileHyperlinkLocal.toString}</cell>
-    </row>
 }
 
 /**

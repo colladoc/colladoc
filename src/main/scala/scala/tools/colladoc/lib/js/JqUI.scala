@@ -77,11 +77,6 @@ object JqUI {
             (if (title.nonEmpty) ", title: " + title.encJs else "") + ", hide: " + hide.toString + " });"
   }
 
-  /** Reload jqGrid table. */
-  case class ReloadTable(table: String) extends JsCmd {
-    override def toJsCmd = "$('" + table + "').trigger('reloadGrid', [{page: 1}]);"
-  }
-
   /** Submit form. */
   case class SubmitForm(jqId: String) extends JsCmd with JsMember {
     override def toJsCmd = "$('" + jqId +"').submit();"

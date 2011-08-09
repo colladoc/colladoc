@@ -37,7 +37,7 @@ import tools.colladoc.api.ExportService
 import tools.colladoc.lib.sitemap._
 import tools.colladoc.model.mapper._
 import tools.colladoc.lib.js.JqUI._
-import tools.colladoc.api.{GridAPI, RestAPI}
+import tools.colladoc.api.RestAPI
 import tools.colladoc.lib.openid.ColladocOpenIDVendor
 import tools.colladoc.boot.ColladocBoot
 
@@ -68,8 +68,6 @@ class Boot {
     LiftRules.dispatch.prepend(scaladocResources)
 
     LiftRules.dispatch.prepend(RestAPI.dispatch)
-
-    LiftRules.dispatch.prepend(GridAPI)
 
     // Build SiteMap
     def sitemap() = SiteMap(
