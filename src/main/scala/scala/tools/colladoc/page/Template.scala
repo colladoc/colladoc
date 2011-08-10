@@ -223,8 +223,11 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
             d => discussionToHtmlWithActions(d, 0) }
         }
       </ul>
-        { if (!User.banned_?) discussionCommentAddButton(c)
-          else if (c.anonymousPost.is) discussionCommentAddButtonForAnonymous(c)
+        {
+          if (!User.banned_?)
+            discussionCommentAddButton(c)
+          else if (c.anonymousPost.is)
+            discussionCommentAddButtonForAnonymous(c)
         }
       </div>
     </div>
@@ -269,9 +272,18 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Render discussion comment with actions. */
   private def discussionToHtmlWithActions(d: Discussion, level: Int = 0): NodeSeq = bind("discussion_comment",
     discussionToHtml(d, level, true),
-    "edit"   -> { if (User.validSuperUser_?) editDiscussionButton(d)   else NodeSeq.Empty },
+    "edit"   -> { if (User.validSuperUser_?) editDiscussionButton(d) else NodeSeq.Empty },
     "delete" -> { if (User.validSuperUser_?) deleteDiscussionButton(d) else NodeSeq.Empty },
-    "reply"  -> { if (!User.banned_?)   replyDiscussionButton(d)  else NodeSeq.Empty }
+    "reply"  -> {
+      if (!User.banned_?)
+        replyDiscussionButton(d)
+      else {
+        if (Category.get(d).anonymousPost.is)
+          replyDiscussionButtonForAnonymous(d)
+        else
+          NodeSeq.Empty
+      }
+    }
   )
 
   /** Render add comment button. */
@@ -335,7 +347,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     var name, email, text = ""
 
     def form(n: Elem) =
-      <lift:form class="edit anonymous_comment_form" method="GET">
+      <lift:form class="anonymous_form edit anonymous_comment_form" method="GET">
         <fieldset>
           <p>
             <label for="name">Name</label>
@@ -370,7 +382,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
     def bindedForm(n: Elem) = bind("content", form(n),
       "submit" -> SHtml.hidden(() => saveContentWithEmail(category, text, name, email)),
-      "save"   -> SHtml.a(Text("Save"), SubmitFormWithValidation(".anonymous_comment_form"), ("class", "button"))
+      "save"   -> SHtml.a(Text("Save"), SubmitFormWithValidation(".anonymous_comment_form"), ("class", "button regular_button"))
     )
 
     Editor.editorObj("", preview _, text = _) match {
@@ -380,8 +392,12 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     }
   }
 
-  def saveContentWithEmail(category: Category, text: String, name: String, email: String) = {
+  def saveContentWithEmail(category: Category, text: String, name: String, email: String, parent: Option[Discussion] = None) = {
     val d = Discussion.create.category(category).qualifiedName(tpl.qualifiedName).comment(text).dateTime(now).name(name).email(email).valid(true)
+    parent match {
+      case Some(p) => d.parent(p)
+      case _ =>
+    }
     d.validate match {
       case Nil =>
         d.save
@@ -433,6 +449,9 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   /** Render reply button for discussion comment. */
   def replyDiscussionButton(d: Discussion) = SHtml.a(replyEditor(d) _, Text("Reply"))
 
+  /** Render reply button for anonymous for discussion comment. */
+  def replyDiscussionButtonForAnonymous(d: Discussion) = SHtml.a(replyEditorForAnonymous(d) _, Text("Reply"))
+
   def replyEditor(parent: Discussion)() =
     Editor.editorObj("", preview _, text => { saveDiscussionComment(Category.get(parent), text, Some(parent)) }) match {
       case (n, j) =>
@@ -453,6 +472,55 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           </form>) & j & Jq(Str("button")) ~> Button()
       case _ => JsCmds.Noop
     }
+
+  def replyEditorForAnonymous(parent: Discussion)(): JsCmd = {
+    var name, email, text = ""
+
+    def form(n: Elem) =
+      <lift:form class={"anonymous_form edit " + "reply_for_" + parent.id} method="GET">
+        <fieldset>
+          <p>
+            <label for="name">Name</label>
+            {
+              SHtml.text(name, (s: String) => {name = s},
+                ("id", "name"),
+                ("class", "text required ui-widget-content ui-corner-all"))
+            }
+          </p>
+          <p>
+            <label for="content_anonymous_email">Email</label>
+            {
+              SHtml.email(email, (s: String) => {email = s},
+                ("id", "content_anonymous_email"),
+                ("class", "email required ui-widget-content ui-corner-all"))
+            }
+          </p>
+          <p class="editor">
+            <label>Comment
+            { n }
+            </label>
+            <div class="buttons">
+              <content:save />
+              {
+                SHtml.a(Text("Cancel"), reloadDiscussion(Category.get(parent)))
+              }
+            </div>
+          </p>
+          <content:submit />
+        </fieldset>
+      </lift:form>
+
+    def bindedForm(n: Elem) = bind("content", form(n),
+      "submit" -> SHtml.hidden(() => saveContentWithEmail(Category.get(parent), text, name, email, Some(parent))),
+      "save"   -> SHtml.a(Text("Save"), SubmitFormWithValidation(".reply_for_" + parent.id), ("class", "button regular_button"))
+    )
+
+    Editor.editorObj("", preview _, text = _) match {
+      case (n, j) =>
+        Replace("reply_for_" + parent.id, bindedForm(n)) & j & Jq(Str(".button")) ~> Button()
+      case _ => JsCmds.Noop
+    }
+  }
 
   /** Update discussion comment record in database. */
   private def updateDiscussionComment(d: Discussion)(text: String) {

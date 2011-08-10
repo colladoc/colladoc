@@ -170,16 +170,16 @@ background-color: #E5E5E5;
     text-decoration: underline;
 }
 
-.anonymous_comment_form {
+.anonymous_form {
     width: 400px;
 }
 
-.anonymous_comment_form label {
+.anonymous_form label {
     display: block;
     font-weight: bold;
 }
 
-.anonymous_comment_form input {
+.anonymous_form input {
     /*width: 95%;*/
     padding: .4em;
 }
@@ -190,16 +190,17 @@ label.error {
     font-size: 90%;
 }
 
-.anonymous_comment_form fieldset {
+.anonymous_form fieldset {
     padding: 0;
     border: 0;
     margin-top: 8px;
 }
 
-.anonymous_comment_form p {
+.anonymous_form p {
     margin-bottom: 12px;
 }
 
-span.ui-button-text {
+.regular_button > span {
     font-weight: normal;
+    color: #555;
 }
