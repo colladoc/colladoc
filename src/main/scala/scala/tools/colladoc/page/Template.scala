@@ -42,10 +42,10 @@ import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
 import tools.nsc.doc.model._
-import xml.{NodeSeq, Text}
 import lib.DependencyFactory._
 import tools.nsc.util.NoPosition
 import net.liftweb.widgets.gravatar.Gravatar
+import xml.{Elem, NodeSeq, Text}
 
 /**
  * Page containing template entity documentation and user controls.
@@ -223,7 +223,9 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
             d => discussionToHtmlWithActions(d, 0) }
         }
       </ul>
-        { if (!User.banned_?) discussionCommentAddButton(c) }
+        { if (!User.banned_?) discussionCommentAddButton(c)
+          else if (c.anonymousPost.is) discussionCommentAddButtonForAnonymous(c)
+        }
       </div>
     </div>
 
@@ -277,6 +279,11 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     SHtml.ajaxButton(Text("Add comment"), discussionEditor(category, None) _, ("class", "button"), ("id", id(category.name.is + "add_discussion_button")))
   }
 
+  /** Render add comment button. */
+  private def discussionCommentAddButtonForAnonymous(category: Category) = {
+    SHtml.ajaxButton(Text("Add comment"), () => editorForAnonymous(category), ("class", "button"), ("id", id(category.name.is + "anonymous_add_content_button")))
+  }
+
   /** Render editor. */
   private def discussionEditor(category: Category, maybe: Option[Discussion] = None)(): JsCmd = {
     maybe match {
@@ -322,6 +329,66 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           case _ => JsCmds.Noop
       }
     }
+  }
+
+  def editorForAnonymous(category: Category): JsCmd = {
+    var name, email, text = ""
+
+    def form(n: Elem) =
+      <lift:form class="edit anonymous_comment_form" method="GET">
+        <fieldset>
+          <p>
+            <label for="name">Name</label>
+            {
+              SHtml.text(name, (s: String) => {name = s},
+                ("id", "name"),
+                ("class", "text required ui-widget-content ui-corner-all"))
+            }
+          </p>
+          <p>
+            <label for="content_anonymous_email">Email</label>
+            {
+              SHtml.email(email, (s: String) => {email = s},
+                ("id", "content_anonymous_email"),
+                ("class", "email required ui-widget-content ui-corner-all"))
+            }
+          </p>
+          <p class="editor">
+            <label>Comment
+            { n }
+            </label>
+            <div class="buttons">
+              <content:save />
+              {
+                SHtml.a(Text("Cancel"), reloadDiscussion(category))
+              }
+            </div>
+          </p>
+          <content:submit />
+        </fieldset>
+      </lift:form>
+
+    def bindedForm(n: Elem) = bind("content", form(n),
+      "submit" -> SHtml.hidden(() => saveContentWithEmail(category, text, name, email)),
+      "save"   -> SHtml.a(Text("Save"), SubmitFormWithValidation(".anonymous_comment_form"), ("class", "button"))
+    )
+
+    Editor.editorObj("", preview _, text = _) match {
+      case (n, j) =>
+        Replace(id(category.name.is + "anonymous_add_content_button"), bindedForm(n)) & j & Jq(Str(".button")) ~> Button()
+      case _ => JsCmds.Noop
+    }
+  }
+
+  def saveContentWithEmail(category: Category, text: String, name: String, email: String) = {
+    val d = Discussion.create.category(category).qualifiedName(tpl.qualifiedName).comment(text).dateTime(now).name(name).email(email).valid(true)
+    d.validate match {
+      case Nil =>
+        d.save
+      case n =>
+        S.error(n)
+    }
+    reloadDiscussion(category)
   }
 
   /** Reload discussion block after new comment adding. */

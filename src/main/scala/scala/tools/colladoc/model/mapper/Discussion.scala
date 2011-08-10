@@ -55,6 +55,12 @@ class Discussion extends LongKeyedMapper[Discussion] with IdPK {
   /** Change date and time. */
   object dateTime extends MappedDateTime(this)
 
+  /**Changed comment user name email if author is null. */
+  object name extends MappedString(this, 255)
+
+  /**Changed comment email if author is null. */
+  object email extends MappedEmail(this, 255)
+
   /** Whether this change is still valid. */
   object valid extends MappedBoolean(this) {
     override def defaultValue = true
@@ -63,19 +69,19 @@ class Discussion extends LongKeyedMapper[Discussion] with IdPK {
   /** Get change author's username. */
   def userName: String = User.find(user.is) match {
     case Full(u) => u.userName
-    case _ => ""
+    case _ => name.is
   }
 
   /** Link to user's profile. */
   def authorProfileHyperlink = User.find(user.is) match {
     case Full(u) => u.profileHyperlink
-    case _ => NodeSeq.Empty
+    case _ => <span>{name.is}</span>
   }
 
   /** Author's email. */
   def authorEmail = User.find(user.is) match {
     case Full(u) => u.email.is
-    case _ => ""
+    case _ => email.is
   }
 
   /** Get change author's username and date. */

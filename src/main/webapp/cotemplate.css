@@ -169,3 +169,37 @@ background-color: #E5E5E5;
 .discussion_comment_actions > a:hover {
     text-decoration: underline;
 }
+
+.anonymous_comment_form {
+    width: 400px;
+}
+
+.anonymous_comment_form label {
+    display: block;
+    font-weight: bold;
+}
+
+.anonymous_comment_form input {
+    /*width: 95%;*/
+    padding: .4em;
+}
+
+label.error {
+    color: #555555;
+    font-weight: normal;
+    font-size: 90%;
+}
+
+.anonymous_comment_form fieldset {
+    padding: 0;
+    border: 0;
+    margin-top: 8px;
+}
+
+.anonymous_comment_form p {
+    margin-bottom: 12px;
+}
+
+span.ui-button-text {
+    font-weight: normal;
+}
