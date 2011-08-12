@@ -48,4 +48,12 @@ $(document).ready(function() {
   $(".create").validate();
 
   $("#categories_table > tbody > tr:last > td").css({'border': 'none'});
+
+  $(function() {
+    $(window).resize(function() {
+      var userList = $('#user_list');
+      userList.height($(window).height() - userList.offset().top);
+    });
+    $(window).resize();
+  });
 });
