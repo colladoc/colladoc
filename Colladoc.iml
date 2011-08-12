@@ -45,6 +45,7 @@
     <orderEntry type="library" name="com.h2database_h2_1.2.147" level="project" />
     <orderEntry type="library" name="org.apache.derby_derby_10.7.1.1" level="project" />
     <orderEntry type="library" name="net.liftweb_lift-openid_2.9.0-1_2.4-M2" level="project" />
+    <orderEntry type="library" name="net.liftweb_lift-ldap_2.9.0-1_2.4-M2" level="project" />
     <orderEntry type="library" name="org.openid4java_openid4java-consumer_0.9.5" level="project" />
     <orderEntry type="library" name="org.openid4java_openid4java-nodeps_0.9.5" level="project" />
     <orderEntry type="library" name="commons-logging_commons-logging_1.1.1" level="project" />

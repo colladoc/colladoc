@@ -121,6 +121,12 @@
     padding: .4em;
 }
 
+.properties textarea.text {
+    width: 95%;
+    height: 150px;
+    padding: .4em;
+}
+
 .submit {
     padding: 4px 10px;
 }

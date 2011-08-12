@@ -36,12 +36,14 @@ import net.liftweb.http.SHtml.ElemAttr._
 import xml.{NodeSeq, Text}
 import lib.js.JqUI._
 import net.liftweb.widgets.gravatar.Gravatar
+import net.liftweb.ldap.{LDAPProtoUser, MetaLDAPProtoUser}
+import lib.ldap.ColladocLdap
 
 /**
  * Mapper for user table storing registered users.
  * @author Petr Hosek
  */
-class User extends ProtoUser[User] with OneToMany[Long, User]  {
+class User extends LDAPProtoUser[User] with OneToMany[Long, User]  {
   def getSingleton = User
 
   /** Username. */
@@ -100,45 +102,50 @@ class User extends ProtoUser[User] with OneToMany[Long, User]  {
  * Mapper for user table storing registered users.
  * @author Petr Hosek
  */
-object User extends User with KeyedMetaMapper[Long, User] {
+object User extends User with MetaLDAPProtoUser[User] with KeyedMetaMapper[Long, User] {
   override def dbTableName = "users"
 
   /** Current logged in user identifier */
   private object curUserId extends SessionVar[Box[String]](Empty)
 
   /** Get current logged in user identifier */
-  def currentUserId: Box[String] = curUserId.is
+  override def currentUserId: Box[String] = curUserId.is
 
   /** Current logged in user */
   private object curUser extends RequestVar[Box[User]](currentUserId.flatMap(id => find(id))) with CleanRequestVarOnSessionTransition
 
   /** Get current logged in user */
-  def currentUser: Box[User] = curUser.is
+  override def currentUser: Box[User] = curUser.is
 
   /** Whether currently logged in user is superuser */
-  def superUser_? : Boolean = currentUser.map(_.superUser.is) openOr false
+  override def superUser_? : Boolean = currentUser.map(_.superUser.is) openOr false
 
   def banned_? = currentUser.map(_.banned.is) openOr true
 
   def validSuperUser_? = superUser_? && !User.banned_?
 
   /** Whether any user is logged in. */
-  def loggedIn_? = currentUserId.isDefined
+  override def loggedIn_? = currentUserId.isDefined
+
   /** Log in user with given identifier. */
-  def logUserIdIn(id: String) {
+  override def logUserIdIn(id: String) {
     curUser.remove()
     curUserId(Full(id))
   }
+
   /** Log in user. */
-  def logUserIn(who: User) {
+  override def logUserIn(who: User) {
     curUser.remove()
     curUserId(Full(who.id.toString))
   }
 
   /** Log out current user. */
-  def logoutCurrentUser = logUserOut()
+  override def logoutCurrentUser {
+    logUserOut()
+  }
+
   /** Log out user. */
-  def logUserOut() {
+  override def logUserOut() {
     curUserId.remove()
     curUser.remove()
     S.request.foreach(_.request.session.terminate)
@@ -213,7 +220,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
     </lift:form>
 
   /** Edit user dialog. */
-  def edit = {
+  override def edit = {
     val user = currentUser.open_!
 
     def doSave() {
@@ -253,10 +260,13 @@ object User extends User with KeyedMetaMapper[Long, User] {
   private def projectSettings: NodeSeq = {
     var title = Properties.get("-doc-title").getOrElse("")
     var version = Properties.get("-doc-version").getOrElse("")
+    var ldap = Properties.get("ldap").getOrElse("")
 
     def doSave(): JsCmd = {
       Properties.set("-doc-title", title)
       Properties.set("-doc-version", version)
+      Properties.set("ldap", ldap)
+      ColladocLdap.configureFromDb()
       S.notice("Project settings successfully saved.")
       Noop
     }
@@ -265,12 +275,16 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <lift:form class="properties">
         <fieldset>
           <p>
-            <label for="title">Title:</label>
+            <label for="title">Title</label>
             <settings:title class="text required ui-widget-content ui-corner-all" />
           </p>
           <p>
-            <label for="version">Version:</label>
+            <label for="version">Version</label>
             <settings:version class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <p>
+            <label for="ldap">LDAP</label>
+            <settings:ldap class="text required ui-widget-content ui-corner-all" />
           </p>
           <settings:submit />
           <settings:save />
@@ -281,9 +295,12 @@ object User extends User with KeyedMetaMapper[Long, User] {
     bind("settings", form,
       "title" -%> SHtml.text(title, title = _, ("id", "title")),
       "version" -%> SHtml.text(version, version = _, ("id", "version")),
+      "ldap" -%> SHtml.textarea(ldap, ldap = _, ("id", "ldap")),
       "submit" -> SHtml.hidden(doSave _),
       "save" -> SHtml.a(Text("Save"), SubmitForm(".properties"), ("class", "button")),
-      "reset" -> SHtml.a(Text("Reset"), SetValById("title", Str(title)) & SetValById("version", Str(version)), ("class", "button"))
+      "reset" -> SHtml.a(Text("Reset"),
+        SetValById("title", Str(title)) & SetValById("version", Str(version)) & SetValById("ldap", Str(ldap)),
+        ("class", "button"))
     )
   }
 
@@ -417,7 +434,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
     </div>
 
   /** Signup user dialog. */
-  def signup = {
+  override def signup = {
     val user = create
 
     def doSignup() {
@@ -481,19 +498,39 @@ object User extends User with KeyedMetaMapper[Long, User] {
     </div>
 
   /** Login user dialog. */
-  def login = {
+  override def login = {
     var username: String = ""
     var password: String = "*"
 
-    def doLogin = {
+    def doLogin() = {
       find(By(userName, username)) match {
         case Full(user) if !user.deleted_? && user.password.match_?(password) =>
           S.notice("User logged in")
           logUserIn(user)
           RedirectTo("/")
         case _ =>
-          S.error("Invalid user credentials")
+          if (ldapAuth_?(username, password)) {
+            // create or get user from db and logged them in
+            val user: User = find(By(userName, username)) match {
+              case Full(u) if !u.deleted_? => u
+              case _ => create.userName(username).saveMe
+            }
+            logUserIn(user)
+            RedirectTo("/")
+          } else
+            S.error("Invalid user credentials")
       }
+    }
+
+    def ldapAuth_?(username: String, password: String): Boolean = {
+      val ldapUserSearch = "(uid=%s)"
+      val users = ColladocLdap.search(ldapUserSearch.format(username))
+
+      if (users.size >= 1) {
+        if (ColladocLdap.bindUser(users(0), password))
+          return true
+      }
+      false
     }
 
     bind("user", loginHtml,
@@ -503,8 +540,9 @@ object User extends User with KeyedMetaMapper[Long, User] {
   }
 
   /** Logout user. */
-  def logout = {
+  override def logout: Nothing = {
     logoutCurrentUser
+    S.redirectTo("/")
   }
 }
 
