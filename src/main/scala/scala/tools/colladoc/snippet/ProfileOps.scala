@@ -29,7 +29,7 @@ import xml.{NodeSeq, Text}
 import net.liftweb.util.BindHelpers._
 import net.liftweb.http.{SHtml, S, RequestVar}
 import net.liftweb.mapper.{Ascending, By, OrderBy}
-import lib.js.JqUI.{ColladocConfirm, SubmitFormWithValidation}
+import lib.js.JqUI.{ColladocConfirm, SubmitFormWithValidation, SubmitForm}
 import net.liftweb.http.js.JE.Str
 import page.{Template, History, Profile}
 import net.liftweb.common.Full
@@ -243,6 +243,41 @@ class ProfileOps {
     )
   }
 
+  def changePasswordFormForSuperuser(user: User) = {
+    var newPass = ""
+
+    def doSave(): JsCmd = {
+      user.password(newPass)
+      user.validate match {
+        case Nil =>
+          S.notice("User successfully saved")
+          user.save()
+        case n =>
+          S.error(n)
+      }
+
+      JsCmds.Noop
+    }
+
+    val form =
+      <lift:form class="form change_password_form_for_superuser">
+        <fieldset>
+          <p>
+            <label for="new">Enter new password:</label>
+            <change:new class="text required ui-widget-content ui-corner-all" />
+          </p>
+          <change:submit />
+          <change:save />
+        </fieldset>
+      </lift:form>
+
+    bind("change", form,
+      "new"     -%> SHtml.password("", newPass = _),
+      "submit"   -> SHtml.hidden(doSave _),
+      "save"     -> SHtml.a(Text("Save"), SubmitForm(".change_password_form_for_superuser"), ("class", "button"))
+    )
+  }
+
   def deleteProfile(user: User) = {
     if (!user.deleted_?)
       <div id="delete_account">
@@ -365,7 +400,15 @@ class ProfileOps {
     bind("profile",
       profile.body,
       "form"                -> { if (!public_?) userForm(user) else publicProfile(user) },
-      "change_password"     -> { if (!public_?) changePasswordForm(user) else NodeSeq.Empty },
+      "change_password"     -> {
+        if (User.validSuperUser_?)
+          changePasswordFormForSuperuser(user)
+        else {
+          if (!public_?)
+            changePasswordForm(user)
+          else
+            NodeSeq.Empty
+        } },
       "delete_profile"      -> { if (!public_?) deleteProfile(user) else NodeSeq.Empty },
       "superuser"           -> { if (User.validSuperUser_?) superuser(user) else NodeSeq.Empty },
       "available"           -> { if (User.validSuperUser_?) available(user) else NodeSeq.Empty },
