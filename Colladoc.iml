@@ -39,6 +39,7 @@
     <orderEntry type="library" name="nu.validator.htmlparser_htmlparser_1.2.1" level="project" />
     <orderEntry type="library" name="commons-fileupload_commons-fileupload_1.2.2" level="project" />
     <orderEntry type="library" name="net.liftweb_lift-mapper_2.8.1_2.2" level="project" />
+    <orderEntry type="library" name="net.liftweb_lift-ldap_2.8.1_2.2" level="project" />
     <orderEntry type="library" name="net.liftweb_lift-proto_2.8.1_2.2" level="project" />
     <orderEntry type="library" name="net.liftweb_lift-openid_2.8.1_2.2" level="project" />
     <orderEntry type="library" name="org.openid4java_openid4java-consumer_0.9.5" level="project" />

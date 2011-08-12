@@ -43,6 +43,8 @@ import tools.colladoc.boot.ColladocBoot
 
 import xml.{Text, NodeSeq}
 import tools.nsc.io.Streamable
+import tools.colladoc.lib.ldap.ColladocLdap
+import java.io.ByteArrayInputStream
 
 /**
  * A class that's instantiated early and run.  It allows the application to modify lift's environment
@@ -90,6 +92,9 @@ class Boot {
    //     RewriteResponse("search" :: Nil, Map("q" -> query))
    // }
 
+    // Initialize LDAP properties
+    ColladocLdap.configureFromDb()
+
     LiftRules.dispatch.append(ColladocOpenIDVendor.dispatchPF)
 
     LiftRules.setSiteMapFunc(sitemap)
@@ -124,6 +129,8 @@ class Boot {
     LiftRules.exceptionHandler.prepend {
       case (_, r, e) => Error.render(r, e)
     }
+
+    LiftRules.ajaxPostTimeout = 5000
   }
 
   object Error {

@@ -18,7 +18,8 @@ libraryDependencies ++= {
     "net.liftweb" % "lift-webkit_2.8.1" % liftVersion % "compile->default",
     "net.liftweb" % "lift-mapper_2.8.1" % liftVersion % "compile->default",
     "net.liftweb" % "lift-openid_2.8.1" % liftVersion % "compile->default",
-    "net.liftweb" % "lift-widgets_2.8.1" % liftVersion % "compile->default"
+    "net.liftweb" % "lift-widgets_2.8.1" % liftVersion % "compile->default",
+    "net.liftweb" % "lift-ldap_2.8.1" % liftVersion % "compile->default"
   )
 }
 
