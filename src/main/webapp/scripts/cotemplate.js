@@ -52,7 +52,7 @@ function shortcut_enable(){
 
 function reinit(selector) {
     $('.button', $(selector)).button();
-    $('.select', $(selector)).selectmenu({ width: 225 });
+    $('.select', $(selector)).selectmenu({ width: 250 });
     $('.menu', $(selector)).each(function() {
         $(this).next().menu({ input: $(this) }).hide();
     }).click(function(event) {

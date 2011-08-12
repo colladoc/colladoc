@@ -586,7 +586,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
             }
             index.vend.reindexEntityComment(mbr)
             val m = Model.factory.copyMember(mbr, cmt)(c)
-            Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
+            Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") & PrettyDate &
             (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else Noop)
           } else
             Noop
@@ -629,7 +629,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       }
       val m = Model.factory.copyMember(mbr, cmt)(c)
       
-      Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
+      Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") & PrettyDate &
       (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
     }
     val revs = Comment.revisions(mbr.uniqueName) ::: ("source", "Source Comment") :: Nil
@@ -644,7 +644,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         case _ =>
       }
 
-      Replace(id(mbr, "full"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')") &
+      Replace(id(mbr, "full"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')") & PrettyDate &
       (if (!isSelf) SetHtml(id(mbr, "short"), inlineToHtml(mbr.comment.get.short)) else JsCmds.Noop)
     }
     val revs = ("source", "Select default") :: Comment.revisions(mbr.uniqueName)
@@ -693,7 +693,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
             // TODO: mbr.comment.update(original)
         }
         val m = Model.factory.copyMember(mbr, cmt)(c)
-        Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") &
+        Replace(id(mbr, "full"), memberToCommentBodyHtml(m, isSelf)) & Run("reinit('#" + id(m, "full") + "')") & PrettyDate &
         (if (!isSelf) JqId(Str(id(mbr, "short"))) ~> JqHtml(inlineToHtml(cmt.short)) ~> JqAttr("id", id(m, "short")) else JsCmds.Noop)
       }
 
@@ -734,12 +734,12 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     if (Model.reporter.hasWarnings)
       JqId(Str(id(mbr, "text"))) ~> AddClass("ui-state-error")
     else
-      Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')") &
+      Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')") & PrettyDate &
       (if (!isSelf) SetHtml(id(mbr, "short"), inlineToHtml(mbr.comment.get.short)) else JsCmds.Noop)
 
   /** Cancel member entity comment modifications. */
   private def cancel(mbr: MemberEntity, isSelf: Boolean): JsCmd =
-    Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')")
+    Replace(id(mbr, "form"), memberToCommentBodyHtml(mbr, isSelf)) & Run("reinit('#" + id(mbr, "full") + "')") & PrettyDate
 
   /** Update member entity after comment has been changed. */
   private def update(mbr: MemberEntity, docStr: String) = Model.synchronized {

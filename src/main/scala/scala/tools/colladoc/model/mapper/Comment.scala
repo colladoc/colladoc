@@ -35,6 +35,7 @@ import net.liftweb.mapper._
 import net.liftweb.util.Helpers._
 
 import tools.nsc.doc.model.MemberEntity
+import xml.NodeSeq
 
 /**
  * Mapper for comment table storing documentation changes.
@@ -73,9 +74,19 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
     case _ => ""
   }
 
+  /** Link to user's profile. */
+  def authorProfileHyperlink = User.find(user.is) match {
+    case Full(u) => u.profileHyperlink
+    case _ => NodeSeq.Empty
+  }
+
   /** Get change author's username and date. */
   def userNameDate: String =
     "%s by %s".format(dateFormatter(dateTime.is), userName)
+
+  def atomDateTime: String = atomDateFormatter(dateTime.is).toString
+
+  def humanDateTime: String = dateFormatter(dateTime.is).toString
 
   /**
    * Comment representation for Atom.
@@ -137,7 +148,14 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
    */
   def revisions(qualName: String, valid: Boolean = true) = {
     val cmts = changeSets(findAll(By(qualifiedName, qualName), By(Comment.valid, valid), OrderBy(Comment.dateTime, Descending)))
-    cmts.map{ c => (c.id.is.toString, c.userNameDate) }
+    cmts.map{ c =>
+      (c.id.is.toString,
+        <xml:group>
+          <span class="datetime" title={c.atomDateTime}>{c.humanDateTime}</span>
+          by
+          <span class="author">{c.userName}</span>
+        </xml:group>.toString)
+    }
   }
 
   /**

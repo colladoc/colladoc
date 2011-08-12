@@ -204,3 +204,11 @@ label.error {
     font-weight: normal;
     color: #555;
 }
+
+span.datetime {
+    display: inline-block !important;
+}
+
+span.author {
+    display: inline-block !important;
+}

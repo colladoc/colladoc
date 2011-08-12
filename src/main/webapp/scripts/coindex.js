@@ -118,7 +118,7 @@ $(document).ready(function() {
       }
     });
 
-  $(".direct a").live("click", function(){
+  $(".direct a").live("click", function() {
       var id = $(this).attr('id');
       var link = '';
       switch (id) {
@@ -131,7 +131,9 @@ $(document).ready(function() {
       }
       $("#openid_identifier").val(link);
       openid_form.submit();
-    });
+  });
+
+  prettyDate();
 });
 
 function resizeFilterBlock() {
