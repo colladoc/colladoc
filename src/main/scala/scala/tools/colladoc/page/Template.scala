@@ -93,26 +93,29 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
           { if (tpl.linearization.isEmpty) NodeSeq.Empty else
               <div id="order">
                 <span class="filtertype">Ordering</span>
-                <ol><li class="alpha in">Alphabetic</li><li class="inherit out">By inheritance</li></ol>
+                <ol>
+                  <li class="alpha in"><span>Alphabetic</span></li>
+                  <li class="inherit out"><span>By inheritance</span></li>
+                </ol>
               </div>
           }
           { if (tpl.linearization.isEmpty) NodeSeq.Empty else
               <div id="ancestors">
                 <span class="filtertype">Inherited</span>
-                <ol><li class="hideall">Hide All</li><li class="showall">Show all</li></ol>
-                <ol id="linearization">{ (tpl :: tpl.linearizationTemplates) map { wte => <li class="in" name={ wte.qualifiedName }>{ wte.name }</li> } }</ol>
+                <ol><li class="hideall out"><span>Hide All</span></li><li class="showall in"><span>Show all</span></li></ol>
+                <ol id="linearization">{ (tpl :: tpl.linearizationTemplates) map { wte => <li class="in" name={ wte.qualifiedName }><span>{ wte.name }</span></li> } }</ol>
               </div>
           }
           {
             <div id="visbl">
               <span class="filtertype">Visibility</span>
-              <ol><li class="public in">Public</li><li class="all out">All</li></ol>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
             </div>
           }
           {
             <div id="impl">
               <span class="filtertype">Impl.</span>
-              <ol><li class="concrete in">Concrete</li><li class="abstract in">Abstract</li></ol>
+              <ol><li class="concrete in"><span>Concrete</span></li><li class="abstract in"><span>Abstract</span></li></ol>
             </div>
           }
         </div>
