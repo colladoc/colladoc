@@ -75,7 +75,7 @@ class History(rootPack: Package) extends Template(rootPack) {
           }
           { <div id="user">
               <span class="filtertype">User</span>
-              <ol><li class="filter"><history:user /></li></ol>
+              <ol><li class="filter"><span class="userfilter_pre" /><history:user /><span class="userfilter_post" /></li></ol>
             </div>
           }
         </div>

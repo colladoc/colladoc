@@ -18,10 +18,46 @@
     width: 12em;
 }
 
+li.filter {
+    position: relative;
+    margin-bottom: 23px;
+}
+
 .filter > span {
-    background: url("lib/filter_box_left.png") no-repeat left top;
-    margin: 0 0 0 -8px;
-    padding: 2px 0 0 22px;
+    position: absolute;
+    display: block;
+    top: 0;
+    right: 20px;
+    left: 20px;
+}
+
+span.userfilter_pre {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    height: 23px;
+    width: 21px;
+    background: url("lib/filter_box_left.png");
+}
+
+span.userfilter_post {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 13em;
+    height: 23px;
+    width: 21px;
+    background: url("lib/filter_box_right.png");
+}
+
+.filter > span > input {
+    height: 21px;
+    padding: 1px;
+    font-weight: bold;
+    color: black;
+    background: url("lib/filterboxbarbg.png");
+    background-repeat: repeat-x;
 }
 
 #template > h3 {
