@@ -45,7 +45,7 @@ import lib.js.JqUI._
  */
 class Index(universe: Universe, index: DocIndex) extends PageIndex(universe, index) {
 
-  override def scriptElement = super.scriptElement \+
+  override def scriptElement =
     <div id="user">
       { if (User.loggedIn_?)
           loggedIn
