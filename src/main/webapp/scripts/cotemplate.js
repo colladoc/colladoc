@@ -24,14 +24,14 @@
 $(document).ready(function() {
     reinit('body');
 
-    var url= $(location).attr("href");
+    var url = location.href;
     var urlpart=url.split("q=");
     var src=(parent.location.href + '#q='+ urlpart[1]).replace(" ","+");
 
     if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight(urlpart[1]); copy(src);}
 
     shortcut_enable();
-})
+});
 
 function shortcut_enable(){
     var isCtrl=false;
