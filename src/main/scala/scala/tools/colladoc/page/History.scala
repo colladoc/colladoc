@@ -58,7 +58,7 @@ class History(rootPack: Package) extends Template(rootPack) {
           <div id='textfilter'><span class='pre'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>
           { <div id="order">
               <span class="filtertype">Ordering</span>
-              <ol><li class="date in">Date</li><li class="alpha out">Alphabetic</li></ol>
+              <ol><li class="date in"><span>Date</span></li><li class="alpha out"><span>Alphabetic</span></li></ol>
             </div>
           }
           { <div id="date">
