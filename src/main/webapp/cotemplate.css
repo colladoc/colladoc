@@ -90,12 +90,16 @@ background-color: #E5E5E5;
 }
 
 #discussions_header {
-    color: black;
-    padding: 4px;
-    background-color: #E5E5E5;
+    background-image: url('lib/signaturebg2.gif');
+    background-color: #D7D7D7;
+    min-height: 18px;
+    background-repeat: repeat-x;
+    padding: 8px;
     font-size: 12pt;
-    font-weight: bold;
+    color: black;
+    text-shadow: white 0 1px 0;
     cursor: pointer;
+    border-top: #B4B4B4 solid 1px;
 }
 
 #discussions_wrapper {
@@ -103,9 +107,12 @@ background-color: #E5E5E5;
 }
 
 .header {
-    color: black;
+    background-image: url('lib/signaturebg2.gif');
+    background-color: #D7D7D7;
+    border-top: #B4B4B4 solid 1px;
+    min-height: 18px;
+    background-repeat: repeat-x;
     padding: 4px 4px 4px 3em;
-    background-color: #E5E5E5;
     cursor: pointer;
 }
 
@@ -115,6 +122,8 @@ background-color: #E5E5E5;
 }
 
 .category h3 {
+    color: black;
+    text-shadow: white 0 1px 0;
     font-size: 10pt;
     font-weight: bold;
     display: inline;
