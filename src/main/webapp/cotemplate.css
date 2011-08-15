@@ -221,3 +221,7 @@ span.datetime {
 span.author {
     display: inline-block !important;
 }
+
+a[href] {
+    text-decoration: none;
+}
