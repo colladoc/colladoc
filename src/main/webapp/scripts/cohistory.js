@@ -72,6 +72,29 @@ function reload() {
         }
     });
 
+    /* Add toggle arrows */
+    var docAllSigs = $("h4.signature");
+
+    function commentToggleFct(signature){
+        var parent = signature.parent();
+        var shortComment = $(".shortcomment", parent);
+        var fullComment = $(".fullcomment", parent);
+        var vis = $(":visible", fullComment);
+        signature.toggleClass("closed").toggleClass("opened");
+        if (vis.length > 0) {
+            shortComment.slideDown(100);
+            fullComment.slideUp(100);
+        }
+        else {
+            shortComment.slideUp(100);
+            fullComment.slideDown(100);
+        }
+    }
+    docAllSigs.addClass("closed");
+    docAllSigs.click(function() {
+        commentToggleFct($(this));
+    });
+
     var docSetSigs = $(".changeset > .definition");
     function commentShow(element){
         var vis = $(":visible", element);
