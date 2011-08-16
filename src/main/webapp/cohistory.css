@@ -61,26 +61,26 @@ span.userfilter_post {
 }
 
 #template > h3 {
-    background-color: #333;
-    color: white;
-    font-weight: bold;
-    font-size: 12pt;
-    padding: 4px;
+    background: url("lib/constructorsbg.gif") repeat-x;
+    height: 18px;
 }
 
 .definition {
     color: white;
-    font-weight: bold;
+    padding: 5px 10px;
     font-size: 12pt;
-    padding: 4px;
+    font-weight: bold;
+    text-shadow: black 1px 1px 0px;
 }
 
 .value .definition {
-    background-color: #7996AC;
+    background: url("lib/valuemembersbg.gif") repeat-x;
+    height: 18px;
 }
 
 .type .definition {
-    background-color: #799F5A;
+    background: url("lib/typebg.gif") repeat-x;
+    height: 18px;
 }
 
 #template .changeset > div > .signature {
