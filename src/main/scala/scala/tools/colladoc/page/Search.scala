@@ -20,7 +20,7 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
           </div>
 	       <search:header />
 
-         <div style="bottom:0;display:block;position:absolute;width:100%;overflow:auto;top:180px;" id="searchPanel">
+         <div style="bottom:0;display:block;position:absolute;width:100%;overflow:auto;top:197px;" id="searchPanel">
             <div id="template">
 
                    <search:results />
@@ -38,28 +38,28 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
       <div id="symboltype">
         <span class="filtertype">Symbol</span>
         <ol>
-          <li class="package in">Package</li>
-          <li class="type in">Type</li>
-          <li class="object in">Object</li>
-          <li class="class in">Class</li>
-          <li class="trait in">Trait</li>
-          <li class="constructor in">Constructor</li>
-          <li class="def in">Def</li>
-          <li class="val in">Val</li>
-          <li class="var in">Var</li>
+          <li class="package in"><span>Package</span></li>
+          <li class="type in"><span>Type</span></li>
+          <li class="object in"><span>Object</span></li>
+          <li class="class in"><span>Class</span></li>
+          <li class="trait in"><span>Trait</span></li>
+          <li class="constructor in"><span>Constructor</span></li>
+          <li class="def in"><span>Def</span></li>
+          <li class="val in"><span>Val</span></li>
+          <li class="var in"><span>Var</span></li>
         </ol>
       </div>
     }
     {
       <div id="visbl">
         <span class="filtertype">Visibility</span>
-        <ol><li class="public out">Public</li><li class="all in">All</li></ol>
+        <ol><li class="public out"><span>Public</span></li><li class="all in"><span>All</span></li></ol>
       </div>
     }
     {
       <div id="impl">
         <span class="filtertype">Impl.</span>
-        <ol><li class="concrete in">Concrete</li><li class="abstract in">Abstract</li></ol>
+        <ol><li class="concrete in"><span>Concrete</span></li><li class="abstract in"><span>Abstract</span></li></ol>
       </div>
     }
   </div>
