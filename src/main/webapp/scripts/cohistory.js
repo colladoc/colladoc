@@ -104,40 +104,10 @@ function reload() {
         else {
             element.slideDown(100);
         }
-    };
+    }
     docSetSigs.css("cursor", "pointer");
     docSetSigs.click(function(){
-        commentShow($("+ div", $(this)));
-    });
-    var docAllSigs = $(".changeset .signature");
-    var docShowSigs = docAllSigs.filter(function(){
-        return $("+ div.fullcomment", $(this)).length > 0;
-    });
-    docShowSigs.css("cursor", "pointer");
-    docShowSigs.click(function(){
-        commentShow($("+ div.fullcomment", $(this)));
-    });
-    function commentToggle(shortComment){
-        var vis = $("~ div.fullcomment:visible", shortComment);
-        if (vis.length > 0) {
-            shortComment.slideDown(100);
-            vis.slideUp(100);
-        }
-        else {
-            var hid = $("~ div.fullcomment:hidden", shortComment);
-            hid.slideDown(100);
-            shortComment.slideUp(100);
-        }
-    };
-    var docToggleSigs = docAllSigs.filter(function(){
-        return $("+ p.shortcomment", $(this)).length > 0;
-    });
-    docToggleSigs.css("cursor", "pointer");
-    docToggleSigs.click(function(){
-        commentToggle($("+ p.shortcomment", $(this)));
-    });
-    $("p.shortcomment").click(function(){
-        commentToggle($(this));
+        commentShow($(this).next());
     });
     filter();
 }
