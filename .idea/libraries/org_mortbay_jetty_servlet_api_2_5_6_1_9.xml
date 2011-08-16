@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="org.mortbay.jetty_servlet-api-2.5_6.1.9">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.mortbay.jetty/servlet-api-2.5/jars/servlet-api-2.5-6.1.9.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

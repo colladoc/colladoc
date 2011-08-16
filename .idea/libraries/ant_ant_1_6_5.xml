@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ant_ant_1.6.5">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/ant/ant/jars/ant-1.6.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

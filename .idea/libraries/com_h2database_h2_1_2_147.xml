@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="com.h2database_h2_1.2.147">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.h2database/h2/jars/h2-1.2.147.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
