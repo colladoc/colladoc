@@ -159,22 +159,21 @@ function configureTextFilter() {
     });
 }
 
-
 function doStuff() {
-
-            var str= $("#textfilter input").attr("value");
-           $("iframe").eq(0).attr("src","search?q="+escape(str));
+    var str = $("#textfilter input").attr("value");
+    $("iframe").eq(0).attr("src", "search?q=" + escape(str));
 }
 
-function retrieveUrl(){
-            var url= $(location).attr("href");
-            var urlpart=url.split("q=")
+function retrieveUrl() {
+    var url = location.href;
+    var urlpart = url.split("q=")
 
-            if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {
-            $("#textfilter input").attr("value",unescape(urlpart[1].replace(/\+/g, " ")));
-            $("iframe").eq(0).attr("src","search.html?q="+urlpart[1]);
-            }
+    if ((urlpart[1] != "") && (typeof(urlpart[1]) != "undefined")) {
+        $("#textfilter input").attr("value", unescape(urlpart[1].replace(/\+/g, " ")));
+        $("iframe").eq(0).attr("src", "search.html?q=" + urlpart[1]);
+    }
 }
+
 // Filters all focused templates and packages. This function should be made less-blocking.
 //   @param query The string of the query
 function textFilter() {

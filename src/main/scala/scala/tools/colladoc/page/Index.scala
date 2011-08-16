@@ -52,7 +52,6 @@ class Index(universe: Universe, index: DocIndex) extends PageIndex(universe, ind
         else
           loggedOut
       }
-      { super.scriptElement }
     </div>
 
   override def title = {
