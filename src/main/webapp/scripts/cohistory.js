@@ -113,6 +113,8 @@ function reload() {
         commentShow($(this).next());
     });
     filter();
+
+    replaceCaseClassIcon();
 }
 
 function filter() {
@@ -162,4 +164,8 @@ function order(members, comparator) {
         }
         last = node;
     });
-};
+}
+
+function replaceCaseClassIcon() {
+    $("img[src$='lib/case class.png']").attr("src", "lib/class.png");
+}
