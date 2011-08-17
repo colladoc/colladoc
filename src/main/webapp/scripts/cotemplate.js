@@ -102,6 +102,7 @@ function confirm(message, callback, options) {
   var defaults = {
     modal: true,
     resizable: false,
+    title: 'Confirm',
     buttons: {
       Ok: function() {
         $(this).dialog('close');
