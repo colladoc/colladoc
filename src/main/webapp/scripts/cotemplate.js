@@ -139,3 +139,7 @@ $(document).ready(function() {
     $('#discussions_wrapper').slideToggle(100);
   });
 });
+
+$(document).ready(function() {
+  $("img[src$='lib/case class.png']").attr("src", "lib/class.png");
+});
