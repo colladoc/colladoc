@@ -33,7 +33,10 @@ $(document).ready(function() {
     });
     
     reload();
-})
+
+    // fix for datepicker
+    $('#ui-datepicker-div').css('clip', 'auto');
+});
 
 function reload() {
     var input = $("#textfilter > input");
