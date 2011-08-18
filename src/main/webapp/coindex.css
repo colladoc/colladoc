@@ -1,5 +1,5 @@
 #user {
-    background-color: #EDEDEE;
+    background: #EDEDEE url('lib/filterbg.gif') repeat-x;
     display: block;
     left: 0;
     padding: 5px;
