@@ -225,3 +225,11 @@ span.author {
 a[href] {
     text-decoration: none;
 }
+
+.ui-selectmenu-menu li span, .ui-selectmenu-status span {
+    margin-bottom: 0 !important;
+}
+
+.ui-button-text-only .ui-button-text {
+    padding: .2em .6em;
+}
