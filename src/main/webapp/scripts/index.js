@@ -229,14 +229,16 @@ function configureHideFilter() {
     scheduler.addForAll("init", domCache.liPacks, function(pack) {
         $(pack).prepend("<a class='packhide'>hide</a>");
         $("> a.packhide", pack).click(function(event) {
-            var packhide = $(this)
+            var packhide = $(this);
             var action = packhide.text();
+
+            var listToToggle = packhide.nextAll("ol").eq(0);
             if (action == "hide") {
-                $("~ ol", packhide).hide();
+                listToToggle.hide();
                 packhide.text("show");
             }
             else {
-                $("~ ol", packhide).show();
+                listToToggle.show();
                 packhide.text("hide");
             }
             return false;
