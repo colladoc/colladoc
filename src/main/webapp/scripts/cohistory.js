@@ -39,7 +39,7 @@ $(document).ready(function() {
 });
 
 function reload() {
-    var input = $("#textfilter > input");
+    var input = $("#textfilter > span > input");
     input.bind("keyup", function(event) {
         if (event.keyCode == 27) { // escape
             input.attr("value", "");
@@ -47,8 +47,11 @@ function reload() {
         filter();
     });
     input.focus(function(event) { input.select(); });
+
+    input.change(function() { filter(); });
+
     $("#textfilter > .post").click(function(){
-        $("#textfilter > input").attr("value", "");
+        $("#textfilter > span > input").attr("value", "");
         filter();
     });
 
