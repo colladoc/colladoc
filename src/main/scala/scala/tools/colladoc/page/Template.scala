@@ -72,14 +72,14 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   override def body =
     <body class={ if (tpl.isTrait || tpl.isClass || tpl.qualifiedName == "scala.AnyRef") "type" else "value" } onload="windowTitle();">
 
-      { if (tpl.isRootPackage || tpl.inTemplate.isRootPackage)
-          NodeSeq.Empty
-        else
-          <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, xml.Text(".")) }</p>
-      }
-
       <div id="definition">
         <img src={ relativeLinkTo(List(docEntityKindToBigImage(tpl), "lib")) }/>
+         {
+            if (tpl.isRootPackage || tpl.inTemplate.isRootPackage)
+              NodeSeq.Empty
+            else
+              <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, xml.Text(".")) }</p>
+          }
         <h1>{ if (tpl.isRootPackage) "root package" else tpl.name }</h1>
       </div>
 
