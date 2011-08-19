@@ -15,7 +15,9 @@
 }
 
 #mbrsel > div#date > ol > li input {
-    width: 5em;
+    background-color: transparent;
+    width: 6em;
+    text-align: right;
 }
 
 #mbrsel > div#user > ol > li input {
