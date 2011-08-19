@@ -2,6 +2,10 @@
   background: #333 url('images/systembg.gif') repeat-x;
 }
 
+#mbrsel {
+    margin-top: 0 !important;
+}
+
 #mbrsel > div#date > ol > li.from {
     width: 2em;
 }
