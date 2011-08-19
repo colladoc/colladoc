@@ -40,6 +40,10 @@ $(document).ready(function() {
   $("#discussion_comments_tab > div > h4.definition").live("click", function(){
     $(this).next('.discussion_wrapper').slideToggle(100)
   });
+
+  if ($("#discussion_comments_tab > .delete_all_button").length == 0) {
+    $("#discussion_comments_tab").css("padding-top", "1em");
+  }
 });
 
 function replaceIcon(type) {

@@ -97,8 +97,7 @@
 }
 
 #discussion_comments_tab {
-    padding-left: 0;
-    padding-right: 0;
+    padding: 0;
 }
 
 .definition > a {
@@ -111,4 +110,10 @@
 
 .discussion_wrapper {
     margin-left: 20px;
+}
+
+.delete_all_button {
+    margin-left: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }

@@ -37,6 +37,8 @@ import net.liftweb.http.js.{JsCmds, JsCmd}
 import net.liftweb.http.js.JsCmds._
 import tools.nsc.doc.model.{DocTemplateEntity, MemberEntity}
 import lib.util.PathUtils._
+import net.liftweb.http.js.jquery.JqJE.Jq
+import lib.js.JqUI.Button
 
 /**
  * User profile snippet.
@@ -364,11 +366,11 @@ class ProfileOps {
     val comments = new History(model.vend.rootPackage).commentsToHtml(cmts)
 
     val template: Template = new Template(model.vend.rootPackage)
-    val dscs = Discussion.findAll(By(Discussion.user, user), By(Discussion.valid, true), OrderBy(Discussion.dateTime, Ascending))
+    def dscs = Discussion.findAll(By(Discussion.user, user), By(Discussion.valid, true), OrderBy(Discussion.dateTime, Ascending))
 
-    val entities = dscs.map(d => (d.qualifiedName.is, d)).groupBy(p => p._1)
+    def entities = dscs.map(d => (d.qualifiedName.is, d)).groupBy(p => p._1)
 
-    lazy val entitiesHtml = entities map { case (qualifiedName, value) => {
+    def entitiesHtml = entities map { case (qualifiedName, value) => {
       val m = pathToTemplate(model.vend.rootPackage, fixedPath(qualifiedName))
 
       val containingType = tmpl(m);
@@ -395,7 +397,26 @@ class ProfileOps {
       bind("discussion_comment", template.discussionToHtml(d))
     }
 
-    val discussionComments = <xml:group>{entitiesHtml}</xml:group>
+    def discussionComments: NodeSeq =
+      <xml:group>
+        {
+          if (User.validSuperUser_?)
+            SHtml.a(
+              ColladocConfirm("Confirm delete"),
+              () => {
+                dscs.foreach(c => c.valid(false).save())
+                Replace("discussion_comments_tab",
+                  <div id="discussion_comments_tab">
+                    {discussionComments}
+                  </div>
+                ) & Jq(Str(".button")) ~> Button()
+              },
+              Text("Delete all comments"), ("class", "button delete_all_button"))
+        }
+        {
+          entitiesHtml
+        }
+      </xml:group>
 
     bind("profile",
       profile.body,
