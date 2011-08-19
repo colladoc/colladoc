@@ -400,7 +400,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
   def adminForm =
     <div id="settings_tab">
       <ul>
-        <li><a href="#user_settings">User list</a></li>
+        <li><a href="#user_settings">Users</a></li>
         <li><a href="#project_settings">Project settings</a></li>
         <li><a href="#discussions_settings">Discussions</a></li>
       </ul>
