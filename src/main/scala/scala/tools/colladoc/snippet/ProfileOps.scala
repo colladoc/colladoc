@@ -368,7 +368,7 @@ class ProfileOps {
 
     val entities = dscs.map(d => (d.qualifiedName.is, d)).groupBy(p => p._1)
 
-    lazy val x = entities map { case (qualifiedName, value) => {
+    lazy val entitiesHtml = entities map { case (qualifiedName, value) => {
       val m = pathToTemplate(model.vend.rootPackage, fixedPath(qualifiedName))
 
       val containingType = tmpl(m);
@@ -395,7 +395,7 @@ class ProfileOps {
       bind("discussion_comment", template.discussionToHtml(d))
     }
 
-    val discussionComments = <xml:group>{x map (y => y)}</xml:group>
+    val discussionComments = <xml:group>{entitiesHtml}</xml:group>
 
     bind("profile",
       profile.body,
