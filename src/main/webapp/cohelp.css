@@ -1,5 +1,5 @@
 .help #definition {
-  background-color: #333;
+  background: #333 url('images/systembg.gif') repeat-x;
 }
 
 .help a {
