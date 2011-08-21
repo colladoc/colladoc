@@ -30,15 +30,16 @@ import xml._
 
 import tools.nsc.doc.model._
 import tools.nsc.doc.Universe
+import tools.nsc.doc.doclet.{Indexer, Universer}
 
 /**
  * Index snippet.
  * @author Petr Hosek
  */
-class IndexOps(universe: Universe) {
-  def this() = this(model.vend)
+class IndexOps(universer: Universer, indexer: Indexer) {
+  def this() = this(doclet.vend, doclet.vend)
 
-  lazy val index = new Index(universe)
+  lazy val index = new Index(universer.universe, indexer.index)
 
   /** Return index title. */
   def title(xhtml: NodeSeq): NodeSeq =

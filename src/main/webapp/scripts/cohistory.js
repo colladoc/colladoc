@@ -33,10 +33,13 @@ $(document).ready(function() {
     });
     
     reload();
-})
+
+    // fix for datepicker
+    $('#ui-datepicker-div').css('clip', 'auto');
+});
 
 function reload() {
-    var input = $("#textfilter > input");
+    var input = $("#textfilter > span > input");
     input.bind("keyup", function(event) {
         if (event.keyCode == 27) { // escape
             input.attr("value", "");
@@ -44,8 +47,11 @@ function reload() {
         filter();
     });
     input.focus(function(event) { input.select(); });
+
+    input.change(function() { filter(); });
+
     $("#textfilter > .post").click(function(){
-        $("#textfilter > input").attr("value", "");
+        $("#textfilter > span > input").attr("value", "");
         filter();
     });
 
@@ -72,6 +78,29 @@ function reload() {
         }
     });
 
+    /* Add toggle arrows */
+    var docAllSigs = $("h4.signature");
+
+    function commentToggleFct(signature){
+        var parent = signature.parent();
+        var shortComment = $(".shortcomment", parent);
+        var fullComment = $(".fullcomment", parent);
+        var vis = $(":visible", fullComment);
+        signature.toggleClass("closed").toggleClass("opened");
+        if (vis.length > 0) {
+            shortComment.slideDown(100);
+            fullComment.slideUp(100);
+        }
+        else {
+            shortComment.slideUp(100);
+            fullComment.slideDown(100);
+        }
+    }
+    docAllSigs.addClass("closed");
+    docAllSigs.click(function() {
+        commentToggleFct($(this));
+    });
+
     var docSetSigs = $(".changeset > .definition");
     function commentShow(element){
         var vis = $(":visible", element);
@@ -81,42 +110,14 @@ function reload() {
         else {
             element.slideDown(100);
         }
-    };
+    }
     docSetSigs.css("cursor", "pointer");
     docSetSigs.click(function(){
-        commentShow($("+ div", $(this)));
-    });
-    var docAllSigs = $(".changeset .signature");
-    var docShowSigs = docAllSigs.filter(function(){
-        return $("+ div.fullcomment", $(this)).length > 0;
-    });
-    docShowSigs.css("cursor", "pointer");
-    docShowSigs.click(function(){
-        commentShow($("+ div.fullcomment", $(this)));
-    });
-    function commentToggle(shortComment){
-        var vis = $("~ div.fullcomment:visible", shortComment);
-        if (vis.length > 0) {
-            shortComment.slideDown(100);
-            vis.slideUp(100);
-        }
-        else {
-            var hid = $("~ div.fullcomment:hidden", shortComment);
-            hid.slideDown(100);
-            shortComment.slideUp(100);
-        }
-    };
-    var docToggleSigs = docAllSigs.filter(function(){
-        return $("+ p.shortcomment", $(this)).length > 0;
-    });
-    docToggleSigs.css("cursor", "pointer");
-    docToggleSigs.click(function(){
-        commentToggle($("+ p.shortcomment", $(this)));
-    });
-    $("p.shortcomment").click(function(){
-        commentToggle($(this));
+        commentShow($(this).next());
     });
     filter();
+
+    replaceCaseClassIcon();
 }
 
 function filter() {
@@ -166,4 +167,8 @@ function order(members, comparator) {
         }
         last = node;
     });
-};
+}
+
+function replaceCaseClassIcon() {
+    $("img[src$='lib/case class.png']").attr("src", "lib/class.png");
+}

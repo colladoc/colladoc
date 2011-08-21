@@ -8,17 +8,15 @@ organization := "scala.tools.colladoc"
 
 scalaHome := Some(file("scala/build/pack"))
 
-jettyScanDirs := Nil
-
 libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _ )
 
 libraryDependencies ++= {
-  val liftVersion = "2.2"
+  val liftVersion = "2.4-M2"
   Seq(
-    "net.liftweb" % "lift-webkit_2.8.1" % liftVersion % "compile->default",
-    "net.liftweb" % "lift-mapper_2.8.1" % liftVersion % "compile->default",
-    "net.liftweb" % "lift-openid_2.8.1" % liftVersion % "compile->default",
-    "net.liftweb" % "lift-widgets_2.8.1" % liftVersion % "compile->default"
+    "net.liftweb" % "lift-webkit_2.9.0-1" % liftVersion % "compile->default",
+    "net.liftweb" % "lift-mapper_2.9.0-1" % liftVersion % "compile->default",
+    "net.liftweb" % "lift-openid_2.9.0-1" % liftVersion % "compile->default",
+    "net.liftweb" % "lift-widgets_2.9.0-1" % liftVersion % "compile->default"
   )
 }
 
@@ -41,5 +39,7 @@ libraryDependencies ++= Seq(
 resolvers += ScalaToolsSnapshots
 
 resolvers += "Jetty Repo" at "http://repo1.maven.org/maven2/org/mortbay/jetty"
+
+resolvers += "Java.net Repo" at "http://download.java.net/maven/2/"
 
 libraryDependencies += "org.mortbay.jetty" % "jetty" % "6.1.22" % "test->default"

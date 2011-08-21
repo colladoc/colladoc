@@ -67,7 +67,7 @@ class Help(rootPack: Package) extends scala.tools.colladoc.page.Template(rootPac
               The application allows to merge changes exported from the Colladoc web application to directly to source codes.
             </p>
             <p>
-              <h3>Useful links:</h3>
+              <h2>Useful links:</h2>
               <ul>
                 <li><a href="http://colladoc.github.com/" class="link">Official site</a></li>
                 <li><a href="http://colladoc.posterous.com/" class="link">Official blog</a></li>
@@ -91,11 +91,11 @@ class Help(rootPack: Package) extends scala.tools.colladoc.page.Template(rootPac
               Finally, you may choose to submit or cancel the changes. <em>Note that you have to be logged in to edit the comments.</em>
             </p>
             <div>
-              <h3>Regular users</h3>
+              <h2>Regular users</h2>
               <p>
                 Registered users can edit comments for existing symbols.
               </p>
-              <h3>Superusers</h3>
+              <h2>Superusers</h2>
               <p>
                 Furthermore, superusers are allowed to:
                 <ul>
@@ -153,7 +153,7 @@ class Help(rootPack: Package) extends scala.tools.colladoc.page.Template(rootPac
               This page uses infinite scrolling to asynchronously load additional results when needed.
             </p>
             <div>
-              <h3>Sample queries to get you started:</h3>
+              <h2>Sample queries to get you started:</h2>
               <ul class="search_example_list">
                 <li><a target="template" href="/search?q=any" >any</a>
                   searches for everything that has the word any in its name, definition or comment

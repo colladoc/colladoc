@@ -1,5 +1,9 @@
 .history #definition {
-  background-color: #333;
+  background: #333 url('images/systembg.gif') repeat-x;
+}
+
+#mbrsel {
+    margin-top: 0 !important;
 }
 
 #mbrsel > div#date > ol > li.from {
@@ -11,40 +15,78 @@
 }
 
 #mbrsel > div#date > ol > li input {
-    width: 5em;
+    background-color: transparent;
+    width: 6em;
+    text-align: right;
 }
 
 #mbrsel > div#user > ol > li input {
     width: 12em;
 }
 
+li.filter {
+    position: relative;
+    margin-bottom: 23px;
+}
+
 .filter > span {
-    background: url("lib/filter_box_left.png") no-repeat left top;
-    margin: 0 0 0 -8px;
-    padding: 2px 0 0 22px;
+    position: absolute;
+    display: block;
+    top: 0;
+    right: 20px;
+    left: 20px;
+}
+
+span.userfilter_pre {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    height: 23px;
+    width: 21px;
+    background: url("lib/filter_box_left.png");
+}
+
+span.userfilter_post {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 13em;
+    height: 23px;
+    width: 21px;
+    background: url("lib/filter_box_right.png");
+}
+
+.filter > span > input {
+    height: 21px;
+    padding: 1px;
+    font-weight: bold;
+    color: black;
+    background: url("lib/filterboxbarbg.png");
+    background-repeat: repeat-x;
 }
 
 #template > h3 {
-    background-color: #333;
-    color: white;
-    font-weight: bold;
-    font-size: 12pt;
-    padding: 4px;
+    background: url("lib/constructorsbg.gif") repeat-x;
+    height: 18px;
 }
 
 .definition {
     color: white;
-    font-weight: bold;
+    padding: 5px 10px;
     font-size: 12pt;
-    padding: 4px;
+    font-weight: bold;
+    text-shadow: black 1px 1px 0px;
 }
 
 .value .definition {
-    background-color: #7996AC;
+    background: url("lib/valuemembersbg.gif") repeat-x;
+    height: 18px;
 }
 
 .type .definition {
-    background-color: #799F5A;
+    background: url("lib/typebg.gif") repeat-x;
+    height: 18px;
 }
 
 #template .changeset > div > .signature {

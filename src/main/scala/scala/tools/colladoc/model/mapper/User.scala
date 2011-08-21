@@ -382,7 +382,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
       <ul>
         {
           User.findAll(OrderBy(User.userName, Ascending)) map { u =>
-            <li class={"ui-selectee" + (if (u.deleted_?) " deleted" else if (u.banned.is) " banned" else "")}>
+            <li class={"ui-selectee ui-corner-all" + (if (u.deleted_?) " deleted" else if (u.banned.is) " banned" else "")}>
               <div class="profile_link">
                 {
                   Gravatar(u.email, 16) ++
@@ -400,7 +400,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
   def adminForm =
     <div id="settings_tab">
       <ul>
-        <li><a href="#user_settings">User list</a></li>
+        <li><a href="#user_settings">Users</a></li>
         <li><a href="#project_settings">Project settings</a></li>
         <li><a href="#discussions_settings">Discussions</a></li>
       </ul>

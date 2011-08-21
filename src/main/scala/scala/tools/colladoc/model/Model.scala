@@ -31,7 +31,7 @@ import net.liftweb.common.Logger
 import net.liftweb.http.S
 
 import tools.nsc.Global
-import tools.nsc.doc.{SourcelessComments, Settings}
+import tools.nsc.doc.Settings
 import tools.nsc.io.Directory
 
 import java.io.File
@@ -82,18 +82,13 @@ object Model extends Logger {
       phasesSet += pickler
       phasesSet += refchecks
     }
-    override def onlyPresentation = true
-    lazy val addSourceless = {
-      val sourceless = new SourcelessComments { val global = compiler }
-      docComments ++= sourceless.comments
-    }
+    override def forScaladoc = true
   }
 
   /** Model factory used to construct the model. */
   class Factory extends ModelFactory(compiler, settings) with DynamicModelFactory with DynamicCommentFactory with TreeFactory {
     def construct(files: List[String]) = {
       (new compiler.Run()) compile files
-      compiler.addSourceless
 
       makeModel
     }

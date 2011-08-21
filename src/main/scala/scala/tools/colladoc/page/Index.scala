@@ -34,7 +34,8 @@ import net.liftweb.http.js.jquery.JqJE._
 import net.liftweb.http.js.JE._
 import net.liftweb.widgets.gravatar.Gravatar
 
-import tools.nsc.doc.Universe
+import tools.nsc.doc.{Universe, Index => DocIndex}
+import tools.nsc.doc.html.page.{Index => PageIndex}
 import xml.Text
 import lib.js.JqUI._
 
@@ -42,9 +43,9 @@ import lib.js.JqUI._
  * Page containing index of all symbols and user panel.
  * @author Petr Hosek 
  */
-class Index(universe: Universe) extends tools.nsc.doc.html.page.Index(universe) {
+class Index(universe: Universe, index: DocIndex) extends PageIndex(universe, index) {
 
-  override def browser = super.browser \+
+  override def scriptElement =
     <div id="user">
       { if (User.loggedIn_?)
           loggedIn

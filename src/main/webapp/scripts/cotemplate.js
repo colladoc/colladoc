@@ -24,14 +24,14 @@
 $(document).ready(function() {
     reinit('body');
 
-    var url= $(location).attr("href");
+    var url = location.href;
     var urlpart=url.split("q=");
     var src=(parent.location.href + '#q='+ urlpart[1]).replace(" ","+");
 
     if ((urlpart[1] !="") && (typeof(urlpart[1]) !="undefined")) {localSearchHighlight(urlpart[1]); copy(src);}
 
     shortcut_enable();
-})
+});
 
 function shortcut_enable(){
     var isCtrl=false;
@@ -102,6 +102,7 @@ function confirm(message, callback, options) {
   var defaults = {
     modal: true,
     resizable: false,
+    title: 'Confirm',
     buttons: {
       Ok: function() {
         $(this).dialog('close');
@@ -138,4 +139,8 @@ $(document).ready(function() {
   $('#discussions_header').live('click', function(){
     $('#discussions_wrapper').slideToggle(100);
   });
+});
+
+$(document).ready(function() {
+  $("img[src$='lib/case class.png']").attr("src", "lib/class.png");
 });

@@ -1,5 +1,5 @@
 #user {
-    background: #B78E99;
+    background: #EDEDEE url('lib/filterbg.gif') repeat-x;
     display: block;
     left: 0;
     padding: 5px;
@@ -114,4 +114,16 @@
 
 #agree_input {
     display: inline;
+}
+
+#tpl .packages ol {
+	background-color: #DADFE6;
+}
+
+#tpl ol > li.pack {
+    padding: 0;
+}
+
+#tpl .packages > li > a {
+    padding: 3px 5px;
 }
