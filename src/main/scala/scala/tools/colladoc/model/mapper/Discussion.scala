@@ -35,7 +35,7 @@ class Discussion extends LongKeyedMapper[Discussion] with IdPK {
   def getSingleton = Discussion
 
   /** Category of this discussion. */
-  object category extends LongMappedMapper(this, Category)
+  object category extends MappedLongForeignKey(this, Category)
 
   /** Qualified name of symbol this comment belongs to. */
   object qualifiedName extends MappedString(this, 255) {
@@ -43,13 +43,13 @@ class Discussion extends LongKeyedMapper[Discussion] with IdPK {
   }
 
   /** Parent in the hierarchy. */
-  object parent extends LongMappedMapper(this, Discussion)
+  object parent extends MappedLongForeignKey(this, Discussion)
 
   /** Changed comment content. */
   object comment extends MappedString(this, 4000)
 
   /** Changed comment author. */
-  object user extends LongMappedMapper(this, User)
+  object user extends MappedLongForeignKey(this, User)
 
   /** Change date and time. */
   object dateTime extends MappedDateTime(this)

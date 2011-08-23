@@ -48,6 +48,7 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
   object qualifiedName extends MappedString(this, 255) {
     override def dbIndexed_? = true
   }
+
   /** Changed comment content. */
   object comment extends MappedString(this, 4000)
 
@@ -55,7 +56,8 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
   object changeSet extends MappedDateTime(this)
 
   /** Changed comment author. */
-  object user extends LongMappedMapper(this, User)
+  object user extends MappedLongForeignKey(this, User)
+
   /** Change date and time. */
   object dateTime extends MappedDateTime(this)
 
@@ -85,8 +87,10 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
   def userNameDate: String =
     "%s by %s".format(dateFormatter(dateTime.is), userName)
 
+  /** Date for Atom syndication. */
   def atomDateTime: String = atomDateFormatter(dateTime.is).toString
 
+  /** Human friendly date format. */
   def humanDateTime: String = dateFormatter(dateTime.is).toString
 
   /**
