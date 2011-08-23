@@ -90,7 +90,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
         <div id="mbrsel">
           <div id='textfilter'><span class='pre'/><span class='input'><input type='text' accesskey='/'/></span><span class='post'/></div>
-          { if (tpl.linearization.isEmpty) NodeSeq.Empty else
+          { if (tpl.linearizationTemplates.isEmpty) NodeSeq.Empty else
               <div id="order">
                 <span class="filtertype">Ordering</span>
                 <ol>
@@ -99,7 +99,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
                 </ol>
               </div>
           }
-          { if (tpl.linearization.isEmpty) NodeSeq.Empty else
+          { if (tpl.linearizationTemplates.isEmpty) NodeSeq.Empty else
               <div id="ancestors">
                 <span class="filtertype">Inherited</span>
                 <ol><li class="hideall out"><span>Hide All</span></li><li class="showall in"><span>Show all</span></li></ol>
@@ -110,12 +110,6 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
             <div id="visbl">
               <span class="filtertype">Visibility</span>
               <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
-            </div>
-          }
-          {
-            <div id="impl">
-              <span class="filtertype">Impl.</span>
-              <ol><li class="concrete in"><span>Concrete</span></li><li class="abstract in"><span>Abstract</span></li></ol>
             </div>
           }
         </div>
@@ -144,7 +138,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         }
 
         {
-          NodeSeq fromSeq (for ((superTpl, superType) <- tpl.linearization) yield
+          NodeSeq fromSeq (for ((superTpl, superType) <- (tpl.linearizationTemplates zip tpl.linearizationTypes)) yield
             <div class="parent" name={ superTpl.qualifiedName }>
               <h3>Inherited from {
                 if (tpl.universe.settings.useStupidTypes.value)
