@@ -444,7 +444,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Render delete button for discussion comment. */
   def deleteDiscussionButton(d: Discussion) = SHtml.a(
-    ColladocConfirm("Confirm delete"), () => {d.valid(false).save; reloadDiscussion(Category.get(d))}, Text("Delete"))
+    JqUIConfirm("Confirm delete"), () => {d.valid(false).save; reloadDiscussion(Category.get(d))}, Text("Delete"))
 
   /** Render delete button for discussion comment. */
   def editDiscussionButton(d: Discussion) = SHtml.a(discussionEditor(Category.get(d), Some(d)) _, Text("Edit"))
@@ -597,7 +597,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
         val defs = (".push", "Push to predecessor") ::
                 mbr.inDefinitionTemplates.filter(x => x != mbr.inTemplate).map(x => (x.qualifiedName, x.qualifiedName))
         if (defs.length > 1)
-          SHtml.ajaxSelect(defs, Empty, ColladocConfirm("Confirm propagate"), move _, ("class", "select"))
+          SHtml.ajaxSelect(defs, Empty, JqUIConfirm("Confirm propagate"), move _, ("class", "select"))
       case _ =>
     }
 
@@ -651,7 +651,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       (if (!isSelf) SetHtml(id(mbr, "short"), inlineToHtml(mbr.comment.get.short)) else JsCmds.Noop)
     }
     val revs = ("source", "Select default") :: Comment.revisions(mbr.uniqueName)
-    SHtml.ajaxSelect(revs, Empty, ColladocConfirm("Set as default value?"), replace _, ("class", "select"))
+    SHtml.ajaxSelect(revs, Empty, JqUIConfirm("Set as default value?"), replace _, ("class", "select"))
   }
 
   /** Render edit button for member entity. */
@@ -707,7 +707,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     }
 
     if (Comment.revisions(mbr.uniqueName).length > 0)
-      SHtml.a(ColladocConfirm("Confirm delete"), doDelete(mbr, isSelf) _, Text("Delete"), ("class", "button"))
+      SHtml.a(JqUIConfirm("Confirm delete"), doDelete(mbr, isSelf) _, Text("Delete"), ("class", "button"))
   }
 
   /** Get default comment from database. */

@@ -29,7 +29,7 @@ import xml.{NodeSeq, Text}
 import net.liftweb.util.BindHelpers._
 import net.liftweb.http.{SHtml, S, RequestVar}
 import net.liftweb.mapper.{Ascending, By, OrderBy}
-import lib.js.JqUI.{ColladocConfirm, SubmitFormWithValidation, SubmitForm}
+import lib.js.JqUI.{JqUIConfirm, SubmitFormWithValidation, SubmitForm}
 import net.liftweb.http.js.JE.Str
 import page.{Template, History, Profile}
 import net.liftweb.common.Full
@@ -285,7 +285,7 @@ class ProfileOps {
       <div id="delete_account">
         {
           SHtml.a(
-            ColladocConfirm("Confirm delete"),
+            JqUIConfirm("Confirm delete"),
             () => {
               user.deleted(true).save
               S.notice("Account " + user.userName + " successfully deleted")
@@ -303,7 +303,7 @@ class ProfileOps {
       <div id="recover_account">
         {
           SHtml.a(
-            ColladocConfirm("Confirm recover"),
+            JqUIConfirm("Confirm recover"),
             () => {
               user.deleted(false).save
               S.notice("Account " + user.userName + " successfully recovered")
@@ -402,7 +402,7 @@ class ProfileOps {
         {
           if (User.validSuperUser_?)
             SHtml.a(
-              ColladocConfirm("Confirm delete"),
+              JqUIConfirm("Confirm delete"),
               () => {
                 dscs.foreach(c => c.valid(false).save())
                 Replace("discussion_comments_tab",

@@ -336,7 +336,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
         <td>
           {
             SHtml.a(
-              ColladocConfirm("Confirm delete"),
+              JqUIConfirm("Confirm delete"),
               () => { c.valid(false).save(); Replace("categories_form", categoriesSettings) & Jq(Str(".button")) ~> Button() },
               SHtml.span(NodeSeq.Empty, Noop, ("class", "ui-icon ui-icon-trash")),
               ("class", "button")

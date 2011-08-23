@@ -20,9 +20,9 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc {
-package lib {
-package js {
+package scala.tools.colladoc
+package lib
+package js
 
 import net.liftweb.util.Helpers._
 import net.liftweb.http.js.{JsMember, JsExp, JsCmd}
@@ -87,15 +87,11 @@ object JqUI {
     override def toJsCmd = "if ($('" + jqId +"').valid()) " + "$('" + jqId + "').submit();"
   }
 
-  /** Confirm dialog. */
-  def ColladocConfirm(what: String) = Call("confirm", Str(what))
+  /** jQuery UI confirm dialog. */
+  def JqUIConfirm(what: String) = Call("confirm", Str(what))
 
   /** Run prettyDate function. */
   case object PrettyDate extends JsExp with JsMember {
     override def toJsCmd = "prettyDate();"
   }
-}
-
-}
-}
 }
