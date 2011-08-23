@@ -30,9 +30,19 @@ import java.text.SimpleDateFormat
  * @author Sergey Ignatov
  */
 object DateUtils {
+  /**
+   * Human date formatter.
+   */
   def dateFormatter(d: Date) = new SimpleDateFormat("HH:mm dd MMMM yyyy").format(d)
 
+  /**
+   * Date formatter for Atom.
+   * See: http://tools.ietf.org/html/rfc4287
+   */
   def atomDateFormatter(d: Date) = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(d)
 
+  /**
+   * ISO 8601 date formatter.
+   */
   def iso8601Formatter(d: Date) = new SimpleDateFormat("yyyy-MM-dd").format(d)
 }
