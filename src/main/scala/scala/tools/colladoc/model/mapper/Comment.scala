@@ -64,6 +64,7 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
     override def defaultValue = true
   }
 
+  /** Whether this change is still active. */
   object active extends MappedBoolean(this) {
     override def defaultValue = false
   }
@@ -199,8 +200,9 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
    */
   def getLatestComments(count: Int) = Comment.findAll(By(Comment.valid, true), OrderBy(Comment.dateTime, Descending), MaxRows(count))
 
-  def deactivateAll(qualName: String) {
-    Comment.findAll(By(Comment.qualifiedName, qualName), By(Comment.active, true)).foreach(c => c.active(false).save)
+  /** Deactivate all comments by qualified name. */
+  def deactivateAll(qualifiedName: String) {
+    Comment.findAll(By(Comment.qualifiedName, qualifiedName), By(Comment.active, true)).foreach(c => c.active(false).save)
   }
 }
 
