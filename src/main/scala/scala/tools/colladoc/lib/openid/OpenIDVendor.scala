@@ -37,8 +37,7 @@ import net.liftweb.http.S
  * Manages OpenID logins - creating a new entry in the database on login for a user who hasn't been seen before.
  * @author Sergey Ignatov
  */
-object ColladocOpenIDVendor extends SimpleOpenIDVendor with Logger {
-
+object OpenIDVendor extends SimpleOpenIDVendor with Logger {
   override def createAConsumer = new AnyRef with OpenIDConsumer[UserType] {
 
     def addParams(di: DiscoveryInformation, authReq: AuthRequest) {
@@ -53,8 +52,8 @@ object ColladocOpenIDVendor extends SimpleOpenIDVendor with Logger {
     beforeAuth = Box(addParams _)
   }
 
-  override def postLogin(id: Box[Identifier], res: VerificationResult) {
-    id match {
+  override def postLogin(identifier: Box[Identifier], res: VerificationResult) {
+    identifier match {
       case Full(id) =>
         val user = User.createIfNew(id.getIdentifier)
 
@@ -66,10 +65,10 @@ object ColladocOpenIDVendor extends SimpleOpenIDVendor with Logger {
           attrs.get(FirstName) map { n => user.firstName(trace("Extracted name", n)) }
           attrs.get(LastName) map { n => user.lastName(trace("Extracted name", n)) }
 
-          if (user.userName.is.trim isEmpty)
+          if (user.userName.is.trim.isEmpty)
             user.userName(user.firstName + " " + user.lastName)
 
-          if (user.userName.is.trim isEmpty)
+          if (user.userName.is.trim.isEmpty)
             user.userName(id.getIdentifier)
 
           user.save()

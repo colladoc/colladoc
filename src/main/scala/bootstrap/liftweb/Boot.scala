@@ -38,7 +38,7 @@ import tools.colladoc.lib.sitemap._
 import tools.colladoc.model.mapper._
 import tools.colladoc.lib.js.JqUI._
 import tools.colladoc.api.RestAPI
-import tools.colladoc.lib.openid.ColladocOpenIDVendor
+import tools.colladoc.lib.openid.OpenIDVendor
 import tools.colladoc.boot.ColladocBoot
 
 import xml.{Text, NodeSeq}
@@ -90,7 +90,7 @@ class Boot {
    //     RewriteResponse("search" :: Nil, Map("q" -> query))
    // }
 
-    LiftRules.dispatch.append(ColladocOpenIDVendor.dispatchPF)
+    LiftRules.dispatch.append(OpenIDVendor.dispatchPF)
 
     LiftRules.setSiteMapFunc(sitemap)
     LiftRules.statelessDispatchTable.append(ExportService)
