@@ -106,15 +106,10 @@ class Boot {
     LiftRules.noticesToJsCmd = notices _
 
     LiftRules.early.append(makeUtf8)
-    LiftRules.jsArtifacts = JQuery14Artifacts    
+    LiftRules.jsArtifacts = JQuery14Artifacts
 
-    // Set the doctype to XHTML 1.0 Transitional
-    LiftRules.docType.default.set { (req: Req) =>
-      req match {
-        case _ if S.getDocType._1 => S.getDocType._2
-        case _ => Full(DocType.xhtmlTransitional)
-      }
-    }
+    // Set the doctype to XHTML
+    LiftRules.htmlProperties.default.set((r: Req) => new OldHtmlProperties(r.userAgent))
 
     LiftRules.SnippetFailures
     LiftRules.determineContentType = {
@@ -142,7 +137,7 @@ class Boot {
           if (ex.getStackTraceString != null) Text(ex.getStackTraceString)
           else Text("No trace available.")
         })
-      XhtmlResponse(out(0), LiftRules.docType.vend(req), List("Content-Type" -> "text/html; charset=utf-8"), Nil, 500, false)
+      XhtmlResponse(out(0), S.htmlProperties.docType, List("Content-Type" -> "text/html; charset=utf-8"), Nil, 500, false)
     }
   }
 
