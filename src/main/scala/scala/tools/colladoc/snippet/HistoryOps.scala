@@ -20,8 +20,8 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc {
-package snippet {
+package scala.tools.colladoc
+package snippet
 
 import model.mapper.{User, Comment}
 import lib.DependencyFactory._
@@ -110,8 +110,4 @@ class HistoryOps {
         }
       }
     </div>
-
-}
-
-}
 }
