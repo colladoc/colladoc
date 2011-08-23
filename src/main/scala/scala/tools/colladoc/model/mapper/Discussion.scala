@@ -23,7 +23,6 @@
 package scala.tools.colladoc
 package model.mapper
 
-import xml.NodeSeq
 import net.liftweb.mapper._
 import net.liftweb.common.Full
 import lib.util.DateUtils.{atomDateFormatter, dateFormatter}
@@ -87,8 +86,10 @@ class Discussion extends LongKeyedMapper[Discussion] with IdPK {
   /** Get change author's username and date. */
   def userNameDate: String = "%s by %s".format(dateFormatter(dateTime.is), userName)
 
+  /** Date for Atom syndication. */
   def atomDateTime: String = atomDateFormatter(dateTime.is).toString
 
+  /** Human friendly date format. */
   def humanDateTime: String = dateFormatter(dateTime.is).toString
 }
 
@@ -122,7 +123,7 @@ object Discussion extends Discussion with LongKeyedMetaMapper[Discussion] {
     By(Discussion.qualifiedName, qualifiedName),
     By(Discussion.valid, true),
     OrderBy(Discussion.dateTime, Descending), MaxRows(1)) match {
-    case List(d: Discussion, _*) => Some(d)
-    case _ => None
+      case List(d: Discussion, _*) => Some(d)
+      case _ => None
   }
 }
