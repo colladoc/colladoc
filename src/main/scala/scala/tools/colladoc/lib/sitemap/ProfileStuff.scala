@@ -30,7 +30,7 @@ import net.liftweb.util.NamedPF
 import net.liftweb.common.Full
 import net.liftweb.mapper.By
 import model.mapper.User
-import net.liftweb.http.{NotFoundResponse, RewriteResponse, ParsePath, RewriteRequest}
+import net.liftweb.http.{RewriteResponse, ParsePath, RewriteRequest}
 
 /** Profile location parameter. */
 case class ProfileLoc()
