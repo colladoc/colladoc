@@ -114,7 +114,7 @@ object ExportService extends RestHelper {
 
     protected def processMember(mbr: MemberEntity): Node =
       <xml:group>
-        { if ((mbr.inheritedFrom.isEmpty || mbr.inheritedFrom.contains(mbr.inTemplate)) && mbr.comment.get.isUpdated) {
+        { if ((mbr.inDefinitionTemplates.isEmpty || mbr.inDefinitionTemplates.contains(mbr.inTemplate)) && mbr.comment.get.isUpdated) {
             <item>
               <type>{ mbr match {
                 case _ if mbr.isDef || mbr.isVal || mbr.isVar || mbr.isConstructor => "value" // TODO: fix constructor processing
