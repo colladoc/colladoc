@@ -33,8 +33,13 @@ class Property extends LongKeyedMapper[Property] {
   def getSingleton = Properties
 
   def primaryKeyField = id
+
   object id extends MappedLongIndex(this)
+
+  /** String key. */
   object key extends MappedString(this, 255)
+
+  /** Text record value. */
   object value extends MappedText(this)
 }
 
@@ -57,7 +62,9 @@ object Properties extends Property with LongKeyedMetaMapper[Property] {
             case _ => create.key(key)
           }).value(value).save
 
+  /** Get `-doc-title` property. */
   def doctitle = get("-doc-title")
 
+  /** Get `-doc-version` property. */
   def docversion = get("-doc-version")
 }
