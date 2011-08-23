@@ -60,5 +60,6 @@ object Category extends Category with LongKeyedMetaMapper[Category] {
   /** Get all categories with non empty names. */
   def all = findAll filter { c => c.valid.is && c.name.is.trim.length > 0 }
 
+  /** Get category by discussion. */
   def get(d: Discussion) = Category.find(d.category).open_!
 }
