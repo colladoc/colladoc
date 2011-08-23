@@ -20,8 +20,8 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc {
-package model {
+package scala.tools.colladoc
+package model
 
 import comment.{DynamicModelFactory, DynamicCommentFactory}
 import tools.nsc.reporters.AbstractReporter
@@ -57,7 +57,7 @@ object Model extends Logger {
   object reporter extends AbstractReporter {
     val settings = Model.settings
 
-    def display(pos: Position, msg: String, severity: Severity) = {
+    def display(pos: Position, msg: String, severity: Severity) {
       severity.count += 1
       severity match {
         case INFO => S.notice(msg)
@@ -66,7 +66,9 @@ object Model extends Logger {
       }
     }
 
-    def displayPrompt = S.error("There was an error while processing comment")
+    def displayPrompt() {
+      S.error("There was an error while processing comment")
+    }
 
     override def hasErrors = false // need to do this so that the Global instance doesn't trash all the symbols just because there was an error
   }
@@ -94,21 +96,24 @@ object Model extends Logger {
     }
   }
 
+  /** Factory object for model construction. */
   val factory = new Factory()
 
+  /** Model instance. */
   var model = factory construct (getSources)
 
   /** Rebuild model. */
-  def rebuild {
+  def rebuild() {
     model = factory construct (getSources)
   }
 
-  /** Update model path.
+  /**
+   * Update model path.
    * @param path new model path
    */
   def updatePath(path: String) {
     settings.sourcepath.value = path
-    rebuild
+    rebuild()
   }
 
   /**
@@ -129,10 +134,5 @@ object Model extends Logger {
   /** Initialize model. */
   def init() {
     List(model)
-
   }
-
-}
-
-}
 }
