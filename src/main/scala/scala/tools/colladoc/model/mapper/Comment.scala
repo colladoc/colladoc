@@ -117,9 +117,9 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
   override def dbTableName = "comments"
 
   /**
-   * Find latest change for given symbol qualified name.
+   * Find the latest change for given symbol qualified name.
    * @param qualName symbol qualified name
-   * @return latest change if exists, none otherwise
+   * @return the latest change if exists, none otherwise
    */
   def latest(qualName: String) = Comment.findAll(By(Comment.qualifiedName, qualName),
     By(Comment.valid, true),
@@ -140,11 +140,15 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
     case _ => None
   }
 
-  def latestToString(member: MemberEntity) : Option[String] = {
-      latest(member.uniqueName) match { case Some(str) => Some(str.comment.is);
-                                        case _ => None}
-                                        //member.comment match { case Some(str) => str.body.toString; case _ => ""}}
-    }
+  /**
+   * Get the latest change comment.
+   * @param member entity
+   * @return the latest change comment, none otherwise
+   */
+  def latestToString(member: MemberEntity) : Option[String] = latest(member.uniqueName) match {
+    case Some(str) => Some(str.comment.is)
+    case _ => None
+  }
 
   /**
    * Get all revisions for given symbol qualified name.
@@ -185,7 +189,7 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment]
    */
   def toAtomFeed(cmts: List[Comment]) = {
     val entries = cmts.map(_.toAtomEntry)
-    val updatedDate = if (cmts isEmpty) new Date() else cmts.head.dateTime.is
+    val updatedDate = if (cmts.isEmpty) new Date() else cmts.head.dateTime.is
     <feed xmlns="http://www.w3.org/2005/Atom">
       <author>
         <name>Colladoc</name>
