@@ -20,8 +20,8 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc {
-package page {
+package scala.tools.colladoc
+package page
 
 import lib.util.Helpers._
 import lib.util.NameUtils._
@@ -527,7 +527,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Update discussion comment record in database. */
   private def updateDiscussionComment(d: Discussion)(text: String) {
-    d.comment(text).save
+    d.comment(text).save()
   }
   
   override def memberToHtml(mbr: MemberEntity): NodeSeq =
@@ -578,11 +578,11 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
             comment.qualifiedName(newQualifiedName).user(usr).dateTime(now).changeSet(now).active(false).save
 
             val (cmt, c) = defaultCommentFromDb(mbr) match {
-              case Some(cmt) =>
+              case Some(defaultComment) =>
                 Comment.deactivateAll(mbr.uniqueName)
-                cmt.active(true).save
-                mbr.comment.get.update("" + cmt.comment.is)
-                (Model.factory.parse(mbr, cmt.comment.is), cmt)
+                defaultComment.active(true).save()
+                mbr.comment.get.update("" + defaultComment.comment.is)
+                (Model.factory.parse(mbr, defaultComment.comment.is), defaultComment)
               case None =>
                 (mbr.comment.get.original.get, "source")
               // TODO: mbr.comment.update(original)
@@ -627,7 +627,7 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
   private def select(mbr: MemberEntity, isSelf: Boolean) = {
     def replace(cid: String) = {
       val (cmt, c) = Comment.find(cid) match {
-        case Full(c) => (Model.factory.parse(mbr, c.comment.is), c)
+        case Full(comment) => (Model.factory.parse(mbr, comment.comment.is), comment)
         case _ => (mbr.comment.get.original.get, "source")
       }
       val m = Model.factory.copyMember(mbr, cmt)(c)
@@ -686,11 +686,11 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     def doDelete(mbr: MemberEntity, isSelf: Boolean)(): JsCmd = {
       def replace(mbr: MemberEntity, isSelf: Boolean) = {
         val (cmt, c) = defaultCommentFromDb(mbr) match {
-          case Some(cmt) =>
+          case Some(comment) =>
             Comment.deactivateAll(mbr.uniqueName)
-            cmt.active(true).save
-            mbr.comment.get.update("" + cmt.comment.is)
-            (Model.factory.parse(mbr, cmt.comment.is), cmt)
+            comment.active(true).save()
+            mbr.comment.get.update("" + comment.comment.is)
+            (Model.factory.parse(mbr, comment.comment.is), comment)
           case None =>
             (mbr.comment.get.original.get, "source")
             // TODO: mbr.comment.update(original)
@@ -746,7 +746,8 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
 
   /** Update member entity after comment has been changed. */
   private def update(mbr: MemberEntity, docStr: String) = Model.synchronized {
-    Model.reporter.reset
+    Model.reporter.reset()
+
     def doSave() = {
       val usr = User.currentUser.open_!
       Comment.deactivateAll(mbr.uniqueName)
@@ -761,20 +762,27 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
       cmt.save
       index.vend.reindexEntityComment(mbr)
     }
+
     mbr.comment.get.update(docStr)
-    if (!Model.reporter.hasWarnings) doSave
+
+    if (!Model.reporter.hasWarnings)
+      doSave()
   }
 
   /** Activate comment for member entity. */
   private def activate(mbr: MemberEntity, cmt: Comment) = Model.synchronized {
-    Model.reporter.reset
+    Model.reporter.reset()
+
     def doSave() = {
       Comment.deactivateAll(mbr.uniqueName)
-      cmt.active(true).save
+      cmt.active(true).save()
       index.vend.reindexEntityComment(mbr)
     }
+
     mbr.comment.get.update("" + cmt.comment.is)
-    if (!Model.reporter.hasWarnings) doSave
+
+    if (!Model.reporter.hasWarnings)
+      doSave()
   }
 
   /** Render export link for member entity. */
@@ -802,6 +810,4 @@ class Template(tpl: DocTemplateEntity) extends tools.nsc.doc.html.page.Template(
     val path = abs + ".xml" + pars.mkString("?", "&", "")
     JsRaw("window.open('%s', 'Export')" format (path))
   }
-}
-}
 }
