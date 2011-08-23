@@ -30,12 +30,15 @@ import net.liftweb.common.Empty
  * Bootstrap class for Colladoc project.
  * @author Sergey Ignatov
  */
-object ColladocBoot {
+object Bootstrapper {
   def boot() {
     addDefaultAdmin()
     loadProperties()
   }
 
+  /**
+   * Add admin user on the first boot.
+   */
   def addDefaultAdmin() {
     val userName = "colladoc"
     val password = "colladoc"
@@ -53,6 +56,9 @@ object ColladocBoot {
         save
   }
 
+  /**
+   * Load properties to database from the file with properties.
+   */
   def loadProperties() {
     Props.props.foreach { case (k, v) =>
       if (k.startsWith("-doc"))

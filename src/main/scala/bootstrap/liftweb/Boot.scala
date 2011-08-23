@@ -39,7 +39,7 @@ import tools.colladoc.model.mapper._
 import tools.colladoc.lib.js.JqUI._
 import tools.colladoc.api.RestAPI
 import tools.colladoc.lib.openid.OpenIDVendor
-import tools.colladoc.boot.ColladocBoot
+import tools.colladoc.boot.Bootstrapper
 
 import xml.{Text, NodeSeq}
 import tools.nsc.io.Streamable
@@ -63,7 +63,7 @@ class Boot {
     LiftRules.addToPackages("scala.tools.colladoc")
     Schemifier.schemify(true, Schemifier.infoF _, User, Category, Comment, Properties, Discussion)
 
-    ColladocBoot.boot
+    Bootstrapper.boot
 
     LiftRules.dispatch.prepend(scaladocResources)
 
