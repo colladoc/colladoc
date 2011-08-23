@@ -20,9 +20,9 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scala.tools.colladoc {
-package model {
-package mapper {
+package scala.tools.colladoc
+package model
+package mapper
 
 import net.liftweb.mapper._
 import net.liftweb.common.{Full, Empty, Box}
@@ -124,19 +124,24 @@ object User extends User with KeyedMetaMapper[Long, User] {
 
   /** Whether any user is logged in. */
   def loggedIn_? = currentUserId.isDefined
+
   /** Log in user with given identifier. */
   def logUserIdIn(id: String) {
     curUser.remove()
     curUserId(Full(id))
   }
+
   /** Log in user. */
   def logUserIn(who: User) {
     curUser.remove()
-    curUserId(Full(who.id.toString))
+    curUserId(Full(who.id.toString()))
   }
 
   /** Log out current user. */
-  def logoutCurrentUser = logUserOut()
+  def logoutCurrentUser() {
+    logUserOut()
+  }
+
   /** Log out user. */
   def logUserOut() {
     curUserId.remove()
@@ -240,13 +245,6 @@ object User extends User with KeyedMetaMapper[Long, User] {
       "password" -%> SHtml.password("", user.password(_)),
       "openid" -%> SHtml.text(user.openId.is, text => (), ("readonly", "readonly")),
       "submit" -> SHtml.hidden(doSave _))
-  }
-
-  /** Handler for path updating. */
-  private def updatePath(path: String): JsCmd = {
-    S.notice("Path successfully updated")
-    Model.updatePath(path)
-    Noop
   }
 
   /** Form with project properties. */
@@ -485,7 +483,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
     var username: String = ""
     var password: String = "*"
 
-    def doLogin = {
+    def doLogin() = {
       find(By(userName, username)) match {
         case Full(user) if !user.deleted_? && user.password.match_?(password) =>
           S.notice("User logged in")
@@ -503,11 +501,7 @@ object User extends User with KeyedMetaMapper[Long, User] {
   }
 
   /** Logout user. */
-  def logout = {
-    logoutCurrentUser
+  def logout() {
+    logoutCurrentUser()
   }
-}
-
-}
-}
 }
