@@ -28,8 +28,6 @@ import page.Index
 
 import xml._
 
-import tools.nsc.doc.model._
-import tools.nsc.doc.Universe
 import tools.nsc.doc.doclet.{Indexer, Universer}
 
 /**

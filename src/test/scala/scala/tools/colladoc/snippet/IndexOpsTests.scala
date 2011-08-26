@@ -27,6 +27,7 @@ import org.specs.specification.Examples
 import net.liftweb.common.Empty
 import net.liftweb.util.{TimeHelpers, StringHelpers}
 import org.specs.SpecificationWithJUnit
+import tools.nsc.doc.doclet.{Indexer, Universer}
 import tools.nsc.doc.Universe
 import org.specs.mock.JMocker
 import tools.nsc.doc.model.{DocTemplateEntity, Package}
@@ -44,20 +45,24 @@ object IndexOpsTests extends SpecificationWithJUnit with JMocker {
 
   "IndexOps Snippet" should {
     "Put the filter in the node" in {
+      val mockUniverser = mock[Universer]
       val mockUniverse = mock[Universe]
       val mockRootPackage = mock[Package]
+      val mockIndexer = mock[Indexer]
       expect {
+        exactly(1).of(mockUniverser).universe willReturn mockUniverse
+        exactly(1).of(mockIndexer).index
         exactly(1).of(mockUniverse).rootPackage willReturn mockRootPackage
         exactly(1).of(mockRootPackage).isRootPackage willReturn true
         exactly(1).of(mockRootPackage).templates willReturn List[DocTemplateEntity]()
         exactly(1).of(mockRootPackage).packages willReturn List[Package]()
       }
 
-      val index = new IndexOps(mockUniverse)
+      val index = new IndexOps(mockUniverser, mockIndexer)
 
-      val str = index.body(<html></html>).toString
+      val str = index.body(<html></html>).toString()
 
-      str.indexOf((<div id="filter"></div>).toString) must be >= 0
+      str.indexOf((<div id="filter"></div>).toString()) must be >= 0
     }
   }
 }
