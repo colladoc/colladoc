@@ -361,8 +361,7 @@ function filter() {
     }
     var outOwners =
         inheritHides.map(function(){
-            var r = $(this).attr("name");
-            return r
+            return $(this).attr("name")
         }).get();
     var prtVisbl = $("#visbl > ol > li.all").hasClass("in");
     $(".members > ol > li").each(function(){

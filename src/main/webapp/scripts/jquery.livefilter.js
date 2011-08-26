@@ -40,9 +40,9 @@
   $.fn.livefilter.debounce = function(func, threshold) {
     var timeout;
     return function debounced() {
-      var obj = this, args = arguments;
+      var obj = this;
       function delayed() {
-        func.apply(obj, args);
+        func.apply(obj, arguments);
         timeout = null;
       }
       if (timeout) clearTimeout(timeout);

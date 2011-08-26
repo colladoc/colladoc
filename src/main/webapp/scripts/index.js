@@ -345,7 +345,6 @@ function resizeFilterBlock() {
 }
 
 function getText(val) {
-  var stext = $(val).attr("value");
-    return stext;
+    return $(val).attr("value");
 }
 
