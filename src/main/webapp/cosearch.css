@@ -34,7 +34,7 @@
     padding: 5px 10px;
     font-size: 12pt;
     font-weight: bold;
-    text-shadow: black 1px 1px 0px;
+    text-shadow: black 1px 1px 0;
 }
 
 .value .definition {

@@ -1,5 +1,5 @@
 .help #definition {
-  background: #333 url('images/systembg.gif') repeat-x;
+    background: #333 url('images/systembg.gif') repeat-x;
 }
 
 .help a {
@@ -8,8 +8,7 @@
 }
 
 .help li {
-    list-style: disc;
-    list-style-position: inside;
+    list-style: disc inside;
     margin: 3px 3px;
 }
 

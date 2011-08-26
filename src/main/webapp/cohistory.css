@@ -62,8 +62,7 @@ span.userfilter_post {
     padding: 1px;
     font-weight: bold;
     color: black;
-    background: url("lib/filterboxbarbg.png");
-    background-repeat: repeat-x;
+    background: url("lib/filterboxbarbg.png") repeat-x;
 }
 
 #template > h3 {
@@ -76,7 +75,7 @@ span.userfilter_post {
     padding: 5px 10px;
     font-size: 12pt;
     font-weight: bold;
-    text-shadow: black 1px 1px 0px;
+    text-shadow: black 1px 1px 0;
 }
 
 .value .definition {
