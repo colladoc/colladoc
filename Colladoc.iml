@@ -27,7 +27,7 @@
     <orderEntry type="library" name="commons-fileupload_commons-fileupload_1.2.2" level="project" />
     <orderEntry type="library" name="net.liftweb_lift-util_2.9.0-1_2.4-M3" level="project" />
     <orderEntry type="library" name="joda-time_joda-time_1.6.2" level="project" />
-    <orderEntry type="library" name="javax.mail_mail_1.4.1" level="project" />
+    <orderEntry type="library" name="javax.mail_mail_1.4.4" level="project" />
     <orderEntry type="library" name="javax.activation_activation_1.1" level="project" />
     <orderEntry type="library" name="nu.validator.htmlparser_htmlparser_1.2.1" level="project" />
     <orderEntry type="library" name="commons-codec_commons-codec_1.4" level="project" />
@@ -65,46 +65,39 @@
     <orderEntry type="library" scope="TEST" name="cglib_cglib_2.1_3" level="project" />
     <orderEntry type="library" scope="TEST" name="asm_asm_1.5.3" level="project" />
     <orderEntry type="library" scope="TEST" name="org.scala-tools.testing_specs_2.8.1_1.6.6" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium_2.0b1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.testng_testng_5.14.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.beanshell_bsh_2.0b4" level="project" />
-    <orderEntry type="library" scope="TEST" name="com.google.inject_guice_2.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="aopalliance_aopalliance_1.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="com.beust_jcommander_1.7" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-chrome-driver_2.0b1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-remote-client_2.0b1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-remote-common_2.0b1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-common_2.0b1" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-firefox-driver_2.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-remote-driver_2.5.0" level="project" />
     <orderEntry type="library" scope="TEST" name="org.json_json_20080701" level="project" />
-    <orderEntry type="library" scope="TEST" name="com.google.guava_guava_r07" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.apache.httpcomponents_httpclient_4.0.2" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.apache.httpcomponents_httpcore_4.0.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-htmlunit-driver_2.0b1" level="project" />
-    <orderEntry type="library" scope="TEST" name="net.sourceforge.htmlunit_htmlunit_2.8" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-api_2.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="com.google.guava_guava_r09" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.apache.httpcomponents_httpclient_4.1.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.apache.httpcomponents_httpcore_4.1.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="commons-io_commons-io_2.0.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-server_2.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="bouncycastle_bcprov-jdk15_135" level="project" />
+    <orderEntry type="library" scope="TEST" name="mx4j_mx4j-tools_3.0.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.mortbay.jetty_servlet-api-2.5_6.1.9" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-java_2.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-android-driver_2.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-chrome-driver_2.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-htmlunit-driver_2.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="net.sourceforge.htmlunit_htmlunit_2.9" level="project" />
     <orderEntry type="library" scope="TEST" name="xalan_xalan_2.7.1" level="project" />
     <orderEntry type="library" scope="TEST" name="xalan_serializer_2.7.1" level="project" />
     <orderEntry type="library" scope="TEST" name="xml-apis_xml-apis_1.3.04" level="project" />
     <orderEntry type="library" scope="TEST" name="commons-collections_commons-collections_3.2.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="commons-lang_commons-lang_2.4" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.apache.httpcomponents_httpmime_4.0.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.apache.james_apache-mime4j_0.6" level="project" />
-    <orderEntry type="library" scope="TEST" name="net.sourceforge.htmlunit_htmlunit-core-js_2.8" level="project" />
+    <orderEntry type="library" scope="TEST" name="commons-lang_commons-lang_2.6" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.apache.httpcomponents_httpmime_4.1.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="net.sourceforge.htmlunit_htmlunit-core-js_2.9" level="project" />
     <orderEntry type="library" scope="TEST" name="xerces_xercesImpl_2.9.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="net.sourceforge.nekohtml_nekohtml_1.9.14" level="project" />
+    <orderEntry type="library" scope="TEST" name="net.sourceforge.nekohtml_nekohtml_1.9.15" level="project" />
     <orderEntry type="library" scope="TEST" name="net.sourceforge.cssparser_cssparser_0.9.5" level="project" />
     <orderEntry type="library" scope="TEST" name="org.w3c.css_sac_1.3" level="project" />
-    <orderEntry type="library" scope="TEST" name="commons-io_commons-io_1.4" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-firefox-driver_2.0b1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-ie-driver_2.0b1" level="project" />
-    <orderEntry type="library" scope="TEST" name="net.java.dev.jna_jna_3.2.2" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-iphone-driver_2.0b1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-support_2.0b1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.hamcrest_hamcrest-all_1.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-server_2.0b1" level="project" />
-    <orderEntry type="library" scope="TEST" name="ant_ant_1.6.5" level="project" />
-    <orderEntry type="library" scope="TEST" name="bouncycastle_bcprov-jdk15_135" level="project" />
-    <orderEntry type="library" scope="TEST" name="mx4j_mx4j-tools_3.0.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="org.mortbay.jetty_servlet-api-2.5_6.1.9" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-ie-driver_2.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="net.java.dev.jna_jna_3.3.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-iphone-driver_2.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.seleniumhq.selenium_selenium-support_2.5.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="org.yaml_snakeyaml_1.8" level="project" />
     <orderEntry type="library" scope="TEST" name="org.mortbay.jetty_jetty_6.1.22" level="project" />
     <orderEntry type="library" scope="TEST" name="org.mortbay.jetty_jetty-util_6.1.22" level="project" />
     <orderEntry type="library" scope="TEST" name="org.mortbay.jetty_servlet-api_2.5-20081211" level="project" />

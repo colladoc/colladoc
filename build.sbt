@@ -30,8 +30,8 @@ libraryDependencies ++= Seq(
   "cglib" % "cglib" %"2.1_3" % "test->default",
   "org.objenesis" % "objenesis" %"1.0" % "test->default",
   "org.scala-tools.testing" % "specs_2.8.1" % "1.6.6" % "test->default",
-  "org.seleniumhq.selenium" % "selenium" % "2.0b1" % "test->default",
-  "org.seleniumhq.selenium" % "selenium-server" % "2.0b1" % "test->default",
+  "org.seleniumhq.selenium" % "selenium-firefox-driver" % "2.5.0" % "test->default",
+  "org.seleniumhq.selenium" % "selenium-server" % "2.5.0" % "test->default",
   "com.h2database" % "h2" % "1.2.144" % "runtime",
   "postgresql" % "postgresql" % "8.4-701.jdbc4" % "runtime"
  )

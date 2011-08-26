@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="org.seleniumhq.selenium_selenium-ie-driver_2.5.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.seleniumhq.selenium/selenium-ie-driver/jars/selenium-ie-driver-2.5.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
