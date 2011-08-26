@@ -1,6 +1,5 @@
 package scala.tools.colladoc.page
 
-import net.liftweb.http.js.{JE, JsCmds, JsExp}
 import net.liftweb.http.js.JE._
 import xml._
 import collection.mutable.{HashSet, HashMap, Queue }
@@ -12,22 +11,25 @@ class Search(rootPack: Package) extends scala.tools.colladoc.page.Template(rootP
 
   /** Page body. */
   override val body =
-<body class="value" onload="windowTitle();" scroll="no">
+    <body class="value" onload="windowTitle();" scroll="no">
       <div id="definition">
-            <img src="/images/search_big.png"/>
-            <h1><search:count/> for: </h1><h1><span  id="searchValue" style="white-space:wrap;"><i>&laquo;<lift:SearchOps.sText/>&raquo;</i></span></h1>
-            <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;" target="_blank">Permalink</a></p>
-          </div>
-	       <search:header />
+        <img src="/images/search_big.png"/>
+        <h1><search:count /> for: </h1>
+        <h1>
+          <span id="searchValue" style="white-space:wrap;">
+            <i>&#171;<lift:SearchOps.sText/>&#187;</i>
+          </span>
+        </h1>
+        <p><a href="#" id="linkURL" style="font-size:10px;color:#ffffff;" target="_blank">Permalink</a></p>
+      </div>
+      <search:header />
 
-         <div style="bottom:0;display:block;position:absolute;width:100%;overflow:auto;top:197px;" id="searchPanel">
-            <div id="template">
-
-                   <search:results />
-
-             </div>
+      <div style="bottom:0;display:block;position:absolute;width:100%;overflow:auto;top:197px;" id="searchPanel">
+         <div id="template">
+            <search:results />
          </div>
-       <div id="tooltip" ></div>
+      </div>
+      <div id="tooltip" />
     </body>
 
  def bodyHeader(xhtml:NodeSeq):NodeSeq = {
