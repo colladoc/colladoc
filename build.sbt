@@ -1,4 +1,4 @@
-seq(WebPlugin.webSettings :_*)
+seq(webSettings :_*)
 
 name := "Colladoc"
 
@@ -22,7 +22,7 @@ libraryDependencies ++= {
 
 libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "1.6.2" % "compile",
-  "org.eclipse.jetty" % "jetty-webapp" % "7.3.0.v20110203" % "jetty",
+  "org.eclipse.jetty" % "jetty-webapp" % "7.3.0.v20110203" % "container",
   "ch.qos.logback" % "logback-classic" % "0.9.26",
   "junit" % "junit" % "4.8.2" % "test->default",
   "org.jmock" % "jmock-junit4" % "2.5.1" % "test->default",
@@ -38,8 +38,8 @@ libraryDependencies ++= Seq(
 
 resolvers += ScalaToolsSnapshots
 
-resolvers += "Jetty Repo" at "http://repo1.maven.org/maven2/org/mortbay/jetty"
+// resolvers += "Jetty Repo" at "http://repo1.maven.org/maven2/org/mortbay/jetty"
 
 resolvers += "Java.net Repo" at "http://download.java.net/maven/2/"
 
-libraryDependencies += "org.mortbay.jetty" % "jetty" % "6.1.22" % "test->default"
+// libraryDependencies += "org.mortbay.jetty" % "jetty" % "6.1.22" % "test->default"
