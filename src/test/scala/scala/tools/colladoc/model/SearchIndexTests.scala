@@ -86,7 +86,8 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock wit
       docs(1).get(SearchIndex.entityLookupField) mustEqual mockEntity.hashCode.toString
     }
 
-    "Index class: visibility, parentClass, traits that extends" in {
+    // TODO
+    /*"Index class: visibility, parentClass, traits that extends" in {
       expect {
         defaultExpectationsForPackage()
         one(mockPackage).members.willReturn(List[MemberEntity](mockClass))
@@ -140,7 +141,7 @@ object SearchIndexTests extends SpecificationWithJUnit with EntityMemberMock wit
       docs(1).get(SearchIndex.typeField) mustEqual SearchIndex.objectField
     }
 
-    /*"Index Def and stores its number of parameters, visibility, return value" in {
+    "Index Def and stores its number of parameters, visibility, return value" in {
       val mockDef = mock[Def]
       val mockVisibility = mock[Visibility]
       val mockReturnParam = mock[TypeParam]
