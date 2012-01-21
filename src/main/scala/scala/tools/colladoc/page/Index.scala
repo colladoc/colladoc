@@ -45,12 +45,12 @@ import lib.js.JqUI._
  */
 class Index(universe: Universe, index: DocIndex) extends PageIndex(universe, index) {
 
-  override def scriptElement =
+  override def browser = super.browser \+
     <div id="user">
       { if (User.loggedIn_?)
-          loggedIn
-        else
-          loggedOut
+      loggedIn
+    else
+      loggedOut
       }
     </div>
 

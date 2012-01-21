@@ -88,6 +88,7 @@ trait DynamicModelFactory extends ModelFactory { thisFactory: ModelFactory with 
     def visibility = mbr.visibility
     def flags = mbr.flags
     def deprecation = mbr.deprecation
+    def migration = mbr.migration
     def inheritedFrom = mbr.inheritedFrom
     def resultType = mbr.resultType
     def isDef = mbr.isDef
@@ -168,6 +169,7 @@ trait DynamicModelFactory extends ModelFactory { thisFactory: ModelFactory with 
    */
   private class NonTemplateMemberEntityProxy(mbr: NonTemplateMemberEntity, cmt: Comment)(tag: AnyRef) extends MemberEntityProxy(mbr, cmt)(tag) with NonTemplateMemberEntity {
     def isUseCase = mbr.isUseCase
+    def isBridge = mbr.isBridge
   }
 
   /**
