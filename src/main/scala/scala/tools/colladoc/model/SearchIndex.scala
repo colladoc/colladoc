@@ -179,13 +179,15 @@ class SearchIndex(rootPackage : Package, indexDirectory : Directory, commentToSt
     // We could be dealing with a huge list here so it's important that we cons
     // as efficiently as possible.
     var remainingMembers = members.tail
-    additionalMembers.foreach((m)=> {
-      // Make sure that we do not try to index a member that we have indexed
-      // already!
-      if (!entityLookup.containsValue(m)) {
-        remainingMembers = m :: remainingMembers
-      }
-    })
+    if (!additionalMembers.isEmpty) {
+      additionalMembers.foreach((m)=> {
+        // Make sure that we do not try to index a member that we have indexed
+        // already!
+        if (!entityLookup.containsValue(m)) {
+          remainingMembers = m :: remainingMembers
+        }
+      })
+    }
 
     // Finally, the recursive step, index the remaining members...
     // NOTE: Tail call recursion is REQUIRED here because of the depth of

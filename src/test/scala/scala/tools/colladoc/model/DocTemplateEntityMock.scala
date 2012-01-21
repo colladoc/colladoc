@@ -1,13 +1,13 @@
 package scala.tools.colladoc.model
 
-import org.specs.mock._
+import org.specs2.mock._
 import tools.nsc.doc.model._
 
 /**
  * Mock for the Classes, traits and Objects
  * @author: rumi
  */
-trait DocTemplateEntityMock extends AnyRef with JMocker with ClassMocker {
+trait DocTemplateEntityMock extends Mockito {
   val mockClass = mock[Class]
   val mockTrait = mock[Trait]
   val mockObject = mock[Object]
@@ -22,19 +22,17 @@ trait DocTemplateEntityMock extends AnyRef with JMocker with ClassMocker {
   val notTraitTemplateEntityName = "NotTestTrait"
 
   def expectationsForDocTemplateEntity(mockEntity: DocTemplateEntity) {
-    expect {
-      one(mockEntity).linearizationTemplates willReturn (List[TemplateEntity](traitTemplateEntity, notTraitTemplateEntity))
+    there was one(mockEntity).linearizationTemplates returns (List[TemplateEntity](traitTemplateEntity, notTraitTemplateEntity))
 
-      // From all TemplateEntities for the class(all with) get the name only for the one that are Traits
-      // Make sure that if EntityTemplate is not a trait its name is not added
-      one(traitTemplateEntity).name willReturn traitTemplateEntityName
-      one(notTraitTemplateEntity).name willReturn notTraitTemplateEntityName
-      allowing(traitTemplateEntity).isTrait willReturn true
-      allowing(notTraitTemplateEntity).isTrait willReturn false
+    // From all TemplateEntities for the class(all with) get the name only for the one that are Traits
+    // Make sure that if EntityTemplate is not a trait its name is not added
+    there was one(traitTemplateEntity).name returns traitTemplateEntityName
+    there was one(notTraitTemplateEntity).name returns notTraitTemplateEntityName
+    traitTemplateEntity.isTrait returns true
+    notTraitTemplateEntity.isTrait returns false
 
-      // Get the visibility of the class
-      one(mockEntity).visibility willReturn mockVisibility
-      one(mockVisibility).isPublic willReturn true
-    }
+    // Get the visibility of the class
+    there was one(mockEntity).visibility returns mockVisibility
+    there was one(mockVisibility).isPublic returns true
   }
 }

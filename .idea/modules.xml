@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Colladoc.iml" filepath="$PROJECT_DIR$/Colladoc.iml" />
-      <module fileurl="file://$PROJECT_DIR$/SBT-project.iml" filepath="$PROJECT_DIR$/SBT-project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/default.iml" filepath="$PROJECT_DIR$/.idea_modules/default.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/project.iml" filepath="$PROJECT_DIR$/.idea_modules/project.iml" />
     </modules>
   </component>
 </project>

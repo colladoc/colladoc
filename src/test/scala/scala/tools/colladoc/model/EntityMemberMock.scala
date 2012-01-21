@@ -1,6 +1,6 @@
 package scala.tools.colladoc.model
 
-import org.specs.mock._
+import org.specs2.mock._
 import tools.nsc.doc.model._
 import tools.nsc.doc.model.comment.{Body, Comment}
 import mapper.CommentToString
@@ -9,7 +9,7 @@ import mapper.CommentToString
  * Mock for entity member.
  * @author rumi
  */
-trait EntityMemberMock extends AnyRef with JMocker with ClassMocker {
+trait EntityMemberMock extends Mockito {
   // Package
   var mockPackage: Package = _
   val packageName = "Mocked Package"
@@ -36,44 +36,34 @@ trait EntityMemberMock extends AnyRef with JMocker with ClassMocker {
   }
 
   def expectationsForEmptyPackage = {
-    expect {
-      defaultExpectationsForPackage()
-      one(mockPackage).members willReturn (List[MemberEntity]())
-    }
+    defaultExpectationsForPackage()
+    one(mockPackage).members willReturn (List[MemberEntity]())
   }
 
   def expectationsForPackageWithEntity(memberEntity: MemberEntity) = {
-    expect {
-      defaultExpectationsForPackage()
-      one(mockPackage).members willReturn (List[MemberEntity](memberEntity))
-    }
+    defaultExpectationsForPackage()
+    one(mockPackage).members willReturn (List[MemberEntity](memberEntity))
   }
 
   def expectationsForAnyMemberEntityWithUserComment(mockEntity: MemberEntity) = {
-    expect {
-      one(mockEntity).name willReturn entityName
-      one(commentMapper).latestToString(mockEntity) willReturn (Some(defaultUserComment))
-      allowingMatch("members")
-    }
+    one(mockEntity).name willReturn entityName
+    one(commentMapper).latestToString(mockEntity) willReturn (Some(defaultUserComment))
+    allowingMatch("members")
   }
 
   def expectationsForAnyMemberEntityWithComment(mockEntity: MemberEntity) = {
     val entityComment: Comment = new TestComment()
-    expect {
-      one(mockEntity).name willReturn entityName
-      one(commentMapper).latestToString(mockEntity) willReturn (None)
-      one(mockEntity).comment willReturn (Some(entityComment))
-      allowingMatch("members")
-    }
+    one(mockEntity).name willReturn entityName
+    one(commentMapper).latestToString(mockEntity) willReturn (None)
+    one(mockEntity).comment willReturn (Some(entityComment))
+    allowingMatch("members")
   }
 
   def expectationsForAnyMemberEntityWithoutComment(mockEntity: MemberEntity) = {
-    expect {
-      one(mockEntity).name willReturn entityName
-      one(commentMapper).latestToString(mockEntity) willReturn (None)
-      one(mockEntity).comment willReturn (None)
-      allowingMatch("members")
-    }
+    one(mockEntity).name willReturn entityName
+    one(commentMapper).latestToString(mockEntity) willReturn (None)
+    one(mockEntity).comment willReturn (None)
+    allowingMatch("members")
   }
 
   // Although Comment class can be mocked, expectations cannot be applied to the toString method

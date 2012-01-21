@@ -1,6 +1,7 @@
 package scala.tools.colladoc.integration
 
-import org.specs.Specification
+import org.specs2.mutable._
+import org.specs2.specification._
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.webapp.WebAppContext
 import org.openqa.selenium.server.{RemoteControlConfiguration, SeleniumServer}
@@ -8,14 +9,16 @@ import com.thoughtworks.selenium.DefaultSelenium
 import tools.colladoc.lib.DependencyFactory
 import tools.colladoc.util.TestProps
 
-object SearchEndToEndTests extends Specification {
+trait SearchEndToEndTests extends Specification {
   private val pageLoadTimeoutInMs = "30000"
 
   private var server : Server = null
   private var selenium : DefaultSelenium = null
   private var seleniumServer : SeleniumServer = null
 
-  doBeforeSpec {
+  override def map(fs: => Fragments) = Step(startSelenium) ^ fs ^ Step(stopSelenium)
+
+  def startSelenium = {
     val GUI_PORT             = 8080
     val SELENIUM_SERVER_PORT = 4444
 
@@ -43,10 +46,18 @@ object SearchEndToEndTests extends Specification {
 
     // Setting up the Selenium Client for the duration of the tests
     selenium = new DefaultSelenium("localhost",
-                                   SELENIUM_SERVER_PORT,
-                                   "*firefox",
-                                   "http://localhost:"+GUI_PORT+"/")
+      SELENIUM_SERVER_PORT,
+      "*firefox",
+      "http://localhost:"+GUI_PORT+"/")
     selenium.start()
+  }
+
+  def stopSelenium = {
+    // Close everything when done
+    selenium.close()
+    selenium.stop()
+    server.stop()
+    seleniumServer.stop()
   }
 
   // TODO: setup selenium in the right way!
@@ -87,14 +98,6 @@ object SearchEndToEndTests extends Specification {
       selenium.getTitle() mustMatch "Search"
     }
   }*/
-
-  doAfterSpec {
-    // Close everything when done
-    selenium.close()
-    selenium.stop()
-    server.stop()
-    seleniumServer.stop()
-  }
 
   private def enterSearchQuery(q : String) = {
     selenium.`type`("svalue", q)

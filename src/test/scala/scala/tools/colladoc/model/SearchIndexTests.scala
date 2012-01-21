@@ -1,7 +1,7 @@
 package scala.tools.colladoc.model
 
 import tools.nsc.doc.model._
-import org.specs.SpecificationWithJUnit
+import org.specs2.SpecificationWithJUnit
 import tools.nsc.doc.model.MemberEntity
 import org.apache.lucene.store.{RAMDirectory, Directory}
 import tools.nsc.doc.model.Package
