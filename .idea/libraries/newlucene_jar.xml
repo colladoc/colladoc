@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="newlucene.jar">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/newlucene.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

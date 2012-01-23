@@ -1,16 +1,25 @@
-# SBT files
+*.class
+*.log
+
+# XSBT specific
 target/
 project/boot/
 lucene-index/
 
-# IDEA workspace files
+# IntelliJ IDEA specific
+.idea/
+.idea_modules/
 *.iws
+*.iml
 
-# H2 database files
+# Scala IDE specific
+.project
+.scala_dependencies
+
+# H2 database specific
 *.db
 
 # The default.props file. We cannot commit this props file with useful values
 # (e.g. classpath and sourcepath with relative paths) so it would just add extra
-# set up work (running the script to set paths) everytime our repository
-# changes.
+# set up work (running the script to set paths) everytime our repository changes.
 default.props

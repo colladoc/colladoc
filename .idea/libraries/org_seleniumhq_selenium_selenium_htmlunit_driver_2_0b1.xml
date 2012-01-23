@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="org.seleniumhq.selenium_selenium-htmlunit-driver_2.0b1">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/.ivy2/cache/org.seleniumhq.selenium/selenium-htmlunit-driver/jars/selenium-htmlunit-driver-2.0b1.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

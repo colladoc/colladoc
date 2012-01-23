@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="org.yaml_snakeyaml_1.8">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/.ivy2/cache/org.yaml/snakeyaml/jars/snakeyaml-1.8.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
