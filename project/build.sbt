@@ -9,4 +9,4 @@ resolvers ++= Seq(
   "Proguard plugin repo" at "http://siasia.github.com/maven2"
 )
 
-addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "0.11.1-SNAPSHOT")
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.0.0")
